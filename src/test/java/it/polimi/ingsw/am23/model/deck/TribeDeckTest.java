@@ -14,8 +14,8 @@ class TribeDeckTest {
     @Test
     void drawAndPeekRespectOrder() {
         List<Card> cards = List.of(
-                new ArtistCard("a1", Era.ERA_1, 0),
-                new ArtistCard("a2", Era.ERA_1, 0)
+                new ArtistCard("a1", Era.ERA_1, 0, 2),
+                new ArtistCard("a2", Era.ERA_1, 0, 2)
         );
         TribeDeck deck = new TribeDeck(cards);
 
@@ -37,12 +37,12 @@ class TribeDeckTest {
 
     @Test
     void getCardsReturnsUnmodifiableCopy() {
-        List<Card> cards = List.of(new ArtistCard("a1", Era.ERA_1, 0));
+        List<Card> cards = List.of(new ArtistCard("a1", Era.ERA_1, 0, 4));
         TribeDeck deck = new TribeDeck(cards);
 
         List<Card> snapshot = deck.getCards();
         assertEquals(1, snapshot.size());
         assertEquals("a1", snapshot.getFirst().getId());
-        assertThrows(UnsupportedOperationException.class, () -> snapshot.add(new ArtistCard("a2", Era.ERA_1, 0)));
+        assertThrows(UnsupportedOperationException.class, () -> snapshot.add(new ArtistCard("a2", Era.ERA_1, 0, 3)));
     }
 }

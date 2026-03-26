@@ -9,7 +9,7 @@ class BuilderCardTest {
 
     @Test
     void getDiscountReturnsValue() {
-        BuilderCard card = new BuilderCard("b1", Era.ERA_1, 0, 2);
+        BuilderCard card = new BuilderCard("b1", Era.ERA_1, 0, 2, 1);
         assertEquals(2, card.getDiscount());
     }
 }

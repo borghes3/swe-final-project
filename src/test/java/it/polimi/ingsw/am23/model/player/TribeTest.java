@@ -20,9 +20,9 @@ class TribeTest {
     @Test
     void addCharacterCountsByType() {
         Tribe tribe = new Tribe();
-        tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false));
-        tribe.addCharacter(new HunterCard("h2", Era.ERA_1, 0, false));
-        tribe.addCharacter(new GathererCard("g1", Era.ERA_1, 0));
+        tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false, 3));
+        tribe.addCharacter(new HunterCard("h2", Era.ERA_1, 0, false, 3));
+        tribe.addCharacter(new GathererCard("g1", Era.ERA_1, 0, 3));
 
         assertEquals(2, tribe.count(CharacterType.HUNTER));
         assertEquals(1, tribe.count(CharacterType.GATHERER));
@@ -32,9 +32,9 @@ class TribeTest {
     @Test
     void totalShamanStarsSumsOnlyShamans() {
         Tribe tribe = new Tribe();
-        tribe.addCharacter(new ShamanCard("s1", Era.ERA_1, 0, 2));
-        tribe.addCharacter(new ShamanCard("s2", Era.ERA_1, 0, 3));
-        tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false));
+        tribe.addCharacter(new ShamanCard("s1", Era.ERA_1, 0, 2, 3));
+        tribe.addCharacter(new ShamanCard("s2", Era.ERA_1, 0, 3, 3));
+        tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false, 4));
 
         assertEquals(5, tribe.totalShamanStars());
     }
@@ -42,12 +42,12 @@ class TribeTest {
     @Test
     void countCompletedSetsUsesMinimumAcrossTypes() {
         Tribe tribe = new Tribe();
-        tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false));
-        tribe.addCharacter(new GathererCard("g1", Era.ERA_1, 0));
-        tribe.addCharacter(new BuilderCard("b1", Era.ERA_1, 0, 0));
-        tribe.addCharacter(new ShamanCard("s1", Era.ERA_1, 0, 1));
-        tribe.addCharacter(new ArtistCard("a1", Era.ERA_1, 0));
-        tribe.addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT));
+        tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false, 3));
+        tribe.addCharacter(new GathererCard("g1", Era.ERA_1, 0, 3));
+        tribe.addCharacter(new BuilderCard("b1", Era.ERA_1, 0, 0, 2));
+        tribe.addCharacter(new ShamanCard("s1", Era.ERA_1, 0, 1, 3));
+        tribe.addCharacter(new ArtistCard("a1", Era.ERA_1, 0, 2));
+        tribe.addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 3));
 
         assertEquals(1, tribe.countCompletedSets());
     }
@@ -55,10 +55,10 @@ class TribeTest {
     @Test
     void countInventorPairsByIconCountsPairs() {
         Tribe tribe = new Tribe();
-        tribe.addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT));
-        tribe.addCharacter(new InventorCard("i2", Era.ERA_1, 0, InventionIcon.BOAT));
-        tribe.addCharacter(new InventorCard("i3", Era.ERA_1, 0, InventionIcon.BOAT));
-        tribe.addCharacter(new InventorCard("i4", Era.ERA_1, 0, InventionIcon.ARROW));
+        tribe.addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 4));
+        tribe.addCharacter(new InventorCard("i2", Era.ERA_1, 0, InventionIcon.BOAT, 3));
+        tribe.addCharacter(new InventorCard("i3", Era.ERA_1, 0, InventionIcon.BOAT, 2));
+        tribe.addCharacter(new InventorCard("i4", Era.ERA_1, 0, InventionIcon.ARROW, 2));
 
         assertEquals(1, tribe.countInventorPairsByIcon());
     }
@@ -66,9 +66,9 @@ class TribeTest {
     @Test
     void distinctInventionIconsCountsUniqueIcons() {
         Tribe tribe = new Tribe();
-        tribe.addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT));
-        tribe.addCharacter(new InventorCard("i2", Era.ERA_1, 0, InventionIcon.BOAT));
-        tribe.addCharacter(new InventorCard("i3", Era.ERA_1, 0, InventionIcon.ARROW));
+        tribe.addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 2));
+        tribe.addCharacter(new InventorCard("i2", Era.ERA_1, 0, InventionIcon.BOAT, 2));
+        tribe.addCharacter(new InventorCard("i3", Era.ERA_1, 0, InventionIcon.ARROW,2));
 
         assertEquals(2, tribe.getDistinctInventionIcons());
     }
@@ -85,7 +85,7 @@ class TribeTest {
     @Test
     void getCharactersReturnsUnmodifiableList() {
         Tribe tribe = new Tribe();
-        assertThrows(UnsupportedOperationException.class, () -> tribe.getCharacters().add(new ArtistCard("a1", Era.ERA_1, 0)));
+        assertThrows(UnsupportedOperationException.class, () -> tribe.getCharacters().add(new ArtistCard("a1", Era.ERA_1, 0, 2)));
     }
 
     @Test

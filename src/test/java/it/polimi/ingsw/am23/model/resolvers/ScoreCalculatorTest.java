@@ -70,11 +70,11 @@ class ScoreCalculatorTest {
     }
 
     private static void addScoringCards(Player player) {
-        player.getTribe().addCharacter(new BuilderCard("b1", Era.ERA_1, 3, 0));
-        player.getTribe().addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT));
-        player.getTribe().addCharacter(new InventorCard("i2", Era.ERA_1, 0, InventionIcon.ARROW));
-        player.getTribe().addCharacter(new ArtistCard("a1", Era.ERA_1, 0));
-        player.getTribe().addCharacter(new ArtistCard("a2", Era.ERA_1, 0));
+        player.getTribe().addCharacter(new BuilderCard("b1", Era.ERA_1, 3, 0, 2));
+        player.getTribe().addCharacter(new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 3));
+        player.getTribe().addCharacter(new InventorCard("i2", Era.ERA_1, 0, InventionIcon.ARROW, 2));
+        player.getTribe().addCharacter(new ArtistCard("a1", Era.ERA_1, 0, 2));
+        player.getTribe().addCharacter(new ArtistCard("a2", Era.ERA_1, 0, 3));
         player.getTribe().addBuilding(building("bd1", 2, 1));
     }
 

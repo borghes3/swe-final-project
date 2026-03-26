@@ -10,8 +10,8 @@ public class HunterCard extends CharacterCard{
 
     private final boolean hasFoodSymbol;
 
-    public HunterCard(String id, Era era, int points, boolean hasFoodSymbol) {
-        super(id, era, points, CharacterType.HUNTER);
+    public HunterCard(String id, Era era, int points, boolean hasFoodSymbol, int minPlayers) {
+        super(id, era, points, CharacterType.HUNTER,  minPlayers);
         this.hasFoodSymbol = hasFoodSymbol;
     }
 

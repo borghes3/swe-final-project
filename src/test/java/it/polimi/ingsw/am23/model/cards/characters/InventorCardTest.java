@@ -10,12 +10,12 @@ class InventorCardTest {
 
     @Test
     void constructorRejectsNullIcon() {
-        assertThrows(NullPointerException.class, () -> new InventorCard("i1", Era.ERA_1, 0, null));
+        assertThrows(NullPointerException.class, () -> new InventorCard("i1", Era.ERA_1, 0, null, 3));
     }
 
     @Test
     void getIconReturnsValue() {
-        InventorCard card = new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT);
+        InventorCard card = new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 3);
         assertEquals(InventionIcon.BOAT, card.getIcon());
     }
 }

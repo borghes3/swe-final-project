@@ -11,7 +11,7 @@ class ArtistCardTest {
 
     @Test
     void characterTypeIsArtist() {
-        ArtistCard card = new ArtistCard("a1", Era.ERA_1, 0);
+        ArtistCard card = new ArtistCard("a1", Era.ERA_1, 0, 2);
         assertEquals(CharacterType.ARTIST, card.getCharacterType());
     }
 }

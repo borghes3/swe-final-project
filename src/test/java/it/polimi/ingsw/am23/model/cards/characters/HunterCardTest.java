@@ -14,11 +14,11 @@ class HunterCardTest {
         Player player = new Player("p1", "nick", 0, 0, "red");
         Game game = new Game();
 
-        HunterCard first = new HunterCard("h1", Era.ERA_1, 0, true);
+        HunterCard first = new HunterCard("h1", Era.ERA_1, 0, true, 2);
         first.onTaken(game, player);
         assertEquals(1, player.getFood());
 
-        HunterCard second = new HunterCard("h2", Era.ERA_1, 0, true);
+        HunterCard second = new HunterCard("h2", Era.ERA_1, 0, true, 2);
         second.onTaken(game, player);
         assertEquals(3, player.getFood());
     }
@@ -28,7 +28,7 @@ class HunterCardTest {
         Player player = new Player("p1", "nick", 0, 0, "red");
         Game game = new Game();
 
-        HunterCard hunter = new HunterCard("h1", Era.ERA_1, 0, false);
+        HunterCard hunter = new HunterCard("h1", Era.ERA_1, 0, false, 3);
         hunter.onTaken(game, player);
 
         assertEquals(0, player.getFood());

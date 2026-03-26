@@ -2,38 +2,51 @@ package it.polimi.ingsw.am23.model.player;
 
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.CharacterCard;
-import it.polimi.ingsw.am23.model.cards.characters.InventorCard;
-import it.polimi.ingsw.am23.model.cards.characters.ShamanCard;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.InventionIcon;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Objects;
 
-
 public class Tribe {
-    private final List<CharacterCard> characters;
+
+    private final List<CharacterCard> characters; //questa la teniamo per poi la view
     private final List<BuildingCard> buildings;
+
+    private final EnumMap<CharacterType, Integer> characterCounts;
+    private final EnumMap<InventionIcon, Integer> inventorIconCounts;
+    private int totalShamanStars;
 
     public Tribe() {
         this.characters = new ArrayList<>();
         this.buildings = new ArrayList<>();
+
+        this.characterCounts = new EnumMap<>(CharacterType.class);
+        for (CharacterType type : CharacterType.values()) {
+            this.characterCounts.put(type, 0);
+        }
+
+        this.inventorIconCounts = new EnumMap<>(InventionIcon.class);
+        this.totalShamanStars = 0;
     }
 
     public void addCharacter(CharacterCard character) {
-        this.characters.add(Objects.requireNonNull(character));
+        Objects.requireNonNull(character, "character cannot be null");
+
+        this.characters.add(character);
+
+        CharacterType type = character.getCharacterType();
+        this.characterCounts.put(type, this.characterCounts.get(type) + 1);
     }
 
     public void addBuilding(BuildingCard building) {
-        this.buildings.add(Objects.requireNonNull(building));
+        this.buildings.add(Objects.requireNonNull(building, "building cannot be null"));
     }
 
     public List<CharacterCard> getCharacters() {
-        return List.copyOf(this.characters); //immutabile
+        return List.copyOf(this.characters);
     }
 
     public List<BuildingCard> getBuildings() {
@@ -41,66 +54,54 @@ public class Tribe {
     }
 
     public int count(CharacterType type) {
-        int count = 0;
-        for(CharacterCard card: characters) {
-            if(card.getCharacterType() == type){
-                count++;
-            }
-        }
-        return count;
+        Objects.requireNonNull(type, "type cannot be null");
+        return this.characterCounts.getOrDefault(type, 0);
     }
 
-    public int totalShamanStars(){
-        int total = 0;
-        for(CharacterCard card : characters) {
-            if(card instanceof ShamanCard shaman){
-                total += shaman.getStars();
-            }
-        }
-        return total;
+    public int totalShamanStars() {
+        return this.totalShamanStars;
     }
 
-    public int countCompletedSets(){
+    public int countCompletedSets() {
         int minCount = Integer.MAX_VALUE;
 
-        for(CharacterType type : CharacterType.values()) {
+        for (CharacterType type : CharacterType.values()) {
             int currentCount = count(type);
             minCount = Math.min(minCount, currentCount);
         }
+
         return minCount == Integer.MAX_VALUE ? 0 : minCount;
     }
 
-    public int countInventorPairsByIcon(){
-        Map<InventionIcon, Integer> iconCounts = new EnumMap<>(InventionIcon.class);
-
-        for(CharacterCard card : characters){
-            if(card instanceof InventorCard inventor){
-                InventionIcon icon = inventor.getIcon();
-                iconCounts.put(icon, iconCounts.getOrDefault(icon, 0) + 1);
-            }
-        }
+    public int countInventorPairsByIcon() {
         int pairs = 0;
-        for(int count : iconCounts.values()){
-            pairs += count/2;
+
+        for (int count : inventorIconCounts.values()) {
+            pairs += count / 2;
         }
+
         return pairs;
     }
 
-    public boolean hasBuildings(){
+    public boolean hasBuildings() {
         return !buildings.isEmpty();
     }
 
-    // Restituisce il numero di icone degli inventori distinte
-    public int getDistinctInventionIcons(){
-        List<InventionIcon> icons = new ArrayList<>();
-        for(CharacterCard card: characters){
-            if(card instanceof InventorCard inventor){
-                if(!icons.contains(inventor.getIcon())){
-                    icons.add(inventor.getIcon());
-                }
-            }
-        }
-        return icons.size();
+    public int getDistinctInventionIcons() {
+        return inventorIconCounts.size();
     }
 
+    // ---- metodi di supporto usati dalle carte in onAddedToTribe() ----
+
+    public void incrementInventorIconCount(InventionIcon icon) {
+        Objects.requireNonNull(icon, "icon cannot be null");
+        inventorIconCounts.put(icon, inventorIconCounts.getOrDefault(icon, 0) + 1);
+    }
+
+    public void addShamanStars(int stars) {
+        if (stars < 0) {
+            throw new IllegalArgumentException("stars cannot be negative");
+        }
+        totalShamanStars += stars;
+    }
 }

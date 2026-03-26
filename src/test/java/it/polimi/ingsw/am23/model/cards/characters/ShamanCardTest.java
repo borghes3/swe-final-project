@@ -9,7 +9,7 @@ class ShamanCardTest {
 
     @Test
     void getStarsReturnsValue() {
-        ShamanCard card = new ShamanCard("s1", Era.ERA_1, 0, 3);
+        ShamanCard card = new ShamanCard("s1", Era.ERA_1, 0, 3, 3);
         assertEquals(3, card.getStars());
     }
 }

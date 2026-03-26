@@ -10,7 +10,7 @@ class GathererCardTest {
 
     @Test
     void characterTypeIsGatherer() {
-        GathererCard card = new GathererCard("g1", Era.ERA_1, 0);
+        GathererCard card = new GathererCard("g1", Era.ERA_1, 0, 3);
         assertEquals(CharacterType.GATHERER, card.getCharacterType());
     }
 }
