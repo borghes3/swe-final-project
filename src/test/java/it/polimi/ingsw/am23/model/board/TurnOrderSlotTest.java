@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.model.board;
 
+import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,7 +14,7 @@ class TurnOrderSlotTest {
 
         slot.placeTotem("p1");
         assertFalse(slot.isFree());
-        assertEquals("p1", slot.getOccupiedByPlayerId());
+        assertEquals("p1", slot.getPlayerId());
 
         slot.clear();
         assertTrue(slot.isFree());

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.model.board;
 
+import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

@@ -5,6 +5,7 @@ import it.polimi.ingsw.am23.model.board.*;
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
 import it.polimi.ingsw.am23.model.cards.CharacterCard;
+import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
 import it.polimi.ingsw.am23.model.enums.Era;
@@ -13,9 +14,7 @@ import it.polimi.ingsw.am23.model.enums.RowType;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.resolvers.EventResolver;
 import it.polimi.ingsw.am23.model.resolvers.ScoreCalculator;
-import it.polimi.ingsw.am23.model.state.BoardState;
 import it.polimi.ingsw.am23.model.state.GameState;
-import it.polimi.ingsw.am23.model.state.PlayerState;
 
 import java.util.*;
 
@@ -39,12 +38,29 @@ public class Game implements GameModel {
     private GamePhase phase;
     private String pendingExtraDrawPlayerId;
 
+    // Pescaggio carte
+    private Player currentDrawingPlayer;
+    private int drawnCardsCount;
+
     // Risoluzione
     private String currentResolvingPlayerId;
     private int remainingTotems;
     private int remainingBottomDraws;
     private boolean buildingBuiltInCurrentResolution;
     private boolean currentResolutionInitialized;
+
+    public Game(List<Player> players, Board board, TribeDeck tribeDeck, BuildingDeck buildingDeck, RoundManager roundManager, EventResolver eventResolver, CardMarket cardMarket, Era currentEra, int currentRound) {
+        this.players = players;
+        this.board = board;
+        this.tribeDeck = tribeDeck;
+        this.buildingDeck = buildingDeck;
+        this.roundManager = roundManager;
+        this.eventResolver = eventResolver;
+        this.scoreCalculator = scoreCalculator;
+        this.cardMarket = cardMarket;
+        this.currentEra = currentEra;
+        this.currentRound = currentRound;
+    }
 
     // PUBBLICI
     public void startGame() {
@@ -63,17 +79,18 @@ public class Game implements GameModel {
     public ActionResult placeTotem(String playerId, int offerTilePosition) {
         Player p = findPlayer(playerId);
         OfferTile tile = board.getOfferTile(offerTilePosition);
+
         // Verifico che la tile sia vuota
         if (!tile.isFree()) {
             throw new TileNotEmptyException("The selected offer tile is not empty");
         }
         tile.placeTotem(p.getId()); // non uso playerId, anche se precedentemente validato, non ci fidiamo del client
+
         // Azioni della tessera tracciato delle offerte
         OfferAction actions = tile.getAction();
         p.addFood(actions.getFoodReward());         // food reward
         // TODO: GESTIRE IL NUMERO DI CARTE PRESE FINORA E VERIFICARE SE PUÓ PRENDERNE ALTRE
 
-        return new ActionResult();
         gameState = buildGameState();
         notifyGameStateChanged();
         return new ActionResult();  // TODO: cosa deve contenere ActionResult?

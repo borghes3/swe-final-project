@@ -11,7 +11,7 @@ public class Player {
     private final Tribe tribe;
     private final Totem totem;
 
-    public Player(String id, String nickname, int food, int prestigePoints, String totemColor) {
+    public Player(String id, String nickname, int food, int prestigePoints, Totem totem) {
         this.id = Objects.requireNonNull(id);
         this.nickname = Objects.requireNonNull(nickname);
 
@@ -22,7 +22,7 @@ public class Player {
         this.food = food;
         this.prestigePoints = prestigePoints;
         this.tribe = new Tribe();
-        this.totem = new Totem(id, totemColor);
+        this.totem = totem;
     }
 
     public String getId() {

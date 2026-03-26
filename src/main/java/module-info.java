@@ -2,6 +2,8 @@ module it.polimi.ingsw.am23 {
     requires javafx.controls;
     requires javafx.fxml;
     requires it.polimi.ingsw.am23;
+    requires jdk.jfr;
+    requires java.desktop;
 
 
     opens it.polimi.ingsw.am23 to javafx.fxml;
