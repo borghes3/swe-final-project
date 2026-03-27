@@ -3,7 +3,8 @@ package it.polimi.ingsw.am23.model.setup;
 public class PlayerConnectionInfo {
     private String id;
     private String nickname;
-
+    // TODO: Aggiungere colore scelto dal controller
+    
     public PlayerConnectionInfo(String id, String nickname) {
         this.id = id;
         this.nickname = nickname;

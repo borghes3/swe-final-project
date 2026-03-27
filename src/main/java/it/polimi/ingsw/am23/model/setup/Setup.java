@@ -112,7 +112,7 @@ public class Setup {
         era3.addAll(events.stream().filter(e -> e.getEra() == Era.ERA_3).toList());
         Collections.shuffle(era3);
 
-        List<EventCard> finalEvents = new ArrayList<>(events.stream().filter(e -> e.getEra() == Era.FINAL_EVENT).toList());
+        List<EventCard> finalEvents = new ArrayList<>(events.stream().filter(EventCard::isFinal).toList());
         Collections.shuffle(finalEvents);
 
         // Creo la lista finale

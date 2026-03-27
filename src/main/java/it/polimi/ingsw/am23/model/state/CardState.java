@@ -21,7 +21,7 @@ public final class CardState {
                      CardKind cardKind,
                      CharacterType characterType,
                      Integer foodCost,
-                     int printedPoints){
+                     int printedPoints) {
         this.cardId = Objects.requireNonNull(cardId, "cardId cannot be null");
         this.era = Objects.requireNonNull(era, "era cannot be null");
         this.cardKind = Objects.requireNonNull(cardKind, "cardKind cannot be null");

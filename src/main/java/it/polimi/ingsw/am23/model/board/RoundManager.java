@@ -5,7 +5,7 @@ import java.util.List;
 
 public class RoundManager {
     private List<String> placingOrder;
-    private List<String> resolvingOrder;
+    private List<String> resolvingOrder;        // Relativo all'ordine in cui si pescano le carte dal tracciato offerte
     private int placingIndex;
     private int resolvingIndex;
 

@@ -8,5 +8,7 @@ public interface ModelObserver {
 
     void onGameStateChanged(GameState gameState);
 
+    void onEndOfPlacingPhase(GameState gameState);
+
     void onGameOver();
 }
