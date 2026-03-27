@@ -12,8 +12,11 @@ import java.util.List;
 
 public class HuntingEventCard extends EventCard {
 
-    public HuntingEventCard(String id, Era era, int points){
+    private final int pointsPerHunter;
+
+    public HuntingEventCard(String id, Era era, int points, int pointsPerHunter) {
         super(id, era, points);
+        this.pointsPerHunter = pointsPerHunter;
     }
 
     @Override
@@ -22,7 +25,9 @@ public class HuntingEventCard extends EventCard {
 
         for(Player player : players){
             int baseFood = calculateBaseFood(player);
+            int basePoints = calculateBasePoints(player);
             player.addFood(baseFood);
+            player.addPrestigePoints(basePoints);
 
             HuntingEffectData data = new HuntingEffectData();
             for(BuildingCard building : player.getTribe().getBuildings()){
@@ -36,5 +41,9 @@ public class HuntingEventCard extends EventCard {
 
     private int calculateBaseFood(Player player){
         return player.getTribe().count(CharacterType.HUNTER);
+    }
+
+    private int calculateBasePoints(Player player){
+        return  player.getTribe().count(CharacterType.HUNTER)*pointsPerHunter;
     }
 }
