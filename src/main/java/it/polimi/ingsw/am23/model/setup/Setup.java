@@ -53,9 +53,9 @@ public class Setup {
         // Creo tutti gli elementi necessari per la creazione delle componenti del game
         List<OfferTile> filteredOfferTiles = createOfferTrack(offerTiles);
         TurnOrderTile selectedTurnOrderTile = selectTurnOrderTile(turnOrderTiles);
-        TribeDeck sortedTribeDeckList = buildTribeDeck(eventCards, characterCards);
-        DrawResult drawResult = drawCards(sortedTribeDeckList);                                                 // Campi: upperRow, lowerRow, tribeDeck (ridotto alle carte pescate)
-        BuildingDrawResult buildingsResult = drawBuildings(drawResult.upperRow(), buildingCards);               // Campi: era1Buildings, buildingDeck(era 2 + era 3)
+        TribeDeck sortedTribeDeck = buildTribeDeck(eventCards, characterCards);
+        DrawResult drawResult = drawCards(sortedTribeDeck);                                                     // Campi: upperRow, lowerRow, tribeDeck (ridotto alle carte pescate)
+        BuildingDrawResult buildingsResult = drawBuildings(buildingCards);                                      // Campi: era1Buildings, buildingDeck(era 2 + era 3)
         List<Player> players = createPlayersAndTotems(playersInfo);
         List<String> orderedPlayersId = randomlyPlaceTotems(selectedTurnOrderTile, players);
         dealFood(selectedTurnOrderTile, players);
@@ -152,11 +152,23 @@ public class Setup {
     private record BuildingDrawResult(List<BuildingCard> era1Buildings, BuildingDeck buildingDeck) {
     }
 
-    private BuildingDrawResult drawBuildings(List<Card> upperRow, List<BuildingCard> buildings) {
+    private BuildingDrawResult drawBuildings(List<BuildingCard> buildings) {
+        int[][] buildingsByNumberOfPlayers = {
+                {1, 2, 3},      // 2 players
+                {2, 2, 4},      // 3 players
+                {2, 3, 4},      // 4 players
+                {2, 3, 5},      // 5 players
+        };
         // Creo tre mazzetti Era1, Era 2, Era 3 buildings
-        List<BuildingCard> era1Buildings = buildings.stream().filter(b -> b.getEra() == Era.ERA_1).toList();
+        List<BuildingCard> era1Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_1).toList());
+        Collections.shuffle(era1Buildings);
+        era1Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][0]);
         List<BuildingCard> era2Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_2).toList());
+        Collections.shuffle(era2Buildings);
+        era2Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][1]);
         List<BuildingCard> era3Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_3).toList());
+        Collections.shuffle(era3Buildings);
+        era3Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][2]);
 
         // Costruisco BuildingDeck con le carte di era 2 ed era 3 (le carte di era 1 vengono ritornate separatamente per istanziare il game, vedi constructor game)
         BuildingDeck buildingDeck = new BuildingDeck(Map.of(
@@ -167,7 +179,7 @@ public class Setup {
     }
 
     // Sceglie colori in base all'ordine dell'enum TotemColors e li assegna ai player
-    // TODO: Implementare scelta del colore da parte dell'utente
+    // TODO: Implementare scelta del colore da parte dell'utente (NEL CONTROLLER)
     private List<Player> createPlayersAndTotems(List<PlayerConnectionInfo> playersInfo) {
         List<Player> players = new ArrayList<>();
         TotemColors[] colors = TotemColors.values();
