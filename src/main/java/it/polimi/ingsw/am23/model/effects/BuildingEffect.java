@@ -37,4 +37,6 @@ public interface BuildingEffect {
     default int getEndGamePoints(Game game, Player player){
         return 0;
     } // per calcolo finale dei punti
+
+    default void onBuildingAdded(Player player){}
 }

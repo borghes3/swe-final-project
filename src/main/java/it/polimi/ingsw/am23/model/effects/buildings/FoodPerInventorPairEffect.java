@@ -8,4 +8,21 @@ import it.polimi.ingsw.am23.model.player.Player;
 public class FoodPerInventorPairEffect implements BuildingEffect {
         //TODO: rifare logica controllo set e chiamata da game
 
+    private int lastKnownPairs = 0;
+
+    @Override
+    public void onBuildingAdded(Player player) {
+        // memorizzo le coppie già esistenti
+        lastKnownPairs = player.getTribe().countInventorPairsByIcon();
+    }
+
+    @Override
+    public void onCardTaken(Game game, Player player, Card card) {
+        int currentPairs = player.getTribe().countInventorPairsByIcon();
+        if (currentPairs > lastKnownPairs) {
+            player.addFood(3 * (currentPairs - lastKnownPairs));
+            lastKnownPairs = currentPairs;
+        }
+    }
+
 }
