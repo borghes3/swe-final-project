@@ -11,7 +11,6 @@ import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.board.Board;
 import it.polimi.ingsw.am23.model.board.CardMarket;
 import it.polimi.ingsw.am23.model.board.OfferTile;
-import it.polimi.ingsw.am23.model.board.RoundManager;
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
 import it.polimi.ingsw.am23.model.cards.CharacterCard;
@@ -57,14 +56,13 @@ public class Setup {
         DrawResult drawResult = drawCards(sortedTribeDeck);                                                     // Campi: upperRow, lowerRow, tribeDeck (ridotto alle carte pescate)
         BuildingDrawResult buildingsResult = drawBuildings(buildingCards);                                      // Campi: era1Buildings, buildingDeck(era 2 + era 3)
         List<Player> players = createPlayersAndTotems(playersInfo);
-        List<String> orderedPlayersId = randomlyPlaceTotems(selectedTurnOrderTile, players);
+        randomlyPlaceTotems(selectedTurnOrderTile, players);
         dealFood(selectedTurnOrderTile, players);
 
-        CardMarket cardMarket = new CardMarket(drawResult.upperRow(), drawResult.lowerRow(), buildingsResult.era1Buildings(), null);
-        Board board = new Board(cardMarket, filteredOfferTiles, selectedTurnOrderTile);
-        RoundManager roundManager = new RoundManager(orderedPlayersId);
+        CardMarket cardMarket = new CardMarket(drawResult.upperRow(), drawResult.lowerRow(), buildingsResult.era1Buildings());
+        Board board = new Board(filteredOfferTiles, selectedTurnOrderTile);
 
-        return new Game(players, board, drawResult.tribeDeck(), buildingsResult.buildingDeck(), roundManager, new EventResolver(), cardMarket, Era.ERA_1, 0);
+        return new Game(players, board, drawResult.tribeDeck(), buildingsResult.buildingDeck(), new EventResolver(), cardMarket, Era.ERA_1, 0);
     }
 
     // ----------------------------------------------
@@ -194,14 +192,14 @@ public class Setup {
     }
 
     // Prima mescola i players e successivamente li piazza negli slot della Turn Order tile
-    private List<String> randomlyPlaceTotems(TurnOrderTile tile, List<Player> players) {
+    private void randomlyPlaceTotems(TurnOrderTile tile, List<Player> players) {
         List<Player> shuffledPlayers = new ArrayList<>(players);
         Collections.shuffle(shuffledPlayers);
         for (int i = 0; i < numberOfPlayers; i++) {
             Player p = shuffledPlayers.get(i);
             tile.getSlot(i).placeTotem(p.getId());
         }
-        return shuffledPlayers.stream().map(Player::getId).collect(Collectors.toList());    // Restituisce playerId con lo stesso ordine con cui li ho piazzati
+//        return shuffledPlayers.stream().map(Player::getId).collect(Collectors.toList());    // Restituisce playerId con lo stesso ordine con cui li ho piazzati
     }
 
     // Dá cibo in base a posizione

@@ -6,7 +6,7 @@ import it.polimi.ingsw.am23.model.enums.Era;
 
 public abstract class EventCard extends Card {
 
-    private boolean isFinal;
+    private final boolean isFinal;
 
     protected EventCard(String id, Era era, int points, boolean isFinal) {
         super(id, era, points);

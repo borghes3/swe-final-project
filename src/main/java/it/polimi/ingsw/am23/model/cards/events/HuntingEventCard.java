@@ -12,8 +12,8 @@ import java.util.List;
 
 public class HuntingEventCard extends EventCard {
 
-    public HuntingEventCard(String id, Era era, int points){
-        super(id, era, points);
+    public HuntingEventCard(String id, Era era, int points, boolean isFinal){
+        super(id, era, points, isFinal);
     }
 
     @Override

@@ -10,5 +10,16 @@ public interface ModelObserver {
 
     void onEndOfPlacingPhase(GameState gameState);
 
+    void onEndOfDrawingPhase(GameState gameState);
+
+    void onExtraDrawRequest(GameState gameState);
+
+    // Da qui si deduce: END OF ROUND
+    void onEndOfResolvingPhase(GameState gameState);
+
+    void onEraProgression(GameState gameState);
+
     void onGameOver();
+
+    void onScoreboardAvailable();
 }
