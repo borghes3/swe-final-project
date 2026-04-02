@@ -1,5 +1,9 @@
 package it.polimi.ingsw.am23.model.player;
 
+import it.polimi.ingsw.am23.model.cards.BuildingCard;
+import it.polimi.ingsw.am23.model.cards.CharacterCard;
+import it.polimi.ingsw.am23.model.state.PlayerState;
+
 import java.util.Objects;
 
 public class Player {
@@ -92,5 +96,17 @@ public class Player {
             throw new IllegalArgumentException("amount cannot be negative");
         }
         prestigePoints -= amount;
+    }
+
+    public PlayerState getState(){
+        return new PlayerState(
+                id,
+                nickname,
+                food,
+                prestigePoints,
+                totem != null ? totem.getColor() : null,
+                tribe.getCharacters().stream().map(CharacterCard::toState).toList(),
+                tribe.getBuildings().stream().map(BuildingCard::toState).toList()
+        );
     }
 }

@@ -5,6 +5,8 @@ import it.polimi.ingsw.am23.model.cards.CharacterCard;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.player.Player;
+import it.polimi.ingsw.am23.model.state.CardState;
+import it.polimi.ingsw.am23.model.state.CharacterCardState;
 
 public class HunterCard extends CharacterCard{
 
@@ -25,5 +27,20 @@ public class HunterCard extends CharacterCard{
             int huntersInTribe = player.getTribe().count(CharacterType.HUNTER);
             player.addFood(huntersInTribe);
         }
+    }
+
+    @Override
+    public CardState toState(){
+        return new CharacterCardState(
+                getId(),
+                getEra(),
+                getPoints(),
+                getCharacterType(),
+                getMinPlayers(),
+                hasFoodSymbol,
+                null,
+                null,
+                null
+        );
     }
 }

@@ -225,9 +225,8 @@ public class Game implements GameModel {
                 currentRound,
                 phase,
                 currentResolvingPlayerId,
-                players.stream().map(Player.getState()).toList(),
-                board.getState(),
-                pendingExtraDrawPlayerId
+                players.stream().map(Player::getState).toList(),
+                board.getState()
         );
     }
 

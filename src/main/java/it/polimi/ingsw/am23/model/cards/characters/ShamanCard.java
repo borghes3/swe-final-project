@@ -5,6 +5,8 @@ import it.polimi.ingsw.am23.model.cards.CharacterCard;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.player.Player;
+import it.polimi.ingsw.am23.model.state.CardState;
+import it.polimi.ingsw.am23.model.state.CharacterCardState;
 
 
 public class ShamanCard extends CharacterCard{
@@ -23,5 +25,20 @@ public class ShamanCard extends CharacterCard{
     @Override
     public void onAddedToTribe(Game game, Player player){
         player.getTribe().addShamanStars(getStars());
+    }
+
+    @Override
+    public CardState toState(){
+        return new CharacterCardState(
+                getId(),
+                getEra(),
+                getPoints(),
+                getCharacterType(),
+                getMinPlayers(),
+                null,
+                stars,
+                null,
+                null
+        );
     }
 }

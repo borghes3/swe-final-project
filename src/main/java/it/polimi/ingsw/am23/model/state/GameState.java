@@ -14,22 +14,47 @@ public class GameState {
     private final GamePhase phase;
     private final String currentPlayerId;
     private final List<PlayerState> players;
-    private final BoardState board;
-    private final String pendingExtraDrawId;
+    private final BoardState board;;
+
+
 
     public GameState(Era currentEra,
                      int currentRound,
                      GamePhase phase,
                      String currentPlayerId,
                      List<PlayerState> players,
-                     BoardState board,
-                     String pendingExtraDrawId) {
+                     BoardState board) {
         this.currentEra = Objects.requireNonNull(currentEra, "currentEra is null");
         this.currentRound = currentRound;
         this.phase = Objects.requireNonNull(phase, "phase is null");
         this.currentPlayerId = currentPlayerId; //può essere null in fase di setup
         this.players = List.copyOf(Objects.requireNonNull(players, "players is null")); //
         this.board = board;
-        this.pendingExtraDrawId = pendingExtraDrawId;
     }
+
+    public Era getCurrentEra() {
+        return currentEra;
+    }
+
+    public int getCurrentRound() {
+        return currentRound;
+    }
+
+    public GamePhase getPhase() {
+        return phase;
+    }
+
+    public String getCurrentPlayerId() {
+        return currentPlayerId;
+    }
+
+    public List<PlayerState> getPlayers() {
+        return players;
+    }
+
+    public BoardState getBoard() {
+        return board;
+    }
+
+
 }

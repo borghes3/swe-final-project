@@ -3,6 +3,8 @@ package it.polimi.ingsw.am23.model.cards.characters;
 import it.polimi.ingsw.am23.model.cards.CharacterCard;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.Era;
+import it.polimi.ingsw.am23.model.state.CardState;
+import it.polimi.ingsw.am23.model.state.CharacterCardState;
 
 public class BuilderCard extends CharacterCard{
 
@@ -15,5 +17,20 @@ public class BuilderCard extends CharacterCard{
 
     public int getDiscount() {
         return discount;
+    }
+
+    @Override
+    public CardState toState(){
+        return new CharacterCardState(
+                getId(),
+                getEra(),
+                getPoints(),
+                getCharacterType(),
+                getMinPlayers(),
+                null,
+                null,
+                discount,
+                null
+        );
     }
 }

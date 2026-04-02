@@ -3,6 +3,7 @@ package it.polimi.ingsw.am23.model.cards;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.Game;
+import it.polimi.ingsw.am23.model.state.CardState;
 
 import java.util.Objects;
 
@@ -31,4 +32,6 @@ public abstract class Card {
     public abstract boolean canBeTaken();
 
     public abstract void onTaken(Game game, Player player);
+
+    public abstract CardState toState();
 }

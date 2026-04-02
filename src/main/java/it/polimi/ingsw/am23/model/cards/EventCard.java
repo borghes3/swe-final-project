@@ -3,6 +3,8 @@ package it.polimi.ingsw.am23.model.cards;
 import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.enums.Era;
+import it.polimi.ingsw.am23.model.state.CardState;
+import it.polimi.ingsw.am23.model.state.EventCardState;
 
 public abstract class EventCard extends Card{
 
@@ -21,4 +23,13 @@ public abstract class EventCard extends Card{
     }
 
     public abstract void resolve(Game game);
+
+    @Override
+    public CardState toState(){
+        return new EventCardState(
+                getId(),
+                getEra(),
+                getPoints()
+        );
+    }
 }

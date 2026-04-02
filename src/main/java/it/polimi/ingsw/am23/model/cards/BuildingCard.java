@@ -4,6 +4,8 @@ import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.player.Player;
+import it.polimi.ingsw.am23.model.state.BuildingCardState;
+import it.polimi.ingsw.am23.model.state.CardState;
 
 import java.util.Objects;
 
@@ -35,6 +37,16 @@ public class BuildingCard extends Card {
         Objects.requireNonNull(player, "player cannot be null");
 
         player.getTribe().addBuilding(this);
+    }
+    @Override
+    public CardState toState(){
+        return new BuildingCardState(
+                getId(),
+                getEra(),
+                getPoints(),
+                foodCost,
+                effect.getClass().getSimpleName()
+        );
     }
 }
 

@@ -4,6 +4,8 @@ import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.player.Player;
+import it.polimi.ingsw.am23.model.state.CardState;
+import it.polimi.ingsw.am23.model.state.CharacterCardState;
 
 import java.util.Objects;
 
@@ -41,4 +43,19 @@ public abstract class CharacterCard extends Card {
 
     protected void onAddedToTribe(Game game, Player player) {
     } //di default vuoto
+
+    @Override
+    public CardState toState(){
+        return new CharacterCardState(
+                getId(),
+                getEra(),
+                getPoints(),
+                getCharacterType(),
+                getMinPlayers(),
+                null,
+                null,
+                null,
+                null
+        );
+    }
 }

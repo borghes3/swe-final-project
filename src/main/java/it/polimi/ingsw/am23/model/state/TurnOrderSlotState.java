@@ -1,4 +1,26 @@
 package it.polimi.ingsw.am23.model.state;
 
-public class TurnOrderSlotState {
+public final class TurnOrderSlotState {
+
+    private final int positionIndex;
+    private final int foodDelta;
+    private final String occupiedByPlayerId;
+
+    public TurnOrderSlotState(int positionIndex, int foodDelta, String occupiedByPlayerId) {
+        this.positionIndex = positionIndex;
+        this.foodDelta = foodDelta;
+        this.occupiedByPlayerId = occupiedByPlayerId;
+    }
+
+    public int getPositionIndex() {
+        return positionIndex;
+    }
+
+    public int getFoodDelta() {
+        return foodDelta;
+    }
+
+    public String getOccupiedByPlayerId() {
+        return occupiedByPlayerId;
+    }
 }
