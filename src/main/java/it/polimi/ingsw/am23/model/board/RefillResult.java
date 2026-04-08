@@ -20,6 +20,3 @@ public class RefillResult {
         }
     }
 }
-
-//TODO: sostituire semplicemente nel refillTop con check se l'ultima carta ha era diversa da quella attuale
-

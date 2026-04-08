@@ -7,7 +7,7 @@ import java.util.*;
 
 public class BuildingDeck {
 
-    private Map<Era, Deque<BuildingCard>> cardsByEra;
+    private final Map<Era, Deque<BuildingCard>> cardsByEra;
 
     public BuildingDeck(Map<Era, List<BuildingCard>> cardsByEra) {
         this.cardsByEra = new EnumMap<>(Era.class);// Map che gestisce enum come key

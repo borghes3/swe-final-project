@@ -1,8 +1,6 @@
 package it.polimi.ingsw.am23.model.cards.turnorder;
 
-import it.polimi.ingsw.am23.exceptions.TurnOrderSlotNotFoundException;
 import it.polimi.ingsw.am23.exceptions.NoFreeSlotsException;
-import it.polimi.ingsw.am23.exceptions.NoPlayersInTurnOrderException;
 
 import java.util.List;
 
@@ -17,10 +15,9 @@ public class TurnOrderTile {
         return slots.size();
     }
 
-    public List<TurnOrderSlot> getSlots(){
+    public List<TurnOrderSlot> getSlots() {
         return slots;
     }
-
 
     public TurnOrderSlot getSlot(int index) {
         return slots.get(index);
@@ -35,12 +32,13 @@ public class TurnOrderTile {
         throw new NoFreeSlotsException("There are no free slots in this Turn Order Card");
     }
 
-    public String getFirstPlayer() {
+    public boolean isEmpty() {
         for (TurnOrderSlot slot : slots) {
-            if (slot.isFree()) {
-                return slot.getPlayerId();
+            if (!slot.isFree()) {
+                return false;
             }
         }
-        throw new NoPlayersInTurnOrderException("There are currently no players in this Turn Order Card");
+        return true;
     }
+
 }

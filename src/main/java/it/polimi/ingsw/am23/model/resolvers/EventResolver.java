@@ -5,28 +5,32 @@ import it.polimi.ingsw.am23.model.cards.EventCard;
 import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class EventResolver {
-    public void resolveEvents(List<EventCard> events, Game game){
+    public void resolveEvents(List<EventCard> events, Game game) {
         List<EventCard> orderedEvents = orderEvents(events);
 
-        for(EventCard event: orderedEvents){
+        for (EventCard event : orderedEvents) {
             event.resolve(game);
         }
     }
 
-    private List<EventCard> orderEvents(List<EventCard> events){
+    private List<EventCard> orderEvents(List<EventCard> events) {
         List<EventCard> normalEvents = new ArrayList<>();
         List<EventCard> sustenanceEvents = new ArrayList<>(); //nel caso in cui ce ne possano essere più di uno
 
-        for(EventCard event: events){
-            if(event instanceof SustenanceEventCard){
+        for (EventCard event : events) {
+            if (event instanceof SustenanceEventCard) {
                 sustenanceEvents.add(event);
-            }else{
+            } else {
                 normalEvents.add(event);
             }
         }
+        // Sort eventi normali by era per rispettare la regola sulla presenza di eventi identici
+        normalEvents.sort(Comparator.comparingInt(e -> e.getEra().ordinal()));
+
         normalEvents.addAll(sustenanceEvents);
         return normalEvents;
     }

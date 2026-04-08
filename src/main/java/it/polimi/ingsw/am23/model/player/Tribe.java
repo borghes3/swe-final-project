@@ -2,6 +2,7 @@ package it.polimi.ingsw.am23.model.player;
 
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.CharacterCard;
+import it.polimi.ingsw.am23.model.cards.characters.BuilderCard;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.InventionIcon;
 
@@ -89,6 +90,10 @@ public class Tribe {
 
     public int getDistinctInventionIcons() {
         return inventorIconCounts.size();
+    }
+
+    public int getBuildingDiscount() {
+        return characters.stream().filter(c -> c instanceof BuilderCard).mapToInt(b -> ((BuilderCard) b).getDiscount()).sum();
     }
 
     // ---- metodi di supporto usati dalle carte in onAddedToTribe() ----
