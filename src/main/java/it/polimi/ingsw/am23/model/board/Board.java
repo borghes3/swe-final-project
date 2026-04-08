@@ -66,7 +66,6 @@ public class Board {
             }
         }
         return freeOfferTiles;
-
     }
 
     public List<TurnOrderSlot> getFreeTurnOrderSlots() {
@@ -79,32 +78,20 @@ public class Board {
         return freeTurnOrderSlots;
     }
 
-    public void clearOfferTiles() {
-        for (OfferTile tile : offerTiles) {
-            tile.clear();
-        }
-    }
-
-    public void clearTurnOrderSlots() {
-        for (TurnOrderSlot slot : turnOrderTile.getSlots()) {
-            slot.clear();
-        }
-    }
-
-    public BoardState getState(){
+    public BoardState getState() {
         return new BoardState(market.getTopRow().stream().map(c -> c.toState()).toList(),
-                market.getBottomRow().stream().map(c->c.toState()).toList(),
-                market.getTopBuildings().stream().map(b ->b.toState()).toList(),
+                market.getBottomRow().stream().map(c -> c.toState()).toList(),
+                market.getTopBuildings().stream().map(b -> b.toState()).toList(),
                 market.getBottomBuildings().stream().map(b -> b.toState()).toList(),
                 buildOfferTileState(),
                 buildTurnOrderSlotsState()
         );
     }
 
-    public List<OfferTileState> buildOfferTileState(){
+    public List<OfferTileState> buildOfferTileState() {
         List<OfferTileState> offerTileStates = new ArrayList<>();
-        for(int i = 0; i < offerTiles.size(); i++){
-            OfferTile tile  = offerTiles.get(i);
+        for (int i = 0; i < offerTiles.size(); i++) {
+            OfferTile tile = offerTiles.get(i);
             offerTileStates.add(new OfferTileState(
                     i,
                     tile.getId(),
@@ -118,11 +105,11 @@ public class Board {
         return offerTileStates;
     }
 
-    public List<TurnOrderSlotState> buildTurnOrderSlotsState(){
+    public List<TurnOrderSlotState> buildTurnOrderSlotsState() {
         List<TurnOrderSlotState> states = new ArrayList<>();
         List<TurnOrderSlot> slots = turnOrderTile.getSlots();
 
-        for(int i = 0; i < slots.size(); i++){
+        for (int i = 0; i < slots.size(); i++) {
             TurnOrderSlot slot = slots.get(i);
             states.add(new TurnOrderSlotState(
                     i,
@@ -130,7 +117,7 @@ public class Board {
                     slot.getPlayerId()
             ));
         }
+        return states;
     }
-
 
 }

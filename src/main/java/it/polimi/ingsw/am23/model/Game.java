@@ -81,7 +81,7 @@ public class Game implements GameModel {
             throw new TileNotEmptyException("The selected offer tile is not empty");
         }
         // Rimuovo il totem dalla tessera ordine di turno
-        board.getTurnOrderTile().getFirstFreeSlot().clear();
+        board.findTurnOrderSlotOccupiedBy(playerId).clear();
         // E lo piazzo nella offer tile selezionata
         tile.placeTotem(p.getId());
 
