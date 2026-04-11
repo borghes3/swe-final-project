@@ -14,9 +14,7 @@ public class DoubleBuilderEndGameEffect implements BuildingEffect{
         int bonus = 0;
 
         for(CharacterCard card : player.getTribe().getCharacters()){
-            if(card instanceof BuilderCard){ //TODO: provare a togliere instanceof
                 bonus += card.getPoints();
-            }
         }
         return bonus;
     }
