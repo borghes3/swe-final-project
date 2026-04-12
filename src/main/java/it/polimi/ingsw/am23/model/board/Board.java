@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am23.model.board;
 
 import it.polimi.ingsw.am23.exceptions.OfferTileNotFoundException;
+import it.polimi.ingsw.am23.model.cards.BuildingCard;
+import it.polimi.ingsw.am23.model.cards.Card;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
 import it.polimi.ingsw.am23.model.state.BoardState;
@@ -78,11 +80,14 @@ public class Board {
         return freeTurnOrderSlots;
     }
 
-    public BoardState getState() {
-        return new BoardState(market.getTopRow().stream().map(c -> c.toState()).toList(),
-                market.getBottomRow().stream().map(c -> c.toState()).toList(),
-                market.getTopBuildings().stream().map(b -> b.toState()).toList(),
-                market.getBottomBuildings().stream().map(b -> b.toState()).toList(),
+    public BoardState getState(CardMarket cardMarket) {
+        Objects.requireNonNull(cardMarket, "cardMarket cannot be null");
+
+        return new BoardState(
+                cardMarket.getTopRow().stream().map(Card::toState).toList(),
+                cardMarket.getBottomRow().stream().map(Card::toState).toList(),
+                cardMarket.getTopBuildings().stream().map(BuildingCard::toState).toList(),
+                cardMarket.getBottomBuildings().stream().map(BuildingCard::toState).toList(),
                 buildOfferTileState(),
                 buildTurnOrderSlotsState()
         );

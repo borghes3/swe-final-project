@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ECP00",
+    "era": "ERA_1",
+    "points": 0,
+    "eventType": "CAVE_PAINTINGS",
+    "isFinal": false,
+    "eventParams": {
+      "minArtists": 1,
+      "pointsToRemove": 2,
+      "pointsFactor": 1
+    }
+  },
+  {
+    "id": "ECP01",
+    "era": "ERA_2",
+    "points": 0,
+    "eventType": "CAVE_PAINTINGS",
+    "isFinal": false,
+    "eventParams": {
+      "minArtists": 2,
+      "pointsToRemove": 2,
+      "pointsFactor": 2
+    }
+  },
+  {
+    "id": "ECP02",
+    "era": "ERA_3",
+    "points": 0,
+    "eventType": "CAVE_PAINTINGS",
+    "isFinal": false,
+    "eventParams": {
+      "minArtists": 3,
+      "pointsToRemove": 2,
+      "pointsFactor": 3
+    }
+  },
+  {
+    "id": "EHU03",
+    "era": "ERA_1",
+    "points": 0,
+    "eventType": "HUNTING",
+    "isFinal": false,
+    "eventParams": {
+      "pointsPerHunter": 1
+    }
+  },
+  {
+    "id": "EHU04",
+    "era": "ERA_2",
+    "points": 0,
+    "eventType": "HUNTING",
+    "isFinal": false,
+    "eventParams": {
+      "pointsPerHunter": 2
+    }
+  },
+  {
+    "id": "EHU05",
+    "era": "ERA_3",
+    "points": 0,
+    "eventType": "HUNTING",
+    "isFinal": false,
+    "eventParams": {
+      "pointsPerHunter": 3
+    }
+  },
+  {
+    "id": "ESH06",
+    "era": "ERA_1",
+    "points": 0,
+    "eventType": "SHAMAN_RITUAL",
+    "isFinal": false,
+    "eventParams": {
+      "winPoints": 5,
+      "losePoints": 3
+    }
+  },
+  {
+    "id": "ESH07",
+    "era": "ERA_2",
+    "points": 0,
+    "eventType": "SHAMAN_RITUAL",
+    "isFinal": false,
+    "eventParams": {
+      "winPoints": 10,
+      "losePoints": 5
+    }
+  },
+  {
+    "id": "ESH08",
+    "era": "ERA_3",
+    "points": 0,
+    "eventType": "SHAMAN_RITUAL",
+    "isFinal": true,
+    "eventParams": {
+      "winPoints": 15,
+      "losePoints": 7
+    }
+  },
+  {
+    "id": "ESU09",
+    "era": "ERA_1",
+    "points": 0,
+    "eventType": "SUSTENANCE",
+    "isFinal": false
+  },
+  {
+    "id": "ESU10",
+    "era": "ERA_2",
+    "points": 0,
+    "eventType": "SUSTENANCE",
+    "isFinal": false
+  },
+  {
+    "id": "ESU11",
+    "era": "ERA_3",
+    "points": 0,
+    "eventType": "SUSTENANCE",
+    "isFinal": true
+  }
+]

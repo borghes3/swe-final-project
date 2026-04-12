@@ -14,8 +14,8 @@ public class HuntingEventCard extends EventCard {
 
     private final int pointsPerHunter;
 
-    public HuntingEventCard(String id, Era era, int points, int pointsPerHunter) {
-        super(id, era, points);
+    public HuntingEventCard(String id, Era era, int points, boolean isFinal, int pointsPerHunter) {
+        super(id, era, points, isFinal);
         this.pointsPerHunter = pointsPerHunter;
     }
 

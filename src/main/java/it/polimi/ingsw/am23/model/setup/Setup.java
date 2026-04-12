@@ -107,7 +107,7 @@ public class Setup {
 
         List<Card> era3 = new ArrayList<>();
         era3.addAll(filteredCharacters.stream().filter(c -> c.getEra() == Era.ERA_3).toList());
-        era3.addAll(events.stream().filter(e -> e.getEra() == Era.ERA_3).toList());
+        era3.addAll(events.stream().filter(e -> e.getEra() == Era.ERA_3 && !e.isFinal()).toList());
         Collections.shuffle(era3);
 
         List<EventCard> finalEvents = new ArrayList<>(events.stream().filter(EventCard::isFinal).toList());
@@ -216,3 +216,5 @@ public class Setup {
     }
 
 }
+
+//TODO: aggiungere integrazione con setup JSON

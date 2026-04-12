@@ -7,6 +7,7 @@ import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
 import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
+import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
@@ -46,13 +47,16 @@ public class Game implements GameModel {
         this.currentEra = currentEra;
         this.currentRound = currentRound;
         this.phase = GamePhase.SETUP;
+        this.gameState = buildGameState();
     }
 
 
     // Setup completato, comunico al controller setup terminato
     public void startGame() {
         phase = GamePhase.PLACING_TOTEMS;
+        gameState = buildGameState();
         notifyGameStarted();
+        notifyGameStateChanged();
     }
 
     public Player findPlayer(String playerId) {
@@ -94,7 +98,7 @@ public class Game implements GameModel {
 
         gameState = buildGameState();
         notifyGameStateChanged();
-        return new ActionResult(gameState);
+        return ActionResult.success(ActionType.PLACE_TOTEM, "Totem placed successfully");
     }
 
     // ------------------------------------------
@@ -195,7 +199,7 @@ public class Game implements GameModel {
 
         gameState = buildGameState();
         notifyGameStateChanged();
-        return new ActionResult(gameState);
+        return ActionResult.success(ActionType.TAKE_CARD, "Cards taken successfully");
     }
 
     // Verifica condizioni del payload delle carte da pescare selezionate
@@ -233,17 +237,17 @@ public class Game implements GameModel {
     // ------------------------------------------
     // RESOLVING EVENTS PHASE
     // ------------------------------------------
+    @Override
     public ActionResult resolveEvents() {
         List<EventCard> events = cardMarket.getBottomRowEvents();
 
         cleanUp();
 
-        // Progressione round e fine partita
         if (currentRound == 10) {
             List<EventCard> topEvents = cardMarket.getTopRowEvents();
             events.addAll(topEvents);
             eventResolver.resolveEvents(events, this);
-            // Trigger ENDGAME: Calcolo punteggi
+
             phase = GamePhase.ENDED;
             gameState = buildGameState();
             notifyGameOver();
@@ -256,7 +260,7 @@ public class Game implements GameModel {
         }
 
         notifyGameStateChanged();
-        return new ActionResult(gameState);
+        return ActionResult.success(ActionType.END_ROUND, "Events resolved successfully");
     }
 
     // ------------------------------------------
@@ -278,14 +282,15 @@ public class Game implements GameModel {
     // ------------------------------------------
     // ENDGAME PHASE: Calcolo punteggi
     // ------------------------------------------
+    @Override
     public ActionResult calculateScores() {
         ScoreCalculator scoreCalculator = new ScoreCalculator(this);
         List<ScoreResult> scoreBoard = scoreCalculator.calculateFinalScores();
-        // TODO: mettere scoreBoard nell'oggetto di ritorno
+        // TODO: mettere scoreBoard nell'oggetto di ritorno o in una state dedicata
 
         gameState = buildGameState();
         notifyScores();
-        return new ActionResult(gameState);
+        return ActionResult.success(ActionType.GENERIC, "Scores calculated successfully");
     }
 
     // ------------------------------------------
@@ -294,13 +299,14 @@ public class Game implements GameModel {
     // Chiamata dal controller quando il player ha il building con l'effetto extra card
     @Override
     public ActionResult takeExtraCard(String playerId, int index) {
-        // TODO: gestire il giocatore che pesca una carta extra
-
+        // TODO: gestire davvero il pescaggio della carta extra
 
         phase = GamePhase.RESOLVING_EVENTS;
-        gameState = buildGameState();
         clearPendingExtraDrawPlayer();
-        return new ActionResult(gameState);
+        gameState = buildGameState();
+        notifyGameStateChanged();
+
+        return ActionResult.success(ActionType.TAKE_CARD, "Extra card taken successfully");
     }
 
     public void setPendingExtraDrawPlayerId(String playerId) {
@@ -329,18 +335,44 @@ public class Game implements GameModel {
     // GAMESTATE
     // ------------------------------------------
     private GameState buildGameState() {
-        // TODO: modellare GameState
-        return new GameState();
+        return new GameState(
+                currentEra,
+                currentRound,
+                phase,
+                computeCurrentPlayerId(),
+                players.stream().map(Player::getState).toList(),
+                board.getState(cardMarket)
+        );
+    }
+
+    private String computeCurrentPlayerId() {
+        return switch (phase) {
+            case SETUP, ENDED, RESOLVING_EVENTS -> null;
+
+            case PLACING_TOTEMS -> {
+                TurnOrderSlot slot = board.getTurnOrderTile().getFirstFreeSlot();
+                yield slot != null ? slot.getPlayerId() : null;
+            }
+
+            case RESOLVING_OFFERS -> {
+                OfferTile tile = board.getFirstOccupiedOfferTile();
+                yield tile != null ? tile.getOccupiedByPlayerId() : null;
+            }
+
+            case EXTRA_DRAW -> pendingExtraDrawPlayerId;
+        };
     }
 
 
     // ------------------------------------------
     // OBSERVERS e NOTIFICHE
     // ------------------------------------------
+    @Override
     public void addObserver(ModelObserver o) {
         observers.add(o);
     }
 
+    @Override
     public void removeObserver(ModelObserver o) {
         observers.remove(o);
     }
@@ -419,3 +451,7 @@ public class Game implements GameModel {
     }
 
 }
+
+
+//TODO: gestire anche i casi di failure negli ActionResult
+//TODO: in computeCurrentPlayerId() il ramo PLACING_TOTEMS con getFirstFreeSlot() non è perfetto semanticamente, perché quel metodo restituisce il primo slot libero, non il prossimo player già piazzato(commento di Chat)

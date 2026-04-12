@@ -4,9 +4,8 @@ import it.polimi.ingsw.am23.model.cards.SelectedCards;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.state.GameState;
 
-
 public interface GameModel {
-    // AZIONI SUL MODELLO
+
     ActionResult placeTotem(String playerId, char offerTileChar);
 
     ActionResult takeCards(String playerId, SelectedCards selectedCards);
@@ -17,8 +16,10 @@ public interface GameModel {
 
     ActionResult calculateScores();
 
-    // GETTERS
     GameState getGameState();
 
     GamePhase getGamePhase();
+    void addObserver(ModelObserver observer);
+
+    void removeObserver(ModelObserver observer);
 }

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "A",
+    "minPlayers": 5,
+    "topDrawCount": 0,
+    "bottomDrawCount": 0,
+    "foodReward": 3
+  },
+  {
+    "id": "B",
+    "minPlayers": 2,
+    "topDrawCount": 0,
+    "bottomDrawCount": 1,
+    "foodReward": 0
+  },
+  {
+    "id": "C",
+    "minPlayers": 2,
+    "topDrawCount": 1,
+    "bottomDrawCount": 0,
+    "foodReward": 0
+  },
+  {
+    "id": "D",
+    "minPlayers": 3,
+    "topDrawCount": 0,
+    "bottomDrawCount": 2,
+    "foodReward": 0
+  },
+  {
+    "id": "E",
+    "minPlayers": 2,
+    "topDrawCount": 1,
+    "bottomDrawCount": 1,
+    "foodReward": 0
+  },
+  {
+    "id": "F",
+    "minPlayers": 2,
+    "topDrawCount": 2,
+    "bottomDrawCount": 0,
+    "foodReward": 0
+  },
+  {
+    "id": "G",
+    "minPlayers": 4,
+    "topDrawCount": 2,
+    "bottomDrawCount": 1,
+    "foodReward": 0
+  }
+]

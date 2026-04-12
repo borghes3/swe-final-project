@@ -156,4 +156,20 @@ public class CardMarket {
         }
     }
 
+    public List<Card> getTopRow() {
+        return List.copyOf(topRow);
+    }
+
+    public List<Card> getBottomRow() {
+        return List.copyOf(bottomRow);
+    }
+
+    public List<BuildingCard> getTopBuildings() {
+        return List.copyOf(topBuildings);
+    }
+
+    public List<BuildingCard> getBottomBuildings() {
+        return List.copyOf(bottomBuildings);
+    }
+
 }

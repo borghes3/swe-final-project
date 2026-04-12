@@ -1,0 +1,650 @@
+[
+  {
+    "id": "CA00",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA01",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA02",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA03",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA04",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA05",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA06",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA07",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA08",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 2
+  },
+  {
+    "id": "CA09",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 3
+  },
+  {
+    "id": "CA10",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 3
+  },
+  {
+    "id": "CA11",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 4
+  },
+  {
+    "id": "CA12",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "ARTIST",
+    "minPlayers": 5
+  },
+  {
+    "id": "CB13",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 2
+  },
+  {
+    "id": "CB14",
+    "era": "ERA_1",
+    "points": 2,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 1
+  },
+  {
+    "id": "CB15",
+    "era": "ERA_1",
+    "points": 3,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 1
+  },
+  {
+    "id": "CB16",
+    "era": "ERA_2",
+    "points": 3,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 2
+  },
+  {
+    "id": "CB17",
+    "era": "ERA_2",
+    "points": 4,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 1
+  },
+  {
+    "id": "CB18",
+    "era": "ERA_2",
+    "points": 1,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 2
+  },
+  {
+    "id": "CB19",
+    "era": "ERA_3",
+    "points": 5,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 1
+  },
+  {
+    "id": "CB20",
+    "era": "ERA_3",
+    "points": 3,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 2
+  },
+  {
+    "id": "CB21",
+    "era": "ERA_3",
+    "points": 2,
+    "characterType": "BUILDER",
+    "minPlayers": 2,
+    "discount": 2
+  },
+  {
+    "id": "CB22",
+    "era": "ERA_2",
+    "points": 2,
+    "characterType": "BUILDER",
+    "minPlayers": 3,
+    "discount": 1
+  },
+  {
+    "id": "CB23",
+    "era": "ERA_1",
+    "points": 1,
+    "characterType": "BUILDER",
+    "minPlayers": 5,
+    "discount": 2
+  },
+  {
+    "id": "CB24",
+    "era": "ERA_3",
+    "points": 4,
+    "characterType": "BUILDER",
+    "minPlayers": 5,
+    "discount": 1
+  },
+  {
+    "id": "CG25",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 2
+  },
+  {
+    "id": "CG26",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 2
+  },
+  {
+    "id": "CG27",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 2
+  },
+  {
+    "id": "CG28",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 2
+  },
+  {
+    "id": "CG29",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 3
+  },
+  {
+    "id": "CG30",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 3
+  },
+  {
+    "id": "CG31",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 4
+  },
+  {
+    "id": "CG32",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 4
+  },
+  {
+    "id": "CG33",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 5
+  },
+  {
+    "id": "CG34",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 5
+  },
+  {
+    "id": "CG35",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "GATHERER",
+    "minPlayers": 5
+  },
+  {
+    "id": "CH36",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH37",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CH38",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CH39",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH40",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH41",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CH42",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH43",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH44",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 2,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CH45",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 3,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH46",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 3,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH47",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 3,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CH48",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 4,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CH49",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 5,
+    "hasFoodSymbol": false
+  },
+  {
+    "id": "CH50",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "HUNTER",
+    "minPlayers": 5,
+    "hasFoodSymbol": true
+  },
+  {
+    "id": "CI51",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "ARROW"
+  },
+  {
+    "id": "CI52",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "BOAT"
+  },
+  {
+    "id": "CI53",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "BREAD"
+  },
+  {
+    "id": "CI54",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "PATCH"
+  },
+  {
+    "id": "CI55",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "BOWL"
+  },
+  {
+    "id": "CI56",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "FLUTE"
+  },
+  {
+    "id": "CI57",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "PATCH"
+  },
+  {
+    "id": "CI58",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "ROPE"
+  },
+  {
+    "id": "CI59",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "STATUE"
+  },
+  {
+    "id": "CI60",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "BREAD"
+  },
+  {
+    "id": "CI61",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "HOOK"
+  },
+  {
+    "id": "CI62",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "NECK"
+  },
+  {
+    "id": "CI63",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 2,
+    "icon": "STATUE"
+  },
+  {
+    "id": "CI64",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 3,
+    "icon": "ARROW"
+  },
+  {
+    "id": "CI65",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 3,
+    "icon": "BOAT"
+  },
+  {
+    "id": "CI66",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 4,
+    "icon": "BOWL"
+  },
+  {
+    "id": "CI67",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 4,
+    "icon": "FLUTE"
+  },
+  {
+    "id": "CI68",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 4,
+    "icon": "ROPE"
+  },
+  {
+    "id": "CI69",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 4,
+    "icon": "HOOK"
+  },
+  {
+    "id": "CI70",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "INVENTOR",
+    "minPlayers": 4,
+    "icon": "NECK"
+  },
+  {
+    "id": "CS71",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 1
+  },
+  {
+    "id": "CS72",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 2
+  },
+  {
+    "id": "CS73",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 2
+  },
+  {
+    "id": "CS74",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 2
+  },
+  {
+    "id": "CS75",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 2
+  },
+  {
+    "id": "CS76",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 3
+  },
+  {
+    "id": "CS77",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 2,
+    "stars": 3
+  },
+  {
+    "id": "CS78",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 3,
+    "stars": 2
+  },
+  {
+    "id": "CS79",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 4,
+    "stars": 1
+  },
+  {
+    "id": "CS80",
+    "era": "ERA_3",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 4,
+    "stars": 2
+  },
+  {
+    "id": "CS81",
+    "era": "ERA_1",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 5,
+    "stars": 2
+  },
+  {
+    "id": "CS82",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 5,
+    "stars": 1
+  },
+  {
+    "id": "CS83",
+    "era": "ERA_2",
+    "points": 0,
+    "characterType": "SHAMAN",
+    "minPlayers": 5,
+    "stars": 2
+  }
+]

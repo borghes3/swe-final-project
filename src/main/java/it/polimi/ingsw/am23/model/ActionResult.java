@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am23.model;
 
-import it.polimi.ingsw.am23.model.enums.ActionError;
 import it.polimi.ingsw.am23.model.enums.ActionType;
+
+import java.util.Objects;
 
 public final class ActionResult {
 
@@ -10,10 +11,10 @@ public final class ActionResult {
     private final ErrorCode error;
     private final String message;
 
-    public ActionResult(ActionType actionType, boolean success, ErrorCode error, String message) {
-        this.actionType = actionType;
+    private ActionResult(ActionType actionType, boolean success, ErrorCode error, String message) {
+        this.actionType = Objects.requireNonNull(actionType, "actionType cannot be null");
         this.success = success;
-        this.error = error;
+        this.error = Objects.requireNonNull(error, "error cannot be null");
         this.message = message;
     }
 
@@ -21,8 +22,12 @@ public final class ActionResult {
         return new ActionResult(actionType, true, ErrorCode.NONE, message);
     }
 
-    public static ActionResult failure(ActionType actionType, String message) {
-        return new ActionResult(actionType, false, ErrorCode.NONE, message);
+    public static ActionResult failure(ActionType actionType, ErrorCode error, String message) {
+        return new ActionResult(actionType, false, error, message);
+    }
+
+    public ActionType getActionType() {
+        return actionType;
     }
 
     public boolean isSuccess() {
@@ -36,9 +41,4 @@ public final class ActionResult {
     public String getMessage() {
         return message;
     }
-
-    public ActionType getActionType() {
-        return actionType;
-    }
-
 }
