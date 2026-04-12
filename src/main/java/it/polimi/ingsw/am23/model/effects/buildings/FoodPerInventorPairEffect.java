@@ -6,7 +6,6 @@ import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.player.Player;
 
 public class FoodPerInventorPairEffect implements BuildingEffect {
-        //TODO: rifare logica controllo set e chiamata da game
 
     private int lastKnownPairs = 0;
 

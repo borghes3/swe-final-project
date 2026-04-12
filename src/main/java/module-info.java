@@ -5,6 +5,7 @@ module it.polimi.ingsw.am23 {
     requires jdk.jfr;
     requires java.desktop;
     requires com.fasterxml.jackson.databind;
+    requires java.rmi;
 
 
     opens it.polimi.ingsw.am23 to javafx.fxml;

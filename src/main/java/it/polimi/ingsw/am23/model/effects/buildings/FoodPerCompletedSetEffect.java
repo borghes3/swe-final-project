@@ -7,7 +7,6 @@ import it.polimi.ingsw.am23.model.player.Player;
 
 public class FoodPerCompletedSetEffect implements BuildingEffect {
 
-    //TODO: rifare questa parte dei set
     private int lastKnownSetCount = 0;
 
     @Override

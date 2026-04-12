@@ -13,5 +13,5 @@ public class HuntingRewardPerHunterEffect implements BuildingEffect{
         int hunters = player.getTribe().count(CharacterType.HUNTER);
         data.addExtraFood(hunters);
         data.addExtraPoints(hunters);
-    } //TODO: controllare che ci sia un solo building che dà uno per hunter
+    }
 }
