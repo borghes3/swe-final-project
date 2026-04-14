@@ -3,9 +3,12 @@ package it.polimi.ingsw.am23.controller;
 import it.polimi.ingsw.am23.model.ActionResult;
 import it.polimi.ingsw.am23.model.GameModel;
 import it.polimi.ingsw.am23.model.ModelObserver;
+import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
 import it.polimi.ingsw.am23.model.state.GameState;
 
+import java.util.List;
 import java.util.Objects;
 
 public class LocalGameController implements GameController, ModelObserver {
@@ -38,8 +41,8 @@ public class LocalGameController implements GameController, ModelObserver {
     }
 
     @Override
-    public void takeExtraCard(int index) {
-        handleResult(gameModel.takeExtraCard(localPlayerId, index));
+    public void takeExtraCard(SelectedCardExtraDraw selectedCardExtraDraw) {
+        handleResult(gameModel.takeExtraCard(localPlayerId, selectedCardExtraDraw));
     }
 
     @Override
@@ -98,8 +101,8 @@ public class LocalGameController implements GameController, ModelObserver {
     }
 
     @Override
-    public void onScoreboardAvailable() {
-        view.showScoreboard();
+    public void onScores(List<ScoreResult> scoreBoard) {
+        view.showScoreboard(scoreBoard);
     }
 
     private void handleResult(ActionResult result) {

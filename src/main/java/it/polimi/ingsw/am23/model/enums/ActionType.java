@@ -7,4 +7,3 @@ public enum ActionType {
     END_ROUND,
     GENERIC
 }
-//TODO: vedere bene se si integrano (consiglio di un certo LLM)

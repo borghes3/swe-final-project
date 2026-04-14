@@ -1,6 +1,18 @@
 package it.polimi.ingsw.am23.model;
 
+import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
 import it.polimi.ingsw.am23.model.state.GameState;
+
+import java.util.List;
+
+// --------------------------------------------
+// INTERFACCIA OSSERVATA DALLA VIRTUAL VIEW
+// --------------------------------------------
+//      [MODEL](*) ------> [VIRTUAL VIEW]
+//              ^
+//              |
+//      Questa interfaccia sta qui
+// --------------------------------------------
 
 public interface ModelObserver {
 
@@ -21,5 +33,5 @@ public interface ModelObserver {
 
     void onGameOver();
 
-    void onScoreboardAvailable();
+    void onScores(List<ScoreResult> scoreBoard);
 }

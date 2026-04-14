@@ -5,7 +5,7 @@ import it.polimi.ingsw.am23.exceptions.NoFreeSlotsException;
 import java.util.List;
 
 public class TurnOrderTile {
-    private List<TurnOrderSlot> slots;
+    private final List<TurnOrderSlot> slots;
 
     public TurnOrderTile(List<TurnOrderSlot> slots) {
         this.slots = slots;
@@ -30,6 +30,15 @@ public class TurnOrderTile {
             }
         }
         throw new NoFreeSlotsException("There are no free slots in this Turn Order Card");
+    }
+
+    public TurnOrderSlot getFirstOccupiedSlot() {
+        for (TurnOrderSlot slot : slots) {
+            if (!slot.isFree()) {
+                return slot;
+            }
+        }
+        return null;
     }
 
     public boolean isEmpty() {

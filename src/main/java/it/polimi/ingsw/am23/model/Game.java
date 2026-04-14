@@ -37,6 +37,9 @@ public class Game implements GameModel {
     private GamePhase phase;
     private String pendingExtraDrawPlayerId;
 
+    private String currentPlayerId = null;
+    private List<ScoreResult> scoreBoard;
+
     public Game(List<Player> players, Board board, TribeDeck tribeDeck, BuildingDeck buildingDeck, EventResolver eventResolver, CardMarket cardMarket, Era currentEra, int currentRound) {
         this.players = players;
         this.board = board;
@@ -73,17 +76,18 @@ public class Game implements GameModel {
     public ActionResult placeTotem(String playerId, char offerTileChar) {
         Player p = findPlayer(playerId);
         // Verifico che sia lui il prossimo a dover piazzare il totem
-        if (!Objects.equals(board.getTurnOrderTile().getFirstFreeSlot().getPlayerId(), p.getId())) {
-            // TODO: ActionResult + Errore
-            throw new IllegalActionException("It's not your turn.");
+        if (!Objects.equals(board.getTurnOrderTile().getFirstOccupiedSlot().getPlayerId(), p.getId())) {
+            return ActionResult.failure(ActionType.PLACE_TOTEM, ErrorCode.WRONG_PLAYER, "It's not your turn.");
         }
 
         // Verifico che la tile sia vuota
         OfferTile tile = board.getOfferTile(offerTileChar);
         if (!tile.isFree()) {
-            // TODO: ActionResult + Errore
-            throw new TileNotEmptyException("The selected offer tile is not empty");
+            return ActionResult.failure(ActionType.PLACE_TOTEM, ErrorCode.INVALID_TILE, "The selected offer tile is not empty.");
         }
+
+        // Salvo ID del player che sta piazzando (per costruzione GameState)
+        currentPlayerId = playerId;
         // Rimuovo il totem dalla tessera ordine di turno
         board.findTurnOrderSlotOccupiedBy(playerId).clear();
         // E lo piazzo nella offer tile selezionata
@@ -94,6 +98,7 @@ public class Game implements GameModel {
             this.phase = GamePhase.RESOLVING_OFFERS;
             gameState = buildGameState();
             notifyEndOfPlacingPhase();
+            currentPlayerId = null; // Reset del ID salvato
         }
 
         gameState = buildGameState();
@@ -111,14 +116,16 @@ public class Game implements GameModel {
 
         // Verifico sia il prossimo player a poter pescare
         if (!Objects.equals(p.getId(), tile.getOccupiedByPlayerId())) {
-            // TODO: ActionResult + Errore
-            throw new IllegalActionException("It's not your turn.");
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PLAYER, "It's not your turn.");
         }
 
         // Verifico che il numero di carte richieste sia corretto
         if (!checkDrawingCriteria(tile, selectedCards)) {
             throw new IllegalActionException("Invalid number of cards.");
         }
+
+        // Salvo ID del player che sta piazzando (per costruzione GameState)
+        currentPlayerId = playerId;
 
         // Food reward se presente sul Offer Tile
         p.addFood(tile.getAction().getFoodReward());
@@ -133,8 +140,7 @@ public class Game implements GameModel {
             Card c = cardMarket.getCard(RowType.BOTTOM, boardIndex);
             // Verifico sia prendibile
             if (!c.canBeTaken()) {
-                // TODO: ActionResult + Errore
-                throw new CardNotDrawableException("This card cannot be drawn from the card market");
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.CARD_NOT_TAKABLE, "This card cannot be drawn from the card market.");
             }
             // Aggiungo alla tribe e rimuovo dal market
             cardMarket.removeCard(RowType.BOTTOM, boardIndex);
@@ -145,8 +151,7 @@ public class Game implements GameModel {
             BuildingCard c = cardMarket.getBuilding(RowType.BOTTOM, boardIndex);
             // Verifico costo
             if (c.getFoodCost() - foodDiscount > p.getFood()) {
-                // TODO: ActionResult + Errore
-                throw new CardNotDrawableException("The food cost exceeds the player's reserve");
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "The food cost exceeds the player's reserve.");
             }
             // Aggiungo alla tribe e rimuovo cibo dal player
             cardMarket.removeBuilding(RowType.BOTTOM, boardIndex);
@@ -160,8 +165,7 @@ public class Game implements GameModel {
             Card c = cardMarket.getCard(RowType.TOP, boardIndex);
             // Verifico sia prendibile
             if (!c.canBeTaken()) {
-                // TODO: ActionResult + Errore
-                throw new CardNotDrawableException("This card cannot be drawn from the card market");
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.CARD_NOT_TAKABLE, "This card cannot be drawn from the card market.");
             }
             // Aggiungo alla tribe e rimuovo dal market
             cardMarket.removeCard(RowType.TOP, boardIndex);
@@ -172,8 +176,7 @@ public class Game implements GameModel {
             BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
             // Verifico costo
             if (c.getFoodCost() - foodDiscount > p.getFood()) {
-                // TODO: ActionResult + Errore
-                throw new CardNotDrawableException("The food cost exceeds the player's reserve");
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "The food cost exceeds the player's reserve.");
             }
             // Aggiungo alla tribe e rimuovo cibo dal player
             cardMarket.removeBuilding(RowType.TOP, boardIndex);
@@ -189,6 +192,7 @@ public class Game implements GameModel {
             phase = GamePhase.RESOLVING_EVENTS;
             gameState = buildGameState();
             notifyEndOfDrawingPhase();
+            currentPlayerId = null; // Reset del ID salvato
             // Se è stato settato un player che deve fare extra draw, lo notifico ora
             if (pendingExtraDrawPlayerId != null) {
                 phase = GamePhase.EXTRA_DRAW;
@@ -285,8 +289,7 @@ public class Game implements GameModel {
     @Override
     public ActionResult calculateScores() {
         ScoreCalculator scoreCalculator = new ScoreCalculator(this);
-        List<ScoreResult> scoreBoard = scoreCalculator.calculateFinalScores();
-        // TODO: mettere scoreBoard nell'oggetto di ritorno o in una state dedicata
+        scoreBoard = scoreCalculator.calculateFinalScores();
 
         gameState = buildGameState();
         notifyScores();
@@ -298,8 +301,44 @@ public class Game implements GameModel {
     // ------------------------------------------
     // Chiamata dal controller quando il player ha il building con l'effetto extra card
     @Override
-    public ActionResult takeExtraCard(String playerId, int index) {
-        // TODO: gestire davvero il pescaggio della carta extra
+    public ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) {
+        // TODO: Gestire index della carta da pescare (da quale lista? Tribe o Buildings?)
+        Player p = findPlayer(playerId);
+
+        // Se non ci sono player salvati per l'extra draw dò errore
+        if (pendingExtraDrawPlayerId == null) {
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NO_PENDING_EXTRA_DRAW, "There are no pending extra draws.");
+        }
+
+        // Verifico sia il player corretto per fare l'extra draw
+        if (!Objects.equals(p.getId(), pendingExtraDrawPlayerId)) {
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_EXTRA_DRAW, "It's not your turn.");
+        }
+
+        // Aggiungo le carte alla tribù del Player
+        int foodDiscount = p.getTribe().getBuildingDiscount();
+        // Distinzione tribe card - building card
+        if (selectedCardExtraDraw.isTribeCard()) {
+            int boardIndex = selectedCardExtraDraw.getCardIndex();
+            Card c = cardMarket.getCard(RowType.TOP, boardIndex);
+            // Verifico sia prendibile
+            if (!c.canBeTaken()) {
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_EXTRA_DRAW, "This card cannot be drawn from the card market.");
+            }
+            cardMarket.removeCard(RowType.TOP, boardIndex);
+            c.onTaken(this, p);
+        } else {
+            int boardIndex = selectedCardExtraDraw.getBuildingIndex();
+            BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
+            // Verifico sia prendibile
+            // Verifico costo
+            if (c.getFoodCost() - foodDiscount > p.getFood()) {
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "The food cost exceeds the player's reserve.");
+            }
+            cardMarket.removeBuilding(RowType.TOP, boardIndex);
+            c.onTaken(this, p);
+            p.spendFood(c.getFoodCost() - foodDiscount);
+        }
 
         phase = GamePhase.RESOLVING_EVENTS;
         clearPendingExtraDrawPlayer();
@@ -346,21 +385,10 @@ public class Game implements GameModel {
     }
 
     private String computeCurrentPlayerId() {
-        return switch (phase) {
-            case SETUP, ENDED, RESOLVING_EVENTS -> null;
-
-            case PLACING_TOTEMS -> {
-                TurnOrderSlot slot = board.getTurnOrderTile().getFirstFreeSlot();
-                yield slot != null ? slot.getPlayerId() : null;
-            }
-
-            case RESOLVING_OFFERS -> {
-                OfferTile tile = board.getFirstOccupiedOfferTile();
-                yield tile != null ? tile.getOccupiedByPlayerId() : null;
-            }
-
-            case EXTRA_DRAW -> pendingExtraDrawPlayerId;
-        };
+        if (phase == GamePhase.EXTRA_DRAW) {
+            return pendingExtraDrawPlayerId;
+        }
+        return currentPlayerId;
     }
 
 
@@ -419,7 +447,7 @@ public class Game implements GameModel {
 
     // Notifica punteggi finali
     private void notifyScores() {
-        for (ModelObserver o : observers) o.onScoreboardAvailable();
+        for (ModelObserver o : observers) o.onScores(scoreBoard);
     }
 
     // GETTERS
@@ -451,7 +479,3 @@ public class Game implements GameModel {
     }
 
 }
-
-
-//TODO: gestire anche i casi di failure negli ActionResult
-//TODO: in computeCurrentPlayerId() il ramo PLACING_TOTEMS con getFirstFreeSlot() non è perfetto semanticamente, perché quel metodo restituisce il primo slot libero, non il prossimo player già piazzato(commento di Chat)
