@@ -213,7 +213,7 @@ public class Game implements GameModel {
 
         notifyCardsTaken(playerId, takenCardIds, takenBuildingIds, foodSpentOnBuildings, foodGainedFromTile, slotIndex, foodDeltaFromSlot);
 
-        // Se tutti hanno pescato, il tracciato è vuoto, notifico il controller
+        // se tutti hanno pescato, il tracciato è vuoto, notifico il controller
         if (board.getFirstOccupiedOfferTile() == null) {
             phase = GamePhase.RESOLVING_EVENTS;
             gameState = buildGameState();
@@ -230,7 +230,7 @@ public class Game implements GameModel {
         return ActionResult.success(ActionType.TAKE_CARD, "Cards taken successfully");
     }
 
-    // Verifica condizioni del payload delle carte da pescare selezionate
+    // verifica condizioni del payload delle carte da pescare selezionate
     private boolean checkDrawingCriteria(OfferTile tile, SelectedCards selectedCards) {
         // UPPER ROW
         if ((selectedCards.getUpperRow().size() + selectedCards.getUpperBuildings().size()) != Math.min(tile.getAction().getUpperDrawRowCount(), cardMarket.getDrawableCount(RowType.TOP)))
@@ -273,6 +273,10 @@ public class Game implements GameModel {
             }
         }
         return new int[]{slot.getIndex(), foodDelta};
+    }
+
+    public boolean isDrawingPhaseOver(){
+        return board.getFirstOccupiedOfferTile() == null;
     }
 
     // ------------------------------------------
