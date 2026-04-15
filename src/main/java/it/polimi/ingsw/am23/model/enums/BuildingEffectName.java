@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.model.enums;
 
-public enum buildingEffectName {
+public enum BuildingEffectName {
     CAVE_PAINTINGS_FOOD_PER_ARTIST_EFFECT,
     DOUBLE_BUILDER_END_GAME_EFFECT,
     DOUBLE_SHAMAN_WIN_EFFECT,

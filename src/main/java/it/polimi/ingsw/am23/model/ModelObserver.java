@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.model;
 
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
 import it.polimi.ingsw.am23.model.state.GameState;
 
@@ -16,22 +17,29 @@ import java.util.List;
 
 public interface ModelObserver {
 
-    void onGameStarted();
+    void onGameStarted(GameStartedPayload payload); // manda tutto gameState !
 
-    void onGameStateChanged(GameState gameState);
+    //void onGameStateChanged(GameState gameState);
 
-    void onEndOfPlacingPhase(GameState gameState);
+    void onTotemPlaced(TotemPlacedPayload payload);
 
-    void onEndOfDrawingPhase(GameState gameState);
+    void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload);
 
-    void onExtraDrawRequest(GameState gameState);
+    void onCardsTaken(CardsTakenPayload payload);
+
+    void onExtraDrawRequest(ExtraDrawRequestPayload payload);
+
+    void onExtraCardTaken(ExtraCardTakenPayload payload);
 
     // Da qui si deduce: END OF ROUND
-    void onEndOfResolvingPhase(GameState gameState);
+    void onEventResolved(EventResolvedPayload payload);
 
-    void onEraProgression(GameState gameState);
+    void onEraProgression(EraProgressionPayload payload);
+
+    void onMarketRefreshed(MarketRefresherPayload payload);
 
     void onGameOver();
 
-    void onScores(List<ScoreResult> scoreBoard);
+    void onScoreboardAvailable(ScoreBoardPayload payload);
+    // void onScores(List<ScoreResult> scoreBoard);
 }

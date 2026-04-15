@@ -17,6 +17,10 @@ public class EventResolver {
         }
     }
 
+    public void resolveSingleEvent(EventCard event, Game game){
+        event.resolve(game);
+    }
+
     private List<EventCard> orderEvents(List<EventCard> events) {
         List<EventCard> normalEvents = new ArrayList<>();
         List<EventCard> sustenanceEvents = new ArrayList<>(); //nel caso in cui ce ne possano essere più di uno

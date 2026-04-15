@@ -125,4 +125,8 @@ public class Board {
         return states;
     }
 
+    public List<OfferTile> getOfferTiles(){
+        return List.copyOf(offerTiles);
+    }
+
 }

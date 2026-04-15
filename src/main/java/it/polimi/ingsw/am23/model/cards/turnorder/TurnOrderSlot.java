@@ -2,13 +2,17 @@ package it.polimi.ingsw.am23.model.cards.turnorder;
 
 public class TurnOrderSlot {
 
+    private final int index;
     private final int foodDelta;        //il delta di punti è sempre multiplo di foodDelta in teoria
     private String playerIdInSlot;
 
-    public TurnOrderSlot(int foodDelta, String playerIdInSlot) {
+    public TurnOrderSlot(int index, int foodDelta, String playerIdInSlot) {
+        this.index = index;
         this.foodDelta = foodDelta;
         this.playerIdInSlot = playerIdInSlot;
     }
+
+    public int getIndex() {return index;}
 
     public int getFoodDelta() {
         return foodDelta;
