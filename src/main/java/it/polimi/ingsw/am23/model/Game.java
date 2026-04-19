@@ -393,7 +393,7 @@ public class Game implements GameModel {
     @Override
     public ActionResult calculateScores() {
         ScoreCalculator scoreCalculator = new ScoreCalculator(this);
-        // scoreBoard = scoreCalculator.calculateFinalScores();
+        List<ScoreResult> scoreBoard = scoreCalculator.calculateFinalScores();
 
         List<PlayerScore> scores = scoreBoard.stream()
                 .map(r->new PlayerScore(r.player.getId(),r.PP, Map.of()))
@@ -586,12 +586,40 @@ public class Game implements GameModel {
     private void notifyScores(List<PlayerScore> scores) {
         ScoreBoardPayload payload = new ScoreBoardPayload(scores);
         observers.forEach(o->o.onScoreboardAvailable(payload));
-    /*private void notifyScores() {
+    /* private void notifyScores() {
         for (ModelObserver o : observers) o.onScores(scoreBoard);
     }*/
         // vecchio
+    }
 
     // GETTERS
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public TribeDeck getTribeDeck() {
+        return tribeDeck;
+    }
+
+    public BuildingDeck getBuildingDeck() {
+        return buildingDeck;
+    }
+
+    public EventResolver getEventResolver() {
+        return eventResolver;
+    }
+
+    public CardMarket getCardMarket() {
+        return cardMarket;
+    }
+
+    public List<ModelObserver> getObservers() {
+        return observers;
+    }
 
     @Override
     public GameState getGameState() {
@@ -600,15 +628,7 @@ public class Game implements GameModel {
 
     @Override
     public GamePhase getGamePhase() {
-        return phase;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    public Board getBoard() {
-        return board;
+        return null;
     }
 
     public Era getCurrentEra() {
@@ -619,4 +639,15 @@ public class Game implements GameModel {
         return currentRound;
     }
 
+    public GamePhase getPhase() {
+        return phase;
+    }
+
+    public String getPendingExtraDrawPlayerId() {
+        return pendingExtraDrawPlayerId;
+    }
+
+    public String getCurrentPlayerId() {
+        return currentPlayerId;
+    }
 }
