@@ -16,6 +16,8 @@ import it.polimi.ingsw.am23.model.state.GameState;
 
 public interface GameModel {
 
+    void startGame();
+
     ActionResult placeTotem(String playerId, char offerTileChar);
 
     ActionResult takeCards(String playerId, SelectedCards selectedCards);

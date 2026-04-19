@@ -13,4 +13,6 @@ module it.polimi.ingsw.am23 {
     opens it.polimi.ingsw.am23.model.state to javafx.fxml;
     opens it.polimi.ingsw.am23.setup.definition.cards to com.fasterxml.jackson.databind;
     opens it.polimi.ingsw.am23.setup.definition.board to com.fasterxml.jackson.databind;
+    exports it.polimi.ingsw.am23.trash;
+    opens it.polimi.ingsw.am23.trash to javafx.fxml;
 }

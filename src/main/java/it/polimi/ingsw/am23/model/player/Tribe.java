@@ -93,7 +93,10 @@ public class Tribe {
     }
 
     public int getBuildingDiscount() {
-        return characters.stream().filter(c -> c instanceof BuilderCard).mapToInt(b -> ((BuilderCard) b).getDiscount()).sum();
+        return characters.stream()
+                .mapToInt(CharacterCard::getDiscount)
+                .sum();
+        // return characters.stream().filter(c -> c instanceof BuilderCard).mapToInt(b -> ((BuilderCard) b).getDiscount()).sum();
     }
 
     // ---- metodi di supporto usati dalle carte in onAddedToTribe() ----

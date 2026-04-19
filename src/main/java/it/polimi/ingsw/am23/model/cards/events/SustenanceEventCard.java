@@ -26,7 +26,15 @@ public class SustenanceEventCard extends EventCard {
             }
 
             cost = Math.max(cost, 0); //non dovrebbe servire ma non si sa mai
-            game.applyFoodCostWithPointsFallback(player, cost);
+            if(player.getFood() >= cost){
+                player.spendFood(cost);
+            } else {
+                int playerFood = player.getFood();
+                player.spendFood(playerFood);
+                cost = cost - playerFood;
+                player.spendPrestigePoints(cost*game.getCurrentEra().ordinal());
+            }
+            // game.applyFoodCostWithPointsFallback(player, cost);
         }
     }
 

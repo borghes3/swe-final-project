@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am23.network.rmi;
+package it.polimi.ingsw.am23.network.rmi.client;
 
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
 import it.polimi.ingsw.am23.network.VirtualServer;

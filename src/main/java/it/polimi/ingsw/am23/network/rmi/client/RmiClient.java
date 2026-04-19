@@ -1,9 +1,10 @@
-package it.polimi.ingsw.am23.network.rmi;
+package it.polimi.ingsw.am23.network.rmi.client;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualView;
+import it.polimi.ingsw.am23.network.rmi.server.VirtualViewRmi;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -15,6 +16,9 @@ import java.util.List;
 
 public class RmiClient extends UnicastRemoteObject implements VirtualViewRmi {
 
+    // si può far si che l'interfaccia VirtualView sia implementata direttamente
+    // dalla view oppure creare un controller lato client che implementi l'interfaccia
+    // e si occupi di gestire le callback lato client
     private final VirtualView clientController;
 
     public RmiClient(VirtualView clientController) throws RemoteException {

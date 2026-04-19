@@ -45,7 +45,7 @@ public class CavePaintingsEventCard extends EventCard {
             if (player.getTribe().getCharacters().size() >= minArtists) {
                 player.addPrestigePoints(player.getTribe().count(CharacterType.ARTIST) * pointsFactor);
             } else {
-                player.losePrestigePoints(pointsToRemove);
+                player.spendPrestigePoints(pointsToRemove);
             }
             CavePaintingsEffectData data = new CavePaintingsEffectData();
             for (BuildingCard building : player.getTribe().getBuildings()) {

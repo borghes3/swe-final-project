@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am23.network.rmi;
+package it.polimi.ingsw.am23.network.rmi.server;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.state.GameState;

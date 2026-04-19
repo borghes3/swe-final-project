@@ -145,6 +145,10 @@ public class Game implements GameModel {
             // Aggiungo alla tribe e rimuovo dal market
             cardMarket.removeCard(RowType.BOTTOM, boardIndex);
             c.onTaken(this, p);
+            for (BuildingCard building : p.getTribe().getBuildings()) {
+                building.getEffect().onCardTaken(this, p, c);
+            }
+            // come si vuole notificare in questo caso?
         }
         // Buildings
         for (int boardIndex : selectedCards.getLowerBuildings()) {
@@ -155,7 +159,9 @@ public class Game implements GameModel {
             }
             // Aggiungo alla tribe e rimuovo cibo dal player
             cardMarket.removeBuilding(RowType.BOTTOM, boardIndex);
-            c.onTaken(this, p);
+            c.onTaken(this, p);  // aggiungo alla tribe
+            c.getEffect().onBuildingAdded(p);  // chiamo effetti di inizializzazione per building
+            c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
         }
 
@@ -170,6 +176,9 @@ public class Game implements GameModel {
             // Aggiungo alla tribe e rimuovo dal market
             cardMarket.removeCard(RowType.TOP, boardIndex);
             c.onTaken(this, p);
+            for (BuildingCard building : p.getTribe().getBuildings()) {
+                building.getEffect().onCardTaken(this, p, c);
+            }
         }
         // Buildings
         for (int boardIndex : selectedCards.getUpperBuildings()) {
@@ -181,6 +190,8 @@ public class Game implements GameModel {
             // Aggiungo alla tribe e rimuovo cibo dal player
             cardMarket.removeBuilding(RowType.TOP, boardIndex);
             c.onTaken(this, p);
+            c.getEffect().onBuildingAdded(p);
+            c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
         }
 
@@ -230,6 +241,10 @@ public class Game implements GameModel {
         // Gestione delta cibo del turn order slot
         if (slot.givesFood()) {                                     // Delta positivo
             findPlayer(playerId).addFood(slot.getFoodDelta());
+            // effetto building per ritorno su tessera con bonus cibo positivo
+            for(BuildingCard building : findPlayer(playerId).getTribe().getBuildings()) {
+                building.getEffect().modifyTurnOrderFood(this, findPlayer(playerId), slot.getFoodDelta());
+            }
         } else if (slot.getFoodDelta() != 0) {                      // Delta negativo
             if (findPlayer(playerId).canAfford(slot.getFoodDelta()))
                 findPlayer(playerId).spendFood(slot.getFoodDelta());
@@ -327,6 +342,9 @@ public class Game implements GameModel {
             }
             cardMarket.removeCard(RowType.TOP, boardIndex);
             c.onTaken(this, p);
+            for (BuildingCard building : p.getTribe().getBuildings()) {
+                building.getEffect().onCardTaken(this, p, c);
+            }
         } else {
             int boardIndex = selectedCardExtraDraw.getBuildingIndex();
             BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
@@ -337,6 +355,8 @@ public class Game implements GameModel {
             }
             cardMarket.removeBuilding(RowType.TOP, boardIndex);
             c.onTaken(this, p);
+            c.getEffect().onBuildingAdded(p);
+            c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
         }
 
@@ -361,13 +381,14 @@ public class Game implements GameModel {
     // EVENTS FUNCTIONS
     // ------------------------------------------
     // Sustenance Event
-    public void applyFoodCostWithPointsFallback(Player player, int cost) {
+    /* public void applyFoodCostWithPointsFallback(Player player, int cost) {
         if (player.getFood() >= cost) {
             player.spendFood(cost);
         } else {
             player.spendPrestigePoints(cost * currentEra.ordinal());
         }
     }
+    */
 
 
     // ------------------------------------------

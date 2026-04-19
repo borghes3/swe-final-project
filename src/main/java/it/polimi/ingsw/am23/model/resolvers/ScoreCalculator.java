@@ -37,7 +37,6 @@ public class ScoreCalculator {
                         .comparingInt((ScoreResult s) -> s.PP)                          // sort prima per PP
                         .thenComparingInt(s -> s.foodPoints).reversed()      // poi per foodPoints
         );
-        // TODO: EFFETTI BUILDINGS end game
         return scoreboard;
     }
 

@@ -58,4 +58,8 @@ public abstract class CharacterCard extends Card {
                 null
         );
     }
+
+    public int getDiscount(){
+        return 0;
+    }
 }

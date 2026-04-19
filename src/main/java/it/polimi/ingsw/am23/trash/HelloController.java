@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am23;
+package it.polimi.ingsw.am23.trash;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

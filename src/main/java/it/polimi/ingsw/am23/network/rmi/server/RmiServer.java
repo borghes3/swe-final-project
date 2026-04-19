@@ -1,8 +1,9 @@
-package it.polimi.ingsw.am23.network.rmi;
+package it.polimi.ingsw.am23.network.rmi.server;
 
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
+import it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -20,7 +21,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
 
     public static void startRmiServer(VirtualServer serverController) throws RemoteException {
         final String serverName = "ServerName";
-        RmiServer server = new RmiServer(serverController);
+        VirtualServerRmi server = new RmiServer(serverController);
         Registry registry = LocateRegistry.createRegistry(1234);
         registry.rebind(serverName, server);
         System.out.println("RMI Server avviato");

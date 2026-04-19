@@ -15,6 +15,7 @@ public class BuilderCard extends CharacterCard{
         this.discount = discount;
     }
 
+    @Override
     public int getDiscount() {
         return discount;
     }

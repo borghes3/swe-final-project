@@ -41,8 +41,8 @@ public class ShamanRitualEventCard extends EventCard {
                 building.getEffect().applyShamanRitual(game, player, data);
             }
 
-            int totalstars = player.getTribe().totalShamanStars() + data.getBonusStars();
-            results.add(new ShamanResult(player, totalstars, data));
+            int totalStars = player.getTribe().totalShamanStars() + data.getBonusStars();
+            results.add(new ShamanResult(player, totalStars, data));
         }
         int maxStars = getMaxStars(results);
         int minStars = getMinStars(results);
@@ -86,7 +86,7 @@ public class ShamanRitualEventCard extends EventCard {
         }
         if (result.isLast()) {
             if (!data.ignoreLoss()) {
-                player.losePrestigePoints(losePoints);
+                player.spendPrestigePoints(losePoints);
             }
         }
     }
