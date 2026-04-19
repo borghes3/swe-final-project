@@ -286,20 +286,18 @@ public class Game implements GameModel {
     public ActionResult resolveEvents() {
         List<EventCard> events = cardMarket.getBottomRowEvents();
 
-        cleanUp();
-
         if (currentRound == 10) {
             List<EventCard> topEvents = cardMarket.getTopRowEvents();
             events.addAll(topEvents);
-            eventResolver.resolveEvents(events, this);
-            // cleanUp();
+            resolveAndNotifyEvents(events);
+            cleanUp();
 
             phase = GamePhase.ENDED;
             gameState = buildGameState();
             notifyGameOver();
         } else {
-            eventResolver.resolveEvents(events, this);
-            // cleanUp();
+            resolveAndNotifyEvents(events);
+            cleanUp();
             currentRound++;
             phase = GamePhase.PLACING_TOTEMS;
             gameState = buildGameState();
@@ -426,6 +424,7 @@ public class Game implements GameModel {
         // Aggiungo le carte alla tribù del Player
         int foodDiscount = p.getTribe().getBuildingDiscount();
         // Distinzione tribe card - building card
+        String cardId;
         if (selectedCardExtraDraw.isTribeCard()) {
             int boardIndex = selectedCardExtraDraw.getCardIndex();
             Card c = cardMarket.getCard(RowType.TOP, boardIndex);
@@ -438,6 +437,7 @@ public class Game implements GameModel {
             for (BuildingCard building : p.getTribe().getBuildings()) {
                 building.getEffect().onCardTaken(this, p, c);
             }
+            cardId = c.getId();
         } else {
             int boardIndex = selectedCardExtraDraw.getBuildingIndex();
             BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
@@ -451,9 +451,9 @@ public class Game implements GameModel {
             c.getEffect().onBuildingAdded(p);
             c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
+            cardId = c.getId();
         }
-        // capire da sopra quale id prendere
-        String cardId = ""; // TODO: recuperare cardId
+
         notifyExtraCardTaken(playerId, cardId);
 
         phase = GamePhase.RESOLVING_EVENTS;
@@ -628,7 +628,7 @@ public class Game implements GameModel {
 
     @Override
     public GamePhase getGamePhase() {
-        return null;
+        return phase;
     }
 
     public Era getCurrentEra() {
@@ -637,10 +637,6 @@ public class Game implements GameModel {
 
     public int getCurrentRound() {
         return currentRound;
-    }
-
-    public GamePhase getPhase() {
-        return phase;
     }
 
     public String getPendingExtraDrawPlayerId() {
