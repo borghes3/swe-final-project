@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am23.model.setup;
 
-public class PlayerConnectionInfo {
+import java.io.Serializable;
+
+public class PlayerConnectionInfo implements Serializable {
     private String id;
     private String nickname;
     // TODO: Aggiungere colore scelto dal controller

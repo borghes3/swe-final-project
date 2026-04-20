@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am23.model.state;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public final class BoardState {
-
+public final class BoardState implements Serializable {
     private final List<CardState> topRow;
     private final List<CardState> bottomRow;
     private final List<CardState> topBuildings;

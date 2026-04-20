@@ -5,7 +5,10 @@ import it.polimi.ingsw.am23.model.cards.SelectedCards;
 
 public interface GameController {
     void placeTotem(char offerTileChar);
+
     void takeCards(SelectedCards selectedCards);
+
     void takeExtraCard(SelectedCardExtraDraw selectedCardExtraDraw);
+
     void close();
 }

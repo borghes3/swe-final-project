@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am23.model.state;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public final class PlayerState {
-
+public final class PlayerState implements Serializable {
     private final String playerId;
     private final String nickname;
     private final int food;

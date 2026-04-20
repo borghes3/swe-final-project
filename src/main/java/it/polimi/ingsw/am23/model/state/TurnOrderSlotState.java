@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am23.model.state;
 
-public final class TurnOrderSlotState {
+import java.io.Serializable;
 
+public final class TurnOrderSlotState implements Serializable {
     private final int positionIndex;
     private final int foodDelta;
     private final String occupiedByPlayerId;

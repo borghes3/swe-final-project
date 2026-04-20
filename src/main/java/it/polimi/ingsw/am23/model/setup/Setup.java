@@ -83,11 +83,10 @@ public class Setup {
 
     // Seleziono la tessera ordine di turno con il numero corretto di slot (e quindi di giocatori)
     private TurnOrderTile selectTurnOrderTile(List<TurnOrderTile> turnOrderTiles) {
-        TurnOrderTile filteredTurnOrderTile = turnOrderTiles.stream().filter(t -> t.getSlotsCount() == numberOfPlayers).toList().getFirst();
-        if (filteredTurnOrderTile == null) {
-            throw new UnmatchedGameCriteriaException("No Turn Order Tile matched the game criteria");
-        }
-        return filteredTurnOrderTile;
+        return turnOrderTiles.stream()
+                .filter(t -> t.getSlotsCount() == numberOfPlayers)
+                .findFirst()
+                .orElseThrow(() -> new UnmatchedGameCriteriaException("No Turn Order Tile matched the game criteria"));
     }
 
     // Filtra per numero di giocatori se presente, Divide in base a era, Mischia i 3 mazzi separatamente, Mette in ordine: (ERA I > ERA II > ERA III > EVENTI_FINALI)

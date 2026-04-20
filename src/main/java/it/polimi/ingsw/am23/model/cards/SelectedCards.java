@@ -1,8 +1,9 @@
 package it.polimi.ingsw.am23.model.cards;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class SelectedCards {
+public class SelectedCards implements Serializable {
     private final List<Integer> upperRow;
     private final List<Integer> lowerRow;
     private final List<Integer> upperBuildings;

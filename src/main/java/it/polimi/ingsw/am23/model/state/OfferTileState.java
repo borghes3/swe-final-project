@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am23.model.state;
 
-public final class OfferTileState {
+import java.io.Serializable;
 
+public final class OfferTileState implements Serializable {
     private final int positionIndex;
     private final char tileId;
     private final String occupiedByPlayerId;

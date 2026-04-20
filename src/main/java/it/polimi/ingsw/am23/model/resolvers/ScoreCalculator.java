@@ -46,7 +46,7 @@ public class ScoreCalculator {
             throw new IllegalStateException("Scores have not been calculated yet");
         }
         List<Player> winners = new ArrayList<>();
-        ScoreResult firstWinner = scoreboard.getFirst();
+        ScoreResult firstWinner = scoreboard.get(0);
         winners.add(firstWinner.player);
 
         // Verifico equivalenze di punti / cibo
