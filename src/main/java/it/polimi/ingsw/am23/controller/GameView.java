@@ -6,6 +6,7 @@ import it.polimi.ingsw.am23.model.state.GameState;
 
 import java.util.List;
 
+@Deprecated
 public interface GameView {
     void showGameState(GameState gameState);
     void showError(ErrorCode errorCode, String message);

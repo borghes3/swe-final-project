@@ -9,13 +9,14 @@ import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.state.GameState;
 import java.util.Objects;
 
-public class LocalGameController implements GameController, ModelObserver {
+@Deprecated
+public class LocalGameControllerDeprecated implements GameControllerDeprecated, ModelObserver {
 
     private final GameModel gameModel;
     private final GameView view;
     private final String localPlayerId;
 
-    public LocalGameController(GameModel gameModel, GameView view, String localPlayerId) {
+    public LocalGameControllerDeprecated(GameModel gameModel, GameView view, String localPlayerId) {
         this.gameModel = Objects.requireNonNull(gameModel, "gameModel cannot be null");
         this.view = Objects.requireNonNull(view, "view cannot be null");
         this.localPlayerId = Objects.requireNonNull(localPlayerId, "localPlayerId cannot be null");
