@@ -14,6 +14,8 @@ public interface VirtualServer {
 
     void leaveLobby(String playerId, String lobbyId) throws Exception;
 
+    void startGame(String playerId, String lobbyId) throws Exception;
+
 
     // game
     void placeTotem(String playerId, char offerTileChar) throws Exception;

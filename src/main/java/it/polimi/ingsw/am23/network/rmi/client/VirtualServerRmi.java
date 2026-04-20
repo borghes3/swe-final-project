@@ -23,6 +23,9 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
     void leaveLobby(String playerId, String lobbyId) throws RemoteException;
 
     @Override
+    void startGame(String playerId, String lobbyId) throws RemoteException;
+
+    @Override
     void placeTotem(String playerId, char offerTileChar) throws RemoteException;
 
     @Override

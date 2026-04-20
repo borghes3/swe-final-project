@@ -18,7 +18,7 @@ public interface VirtualView {
     void onLobbyListUpdated(List<LobbyState> lobbies) throws Exception;
 
 
-    // watiing room
+    // waiting room
 
     // sent only to the creator
     void onLobbyCreated(LobbyState lobby) throws Exception;

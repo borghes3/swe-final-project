@@ -64,6 +64,15 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
+    public void startGame(String playerId, String lobbyId) throws RemoteException {
+        try {
+            serverController.startGame(playerId, lobbyId);
+        } catch (Exception e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    @Override
     public void placeTotem(String playerId, char offerTileChar) throws RemoteException {
         try {
             serverController.placeTotem(playerId, offerTileChar);

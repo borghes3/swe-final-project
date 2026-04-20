@@ -5,10 +5,8 @@ import it.polimi.ingsw.am23.model.GameModel;
 import it.polimi.ingsw.am23.model.ModelObserver;
 import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
-import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.state.GameState;
-
-import java.util.List;
 import java.util.Objects;
 
 public class LocalGameController implements GameController, ModelObserver {
@@ -51,8 +49,8 @@ public class LocalGameController implements GameController, ModelObserver {
     }
 
     @Override
-    public void onGameStarted() {
-        GameState state = gameModel.getGameState();
+    public void onGameStarted(GameStartedPayload payload) {
+        GameState state = payload.fullSnapshot();
         if (state != null) {
             view.showGameStarted(state);
         } else {
@@ -61,33 +59,67 @@ public class LocalGameController implements GameController, ModelObserver {
     }
 
     @Override
-    public void onGameStateChanged(GameState gameState) {
-        view.showGameState(gameState);
+    public void onTotemPlaced(TotemPlacedPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showGameState(state);
+        }
     }
 
     @Override
-    public void onEndOfPlacingPhase(GameState gameState) {
-        view.showEndOfPlacingPhase(gameState);
+    public void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showEndOfPlacingPhase(state);
+        }
     }
 
     @Override
-    public void onEndOfDrawingPhase(GameState gameState) {
-        view.showEndOfDrawingPhase(gameState);
+    public void onCardsTaken(CardsTakenPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showEndOfDrawingPhase(state);
+        }
     }
 
     @Override
-    public void onExtraDrawRequest(GameState gameState) {
-        view.showExtraDrawRequest(gameState);
+    public void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showExtraDrawRequest(state);
+        }
     }
 
     @Override
-    public void onEndOfResolvingPhase(GameState gameState) {
-        view.showEndOfResolvingPhase(gameState);
+    public void onExtraCardTaken(ExtraCardTakenPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showGameState(state);
+        }
     }
 
     @Override
-    public void onEraProgression(GameState gameState) {
-        view.showEraProgression(gameState);
+    public void onEventResolved(EventResolvedPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showEndOfResolvingPhase(state);
+        }
+    }
+
+    @Override
+    public void onEraProgression(EraProgressionPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showEraProgression(state);
+        }
+    }
+
+    @Override
+    public void onMarketRefreshed(MarketRefresherPayload payload) {
+        GameState state = gameModel.getGameState();
+        if (state != null) {
+            view.showGameState(state);
+        }
     }
 
     @Override
@@ -101,8 +133,8 @@ public class LocalGameController implements GameController, ModelObserver {
     }
 
     @Override
-    public void onScores(List<ScoreResult> scoreBoard) {
-        view.showScoreboard(scoreBoard);
+    public void onScoreboardAvailable(ScoreBoardPayload payload) {
+        view.showInfo("Scoreboard: " + payload.scores());
     }
 
     private void handleResult(ActionResult result) {
