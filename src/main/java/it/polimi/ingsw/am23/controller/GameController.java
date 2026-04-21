@@ -1,9 +1,14 @@
 package it.polimi.ingsw.am23.controller;
 
+import it.polimi.ingsw.am23.model.ActionResult;
 import it.polimi.ingsw.am23.model.Game;
+import it.polimi.ingsw.am23.model.ModelObserver;
+import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
+import it.polimi.ingsw.am23.model.enums.GamePhase;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
 import it.polimi.ingsw.am23.model.setup.Setup;
 import it.polimi.ingsw.am23.network.LobbyState;
@@ -11,20 +16,13 @@ import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.setup.service.ResourceSetupFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Controller MVC
  * Gestisce lobby, partita e bootstrap modello
  */
-public final class GameController implements VirtualServer {
+public final class GameController implements VirtualServer, ModelObserver {
 
     private static final int DEFAULT_LOBBY_MAX_PLAYERS = 5;
     private static final int LOBBY_CODE_LENGTH = 4;
@@ -33,9 +31,11 @@ public final class GameController implements VirtualServer {
     private final ResourceSetupFactory setupFactory;
     private final Map<String, VirtualView> clientsByPlayerId = new HashMap<>();
     private final Map<String, PlayerConnectionInfo> playersById = new HashMap<>();
+    private final Map<String, String> lobbyByPlayerId = new HashMap<>();
     private final Map<String, LobbyRoom> lobbiesById = new LinkedHashMap<>();
     private final Map<String, Game> gamesByLobbyId = new HashMap<>();
     private final Random random = new Random();
+    private String activeLobbyId;
 
     public GameController() {
         this(new ResourceSetupFactory());
@@ -45,7 +45,6 @@ public final class GameController implements VirtualServer {
         this.setupFactory = Objects.requireNonNull(setupFactory, "setupFactory cannot be null");
     }
 
-    @Override
     public synchronized void connect(String playerName, VirtualView client) throws Exception {
         Objects.requireNonNull(playerName, "playerName cannot be null");
         Objects.requireNonNull(client, "client cannot be null");
@@ -72,7 +71,6 @@ public final class GameController implements VirtualServer {
         broadcastLobbyList();
     }
 
-    @Override
     public synchronized void createLobby(String playerId, String lobbyName, int maxPlayers) throws Exception {
         PlayerConnectionInfo owner = requireConnectedPlayer(playerId);
         String normalizedLobbyName = lobbyName == null ? "" : lobbyName.trim();
@@ -80,19 +78,20 @@ public final class GameController implements VirtualServer {
             throw new IllegalArgumentException("Lobby name cannot be empty.");
         }
         String lobbyId = generateLobbyId();
+        int capacity = maxPlayers > 0 ? maxPlayers : DEFAULT_LOBBY_MAX_PLAYERS;
 
-        LobbyState lobbyState = new LobbyState(lobbyId, normalizedLobbyName, playerId, DEFAULT_LOBBY_MAX_PLAYERS);
+        LobbyState lobbyState = new LobbyState(lobbyId, normalizedLobbyName, playerId, capacity);
         lobbyState.addPlayer(owner);
 
         LobbyRoom lobbyRoom = new LobbyRoom(lobbyState);
         lobbiesById.put(lobbyId, lobbyRoom);
+        lobbyByPlayerId.put(playerId, lobbyId);
 
         clientsByPlayerId.get(playerId).onLobbyCreated(copyLobby(lobbyState));
         broadcastLobbyUpdate(lobbyRoom);
         broadcastLobbyList();
     }
 
-    @Override
     public synchronized void joinLobby(String playerId, String lobbyId) throws Exception {
         PlayerConnectionInfo player = requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);
@@ -109,20 +108,22 @@ public final class GameController implements VirtualServer {
         }
 
         lobby.state.addPlayer(player);
+        lobbyByPlayerId.put(playerId, lobbyId);
         broadcastLobbyUpdate(lobby);
         broadcastLobbyList();
     }
 
-    @Override
     public synchronized void leaveLobby(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);
 
         lobby.state.removePlayer(playerId);
+        lobbyByPlayerId.remove(playerId);
 
         if (lobby.state.getOwnerPlayerId().equals(playerId) || lobby.state.getCurrentPlayers() == 0) {
             lobbiesById.remove(lobbyId);
             for (String memberId : lobby.memberIds()) {
+                lobbyByPlayerId.remove(memberId);
                 VirtualView view = clientsByPlayerId.get(memberId);
                 if (view != null) {
                     view.onLobbyClosed();
@@ -136,7 +137,6 @@ public final class GameController implements VirtualServer {
         broadcastLobbyList();
     }
 
-    @Override
     public synchronized void startGame(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);
@@ -155,30 +155,220 @@ public final class GameController implements VirtualServer {
         List<PlayerConnectionInfo> players = new ArrayList<>(lobby.state.getPlayers());
         Setup setup = setupFactory.createSetup(players, defaultTurnOrderTiles());
         Game game = setup.make();
-        game.startGame();
         gamesByLobbyId.put(lobbyId, game);
+        game.addObserver(this);
 
-        for (String memberId : lobby.memberIds()) {
-            VirtualView view = clientsByPlayerId.get(memberId);
-            if (view != null) {
-                view.onGameStarted(game.getGameState());
-            }
+        withActiveLobby(lobbyId, () -> {
+            game.startGame();
+            return ActionResult.success(it.polimi.ingsw.am23.model.enums.ActionType.GENERIC, "Game started");
+        });
+    }
+
+    @Override
+    public synchronized void placeTotem(String playerId, char offerTileChar) throws Exception {
+        String lobbyId = requireLobbyIdForPlayer(playerId);
+        Game game = requireGame(lobbyId);
+        ActionResult result = withActiveLobby(lobbyId, () -> game.placeTotem(playerId, offerTileChar));
+        handleActionResult(playerId, result);
+    }
+
+    @Override
+    public synchronized void takeCards(String playerId, SelectedCards selectedCards) throws Exception {
+        String lobbyId = requireLobbyIdForPlayer(playerId);
+        Game game = requireGame(lobbyId);
+        ActionResult result = withActiveLobby(lobbyId, () -> game.takeCards(playerId, selectedCards));
+        handleActionResult(playerId, result);
+        if (result.isSuccess()) {
+            broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
+            advanceGameFlow(lobbyId);
         }
     }
 
     @Override
-    public void placeTotem(String playerId, char offerTileChar) {
-        throw new UnsupportedOperationException("Not implemented yet in base protocol.");
+    public synchronized void takeExtraCard(String playerId, int index) throws Exception {
+        String lobbyId = requireLobbyIdForPlayer(playerId);
+        Game game = requireGame(lobbyId);
+        SelectedCardExtraDraw selectedCardExtraDraw = new SelectedCardExtraDraw(index, null);
+        ActionResult result = withActiveLobby(lobbyId, () -> game.takeExtraCard(playerId, selectedCardExtraDraw));
+        handleActionResult(playerId, result);
+        if (result.isSuccess()) {
+            broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
+            advanceGameFlow(lobbyId);
+        }
     }
 
     @Override
-    public void takeCards(String playerId, SelectedCards selectedCards) {
-        throw new UnsupportedOperationException("Not implemented yet in base protocol.");
+    public synchronized void onGameStarted(GameStartedPayload payload) {
+        broadcastGameStarted(activeLobbyId, payload.fullSnapshot());
     }
 
     @Override
-    public void takeExtraCard(String playerId, int index) {
-        throw new UnsupportedOperationException("Not implemented yet in base protocol.");
+    public synchronized void onTotemPlaced(TotemPlacedPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
+        broadcastEndOfPlacingPhase(activeLobbyId, requireGame(activeLobbyId).getGameState());
+    }
+
+    @Override
+    public synchronized void onCardsTaken(CardsTakenPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
+        broadcastExtraDrawRequest(activeLobbyId, requireGame(activeLobbyId).getGameState());
+    }
+
+    @Override
+    public synchronized void onExtraCardTaken(ExtraCardTakenPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onEventResolved(EventResolvedPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onEraProgression(EraProgressionPayload payload) {
+        broadcastEraProgression(activeLobbyId, requireGame(activeLobbyId).getGameState());
+    }
+
+    @Override
+    public synchronized void onMarketRefreshed(MarketRefresherPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onGameOver() {
+        broadcastGameOver(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
+        broadcastScoreboardAvailable(activeLobbyId);
+    }
+
+    private ActionResult withActiveLobby(String lobbyId, GameAction action) throws Exception {
+        String previousLobbyId = activeLobbyId;
+        activeLobbyId = lobbyId;
+        try {
+            return action.run();
+        } finally {
+            activeLobbyId = previousLobbyId;
+        }
+    }
+
+    private void handleActionResult(String playerId, ActionResult result) throws Exception {
+        if (result == null || result.isSuccess()) {
+            return;
+        }
+        VirtualView view = clientsByPlayerId.get(playerId);
+        if (view != null) {
+            view.onActionError(result.getActionType(), result.getMessage());
+        }
+    }
+
+    private void advanceGameFlow(String lobbyId) throws Exception {
+        Game game = gamesByLobbyId.get(lobbyId);
+        if (game == null) {
+            return;
+        }
+
+        while (true) {
+            GamePhase phase = game.getGamePhase();
+            if (phase == GamePhase.RESOLVING_EVENTS) {
+                withActiveLobby(lobbyId, game::resolveEvents);
+                if (game.getGamePhase() == GamePhase.ENDED) {
+                    withActiveLobby(lobbyId, game::calculateScores);
+                } else {
+                    broadcastEndOfResolvingPhase(lobbyId, game.getGameState());
+                }
+                continue;
+            }
+            if (phase == GamePhase.ENDED) {
+                withActiveLobby(lobbyId, game::calculateScores);
+            }
+            break;
+        }
+    }
+
+    private String requireLobbyIdForPlayer(String playerId) {
+        String lobbyId = lobbyByPlayerId.get(playerId);
+        if (lobbyId == null) {
+            throw new IllegalArgumentException("Player is not inside a lobby: " + playerId);
+        }
+        return lobbyId;
+    }
+
+    private Game requireGame(String lobbyId) {
+        Game game = gamesByLobbyId.get(lobbyId);
+        if (game == null) {
+            throw new IllegalStateException("Game not started for lobby: " + lobbyId);
+        }
+        return game;
+    }
+
+    private void broadcastGameStarted(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
+        broadcastToLobby(lobbyId, view -> view.onGameStarted(gameState));
+    }
+
+    private void broadcastGameState(String lobbyId) {
+        Game game = gamesByLobbyId.get(lobbyId);
+        if (game != null) {
+            broadcastToLobby(lobbyId, view -> view.onGameStateChanged(game.getGameState()));
+        }
+    }
+
+    private void broadcastEndOfPlacingPhase(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
+        broadcastToLobby(lobbyId, view -> view.onEndOfPlacingPhase(gameState));
+    }
+
+    private void broadcastEndOfDrawingPhase(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
+        broadcastToLobby(lobbyId, view -> view.onEndOfDrawingPhase(gameState));
+    }
+
+    private void broadcastExtraDrawRequest(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
+        broadcastToLobby(lobbyId, view -> view.onExtraDrawRequest(gameState));
+    }
+
+    private void broadcastEndOfResolvingPhase(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
+        broadcastToLobby(lobbyId, view -> view.onEndOfResolvingPhase(gameState));
+    }
+
+    private void broadcastEraProgression(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
+        broadcastToLobby(lobbyId, view -> view.onEraProgression(gameState));
+    }
+
+    private void broadcastGameOver(String lobbyId) {
+        broadcastToLobby(lobbyId, VirtualView::onGameOver);
+    }
+
+    private void broadcastScoreboardAvailable(String lobbyId) {
+        broadcastToLobby(lobbyId, VirtualView::onScoreboardAvailable);
+    }
+
+    private void broadcastToLobby(String lobbyId, RemoteViewAction action) {
+        if (lobbyId == null) {
+            return;
+        }
+        LobbyRoom lobby = lobbiesById.get(lobbyId);
+        if (lobby == null) {
+            return;
+        }
+        for (String memberId : lobby.memberIds()) {
+            VirtualView view = clientsByPlayerId.get(memberId);
+            if (view != null) {
+                try {
+                    action.apply(view);
+                } catch (Exception ignored) {
+                    // Ignore transient remote failures during broadcast.
+                }
+            }
+        }
     }
 
     private PlayerConnectionInfo requireConnectedPlayer(String playerId) {
@@ -264,5 +454,15 @@ public final class GameController implements VirtualServer {
         private List<String> memberIds() {
             return state.getPlayers().stream().map(PlayerConnectionInfo::getId).toList();
         }
+    }
+
+    @FunctionalInterface
+    private interface GameAction {
+        ActionResult run() throws Exception;
+    }
+
+    @FunctionalInterface
+    private interface RemoteViewAction {
+        void apply(VirtualView view) throws Exception;
     }
 }

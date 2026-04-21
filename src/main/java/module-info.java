@@ -12,7 +12,8 @@ module it.polimi.ingsw.am23 {
     exports it.polimi.ingsw.am23.network;
     exports it.polimi.ingsw.am23.network.rmi.client;
     exports it.polimi.ingsw.am23.network.rmi.server;
-    exports it.polimi.ingsw.am23.view.tui;
+//    exports it.polimi.ingsw.am23.view.tui;
+    exports it.polimi.ingsw.am23.view;
     exports it.polimi.ingsw.am23.model.state;
     exports it.polimi.ingsw.am23.model.setup;
     exports it.polimi.ingsw.am23.model.cards;

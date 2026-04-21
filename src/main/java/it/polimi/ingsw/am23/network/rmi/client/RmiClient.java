@@ -12,130 +12,177 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.Objects;
 
+public final class RmiClient extends UnicastRemoteObject implements VirtualViewRmi {
 
-public class RmiClient extends UnicastRemoteObject implements VirtualViewRmi {
+    private final VirtualView view;
 
-    // si può far si che l'interfaccia VirtualView sia implementata direttamente
-    // dalla view oppure creare un controller lato client che implementi l'interfaccia
-    // e si occupi di gestire le callback lato client
-    private final VirtualView clientController;
-
-    public RmiClient(VirtualView clientController) throws RemoteException {
+    public RmiClient(VirtualView view) throws RemoteException {
         super();
-        this.clientController = clientController;
+        this.view = Objects.requireNonNull(view, "view cannot be null");
     }
 
-    public static VirtualServerRmi connect(String host, String playerName, VirtualView clientController)
+    public static VirtualServerRmi connect(String host, String playerName, VirtualView view)
             throws RemoteException, NotBoundException {
         final String serverName = "ServerName";
         Registry registry = LocateRegistry.getRegistry(host, 1234);
         VirtualServerRmi server = (VirtualServerRmi) registry.lookup(serverName);
-        RmiClient client = new RmiClient(clientController);
+        RmiClient client = new RmiClient(view);
         server.connect(playerName, client);
         return server;
     }
 
-
     @Override
     public void onConnected(String playerId, List<LobbyState> lobbies) throws RemoteException {
-        try { clientController.onConnected(playerId, lobbies); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onConnected(playerId, lobbies);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onConnectError(String reason) throws RemoteException {
-        try { clientController.onConnectError(reason); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onConnectError(reason);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onLobbyListUpdated(List<LobbyState> lobbies) throws RemoteException {
-        try { clientController.onLobbyListUpdated(lobbies); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onLobbyListUpdated(lobbies);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onLobbyCreated(LobbyState lobby) throws RemoteException {
-        try { clientController.onLobbyCreated(lobby); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onLobbyCreated(lobby);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onLobbyUpdate(LobbyState lobby) throws RemoteException {
-        try { clientController.onLobbyUpdate(lobby); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onLobbyUpdate(lobby);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onJoinError(String reason) throws RemoteException {
-        try { clientController.onJoinError(reason); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onJoinError(reason);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onLobbyClosed() throws RemoteException {
-        try { clientController.onLobbyClosed(); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onLobbyClosed();
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onGameStarted(GameState gameState) throws RemoteException {
-        try { clientController.onGameStarted(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onGameStarted(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onGameStateChanged(GameState gameState) throws RemoteException {
-        try { clientController.onGameStateChanged(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onGameStateChanged(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onEndOfPlacingPhase(GameState gameState) throws RemoteException {
-        try { clientController.onEndOfPlacingPhase(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onEndOfPlacingPhase(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onEndOfDrawingPhase(GameState gameState) throws RemoteException {
-        try { clientController.onEndOfDrawingPhase(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onEndOfDrawingPhase(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onExtraDrawRequest(GameState gameState) throws RemoteException {
-        try { clientController.onExtraDrawRequest(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onExtraDrawRequest(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onEndOfResolvingPhase(GameState gameState) throws RemoteException {
-        try { clientController.onEndOfResolvingPhase(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onEndOfResolvingPhase(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onEraProgression(GameState gameState) throws RemoteException {
-        try { clientController.onEraProgression(gameState); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onEraProgression(gameState);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onGameOver() throws RemoteException {
-        try { clientController.onGameOver(); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onGameOver();
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onScoreboardAvailable() throws RemoteException {
-        try { clientController.onScoreboardAvailable(); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onScoreboardAvailable();
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 
     @Override
     public void onActionError(ActionType actionType, String message) throws RemoteException {
-        try { clientController.onActionError(actionType, message); }
-        catch (Exception e) { throw new RemoteException(e.getMessage()); }
+        try {
+            view.onActionError(actionType, message);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
     }
 }
