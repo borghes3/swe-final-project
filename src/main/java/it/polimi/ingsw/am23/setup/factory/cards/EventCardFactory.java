@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am23.setup.factory.cards;
 
-import it.polimi.ingsw.am23.model.cards.events.CavePaintingsEventCard;
 import it.polimi.ingsw.am23.model.cards.EventCard;
+import it.polimi.ingsw.am23.model.cards.events.CavePaintingsEventCard;
 import it.polimi.ingsw.am23.model.cards.events.HuntingEventCard;
 import it.polimi.ingsw.am23.model.cards.events.ShamanRitualEventCard;
 import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;

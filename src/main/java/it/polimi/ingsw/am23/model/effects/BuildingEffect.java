@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am23.model.effects;
 
 import it.polimi.ingsw.am23.model.Game;
-import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.cards.Card;
+import it.polimi.ingsw.am23.model.player.Player;
 
 public interface BuildingEffect {
 

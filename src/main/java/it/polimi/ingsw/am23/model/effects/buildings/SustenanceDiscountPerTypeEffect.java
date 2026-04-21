@@ -4,7 +4,6 @@ import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.player.Player;
-import javafx.scene.effect.Effect;
 
 public class SustenanceDiscountPerTypeEffect implements BuildingEffect{
 

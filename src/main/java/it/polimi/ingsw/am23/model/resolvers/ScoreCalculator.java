@@ -7,7 +7,9 @@ import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.player.Tribe;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ScoreCalculator {
 

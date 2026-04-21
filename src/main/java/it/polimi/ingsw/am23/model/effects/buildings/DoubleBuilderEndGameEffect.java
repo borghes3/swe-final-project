@@ -2,8 +2,6 @@ package it.polimi.ingsw.am23.model.effects.buildings;
 
 import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.cards.CharacterCard;
-import it.polimi.ingsw.am23.model.cards.characters.BuilderCard;
-import it.polimi.ingsw.am23.model.cards.characters.InventorCard;
 import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.player.Player;
 

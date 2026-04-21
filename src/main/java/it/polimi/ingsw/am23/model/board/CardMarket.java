@@ -2,11 +2,11 @@ package it.polimi.ingsw.am23.model.board;
 
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
+import it.polimi.ingsw.am23.model.cards.EventCard;
 import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.RowType;
-import it.polimi.ingsw.am23.model.cards.EventCard;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,5 @@
 package it.polimi.ingsw.am23.model.setup;
 
-import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am23.exceptions.UnmatchedGameCriteriaException;
 import it.polimi.ingsw.am23.model.Game;
@@ -24,6 +19,10 @@ import it.polimi.ingsw.am23.model.enums.TotemColors;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.player.Totem;
 import it.polimi.ingsw.am23.model.resolvers.EventResolver;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class Setup {

@@ -1,10 +1,6 @@
 package it.polimi.ingsw.am23.model;
 
 import it.polimi.ingsw.am23.model.payloads.*;
-import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
-import it.polimi.ingsw.am23.model.state.GameState;
-
-import java.util.List;
 
 // --------------------------------------------
 // INTERFACCIA OSSERVATA DALLA VIRTUAL VIEW

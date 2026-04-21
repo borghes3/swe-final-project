@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am23.model.state;
 
-import java.io.Serializable;
-import java.util.Objects;
-
 import it.polimi.ingsw.am23.model.enums.CardKind;
 import it.polimi.ingsw.am23.model.enums.Era;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class CardState implements Serializable {
 

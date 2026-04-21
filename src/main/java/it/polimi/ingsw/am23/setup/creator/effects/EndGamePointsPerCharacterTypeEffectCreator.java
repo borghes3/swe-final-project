@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am23.setup.creator.effects;
 
-import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.effects.buildings.EndGamePointsPerCharacterTypeEffect;
+import it.polimi.ingsw.am23.model.enums.CharacterType;
 
 import java.util.Map;
 
