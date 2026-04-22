@@ -282,10 +282,6 @@ public class Game implements GameModel {
         return new int[]{slot.getIndex(), foodDelta};
     }
 
-    public boolean isDrawingPhaseOver(){
-        return board.getFirstOccupiedOfferTile() == null;
-    }
-
     // ------------------------------------------
     // RESOLVING EVENTS PHASE
     // ------------------------------------------
