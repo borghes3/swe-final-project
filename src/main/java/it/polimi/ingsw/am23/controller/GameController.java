@@ -1,12 +1,11 @@
 package it.polimi.ingsw.am23.controller;
 
+import it.polimi.ingsw.am23.jsonParsing.Parser;
 import it.polimi.ingsw.am23.model.ActionResult;
 import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.ModelObserver;
 import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
-import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
-import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
@@ -14,7 +13,6 @@ import it.polimi.ingsw.am23.model.setup.Setup;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
-import it.polimi.ingsw.am23.setup.service.ResourceSetupFactory;
 
 import java.util.*;
 
@@ -28,7 +26,6 @@ public final class GameController implements VirtualServer, ModelObserver {
     private static final int LOBBY_CODE_LENGTH = 4;
     private static final String LOBBY_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    private final ResourceSetupFactory setupFactory;
     private final Map<String, VirtualView> clientsByPlayerId = new HashMap<>();
     private final Map<String, PlayerConnectionInfo> playersById = new HashMap<>();
     private final Map<String, String> lobbyByPlayerId = new HashMap<>();
@@ -36,14 +33,6 @@ public final class GameController implements VirtualServer, ModelObserver {
     private final Map<String, Game> gamesByLobbyId = new HashMap<>();
     private final Random random = new Random();
     private String activeLobbyId;
-
-    public GameController() {
-        this(new ResourceSetupFactory());
-    }
-
-    public GameController(ResourceSetupFactory setupFactory) {
-        this.setupFactory = Objects.requireNonNull(setupFactory, "setupFactory cannot be null");
-    }
 
     public synchronized void connect(String playerName, VirtualView client) throws Exception {
         Objects.requireNonNull(playerName, "playerName cannot be null");
@@ -153,7 +142,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         }
 
         List<PlayerConnectionInfo> players = new ArrayList<>(lobby.state.getPlayers());
-        Setup setup = setupFactory.createSetup(players, defaultTurnOrderTiles());
+        Setup setup = new Parser().parse(players);
         Game game = setup.make();
         gamesByLobbyId.put(lobbyId, game);
         game.addObserver(this);
@@ -438,17 +427,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         throw new IllegalStateException("Unable to generate a unique lobby code.");
     }
 
-    private List<TurnOrderTile> defaultTurnOrderTiles() {
-        List<TurnOrderTile> tiles = new ArrayList<>();
-        for (int players = 2; players <= 5; players++) {
-            List<TurnOrderSlot> slots = new ArrayList<>();
-            for (int i = 0; i < players; i++) {
-                slots.add(new TurnOrderSlot(i, 0, null));
-            }
-            tiles.add(new TurnOrderTile(slots));
-        }
-        return tiles;
-    }
 
     private record LobbyRoom(LobbyState state) {
         private List<String> memberIds() {

@@ -1,0 +1,78 @@
+[
+  {
+    "id": "TO1",
+    "slots": [
+      {
+        "position": 0,
+        "foodDelta": 1
+      },
+      {
+        "position": 1,
+        "foodDelta": -1
+      }
+    ]
+  },
+  {
+    "id": "TO2",
+    "slots": [
+      {
+        "position": 0,
+        "foodDelta": 2
+      },
+      {
+        "position": 1,
+        "foodDelta": 0
+      },
+      {
+        "position": 2,
+        "foodDelta": -1
+      }
+    ]
+  },
+  {
+    "id": "TO3",
+    "slots": [
+      {
+        "position": 0,
+        "foodDelta": 2
+      },
+      {
+        "position": 1,
+        "foodDelta": 1
+      },
+      {
+        "position": 2,
+        "foodDelta": 0
+      },
+      {
+        "position": 3,
+        "foodDelta": -1
+      }
+    ]
+  },
+  {
+    "id": "TO4",
+    "slots": [
+      {
+        "position": 0,
+        "foodDelta": 3
+      },
+      {
+        "position": 1,
+        "foodDelta": 1
+      },
+      {
+        "position": 2,
+        "foodDelta": 0
+      },
+      {
+        "position": 3,
+        "foodDelta": 0
+      },
+      {
+        "position": 4,
+        "foodDelta": -1
+      }
+    ]
+  }
+]
