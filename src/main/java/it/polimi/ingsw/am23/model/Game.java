@@ -1,7 +1,11 @@
 package it.polimi.ingsw.am23.model;
 
-import it.polimi.ingsw.am23.exceptions.*;               // tutte le exceptions custom
-import it.polimi.ingsw.am23.model.board.*;
+import it.polimi.ingsw.am23.exceptions.IllegalActionException;
+import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
+import it.polimi.ingsw.am23.model.board.Board;
+import it.polimi.ingsw.am23.model.board.CardMarket;
+import it.polimi.ingsw.am23.model.board.OfferTile;
+import it.polimi.ingsw.am23.model.board.RefillResult;
 import it.polimi.ingsw.am23.model.cards.*;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
@@ -18,7 +22,10 @@ import it.polimi.ingsw.am23.model.resolvers.ScoreCalculator;
 import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
 import it.polimi.ingsw.am23.model.state.GameState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class Game implements GameModel {
 
@@ -273,10 +280,6 @@ public class Game implements GameModel {
             }
         }
         return new int[]{slot.getIndex(), foodDelta};
-    }
-
-    public boolean isDrawingPhaseOver(){
-        return board.getFirstOccupiedOfferTile() == null;
     }
 
     // ------------------------------------------
