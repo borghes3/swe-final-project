@@ -11,8 +11,8 @@ class TurnOrderTileTest {
 
     @Test
     void firstFreeAndOccupiedSlotLookupBehaveAsExpected() {
-        TurnOrderSlot s1 = new TurnOrderSlot(0, "p1");
-        TurnOrderSlot s2 = new TurnOrderSlot(0, null);
+        TurnOrderSlot s1 = new TurnOrderSlot(0, 0,"p1");
+        TurnOrderSlot s2 = new TurnOrderSlot(0, 0,null);
         TurnOrderTile tile = new TurnOrderTile(List.of(s1, s2));
 
         assertEquals(s2, tile.getFirstFreeSlot());

@@ -21,7 +21,7 @@ class ExtraDrawEffectTest {
         Game game = TestUtils.game(
                 List.of(p),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, null)),
+                List.of(new TurnOrderSlot(0, 0,null)),
                 List.of(TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(),

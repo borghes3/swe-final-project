@@ -17,8 +17,8 @@ class BoardTest {
     void tileAndSlotLookupAndFreeListsWork() {
         OfferTile tileA = new OfferTile('A', "p1", 2, new OfferAction(1, 0, 0));
         OfferTile tileB = new OfferTile('B', null, 2, new OfferAction(0, 1, 0));
-        TurnOrderSlot s1 = new TurnOrderSlot(0, null);
-        TurnOrderSlot s2 = new TurnOrderSlot(0, "p2");
+        TurnOrderSlot s1 = new TurnOrderSlot(0, 0,null);
+        TurnOrderSlot s2 = new TurnOrderSlot(0, 0,"p2");
 
         Board board = new Board(List.of(tileA, tileB), new TurnOrderTile(List.of(s1, s2)));
 
@@ -34,7 +34,7 @@ class BoardTest {
     @Test
     void stateBuildersProduceCoherentStateShape() {
         OfferTile tileA = new OfferTile('A', "p1", 2, new OfferAction(1, 0, 1));
-        TurnOrderSlot slot = new TurnOrderSlot(2, "p1");
+        TurnOrderSlot slot = new TurnOrderSlot(2,0, "p1");
         Board board = new Board(List.of(tileA), new TurnOrderTile(List.of(slot)));
         CardMarket market = new CardMarket(List.of(TestUtils.artist("a1", Era.ERA_1)), List.of(), List.of());
 

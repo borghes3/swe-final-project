@@ -15,12 +15,12 @@ import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
-import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.resolvers.EventResolver;
 import it.polimi.ingsw.am23.model.resolvers.ScoreCalculator;
 import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
 import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.model.state.ScoreEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +46,6 @@ public class Game implements GameModel {
     private String pendingExtraDrawPlayerId;
 
      private String currentPlayerId = null;
-    // private List<ScoreResult> scoreBoard;
-    // fatto in aula il 14 aprile, ma con i payloads non dovrebbe servire
 
     public Game(List<Player> players, Board board, TribeDeck tribeDeck, BuildingDeck buildingDeck, EventResolver eventResolver, CardMarket cardMarket, Era currentEra, int currentRound) {
         this.players = players;
@@ -101,17 +99,20 @@ public class Game implements GameModel {
         // E lo piazzo nella offer tile selezionata
         tile.placeTotem(p.getId());
 
-        notifyTotemPlaced(playerId, offerTileChar);
+        gameState = buildGameState();
+        notifyGameStateChanged();
 
         // Se tutti hanno piazzato, la tessera ordine di turno é vuota, notifico il controller
         if (board.getTurnOrderTile().isEmpty()) {
             this.phase = GamePhase.RESOLVING_OFFERS;
+            currentPlayerId = null; // Reset del ID salvato
             gameState = buildGameState();
             notifyEndOfPlacingPhase();
-            currentPlayerId = null; // Reset del ID salvato
+        }else{ // non tutti hanno ancora pizzato, aggiorno solo lo stato
+            gameState = buildGameState();
+            notifyGameStateChanged();
         }
 
-        gameState = buildGameState();
         return ActionResult.success(ActionType.PLACE_TOTEM, "Totem placed successfully");
     }
 
@@ -136,15 +137,11 @@ public class Game implements GameModel {
         // Salvo ID del player che sta piazzando (per costruzione GameState)
         currentPlayerId = playerId;
 
-        // Food reward se presente sul Offer Tile
-        int foodGainedFromTile = tile.getAction().getFoodReward();
+        // food reward se presente su offer tile
         p.addFood(tile.getAction().getFoodReward());
 
         int foodDiscount = p.getTribe().getBuildingDiscount();
-        int foodSpentOnBuildings = 0;
 
-        List<String> takenCardIds = new ArrayList<>();
-        List<String> takenBuildingIds = new ArrayList<>();
 
         // LOWER ROW
         // Tribe Cards
@@ -160,8 +157,6 @@ public class Game implements GameModel {
             for (BuildingCard building : p.getTribe().getBuildings()) {
                 building.getEffect().onCardTaken(this, p, c);
             }
-            // come si vuole notificare in questo caso?
-            takenCardIds.add(c.getId());
         }
         // Buildings
         for (int boardIndex : selectedCards.getLowerBuildings()) {
@@ -176,8 +171,6 @@ public class Game implements GameModel {
             c.getEffect().onBuildingAdded(p);  // chiamo effetti di inizializzazione per building
             c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
-            foodSpentOnBuildings += (c.getFoodCost() - foodDiscount);
-            takenBuildingIds.add(c.getId());
         }
 
         // UPPER ROW
@@ -194,7 +187,6 @@ public class Game implements GameModel {
             for (BuildingCard building : p.getTribe().getBuildings()) {
                 building.getEffect().onCardTaken(this, p, c);
             }
-            takenCardIds.add(c.getId());
         }
         // Buildings
         for (int boardIndex : selectedCards.getUpperBuildings()) {
@@ -209,16 +201,13 @@ public class Game implements GameModel {
             c.getEffect().onBuildingAdded(p);
             c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
-            foodSpentOnBuildings += (c.getFoodCost() - foodDiscount);
-            takenBuildingIds.add(c.getId());
         }
 
         // Ritorno al turn order
-        int[] slotResult = returnToTurnOrder(playerId);
-        int slotIndex = slotResult[0];
-        int foodDeltaFromSlot = slotResult[1];
+        returnToTurnOrder(playerId);
 
-        notifyCardsTaken(playerId, takenCardIds, takenBuildingIds, foodSpentOnBuildings, foodGainedFromTile, slotIndex, foodDeltaFromSlot);
+        gameState = buildGameState();
+        notifyGameStateChanged();
 
         // se tutti hanno pescato, il tracciato è vuoto, notifico il controller
         if (board.getFirstOccupiedOfferTile() == null) {
@@ -231,9 +220,9 @@ public class Game implements GameModel {
                 gameState = buildGameState();
                 notifyExtraDrawRequest();
             }
+            else notifyEndOfDrawingPhase();
         }
 
-        gameState = buildGameState();
         return ActionResult.success(ActionType.TAKE_CARD, "Cards taken successfully");
     }
 
@@ -249,7 +238,7 @@ public class Game implements GameModel {
     }
 
     // Dopo aver finito di pescare, ritorno al turn order tile
-    private int[] returnToTurnOrder(String playerId) {
+    private void returnToTurnOrder(String playerId) {
         // Rimuovo il player dal Offer Tile in cui si trova
         OfferTile offerTile = board.getOfferTileByPlayerId(playerId);
         offerTile.clear();
@@ -258,10 +247,6 @@ public class Game implements GameModel {
         TurnOrderSlot slot = turnTile.getFirstFreeSlot();
         slot.placeTotem(playerId);
 
-        List<TurnOrderSlot> slots = turnTile.getSlots();
-        int slotIndex = slots.indexOf(slot);
-
-        int foodDelta=0;
         // Gestione delta cibo del turn order slot
         if (slot.givesFood()) {                                     // Delta positivo
             findPlayer(playerId).addFood(slot.getFoodDelta());
@@ -269,22 +254,15 @@ public class Game implements GameModel {
             for(BuildingCard building : findPlayer(playerId).getTribe().getBuildings()) {
                 building.getEffect().modifyTurnOrderFood(this, findPlayer(playerId), slot.getFoodDelta());
             }
-            foodDelta = slot.getFoodDelta();
         } else if (slot.getFoodDelta() != 0) {                      // Delta negativo
             if (findPlayer(playerId).canAfford(slot.getFoodDelta())) {
                 findPlayer(playerId).spendFood(slot.getFoodDelta());
-                foodDelta = -slot.getFoodDelta();
             }else{
                 findPlayer(playerId).spendPrestigePoints(slot.getFoodDelta() * 2);
-                foodDelta=0; // ha pagato con PP e non con cibo
             }
         }
-        return new int[]{slot.getIndex(), foodDelta};
     }
 
-    public boolean isDrawingPhaseOver(){
-        return board.getFirstOccupiedOfferTile() == null;
-    }
 
     // ------------------------------------------
     // RESOLVING EVENTS PHASE
@@ -296,99 +274,46 @@ public class Game implements GameModel {
         if (currentRound == 10) {
             List<EventCard> topEvents = cardMarket.getTopRowEvents();
             events.addAll(topEvents);
-            resolveAndNotifyEvents(events);
+            for(EventCard event : events){
+                eventResolver.resolveSingleEvent(event, this);
+                gameState = buildGameState();
+                notifyEventResolved();
+            }
             cleanUp();
-
             phase = GamePhase.ENDED;
             gameState = buildGameState();
             notifyGameOver();
         } else {
-            resolveAndNotifyEvents(events);
+            for(EventCard event : events){
+                eventResolver.resolveSingleEvent(event, this);
+                gameState = buildGameState();
+                notifyEventResolved();
+            }
             cleanUp();
             currentRound++;
             phase = GamePhase.PLACING_TOTEMS;
             gameState = buildGameState();
+            notifyGameStateChanged();
         }
 
         return ActionResult.success(ActionType.END_ROUND, "Events resolved successfully");
     }
 
-    // risolve evnti e notifica a ciascuno separatamente
-    private void resolveAndNotifyEvents(List<EventCard> events){
-        for(EventCard event : events){
-            List<PlayerDelta> deltasBefore = snapshotDeltas();
-            eventResolver.resolveSingleEvent(event, this);
-            List<PlayerDelta> deltasAfter = computeDeltas(deltasBefore);
-            notifyEventResolved(event.getId(), currentEra, deltasAfter);
-        }
-    }
-
-    // snapshot di cibo e PP di tutti i player prima dell'evento
-    private List<PlayerDelta> snapshotDeltas() {
-        return players.stream()
-                .map(p -> new PlayerDelta(p.getId(), p.getFood(), p.getPrestigePoints()))
-                .toList();
-    }
-
-    // calcola i delta confrontando snapshot prima/dopo
-    private List<PlayerDelta> computeDeltas(List<PlayerDelta> before) {
-        return players.stream().map(p -> {
-            PlayerDelta old = before.stream()
-                    .filter(d -> d.playerId().equals(p.getId()))
-                    .findFirst().orElseThrow();
-            return new PlayerDelta(
-                    p.getId(),
-                    p.getFood() - old.foodDelta(),
-                    p.getPrestigePoints() - old.prestigeDelta()
-            );
-        }).toList();
-    }
 
     // ------------------------------------------
     // CLEANUP PHASE (END OF ROUND) + ERA PROGRESSION: Preparo la board al prossimo round e gestisco cambio era
     // ------------------------------------------
     private void cleanUp() {
-        /*cardMarket.clearBottomRow();
-        cardMarket.moveTopRowToBottom();
-        RefillResult result = cardMarket.refillTopRow(tribeDeck, players.size(), currentEra);
-
-        if (result.isEraAdvanced()) {
-            Era newEra = result.getNewEra();
-            cardMarket.handleEraProgression(buildingDeck, newEra);
-            currentEra = newEra;
-        }*/
-        //vecchio metodo, da riprendere se il nuovo non funziona
-
-        List<String> discardedCards = cardMarket.getBottomRow().stream()
-                .map(Card::getId).toList();
-        List<String> movedCards = cardMarket.getTopRow().stream()
-                .map(Card::getId).toList();
-
         cardMarket.clearBottomRow();
         cardMarket.moveTopRowToBottom();
-
         RefillResult result = cardMarket.refillTopRow(tribeDeck, players.size(), currentEra);
-        List<String> newUpperRow = cardMarket.getTopRow().stream()
-                .map(Card::getId).toList();
-
-        notifyMarketRefreshed(discardedCards, movedCards, newUpperRow);
 
         if (result.isEraAdvanced()) {
             Era newEra = result.getNewEra();
-
-            // Raccolgo i discarded PRIMA di handleEraProgression (dopo non esistono più)
-            List<String> discardedBuildings = (newEra == Era.ERA_3)
-                    ? cardMarket.getBottomBuildings().stream()
-                    .map(BuildingCard::getId).toList()
-                    : List.of();
-
             cardMarket.handleEraProgression(buildingDeck, newEra);
             currentEra = newEra;
-
-            List<String> newBuildings = cardMarket.getTopBuildings().stream()
-                    .map(BuildingCard::getId).toList();
-
-            notifyEraProgression(newEra, newBuildings, discardedBuildings);
+            gameState = buildGameState();
+            notifyEraProgression();
         }
     }
 
@@ -399,13 +324,8 @@ public class Game implements GameModel {
     public ActionResult calculateScores() {
         ScoreCalculator scoreCalculator = new ScoreCalculator(this);
         List<ScoreResult> scoreBoard = scoreCalculator.calculateFinalScores();
-
-        List<PlayerScore> scores = scoreBoard.stream()
-                .map(r->new PlayerScore(r.player.getId(),r.PP, Map.of()))
-                .toList();
-
-        gameState = buildGameState();
-        notifyScores(scores);
+        gameState = buildGameStateWithScores(scoreBoard);
+        notifyScores();
         return ActionResult.success(ActionType.GENERIC, "Scores calculated successfully");
     }
 
@@ -415,7 +335,6 @@ public class Game implements GameModel {
     // Chiamata dal controller quando il player ha il building con l'effetto extra card
     @Override
     public ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) {
-        // TODO: Gestire index della carta da pescare (da quale lista? Tribe o Buildings?)
         Player p = findPlayer(playerId);
 
         // Se non ci sono player salvati per l'extra draw dò errore
@@ -431,7 +350,7 @@ public class Game implements GameModel {
         // Aggiungo le carte alla tribù del Player
         int foodDiscount = p.getTribe().getBuildingDiscount();
         // Distinzione tribe card - building card
-        String cardId;
+
         if (selectedCardExtraDraw.isTribeCard()) {
             int boardIndex = selectedCardExtraDraw.getCardIndex();
             Card c = cardMarket.getCard(RowType.TOP, boardIndex);
@@ -444,7 +363,6 @@ public class Game implements GameModel {
             for (BuildingCard building : p.getTribe().getBuildings()) {
                 building.getEffect().onCardTaken(this, p, c);
             }
-            cardId = c.getId();
         } else {
             int boardIndex = selectedCardExtraDraw.getBuildingIndex();
             BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
@@ -458,14 +376,12 @@ public class Game implements GameModel {
             c.getEffect().onBuildingAdded(p);
             c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
-            cardId = c.getId();
         }
-
-        notifyExtraCardTaken(playerId, cardId);
 
         phase = GamePhase.RESOLVING_EVENTS;
         clearPendingExtraDrawPlayer();
         gameState = buildGameState();
+        notifyGameStateChanged();
 
         return ActionResult.success(ActionType.TAKE_CARD, "Extra card taken successfully");
     }
@@ -480,20 +396,6 @@ public class Game implements GameModel {
 
 
     // ------------------------------------------
-    // EVENTS FUNCTIONS
-    // ------------------------------------------
-    // Sustenance Event
-    /* public void applyFoodCostWithPointsFallback(Player player, int cost) {
-        if (player.getFood() >= cost) {
-            player.spendFood(cost);
-        } else {
-            player.spendPrestigePoints(cost * currentEra.ordinal());
-        }
-    }
-    */
-
-
-    // ------------------------------------------
     // GAMESTATE
     // ------------------------------------------
     private GameState buildGameState() {
@@ -504,6 +406,22 @@ public class Game implements GameModel {
                 computeCurrentPlayerId(),
                 players.stream().map(Player::getState).toList(),
                 board.getState(cardMarket)
+        );
+    }
+
+    private GameState buildGameStateWithScores(List<ScoreResult> scoreBoard){
+        List<ScoreEntry> scores = scoreBoard.stream()
+                .map(r-> new ScoreEntry(r.player.getId(), r.foodPoints, r.PP))
+                .toList();
+
+        return new GameState(
+                currentEra,
+                currentRound,
+                phase,
+                computeCurrentPlayerId(),
+                players.stream().map(Player::getState).toList(),
+                board.getState(cardMarket),
+                scores
         );
     }
 
@@ -531,73 +449,41 @@ public class Game implements GameModel {
     // NOTIFICHE
 
     private void notifyGameStarted() {
-        GameStartedPayload payload = new GameStartedPayload(gameState);
-        observers.forEach(o->o.onGameStarted(payload));
+        observers.forEach(o->o.onGameStarted(gameState));
     }
 
-    //private void notifyGameStateChanged() {for (ModelObserver o : observers) o.onGameStateChanged(gameState);}
-
-    private void notifyTotemPlaced(String playerId, char offerTileChar){
-        TotemPlacedPayload payload = new TotemPlacedPayload(playerId, offerTileChar);
-        observers.forEach(o->o.onTotemPlaced(payload));
+    private void notifyGameStateChanged() {
+        observers.forEach(o-> o.onGameStateChanged(gameState));
     }
 
-    // Notifica che tutti i totem sono stati piazzati
-    private void notifyEndOfPlacingPhase() {
-        List<String> order = board.getOfferTiles().stream()
-                .filter(t -> !t.isFree())
-                .map(OfferTile::getOccupiedByPlayerId)
-                .toList();
-        EndOfPlacingPhasePayload payload = new EndOfPlacingPhasePayload(order);
-        observers.forEach(o->o.onEndOfPlacingPhase(payload));
+    private void notifyEndOfPlacingPhase(){
+        observers.forEach(o->o.onEndOfPlacingPhase(gameState));
     }
 
-    private void notifyCardsTaken(String playerId, List<String> cardIds, List<String> buildingIds, int foodSpent, int foodGained, int slotIndex, int foodDeltaFromSlots){
-        CardsTakenPayload payload = new CardsTakenPayload(playerId, cardIds, buildingIds, foodSpent, foodGained, slotIndex, foodDeltaFromSlots);
-        observers.forEach(o->o.onCardsTaken(payload));
+    private void notifyEndOfDrawingPhase(){
+        observers.forEach(o->o.onEndOfDrawingPhase(gameState));
     }
 
-    // Notifica che un player deve pescare una carta in più al termina della DRAWING PHASE
     private void notifyExtraDrawRequest() {
-        ExtraDrawRequestPayload payload = new ExtraDrawRequestPayload(pendingExtraDrawPlayerId);
-        observers.forEach(o->o.onExtraDrawRequest(payload));
+        observers.forEach(o->o.onExtraDrawRequest(gameState));
     }
 
-    private void notifyExtraCardTaken(String playerId, String cardId){
-        ExtraCardTakenPayload payload = new ExtraCardTakenPayload(playerId, cardId);
-        observers.forEach(o->o.onExtraCardTaken(payload));
+    private void notifyEventResolved() {
+        observers.forEach(o->o.onEventResolved(gameState));
     }
 
-    private void notifyEventResolved(String eventCardId, Era era, List<PlayerDelta> deltas) {
-        EventResolvedPayload payload = new EventResolvedPayload(eventCardId, era, deltas);
-        observers.forEach(o->o.onEventResolved(payload));
+    private void notifyEraProgression() {
+        observers.forEach(o->o.onEraProgression(gameState));
     }
 
-    // Notifica cambio era
-    private void notifyEraProgression(Era newEra, List<String> newBuildings, List<String> discarded) {
-        EraProgressionPayload payload = new EraProgressionPayload(newEra, newBuildings, discarded);
-        observers.forEach(o->o.onEraProgression(payload));
-    }
-
-    private void notifyMarketRefreshed(List<String> discarded, List<String> moved, List<String> newUpper){
-        MarketRefresherPayload payload = new MarketRefresherPayload(discarded, moved,newUpper);
-        observers.forEach(o->o.onMarketRefreshed(payload));
-    }
-
-    // Game over
     private void notifyGameOver() {
-        observers.forEach(o->o.onGameOver());
+        observers.forEach(o->o.onGameOver(gameState));
     }
 
-    // Notifica punteggi finali
-    private void notifyScores(List<PlayerScore> scores) {
-        ScoreBoardPayload payload = new ScoreBoardPayload(scores);
-        observers.forEach(o->o.onScoreboardAvailable(payload));
-    /* private void notifyScores() {
-        for (ModelObserver o : observers) o.onScores(scoreBoard);
-    }*/
-        // vecchio
+    private void notifyScores() {
+        observers.forEach(o->o.onScoreboardAvailable(gameState));
     }
+
 
     // GETTERS
     public List<Player> getPlayers() {

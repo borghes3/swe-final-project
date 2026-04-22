@@ -14,7 +14,8 @@ public class GameState implements Serializable {
     private final GamePhase phase;
     private final String currentPlayerId;
     private final List<PlayerState> players;
-    private final BoardState board;;
+    private final BoardState board;
+    private final List<ScoreEntry> scores;
 
 
 
@@ -30,7 +31,27 @@ public class GameState implements Serializable {
         this.currentPlayerId = currentPlayerId; //può essere null in fase di setup
         this.players = List.copyOf(Objects.requireNonNull(players, "players is null")); //
         this.board = board;
+        this.scores = null;
     }
+
+    // usare getScore() != null per sapere se i punteggi sono disponibili
+    // viene usato in buildGameStateWithScores
+    public GameState(Era currentEra,
+                     int currentRound,
+                     GamePhase phase,
+                     String currentPlayerId,
+                     List<PlayerState> players,
+                     BoardState board,
+                     List<ScoreEntry> scores) {
+        this.currentEra = Objects.requireNonNull(currentEra, "currentEra is null");
+        this.currentRound = currentRound;
+        this.phase = Objects.requireNonNull(phase, "phase is null");
+        this.currentPlayerId = currentPlayerId; //può essere null in fase di setup
+        this.players = List.copyOf(Objects.requireNonNull(players, "players is null")); //
+        this.board = board;
+        this.scores = List.copyOf(scores);
+    }
+
 
     public Era getCurrentEra() {
         return currentEra;
@@ -56,5 +77,7 @@ public class GameState implements Serializable {
         return board;
     }
 
-
+    public List<ScoreEntry> getScores() {
+        return scores;
+    }
 }

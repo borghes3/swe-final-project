@@ -49,11 +49,17 @@ public interface VirtualView {
 
     void onEraProgression(GameState gameState) throws Exception;
 
+/*  DECOMMENTARE PER VERSIONE PAYLOADS - e eliminare quelli sotto
 
-    // end game
     void onGameOver() throws Exception;
 
     void onScoreboardAvailable() throws Exception;
+*/
+
+    void onGameOver(GameState gameState) throws Exception;
+
+    void onScoreboardAvailable(GameState gameState) throws Exception;
+
 
 
     // errors (eg. action not allowed)

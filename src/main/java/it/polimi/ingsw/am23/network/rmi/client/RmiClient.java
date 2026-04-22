@@ -160,18 +160,18 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
     }
 
     @Override
-    public void onGameOver() throws RemoteException {
+    public void onGameOver(GameState gameState) throws RemoteException {
         try {
-            view.onGameOver();
+            view.onGameOver(gameState);
         } catch (Exception exception) {
             throw new RemoteException(exception.getMessage(), exception);
         }
     }
 
     @Override
-    public void onScoreboardAvailable() throws RemoteException {
+    public void onScoreboardAvailable(GameState gameState) throws RemoteException {
         try {
-            view.onScoreboardAvailable();
+            view.onScoreboardAvailable(gameState);
         } catch (Exception exception) {
             throw new RemoteException(exception.getMessage(), exception);
         }

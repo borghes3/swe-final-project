@@ -55,10 +55,10 @@ public interface VirtualViewRmi extends VirtualView, Remote {
     void onEraProgression(GameState gameState) throws RemoteException;
 
     @Override
-    void onGameOver() throws RemoteException;
+    void onGameOver(GameState gameState) throws RemoteException;
 
     @Override
-    void onScoreboardAvailable() throws RemoteException;
+    void onScoreboardAvailable(GameState gameState) throws RemoteException;
 
     @Override
     void onActionError(ActionType actionType, String message) throws RemoteException;

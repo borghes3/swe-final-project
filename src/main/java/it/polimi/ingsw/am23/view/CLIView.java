@@ -173,16 +173,28 @@ public final class CLIView implements VirtualView {
     }
 
     @Override
-    public synchronized void onGameOver() {
+    public synchronized void onGameOver(GameState gameState) { // RIMUOVERE GameState gameState PER PAYLOADS
         System.out.println("Partita terminata.");
         if (currentGameState != null) {
             printGameState(currentGameState);
         }
     }
 
-    @Override
+    /*@Override - VERSIONE PAYLOADS
     public synchronized void onScoreboardAvailable() {
         System.out.println("Classifica disponibile.");
+    }*/
+
+    @Override
+    public synchronized void onScoreboardAvailable(GameState gameState){
+        this.currentGameState = gameState;
+        System.out.println("Classifica disponibile");
+        if(gameState.getScores() != null){
+            System.out.println("Punteggi finali: ");
+            for(var score : gameState.getScores()){
+                System.out.println("- " + score.playerId() + "PP=" + score.prestigePoints() + " cibo=" + score.foodPoints());
+            }
+        }
     }
 
     @Override

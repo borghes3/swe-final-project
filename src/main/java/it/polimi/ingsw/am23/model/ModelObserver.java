@@ -1,41 +1,15 @@
 package it.polimi.ingsw.am23.model;
 
-import it.polimi.ingsw.am23.model.payloads.*;
-
-// --------------------------------------------
-// INTERFACCIA OSSERVATA DALLA VIRTUAL VIEW
-// --------------------------------------------
-//      [MODEL](*) ------> [VIRTUAL VIEW]
-//              ^
-//              |
-//      Questa interfaccia sta qui
-// --------------------------------------------
+import it.polimi.ingsw.am23.model.state.GameState;
 
 public interface ModelObserver {
-
-    void onGameStarted(GameStartedPayload payload); // manda tutto gameState !
-
-    //void onGameStateChanged(GameState gameState);
-
-    void onTotemPlaced(TotemPlacedPayload payload);
-
-    void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload);
-
-    void onCardsTaken(CardsTakenPayload payload);
-
-    void onExtraDrawRequest(ExtraDrawRequestPayload payload);
-
-    void onExtraCardTaken(ExtraCardTakenPayload payload);
-
-    // Da qui si deduce: END OF ROUND
-    void onEventResolved(EventResolvedPayload payload);
-
-    void onEraProgression(EraProgressionPayload payload);
-
-    void onMarketRefreshed(MarketRefresherPayload payload);
-
-    void onGameOver();
-
-    void onScoreboardAvailable(ScoreBoardPayload payload);
-    // void onScores(List<ScoreResult> scoreBoard);
+    void onGameStarted(GameState gameState);
+    void onGameStateChanged(GameState gameState);
+    void onEndOfPlacingPhase(GameState gameState);
+    void onEndOfDrawingPhase(GameState gameState);
+    void onExtraDrawRequest(GameState gameState);
+    void onEventResolved(GameState gameState);
+    void onEraProgression(GameState gameState);
+    void onGameOver(GameState gameState);
+    void onScoreboardAvailable(GameState gameState); // qua gameState.getScores() != null
 }

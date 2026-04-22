@@ -13,14 +13,15 @@ import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.player.Player;
+import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
 import it.polimi.ingsw.am23.model.state.GameState;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-class GameTest {
+/*
+class GameTestPayloads {
 
     @Test
     void startGameMovesToPlacingTotemsAndNotifiesObservers() {
@@ -28,21 +29,21 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,"p1")),
+                List.of(new TurnOrderSlot(0, "p1")),
                 List.of(),
                 List.of(),
                 List.of(),
                 Era.ERA_1,
                 1
         );
-        RecordingObserver observer = new RecordingObserver();
+        RecordingObserverPayloads observer = new RecordingObserverPayloads();
         game.addObserver(observer);
 
         game.startGame();
 
         assertEquals(GamePhase.PLACING_TOTEMS, game.getGamePhase());
         assertEquals(1, observer.gameStartedCount);
-        assertEquals(0, observer.stateChangedCount);
+        assertEquals(1, observer.stateChangedCount);
     }
 
     @Test
@@ -51,7 +52,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0, null)),
+                List.of(new TurnOrderSlot(0, null)),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -74,8 +75,8 @@ class GameTest {
                         new OfferTile('B', null, 2, new OfferAction(0, 1, 0))
                 ),
                 List.of(
-                        new TurnOrderSlot(0, 0,"p1"),
-                        new TurnOrderSlot(0, 0,"p2")
+                        new TurnOrderSlot(0, "p1"),
+                        new TurnOrderSlot(0, "p2")
                 ),
                 List.of(),
                 List.of(),
@@ -104,8 +105,8 @@ class GameTest {
                         new OfferTile('B', null, 2, new OfferAction(0, 1, 0))
                 ),
                 List.of(
-                        new TurnOrderSlot(0, 0, "p1"),
-                        new TurnOrderSlot(0, 0,"p2")
+                        new TurnOrderSlot(0, "p1"),
+                        new TurnOrderSlot(0, "p2")
                 ),
                 List.of(),
                 List.of(),
@@ -131,7 +132,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', "p1", 2, new OfferAction(1, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, "p2")),
+                List.of(new TurnOrderSlot(0, null), new TurnOrderSlot(0, "p2")),
                 List.of(TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(),
@@ -151,7 +152,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', "p1", 2, new OfferAction(1, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0, "p2")),
+                List.of(new TurnOrderSlot(0, null), new TurnOrderSlot(0, "p2")),
             List.of(topEvent, TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(),
@@ -168,13 +169,13 @@ class GameTest {
 
     @Test
     void takeCardsSuccessReturnsPlayerToTurnOrderAndGrantsFoodReward() {
-        Player p1 = TestUtils.player("p1", 1, 0);
+        Player p1 = TestUtils.player("p1", 0, 0);
         Player p2 = TestUtils.player("p2", 0, 0);
 
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', "p1", 2, new OfferAction(1, 0, 2))),
-                List.of(new TurnOrderSlot(1, 0, null), new TurnOrderSlot(0, 0, "p2")),
+                List.of(new TurnOrderSlot(1, null), new TurnOrderSlot(0, "p2")),
                 List.of(TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(),
@@ -199,7 +200,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, null), new TurnOrderSlot(0, null)),
                 List.of(TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(expensiveBuilding),
@@ -215,13 +216,36 @@ class GameTest {
     }
 
     @Test
+    void applyFoodCostWithPointsFallbackUsesFoodThenPrestige() {
+        Player p1 = TestUtils.player("p1", 5, 10);
+        Player p2 = TestUtils.player("p2", 0, 10);
+
+        Game game = TestUtils.game(
+                List.of(p1, p2),
+                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
+                List.of(new TurnOrderSlot(0, null), new TurnOrderSlot(0, null)),
+                List.of(),
+                List.of(),
+                List.of(),
+                Era.ERA_2,
+                1
+        );
+
+        game.applyFoodCostWithPointsFallback(p1, 3);
+        game.applyFoodCostWithPointsFallback(p2, 3);
+
+        assertEquals(2, p1.getFood());
+        assertEquals(7, p2.getPrestigePoints());
+    }
+
+    @Test
     void resolveEventsAndCalculateScoresProduceObserverNotifications() {
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, null), new TurnOrderSlot(0, null)),
                 List.of(),
                 List.of(new SustenanceEventCard("s", Era.ERA_1, 0, false)),
                 List.of(),
@@ -229,7 +253,7 @@ class GameTest {
                 1
         );
 
-        RecordingObserver observer = new RecordingObserver();
+        RecordingObserverPayloads observer = new RecordingObserverPayloads();
         game.addObserver(observer);
 
         ActionResult eventsResult = game.resolveEvents();
@@ -237,7 +261,7 @@ class GameTest {
 
         assertTrue(eventsResult.isSuccess());
         assertTrue(scoresResult.isSuccess());
-        assertEquals(1, observer.eventResolvedCount);
+        assertEquals(1, observer.endResolvingCount);
         assertEquals(1, observer.scoresCount);
 
         game.removeObserver(observer);
@@ -252,14 +276,14 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, null), new TurnOrderSlot(0, null)),
                 List.of(new SustenanceEventCard("s-top", Era.ERA_1, 0, true)),
                 List.of(new SustenanceEventCard("s-bottom", Era.ERA_1, 0, false)),
                 List.of(),
                 Era.ERA_1,
                 10
         );
-        RecordingObserver observer = new RecordingObserver();
+        RecordingObserverPayloads observer = new RecordingObserverPayloads();
         game.addObserver(observer);
 
         ActionResult result = game.resolveEvents();
@@ -269,70 +293,52 @@ class GameTest {
         assertEquals(1, observer.gameOverCount);
     }
 
-    private static class RecordingObserver implements ModelObserver {
+    private static class RecordingObserverPayloads implements ModelObserverPayloads {
         int gameStartedCount;
         int stateChangedCount;
-        int endPlacingCount;
-        int endDrawingCount;
-        int extraDrawCount;
-        int eventResolvedCount;
-        int eraProgressionCount;
+        int endResolvingCount;
         int scoresCount;
         int gameOverCount;
-        GameState lastGameState;
 
         @Override
-        public void onGameStarted(GameState gameState) {
+        public void onGameStarted() {
             gameStartedCount++;
-            lastGameState = gameState;
         }
 
         @Override
         public void onGameStateChanged(GameState gameState) {
             stateChangedCount++;
-            lastGameState = gameState;
         }
 
         @Override
         public void onEndOfPlacingPhase(GameState gameState) {
-            endPlacingCount++;
-            lastGameState = gameState;
         }
 
         @Override
         public void onEndOfDrawingPhase(GameState gameState) {
-            endDrawingCount++;
-            lastGameState = gameState;
         }
 
         @Override
         public void onExtraDrawRequest(GameState gameState) {
-            extraDrawCount ++;
-            lastGameState = gameState;
         }
 
         @Override
-        public void onEventResolved(GameState gameState) {
-            eventResolvedCount++;
-            lastGameState = gameState;
+        public void onEndOfResolvingPhase(GameState gameState) {
+            endResolvingCount++;
         }
 
         @Override
         public void onEraProgression(GameState gameState) {
-            eraProgressionCount++;
-            lastGameState = gameState;
         }
 
         @Override
-        public void onGameOver(GameState gameState) {
+        public void onGameOver() {
             gameOverCount++;
-            lastGameState = gameState;
         }
 
         @Override
-        public void onScoreboardAvailable(GameState gameState) {
+        public void onScores(List<ScoreResult> scoreBoard) {
             scoresCount++;
-            lastGameState = gameState;
         }
     }
-}
+} */

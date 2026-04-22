@@ -2,15 +2,15 @@ package it.polimi.ingsw.am23.controller;
 
 import it.polimi.ingsw.am23.model.ActionResult;
 import it.polimi.ingsw.am23.model.Game;
-import it.polimi.ingsw.am23.model.ModelObserver;
+import it.polimi.ingsw.am23.model.ModelObserverPayloads;
 import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.cards.SelectedCards;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
 import it.polimi.ingsw.am23.model.setup.Setup;
-import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
@@ -23,7 +23,8 @@ import java.util.*;
  * Gestisce lobby, partita e bootstrap modello
  */
 
-public final class GameController implements VirtualServer, ModelObserver {
+/*
+public final class GameControllerPayloads implements VirtualServer, ModelObserverPayloads {
 
     private static final int DEFAULT_LOBBY_MAX_PLAYERS = 5;
     private static final int LOBBY_CODE_LENGTH = 4;
@@ -38,11 +39,11 @@ public final class GameController implements VirtualServer, ModelObserver {
     private final Random random = new Random();
     private String activeLobbyId;
 
-    public GameController() {
+    public GameControllerPayloads() {
         this(new ResourceSetupFactory());
     }
 
-    public GameController(ResourceSetupFactory setupFactory) {
+    public GameControllerPayloads(ResourceSetupFactory setupFactory) {
         this.setupFactory = Objects.requireNonNull(setupFactory, "setupFactory cannot be null");
     }
 
@@ -199,48 +200,58 @@ public final class GameController implements VirtualServer, ModelObserver {
     }
 
     @Override
-    public synchronized void onGameStarted(GameState gameState) {
-        broadcastGameStarted(activeLobbyId, gameState);
+    public synchronized void onGameStarted(GameStartedPayload payload) {
+        broadcastGameStarted(activeLobbyId, payload.fullSnapshot());
     }
 
     @Override
-    public synchronized void onGameStateChanged(GameState gameState) {
+    public synchronized void onTotemPlaced(TotemPlacedPayload payload) {
         broadcastGameState(activeLobbyId);
     }
 
     @Override
-    public synchronized void onEndOfPlacingPhase(GameState gameState) {
-        broadcastEndOfPlacingPhase(activeLobbyId, gameState);
+    public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
+        broadcastEndOfPlacingPhase(activeLobbyId, requireGame(activeLobbyId).getGameState());
     }
 
     @Override
-    public synchronized void onEndOfDrawingPhase(GameState gameState) {
-        broadcastEndOfDrawingPhase(activeLobbyId, gameState);
-    }
-
-    @Override
-    public synchronized void onExtraDrawRequest(GameState gameState) {
-        broadcastExtraDrawRequest(activeLobbyId, gameState);
-    }
-
-    @Override
-    public synchronized void onEventResolved(GameState gameState) {
+    public synchronized void onCardsTaken(CardsTakenPayload payload) {
         broadcastGameState(activeLobbyId);
     }
 
     @Override
-    public synchronized void onEraProgression(GameState gameState) {
-        broadcastEraProgression(activeLobbyId, gameState);
+    public synchronized void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
+        broadcastExtraDrawRequest(activeLobbyId, requireGame(activeLobbyId).getGameState());
     }
 
     @Override
-    public synchronized void onGameOver(GameState gameState) {
-        broadcastGameOver(activeLobbyId, gameState);
+    public synchronized void onExtraCardTaken(ExtraCardTakenPayload payload) {
+        broadcastGameState(activeLobbyId);
     }
 
     @Override
-    public synchronized void onScoreboardAvailable(GameState gameState) {
-        broadcastScoreboardAvailable(activeLobbyId, gameState);
+    public synchronized void onEventResolved(EventResolvedPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onEraProgression(EraProgressionPayload payload) {
+        broadcastEraProgression(activeLobbyId, requireGame(activeLobbyId).getGameState());
+    }
+
+    @Override
+    public synchronized void onMarketRefreshed(MarketRefresherPayload payload) {
+        broadcastGameState(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onGameOver() {
+        broadcastGameOver(activeLobbyId);
+    }
+
+    @Override
+    public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
+        broadcastScoreboardAvailable(activeLobbyId);
     }
 
     private ActionResult withActiveLobby(String lobbyId, GameAction action) throws Exception {
@@ -334,12 +345,12 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastToLobby(lobbyId, view -> view.onEraProgression(gameState));
     }
 
-    private void broadcastGameOver(String lobbyId, GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onGameOver(gameState));
+    private void broadcastGameOver(String lobbyId) {
+        broadcastToLobby(lobbyId, VirtualView::onGameOver);
     }
 
-    private void broadcastScoreboardAvailable(String lobbyId, GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onScoreboardAvailable(gameState));
+    private void broadcastScoreboardAvailable(String lobbyId) {
+        broadcastToLobby(lobbyId, VirtualView::onScoreboardAvailable);
     }
 
     private void broadcastToLobby(String lobbyId, RemoteViewAction action) {
@@ -457,3 +468,4 @@ public final class GameController implements VirtualServer, ModelObserver {
         void apply(VirtualView view) throws Exception;
     }
 }
+*/
