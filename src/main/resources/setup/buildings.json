@@ -1,35 +1,35 @@
 [
   {
     "id": "B00",
-    "era": "ERA_1",
+    "era": 1,
     "points": 3,
     "foodCost": 3,
     "effectType": "FOOD_FROM_TURN_ORDER_BONUS"
   },
   {
     "id": "B01",
-    "era": "ERA_1",
+    "era": 1,
     "points": 3,
     "foodCost": 4,
     "effectType": "FOOD_PER_COMPLETED_SET"
   },
   {
     "id": "B02",
-    "era": "ERA_1",
+    "era": 1,
     "points": 4,
     "foodCost": 3,
     "effectType": "FOOD_PER_INVENTOR_PAIR"
   },
   {
     "id": "B03",
-    "era": "ERA_1",
+    "era": 1,
     "points": 2,
     "foodCost": 5,
     "effectType": "NO_LOSS_IF_LAST_SHAMAN"
   },
   {
     "id": "B04",
-    "era": "ERA_1",
+    "era": 1,
     "points": 3,
     "foodCost": 5,
     "effectType": "SUSTENANCE_DISCOUNT_PER_TYPE",
@@ -39,7 +39,7 @@
   },
   {
     "id": "B05",
-    "era": "ERA_1",
+    "era": 1,
     "points": 4,
     "foodCost": 4,
     "effectType": "SUSTENANCE_DISCOUNT_PER_TYPE",
@@ -49,49 +49,49 @@
   },
   {
     "id": "B06",
-    "era": "ERA_2",
+    "era": 2,
     "points": 6,
     "foodCost": 5,
     "effectType": "CAVE_PAINTINGS_FOOD_PER_ARTIST"
   },
   {
     "id": "B07",
-    "era": "ERA_2",
+    "era": 2,
     "points": 4,
     "foodCost": 6,
     "effectType": "DOUBLE_BUILDER_END_GAME"
   },
   {
     "id": "B08",
-    "era": "ERA_2",
+    "era": 2,
     "points": 0,
     "foodCost": 7,
     "effectType": "DOUBLE_SHAMAN_WIN"
   },
   {
     "id": "B09",
-    "era": "ERA_2",
+    "era": 2,
     "points": 6,
     "foodCost": 5,
     "effectType": "END_GAME_POINTS_PER_COMPLETE_SET"
   },
   {
     "id": "B10",
-    "era": "ERA_2",
+    "era": 2,
     "points": 2,
     "foodCost": 7,
     "effectType": "HUNTING_REWARD_PER_HUNTER"
   },
   {
     "id": "B11",
-    "era": "ERA_2",
+    "era": 2,
     "points": 4,
     "foodCost": 6,
     "effectType": "SHAMAN_BONUS_STARS"
   },
   {
     "id": "B12",
-    "era": "ERA_2",
+    "era": 2,
     "points": 4,
     "foodCost": 7,
     "effectType": "SUSTENANCE_DISCOUNT_PER_TYPE",
@@ -101,7 +101,7 @@
   },
   {
     "id": "B13",
-    "era": "ERA_3",
+    "era": 3,
     "points": 3,
     "foodCost": 6,
     "effectType": "END_GAME_POINTS_PER_CHARACTER_TYPE",
@@ -111,7 +111,7 @@
   },
   {
     "id": "B14",
-    "era": "ERA_3",
+    "era": 3,
     "points": 4,
     "foodCost": 7,
     "effectType": "END_GAME_POINTS_PER_CHARACTER_TYPE",
@@ -121,7 +121,7 @@
   },
   {
     "id": "B15",
-    "era": "ERA_3",
+    "era": 3,
     "points": 6,
     "foodCost": 6,
     "effectType": "END_GAME_POINTS_PER_CHARACTER_TYPE",
@@ -131,7 +131,7 @@
   },
   {
     "id": "B16",
-    "era": "ERA_3",
+    "era": 3,
     "points": 8,
     "foodCost": 8,
     "effectType": "END_GAME_POINTS_PER_CHARACTER_TYPE",
@@ -141,7 +141,7 @@
   },
   {
     "id": "B17",
-    "era": "ERA_3",
+    "era": 3,
     "points": 4,
     "foodCost": 7,
     "effectType": "END_GAME_POINTS_PER_CHARACTER_TYPE",
@@ -151,7 +151,7 @@
   },
   {
     "id": "B18",
-    "era": "ERA_3",
+    "era": 3,
     "points": 6,
     "foodCost": 7,
     "effectType": "END_GAME_POINTS_PER_CHARACTER_TYPE",
@@ -161,14 +161,14 @@
   },
   {
     "id": "B19",
-    "era": "ERA_3",
+    "era": 3,
     "points": 3,
     "foodCost": 9,
     "effectType": "EXTRA_DRAW"
   },
   {
     "id": "B20",
-    "era": "ERA_3",
+    "era": 3,
     "points": 0,
     "foodCost": 10,
     "effectType": "FLAT_END_GAME_POINTS"

@@ -1,7 +1,7 @@
 [
   {
     "id": "ECP00",
-    "era": "ERA_1",
+    "era": 1,
     "points": 0,
     "eventType": "CAVE_PAINTINGS",
     "isFinal": false,
@@ -13,7 +13,7 @@
   },
   {
     "id": "ECP01",
-    "era": "ERA_2",
+    "era": 2,
     "points": 0,
     "eventType": "CAVE_PAINTINGS",
     "isFinal": false,
@@ -25,7 +25,7 @@
   },
   {
     "id": "ECP02",
-    "era": "ERA_3",
+    "era": 3,
     "points": 0,
     "eventType": "CAVE_PAINTINGS",
     "isFinal": false,
@@ -37,7 +37,7 @@
   },
   {
     "id": "EHU03",
-    "era": "ERA_1",
+    "era": 1,
     "points": 0,
     "eventType": "HUNTING",
     "isFinal": false,
@@ -47,7 +47,7 @@
   },
   {
     "id": "EHU04",
-    "era": "ERA_2",
+    "era": 2,
     "points": 0,
     "eventType": "HUNTING",
     "isFinal": false,
@@ -57,7 +57,7 @@
   },
   {
     "id": "EHU05",
-    "era": "ERA_3",
+    "era": 3,
     "points": 0,
     "eventType": "HUNTING",
     "isFinal": false,
@@ -67,7 +67,7 @@
   },
   {
     "id": "ESH06",
-    "era": "ERA_1",
+    "era": 1,
     "points": 0,
     "eventType": "SHAMAN_RITUAL",
     "isFinal": false,
@@ -78,7 +78,7 @@
   },
   {
     "id": "ESH07",
-    "era": "ERA_2",
+    "era": 2,
     "points": 0,
     "eventType": "SHAMAN_RITUAL",
     "isFinal": false,
@@ -89,7 +89,7 @@
   },
   {
     "id": "ESH08",
-    "era": "ERA_3",
+    "era": 3,
     "points": 0,
     "eventType": "SHAMAN_RITUAL",
     "isFinal": true,
@@ -100,21 +100,21 @@
   },
   {
     "id": "ESU09",
-    "era": "ERA_1",
+    "era": 1,
     "points": 0,
     "eventType": "SUSTENANCE",
     "isFinal": false
   },
   {
     "id": "ESU10",
-    "era": "ERA_2",
+    "era": 2,
     "points": 0,
     "eventType": "SUSTENANCE",
     "isFinal": false
   },
   {
     "id": "ESU11",
-    "era": "ERA_3",
+    "era": 3,
     "points": 0,
     "eventType": "SUSTENANCE",
     "isFinal": true

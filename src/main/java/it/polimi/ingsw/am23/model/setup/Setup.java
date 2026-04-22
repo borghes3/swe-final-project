@@ -215,4 +215,3 @@ public class Setup {
 
 }
 
-//TODO: aggiungere integrazione con setup JSON
