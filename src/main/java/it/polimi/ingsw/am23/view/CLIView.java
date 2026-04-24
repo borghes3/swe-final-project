@@ -4,12 +4,10 @@ import it.polimi.ingsw.am23.model.cards.SelectedCards;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.state.*;
 import it.polimi.ingsw.am23.network.LobbyState;
+import it.polimi.ingsw.am23.network.NetworkSetter;
+import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
-import it.polimi.ingsw.am23.network.rmi.client.RmiClient;
-import it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi;
 
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -21,7 +19,7 @@ public final class CLIView implements VirtualView {
     private final CountDownLatch connectedLatch = new CountDownLatch(1);
     private final CountDownLatch gameStartedLatch = new CountDownLatch(1);
 
-    private volatile VirtualServerRmi server;
+    private volatile VirtualServer server;
     private volatile String playerId;
     private volatile String playerName;
     private volatile String currentLobbyId;
@@ -43,13 +41,38 @@ public final class CLIView implements VirtualView {
         CLIView view = new CLIView();
         String host = args.length > 0 ? args[0] : view.prompt("Host [localhost]: ", "localhost");
         String nickname = args.length > 1 ? args[1] : view.prompt("Nickname: ", null);
-        view.connect(host, nickname);
+        String normalizedConnectionType = askConnectionType(view, args);
+        view.connect(host, nickname, normalizedConnectionType);
         view.run();
     }
+    private static String askConnectionType(CLIView view, String[] args){
+        if (args.length > 2) {
+            return normalizeConnectionType(args[2]);
+        }
+        while (true) {
+            String input = view.prompt("Tipo di connessione [RMI/SOCKET] (default RMI): ", "RMI");
+            try {
+                return normalizeConnectionType(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 
-    public void connect(String host, String nickname) throws RemoteException, NotBoundException, InterruptedException {
+    private static String normalizeConnectionType(String connectionType) {
+        if (connectionType == null || connectionType.isBlank()) {
+            return "RMI";
+        }
+        return switch (connectionType.trim().toUpperCase()) {
+            case "RMI" -> "RMI";
+            case "SOCKET" -> "SOCKET";
+            default -> throw new IllegalArgumentException("Tipo di connessione non valido: " + connectionType + ". Usare RMI o SOCKET.");
+        };
+    }
+
+    public void connect(String host, String nickname, String connectionType) throws Exception {
         this.playerName = Objects.requireNonNull(nickname, "nickname cannot be null").trim();
-        this.server = RmiClient.connect(host, playerName, this);
+        this.server = NetworkSetter.connect(host, playerName, this, connectionType);
         awaitConnected();
     }
 
@@ -64,8 +87,12 @@ public final class CLIView implements VirtualView {
             if (line.isEmpty()) {
                 continue;
             }
-            if (handleCommand(line)) {
-                return;
+            try {
+                if (handleCommand(line)) {
+                    return;
+                }
+            } catch (Exception e) {
+                System.out.println("Comando fallito: " + e.getMessage());
             }
         }
     }
@@ -74,16 +101,16 @@ public final class CLIView implements VirtualView {
     public synchronized void onConnected(String playerId, List<LobbyState> lobbies) {
         this.playerId = playerId;
         this.lobbies = List.copyOf(lobbies);
-        connectedLatch.countDown();
         System.out.println("Connesso come " + playerName + " [" + playerId + "]");
         printLobbyList();
+        connectedLatch.countDown();
     }
 
     @Override
     public synchronized void onConnectError(String reason) {
         this.connectError = reason;
-        connectedLatch.countDown();
         System.out.println("Connessione fallita: " + reason);
+        connectedLatch.countDown();
     }
 
     @Override
@@ -283,7 +310,12 @@ public final class CLIView implements VirtualView {
                 }
                 yield false;
             }
-            case "quit", "exit" -> true;
+            case "quit", "exit" -> {
+                if (playerId != null && server != null) {
+                    try { server.disconnect(playerId); }
+                    catch (Exception ignored) {}
+                } yield true;
+            }
             default -> {
                 System.out.println("Comando sconosciuto. Digita 'help'.");
                 yield false;

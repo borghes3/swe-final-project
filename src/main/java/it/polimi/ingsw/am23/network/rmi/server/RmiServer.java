@@ -13,6 +13,7 @@ import java.rmi.server.UnicastRemoteObject;
 public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
 
     private final VirtualServer serverController;
+    private static final int PORT = 1234;
 
     public RmiServer(VirtualServer serverController) throws RemoteException {
         super();
@@ -22,9 +23,9 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     public static void startRmiServer(VirtualServer serverController) throws RemoteException {
         final String serverName = "ServerName";
         VirtualServerRmi server = new RmiServer(serverController);
-        Registry registry = LocateRegistry.createRegistry(1234);
+        Registry registry = LocateRegistry.createRegistry(PORT);
         registry.rebind(serverName, server);
-        System.out.println("RMI Server avviato");
+        System.out.println("RMI Server avviato su porta " + PORT);
     }
 
     @Override
@@ -94,6 +95,15 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     public void takeExtraCard(String playerId, int index) throws RemoteException {
         try {
             serverController.takeExtraCard(playerId, index);
+        } catch (Exception e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void disconnect(String playerId) throws RemoteException {
+        try {
+            serverController.disconnect(playerId);
         } catch (Exception e) {
             throw new RemoteException(e.getMessage());
         }

@@ -57,7 +57,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         clientsByPlayerId.put(playerId, client);
 
         client.onConnected(playerId, currentLobbyStates());
-        broadcastLobbyList();
     }
 
     public synchronized void createLobby(String playerId, String lobbyName, int maxPlayers) throws Exception {
@@ -77,7 +76,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         lobbyByPlayerId.put(playerId, lobbyId);
 
         clientsByPlayerId.get(playerId).onLobbyCreated(copyLobby(lobbyState));
-        broadcastLobbyUpdate(lobbyRoom);
         broadcastLobbyList();
     }
 
@@ -171,6 +169,58 @@ public final class GameController implements VirtualServer, ModelObserver {
             broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
             advanceGameFlow(lobbyId);
         }
+    }
+
+    @Override
+    public synchronized void disconnect(String playerId) throws Exception {
+        if (playerId == null || !playersById.containsKey(playerId)) {
+            return;
+        }
+
+        String lobbyId = lobbyByPlayerId.get(playerId);
+        if (lobbyId == null) {
+            // player connected, but not inside a lobby
+            clientsByPlayerId.remove(playerId);
+            playersById.remove(playerId);
+            return;
+        }
+
+        LobbyRoom lobby = requireLobby(lobbyId);
+
+        if (gamesByLobbyId.containsKey(lobbyId)) {
+            // player in a game, for simplicity we just remove the game and kick everyone out of the lobby
+            gamesByLobbyId.remove(lobbyId);
+            if (Objects.equals(activeLobbyId, lobbyId)) {
+                activeLobbyId = null;
+            }
+        }
+
+        lobby.state.removePlayer(playerId);
+        lobbyByPlayerId.remove(playerId);
+        clientsByPlayerId.remove(playerId);
+        playersById.remove(playerId);
+
+        if (lobby.state.getCurrentPlayers() == 0) {
+            lobbiesById.remove(lobbyId);
+            broadcastLobbyList();
+            return;
+        }
+
+        if (Objects.equals(lobby.state.getOwnerPlayerId(), playerId)) {
+            for (String memberId : lobby.memberIds()) {
+                lobbyByPlayerId.remove(memberId);
+                VirtualView view = clientsByPlayerId.get(memberId);
+                if (view != null) {
+                    try { view.onLobbyClosed(); } catch (Exception ignored) {}
+                }
+            }
+            lobbiesById.remove(lobbyId);
+            broadcastLobbyList();
+            return;
+        }
+
+        broadcastLobbyUpdate(lobby);
+        broadcastLobbyList();
     }
 
     @Override
@@ -378,8 +428,15 @@ public final class GameController implements VirtualServer, ModelObserver {
 
     private void broadcastLobbyList() throws Exception {
         List<LobbyState> lobbyStates = currentLobbyStates();
-        for (VirtualView view : clientsByPlayerId.values()) {
-            view.onLobbyListUpdated(lobbyStates);
+        for (Map.Entry<String, VirtualView> entry : clientsByPlayerId.entrySet()) {
+            String playerId = entry.getKey();
+
+           // chi è in lobby non riceve notifiche sulla lista delle lobbies
+            if (lobbyByPlayerId.containsKey(playerId)) {
+                continue;
+            }
+
+            entry.getValue().onLobbyListUpdated(lobbyStates);
         }
     }
 

@@ -23,4 +23,6 @@ public interface VirtualServer {
     void takeCards(String playerId, SelectedCards selectedCards) throws Exception;
 
     void takeExtraCard(String playerId, int index) throws Exception;
+
+    void disconnect(String playerId) throws Exception;
 }
