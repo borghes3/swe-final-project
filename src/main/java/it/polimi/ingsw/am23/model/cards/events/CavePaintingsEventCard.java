@@ -24,25 +24,12 @@ public class CavePaintingsEventCard extends EventCard {
 
     }
 
-    public int getMinArtists() {
-        return minArtists;
-    }
-
-    public int getPointsToRemove() {
-        return pointsToRemove;
-    }
-
-    public int getPointsFactor() {
-        return pointsFactor;
-    }
-
     @Override
     public void resolve(Game game) {
         List<Player> players = game.getPlayers();
 
         for (Player player : players) {
-            int basePoints;
-            if (player.getTribe().getCharacters().size() >= minArtists) {
+            if (player.getTribe().count(CharacterType.ARTIST) >= minArtists) {
                 player.addPrestigePoints(player.getTribe().count(CharacterType.ARTIST) * pointsFactor);
             } else {
                 player.spendPrestigePoints(pointsToRemove);

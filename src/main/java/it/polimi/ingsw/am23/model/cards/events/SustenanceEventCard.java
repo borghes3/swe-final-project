@@ -32,7 +32,7 @@ public class SustenanceEventCard extends EventCard {
                 int playerFood = player.getFood();
                 player.applyFoodDelta(-playerFood);
                 cost = cost - playerFood;
-                player.spendPrestigePoints(cost*game.getCurrentEra().ordinal());
+                player.spendPrestigePoints(cost * (game.getCurrentEra().ordinal() + 1));
             }
             // game.applyFoodCostWithPointsFallback(player, cost);
         }

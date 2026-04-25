@@ -61,7 +61,7 @@ public class Setup {
         CardMarket cardMarket = new CardMarket(drawResult.upperRow(), drawResult.lowerRow(), buildingsResult.era1Buildings());
         Board board = new Board(filteredOfferTiles, selectedTurnOrderTile);
 
-        return new Game(players, board, drawResult.tribeDeck(), buildingsResult.buildingDeck(), new EventResolver(), cardMarket, Era.ERA_1, 0);
+        return new Game(players, board, drawResult.tribeDeck(), buildingsResult.buildingDeck(), new EventResolver(), cardMarket, Era.ERA_1, 1);
     }
 
     // ----------------------------------------------
@@ -209,7 +209,7 @@ public class Setup {
                     .filter(p -> Objects.equals(p.getId(), slot.getPlayerId()))
                     .findFirst()
                     .orElseThrow(() -> new PlayerNotFoundException("Player not found in Turn Order Slot, food can not be dealt!"));
-            player.addFood(foodByIndex[i]);
+            player.applyFoodDelta(foodByIndex[i]);
         }
     }
 

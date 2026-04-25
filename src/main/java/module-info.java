@@ -9,7 +9,6 @@ module it.polimi.ingsw.am23 {
 //    JSON PARSING
     requires com.google.gson;
     opens it.polimi.ingsw.am23.model.cards to com.google.gson;
-    exports it.polimi.ingsw.am23.model.enums;
 
 
     opens it.polimi.ingsw.am23 to javafx.fxml;
@@ -20,6 +19,12 @@ module it.polimi.ingsw.am23 {
     exports it.polimi.ingsw.am23.trash;
     exports it.polimi.ingsw.am23.model;
     exports it.polimi.ingsw.am23.model.board;
+    exports it.polimi.ingsw.am23.model.enums;
+    exports it.polimi.ingsw.am23.model.player;
+    exports it.polimi.ingsw.am23.model.deck;
+    exports it.polimi.ingsw.am23.model.resolvers;
+    exports it.polimi.ingsw.am23.model.cards;
+    exports it.polimi.ingsw.am23.model.state;
 //    exports it.polimi.ingsw.am23.view.tui;
 
     opens it.polimi.ingsw.am23.model.state to javafx.fxml;
