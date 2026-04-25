@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network.rmi.client;
 
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 
@@ -29,7 +29,7 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
     void placeTotem(String playerId, char offerTileChar) throws RemoteException;
 
     @Override
-    void takeCards(String playerId, SelectedCards selectedCards) throws RemoteException;
+    void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws RemoteException;
 
     @Override
     void takeExtraCard(String playerId, int index) throws RemoteException;

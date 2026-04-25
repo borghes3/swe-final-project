@@ -7,7 +7,7 @@ import it.polimi.ingsw.am23.model.board.OfferTile;
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
 import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.enums.Era;

@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am23.model.cards;
 
-public class SelectedCardExtraDraw {
+import java.io.Serializable;
+
+public class SelectedCardExtraDraw implements Serializable {
     private final Integer cardIndex;
     private final Integer buildingIndex;
 

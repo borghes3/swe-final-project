@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am23.view;
 
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
+import it.polimi.ingsw.am23.model.enums.RowType;
 import it.polimi.ingsw.am23.model.state.*;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualView;
@@ -265,16 +266,18 @@ public final class CLIView implements VirtualView {
             }
             case "take" -> {
                 ensureConnected();
-                if (tokens.length < 5) {
-                    System.out.println("Uso: take ur=... lr=... ub=... lb=...");
+                if (tokens.length < 4) {
+                    System.out.println("Uso: take <top|bottom> <indice> <card|building>");
                 } else {
-                    SelectedCards selectedCards = new SelectedCards(
-                            parseIndexList(tokens[1]),
-                            parseIndexList(tokens[2]),
-                            parseIndexList(tokens[3]),
-                            parseIndexList(tokens[4])
+                    String rowStr = tokens[1].toLowerCase();
+                    int boardIndex = Integer.parseInt(tokens[2]);
+                    boolean isBuilding = tokens[3].equalsIgnoreCase("building");
+                    SelectedSingleCard selectedSingleCard = new SelectedSingleCard(
+                            rowStr.equals("top") ? RowType.TOP : RowType.BOTTOM,
+                            boardIndex,
+                            isBuilding
                     );
-                    server.takeCards(playerId, selectedCards);
+                    server.takeSingleCard(playerId, selectedSingleCard);
                 }
                 yield false;
             }
@@ -325,7 +328,7 @@ public final class CLIView implements VirtualView {
         System.out.println("  leave");
         System.out.println("  start");
         System.out.println("  place <lettera-tile>");
-        System.out.println("  take ur=... lr=... ub=... lb=...");
+        System.out.println("  take <top|bottom> <indice> <card|building>");
         System.out.println("  extra <indice>");
         System.out.println("  state");
         System.out.println("  quit");
@@ -350,23 +353,6 @@ public final class CLIView implements VirtualView {
 
     private boolean containsPlayer(LobbyState lobby, String playerId) {
         return lobby.getPlayers().stream().anyMatch(player -> Objects.equals(player.getId(), playerId));
-    }
-
-    private List<Integer> parseIndexList(String token) {
-        int separatorIndex = token.indexOf('=');
-        if (separatorIndex < 0 || separatorIndex == token.length() - 1) {
-            return List.of();
-        }
-        String rawValues = token.substring(separatorIndex + 1).trim();
-        if (rawValues.isEmpty() || rawValues.equals("-")) {
-            return List.of();
-        }
-        String[] parts = rawValues.split(",");
-        List<Integer> indices = new ArrayList<>(parts.length);
-        for (String part : parts) {
-            indices.add(Integer.parseInt(part.trim()));
-        }
-        return indices;
     }
 
     private void printGameState(GameState gameState) {

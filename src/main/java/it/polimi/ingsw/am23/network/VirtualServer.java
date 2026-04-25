@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network;
 
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 
 public interface VirtualServer {
 
@@ -20,7 +20,7 @@ public interface VirtualServer {
     // game
     void placeTotem(String playerId, char offerTileChar) throws Exception;
 
-    void takeCards(String playerId, SelectedCards selectedCards) throws Exception;
+    void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws Exception;
 
     void takeExtraCard(String playerId, int index) throws Exception;
 }

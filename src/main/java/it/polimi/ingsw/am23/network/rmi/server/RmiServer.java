@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network.rmi.server;
 
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi;
@@ -82,9 +82,9 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void takeCards(String playerId, SelectedCards selectedCards) throws RemoteException {
+    public void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws RemoteException {
         try {
-            serverController.takeCards(playerId, selectedCards);
+            serverController.takeSingleCard(playerId, selectedSingleCard);
         } catch (Exception e) {
             throw new RemoteException(e.getMessage());
         }

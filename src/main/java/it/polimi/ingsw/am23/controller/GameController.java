@@ -5,7 +5,7 @@ import it.polimi.ingsw.am23.model.ActionResult;
 import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.ModelObserver;
 import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
 import it.polimi.ingsw.am23.model.setup.Setup;
@@ -163,10 +163,10 @@ public final class GameController implements VirtualServer, ModelObserver {
     }
 
     @Override
-    public synchronized void takeCards(String playerId, SelectedCards selectedCards) throws Exception {
+    public synchronized void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws Exception {
         String lobbyId = requireLobbyIdForPlayer(playerId);
         Game game = requireGame(lobbyId);
-        ActionResult result = withActiveLobby(lobbyId, () -> game.takeCards(playerId, selectedCards));
+        ActionResult result = withActiveLobby(lobbyId, () -> game.takeSingleCard(playerId, selectedSingleCard));
         handleActionResult(playerId, result);
         if (result.isSuccess()) {
             broadcastEndOfDrawingPhase(lobbyId, game.getGameState());

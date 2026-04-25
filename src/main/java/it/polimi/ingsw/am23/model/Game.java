@@ -44,6 +44,13 @@ public class Game implements GameModel {
     private int currentRound;
     private GamePhase phase;
     private String pendingExtraDrawPlayerId;
+    private int upperPickedCount = 0;
+    private int lowerPickedCount = 0;
+    private int upperMaxCount = 0;
+    private int lowerMaxCount = 0;
+    private boolean drawingStarted = false;
+
+    // TODO : fare moduli per conteggio pescaggio carte
 
      private String currentPlayerId = null;
 
@@ -119,122 +126,95 @@ public class Game implements GameModel {
     // ------------------------------------------
     // DRAWING PHASE
     // ------------------------------------------
+
     @Override
-    public ActionResult takeCards(String playerId, SelectedCards selectedCards) {
+    public ActionResult takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) {
         Player p = findPlayer(playerId);
         OfferTile tile = board.getFirstOccupiedOfferTile();
 
-        // Verifico sia il prossimo player a poter pescare
-        if (!Objects.equals(p.getId(), tile.getOccupiedByPlayerId())) {
+        if(!Objects.equals(p.getId(), tile.getOccupiedByPlayerId()))
             return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PLAYER, "It's not your turn.");
+
+        // Inizializzazione turno se è la prima carta
+        if(!drawingStarted){
+            p.addFood(tile.getAction().getFoodReward());
+            upperMaxCount = Math.min(
+                    tile.getAction().getUpperDrawRowCount(),
+                    cardMarket.getDrawableCount(RowType.TOP));
+            lowerMaxCount = Math.min(
+                    tile.getAction().getBottomDrawCount(),
+                    cardMarket.getDrawableCount(RowType.BOTTOM));
+            upperPickedCount = 0;
+            lowerPickedCount = 0;
+            drawingStarted = true;
+            currentPlayerId = playerId;
         }
 
-        // Verifico che il numero di carte richieste sia corretto
-        if (!checkDrawingCriteria(tile, selectedCards)) {
-            throw new IllegalActionException("Invalid number of cards.");
-        }
-
-        // Salvo ID del player che sta piazzando (per costruzione GameState)
-        currentPlayerId = playerId;
-
-        // food reward se presente su offer tile
-        p.addFood(tile.getAction().getFoodReward());
+        // Verifico che il player possa ancora pescare da questa riga
+        if (selectedSingleCard.getRow() == RowType.TOP && upperPickedCount >= upperMaxCount)
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, "You already picked the maximun from the top row.");
+        if (selectedSingleCard.getRow() == RowType.BOTTOM && lowerPickedCount >= lowerMaxCount)
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, "You already picked the maximun from the bottom row.");
 
         int foodDiscount = p.getTribe().getBuildingDiscount();
 
-
-        // LOWER ROW
-        // Tribe Cards
-        for (int boardIndex : selectedCards.getLowerRow()) {
-            Card c = cardMarket.getCard(RowType.BOTTOM, boardIndex);
-            // Verifico sia prendibile
-            if (!c.canBeTaken()) {
-                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.CARD_NOT_TAKABLE, "This card cannot be drawn from the card market.");
-            }
-            // Aggiungo alla tribe e rimuovo dal market
-            cardMarket.removeCard(RowType.BOTTOM, boardIndex);
-            c.onTaken(this, p);
-            for (BuildingCard building : p.getTribe().getBuildings()) {
-                building.getEffect().onCardTaken(this, p, c);
-            }
-        }
-        // Buildings
-        for (int boardIndex : selectedCards.getLowerBuildings()) {
-            BuildingCard c = cardMarket.getBuilding(RowType.BOTTOM, boardIndex);
-            // Verifico costo
-            if (c.getFoodCost() - foodDiscount > p.getFood()) {
-                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "The food cost exceeds the player's reserve.");
-            }
-            // Aggiungo alla tribe e rimuovo cibo dal player
-            cardMarket.removeBuilding(RowType.BOTTOM, boardIndex);
-            c.onTaken(this, p);  // aggiungo alla tribe
-            c.getEffect().onBuildingAdded(p);  // chiamo effetti di inizializzazione per building
-            c.getEffect().onAfterAllActions(this, p);
-            p.spendFood(c.getFoodCost() - foodDiscount);
-        }
-
-        // UPPER ROW
-        // Tribe Cards
-        for (int boardIndex : selectedCards.getUpperRow()) {
-            Card c = cardMarket.getCard(RowType.TOP, boardIndex);
-            // Verifico sia prendibile
-            if (!c.canBeTaken()) {
-                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.CARD_NOT_TAKABLE, "This card cannot be drawn from the card market.");
-            }
-            // Aggiungo alla tribe e rimuovo dal market
-            cardMarket.removeCard(RowType.TOP, boardIndex);
-            c.onTaken(this, p);
-            for (BuildingCard building : p.getTribe().getBuildings()) {
-                building.getEffect().onCardTaken(this, p, c);
-            }
-        }
-        // Buildings
-        for (int boardIndex : selectedCards.getUpperBuildings()) {
-            BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
-            // Verifico costo
-            if (c.getFoodCost() - foodDiscount > p.getFood()) {
-                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "The food cost exceeds the player's reserve.");
-            }
-            // Aggiungo alla tribe e rimuovo cibo dal player
-            cardMarket.removeBuilding(RowType.TOP, boardIndex);
+        // Pesco la carta
+        if (selectedSingleCard.isBuilding()){
+            BuildingCard c = cardMarket.getBuilding(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
+            if (c.getFoodCost() - foodDiscount > p.getFood())
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "Not enough food.");
+            cardMarket.removeBuilding(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
             c.onTaken(this, p);
             c.getEffect().onBuildingAdded(p);
             c.getEffect().onAfterAllActions(this, p);
             p.spendFood(c.getFoodCost() - foodDiscount);
+        }else{
+            Card c = cardMarket.getCard(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
+            if (!c.canBeTaken())
+                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.CARD_NOT_TAKABLE, "This card cannot be drawn.");
+            cardMarket.removeCard(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
+            c.onTaken(this, p);
+            // controllo se ti attiva qualche building effect
+            for(BuildingCard building : p.getTribe().getBuildings()){
+                building.getEffect().onCardTaken(this, p, c);
+            }
         }
 
-        // Ritorno al turn order
-        returnToTurnOrder(playerId);
+        // aggiorno i contatori
+        if (selectedSingleCard.getRow() == RowType.TOP)
+            upperPickedCount++;
+        else
+            lowerPickedCount++;
 
+        // notifico la view dopo ogni carta pescata
         gameState = buildGameState();
         notifyGameStateChanged();
 
-        // se tutti hanno pescato, il tracciato è vuoto, notifico il controller
-        if (board.getFirstOccupiedOfferTile() == null) {
-            phase = GamePhase.RESOLVING_EVENTS;
-            gameState = buildGameState();
-            currentPlayerId = null; // Reset del ID salvato
-            // Se è stato settato un player che deve fare extra draw, lo notifico ora
-            if (pendingExtraDrawPlayerId != null) {
-                phase = GamePhase.EXTRA_DRAW;
+        // Verifico se il turno è concluso - se ha pescato tutte le carte che doveva
+        if (upperPickedCount == upperMaxCount && lowerPickedCount == lowerMaxCount){
+            drawingStarted = false;
+            upperPickedCount = 0;
+            lowerPickedCount = 0;
+            returnToTurnOrder(playerId);
+            currentPlayerId = null;
+
+            if(board.getFirstOccupiedOfferTile() == null){
+                phase = GamePhase.RESOLVING_EVENTS;
                 gameState = buildGameState();
-                notifyExtraDrawRequest();
+                if(pendingExtraDrawPlayerId != null){
+                    phase = GamePhase.EXTRA_DRAW;
+                    gameState = buildGameState();
+                    notifyExtraDrawRequest();
+                }else{
+                    notifyEndOfDrawingPhase();
+                }
+            }else{
+                gameState = buildGameState();
+                notifyGameStateChanged();
             }
-            else notifyEndOfDrawingPhase();
         }
 
-        return ActionResult.success(ActionType.TAKE_CARD, "Cards taken successfully");
-    }
-
-    // verifica condizioni del payload delle carte da pescare selezionate
-    private boolean checkDrawingCriteria(OfferTile tile, SelectedCards selectedCards) {
-        // UPPER ROW
-        if ((selectedCards.getUpperRow().size() + selectedCards.getUpperBuildings().size()) != Math.min(tile.getAction().getUpperDrawRowCount(), cardMarket.getDrawableCount(RowType.TOP)))
-            return false;
-        // BOTTOM ROW
-        if ((selectedCards.getLowerRow().size() + selectedCards.getLowerBuildings().size()) != Math.min(tile.getAction().getBottomDrawCount(), cardMarket.getDrawableCount(RowType.BOTTOM)))
-            return false;
-        return true;
+        return ActionResult.success(ActionType.TAKE_CARD, "Card taken successfully.");
     }
 
     // Dopo aver finito di pescare, ritorno al turn order tile

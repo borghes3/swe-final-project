@@ -7,11 +7,12 @@ import it.polimi.ingsw.am23.model.board.OfferTile;
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
 import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
+import it.polimi.ingsw.am23.model.enums.RowType;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.state.GameState;
 import org.junit.jupiter.api.Test;
@@ -124,7 +125,7 @@ class GameTest {
     }
 
     @Test
-    void takeCardsThrowsWhenSelectionDoesNotMatchOfferCriteria() {
+    void takeCardRejectsWronRow() {
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -139,7 +140,10 @@ class GameTest {
                 1
         );
 
-        assertThrows(IllegalActionException.class, () -> game.takeCards("p1", new SelectedCards(List.of(), List.of(), List.of(), List.of())));
+        ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.BOTTOM, 0, false));
+        assertFalse(result.isSuccess());
+        assertEquals(ErrorCode.INVALID_ROW, result.getError());
+
     }
 
     @Test
@@ -159,7 +163,7 @@ class GameTest {
                 1
         );
 
-        ActionResult result = game.takeCards("p1", new SelectedCards(List.of(0), List.of(), List.of(), List.of()));
+        ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0 , false));
 
         assertFalse(result.isSuccess());
         assertEquals(ErrorCode.CARD_NOT_TAKABLE, result.getError());
@@ -182,7 +186,7 @@ class GameTest {
                 1
         );
 
-        ActionResult result = game.takeCards("p1", new SelectedCards(List.of(0), List.of(), List.of(), List.of()));
+        ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, false));
 
         assertTrue(result.isSuccess());
         assertEquals(3, p1.getFood());
