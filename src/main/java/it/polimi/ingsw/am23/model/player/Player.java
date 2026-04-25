@@ -33,10 +33,6 @@ public class Player {
         return id;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
     public int getFood() {
         return food;
     }
@@ -49,56 +45,29 @@ public class Player {
         return tribe;
     }
 
-    public Totem getTotem() {
-        return totem;
-    }
-
-    public void addFood(int amount){
-        if(amount < 0){
-            throw new IllegalArgumentException("amount cannot be negative");
+    public void applyFoodDelta(int amount) {
+        if (amount < 0 && amount > food) {
+            throw new IllegalArgumentException("Not enough food");
         }
         food += amount;
     }
 
-    public void addPrestigePoints(int amount){
-        if(amount < 0){
+    public void addPrestigePoints(int amount) {
+        if (amount < 0) {
             throw new IllegalArgumentException("amount cannot be negative");
         }
         prestigePoints += amount;
     }
 
-    public void spendFood(int amount){
-        if(amount < 0){
-            throw new IllegalArgumentException("amount cannot be negative");
-        }
-        if(amount > food){
-            throw new IllegalArgumentException("Not enough food");
-        }
-        food -= amount;
+    public boolean canAfford(int amount) {
+        return food >= Math.abs(amount);
     }
 
-    public boolean canAfford(int amount){
-        if(amount < 0){
-            throw new IllegalArgumentException("amount cannot be negative");
-        }
-        return food >= amount;
+    public void spendPrestigePoints(int amount) {
+        prestigePoints -= Math.abs(amount);
     }
 
-    public void spendPrestigePoints(int amount){
-        if(amount < 0){
-            throw new IllegalArgumentException("amount cannot be negative");
-        }
-        prestigePoints -= amount;
-    }
-
-    public void losePrestigePoints(int amount){
-        if(amount < 0){
-            throw new IllegalArgumentException("amount cannot be negative");
-        }
-        prestigePoints -= amount;
-    }
-
-    public PlayerState getState(){
+    public PlayerState getState() {
         return new PlayerState(
                 id,
                 nickname,

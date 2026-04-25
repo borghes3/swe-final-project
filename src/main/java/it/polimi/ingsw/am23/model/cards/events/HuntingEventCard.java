@@ -26,14 +26,14 @@ public class HuntingEventCard extends EventCard {
         for(Player player : players){
             int baseFood = calculateBaseFood(player);
             int basePoints = calculateBasePoints(player);
-            player.addFood(baseFood);
+            player.applyFoodDelta(baseFood);
             player.addPrestigePoints(basePoints);
 
             HuntingEffectData data = new HuntingEffectData();
             for(BuildingCard building : player.getTribe().getBuildings()){
                 building.getEffect().applyHunting(game, player, data);
             }
-            player.addFood(data.getExtraFood());
+            player.applyFoodDelta(data.getExtraFood());
             player.addPrestigePoints(data.getExtraPoints());
         }
 

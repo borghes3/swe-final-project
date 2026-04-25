@@ -19,7 +19,7 @@ public class FoodPerInventorPairEffect implements BuildingEffect {
     public void onCardTaken(Game game, Player player, Card card) {
         int currentPairs = player.getTribe().countInventorPairsByIcon();
         if (currentPairs > lastKnownPairs) {
-            player.addFood(3 * (currentPairs - lastKnownPairs));
+            player.applyFoodDelta(3 * (currentPairs - lastKnownPairs));
             lastKnownPairs = currentPairs;
         }
     }

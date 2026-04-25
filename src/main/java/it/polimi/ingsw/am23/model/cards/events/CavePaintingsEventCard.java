@@ -51,7 +51,7 @@ public class CavePaintingsEventCard extends EventCard {
             for (BuildingCard building : player.getTribe().getBuildings()) {
                 building.getEffect().applyCavePaintings(game, player, data);
             }
-            player.addFood(data.getExtraFood());
+            player.applyFoodDelta(data.getExtraFood());
         }
     }
 }

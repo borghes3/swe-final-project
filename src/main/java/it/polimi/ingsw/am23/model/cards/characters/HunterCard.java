@@ -17,15 +17,11 @@ public class HunterCard extends CharacterCard{
         this.hasFoodSymbol = hasFoodSymbol;
     }
 
-    public boolean hasFoodSymbol() {
-        return hasFoodSymbol;
-    }
-
     @Override
     public void onAddedToTribe(Game game, Player player){ //pesca 1 di cibo per ogni hunter in tribe se il cacciatore pescato ha l'icona
         if(hasFoodSymbol){
             int huntersInTribe = player.getTribe().count(CharacterType.HUNTER);
-            player.addFood(huntersInTribe);
+            player.applyFoodDelta(huntersInTribe);
         }
     }
 

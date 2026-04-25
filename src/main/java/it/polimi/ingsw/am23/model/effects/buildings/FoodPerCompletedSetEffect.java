@@ -19,7 +19,7 @@ public class FoodPerCompletedSetEffect implements BuildingEffect {
     public void onCardTaken(Game game, Player player, Card card) {
         int currentSets = player.getTribe().countCompletedSets();
         if (currentSets > lastKnownSetCount) {
-            player.addFood(5 * (currentSets - lastKnownSetCount));
+            player.applyFoodDelta(5 * (currentSets - lastKnownSetCount));
             lastKnownSetCount = currentSets;
         }
     }

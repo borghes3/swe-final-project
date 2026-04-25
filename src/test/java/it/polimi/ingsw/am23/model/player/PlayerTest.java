@@ -10,8 +10,8 @@ class PlayerTest {
     void foodAndPrestigeMutationsValidateInputsAndBalances() {
         Player player = new Player("id", "nick", 5, 2, new Totem("id", "red"));
 
-        player.addFood(3);
-        player.spendFood(2);
+        player.applyFoodDelta(3);
+        player.applyFoodDelta(2);
         assertEquals(6, player.getFood());
 
         assertTrue(player.canAfford(6));
@@ -19,15 +19,15 @@ class PlayerTest {
 
         player.addPrestigePoints(4);
         player.spendPrestigePoints(3);
-        player.losePrestigePoints(1);
+        player.spendPrestigePoints(1);
         assertEquals(2, player.getPrestigePoints());
 
-        assertThrows(IllegalArgumentException.class, () -> player.addFood(-1));
-        assertThrows(IllegalArgumentException.class, () -> player.spendFood(100));
+        assertThrows(IllegalArgumentException.class, () -> player.applyFoodDelta(-1));
+        assertThrows(IllegalArgumentException.class, () -> player.applyFoodDelta(100));
         assertThrows(IllegalArgumentException.class, () -> player.canAfford(-1));
         assertThrows(IllegalArgumentException.class, () -> player.addPrestigePoints(-1));
         assertThrows(IllegalArgumentException.class, () -> player.spendPrestigePoints(-1));
-        assertThrows(IllegalArgumentException.class, () -> player.losePrestigePoints(-1));
+        assertThrows(IllegalArgumentException.class, () -> player.spendPrestigePoints(-1));
     }
 
     @Test
