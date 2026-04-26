@@ -77,8 +77,8 @@ public final class Connector implements VirtualView, Runnable {
         } else if (message instanceof PlaceTotemMessage m) {
             serverController.placeTotem(m.getPlayerId(), m.getOfferTileChar());
 
-        } else if (message instanceof TakeCardsMessage m) {
-            serverController.takeCards(m.getPlayerId(), m.getSelectedCards());
+        } else if (message instanceof TakeCardMessage m) {
+            serverController.takeSingleCard(m.getPlayerId(), m.getSelectedCard());
 
         } else if (message instanceof TakeExtraCardMessage m) {
             serverController.takeExtraCard(m.getPlayerId(), m.getIndex());
@@ -180,13 +180,13 @@ public final class Connector implements VirtualView, Runnable {
     }
 
     @Override
-    public void onGameOver() throws Exception {
-        send(new OnGameOverMessage());
+    public void onGameOver(GameState gameState) throws Exception {
+        send(new OnGameOverMessage(gameState));
     }
 
     @Override
-    public void onScoreboardAvailable() throws Exception {
-        send(new OnScoreboardAvailableMessage());
+    public void onScoreboardAvailable(GameState gameState) throws Exception {
+        send(new OnScoreboardAvailableMessage(gameState));
     }
 
     @Override

@@ -39,7 +39,7 @@ public class BuildingDeck {
     }
 
     public boolean isEmpty(Era era) {
-        return cardsByEra.isEmpty();
+        return getDeckForEra(era).isEmpty();
     }
 
     public int size(Era era) {

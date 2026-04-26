@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network.socket.client;
 
-import it.polimi.ingsw.am23.model.cards.SelectedCards;
+import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.network.socket.messages.Message;
@@ -103,11 +103,11 @@ public final class SocketClient implements VirtualServer {
         } else if (message instanceof OnEraProgressionMessage m) {
             view.onEraProgression(m.getGameState());
 
-        } else if (message instanceof OnGameOverMessage) {
-            view.onGameOver();
+        } else if (message instanceof OnGameOverMessage m) {
+            view.onGameOver(m.getGameState());
 
-        } else if (message instanceof OnScoreboardAvailableMessage) {
-            view.onScoreboardAvailable();
+        } else if (message instanceof OnScoreboardAvailableMessage m) {
+            view.onScoreboardAvailable(m.getGameState());
 
         } else if (message instanceof OnActionErrorMessage m) {
             view.onActionError(m.getActionType(), m.getMessage());
@@ -167,8 +167,8 @@ public final class SocketClient implements VirtualServer {
     }
 
     @Override
-    public void takeCards(String playerId, SelectedCards selectedCards) throws Exception {
-        send(new TakeCardsMessage(playerId, selectedCards));
+    public void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws Exception {
+        send(new TakeCardMessage(playerId, selectedSingleCard));
     }
 
     @Override
