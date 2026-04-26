@@ -5,6 +5,7 @@ import it.polimi.ingsw.am23.model.TestUtils;
 import it.polimi.ingsw.am23.model.board.OfferAction;
 import it.polimi.ingsw.am23.model.board.OfferTile;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.player.Player;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,6 @@ class ExtraDrawEffectTest {
         ExtraDrawEffect effect = new ExtraDrawEffect();
         effect.onAfterAllActions(game, p);
 
-        assertTrue(game.takeExtraCard("p", new it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw(0, null)).isSuccess());
+        assertTrue(game.takeExtraCard("p", new SelectedCardExtraDraw(0, null)).isSuccess());
     }
 }

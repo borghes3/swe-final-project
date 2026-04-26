@@ -1,25 +1,5 @@
 package it.polimi.ingsw.am23.model;
 
-import it.polimi.ingsw.am23.exceptions.IllegalActionException;
-import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
-import it.polimi.ingsw.am23.model.board.OfferAction;
-import it.polimi.ingsw.am23.model.board.OfferTile;
-import it.polimi.ingsw.am23.model.cards.BuildingCard;
-import it.polimi.ingsw.am23.model.cards.Card;
-import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
-import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
-import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
-import it.polimi.ingsw.am23.model.enums.Era;
-import it.polimi.ingsw.am23.model.enums.GamePhase;
-import it.polimi.ingsw.am23.model.player.Player;
-import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
-import it.polimi.ingsw.am23.model.state.GameState;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 /*
 class GameTestPayloads {
 

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network.rmi.server;
 
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi;

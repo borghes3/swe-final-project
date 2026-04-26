@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am23.model;
 
-import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.state.GameState;
 

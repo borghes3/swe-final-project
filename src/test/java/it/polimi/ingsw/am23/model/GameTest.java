@@ -1,13 +1,12 @@
 package it.polimi.ingsw.am23.model;
 
-import it.polimi.ingsw.am23.exceptions.IllegalActionException;
 import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am23.model.board.OfferAction;
 import it.polimi.ingsw.am23.model.board.OfferTile;
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
-import it.polimi.ingsw.am23.model.cards.SelectedCardExtraDraw;
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.enums.Era;

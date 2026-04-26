@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network.socket.messages.request;
 
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.socket.messages.Message;
 
 public final class TakeCardMessage extends Message {

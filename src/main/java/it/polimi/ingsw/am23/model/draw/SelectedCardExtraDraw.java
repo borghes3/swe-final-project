@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am23.model.cards;
+package it.polimi.ingsw.am23.model.draw;
 
 import java.io.Serializable;
 

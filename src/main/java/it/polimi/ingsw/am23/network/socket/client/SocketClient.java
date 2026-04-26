@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network.socket.client;
 
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.network.socket.messages.Message;
@@ -40,7 +40,7 @@ public final class SocketClient implements VirtualServer {
 
     // listen for messages (from server) on a different thread
     private void startListening() {
-        Thread thread = new Thread(() -> this.readLoop(), "socket-reader");  // socket-reader is the name of the thread, useful for debugging
+        Thread thread = new Thread(this::readLoop, "socket-reader");  // socket-reader is the name of the thread, useful for debugging
         thread.setDaemon(true);  // the thread will be destroyed when the program exits (the client doesn't freeze when it disconnects)
         thread.start();
     }

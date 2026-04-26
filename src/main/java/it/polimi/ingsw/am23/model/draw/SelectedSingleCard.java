@@ -1,9 +1,8 @@
-package it.polimi.ingsw.am23.model.cards;
+package it.polimi.ingsw.am23.model.draw;
 
 import it.polimi.ingsw.am23.model.enums.RowType;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class SelectedSingleCard implements Serializable {
     private final RowType row;

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.view;
 
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.enums.RowType;
 import it.polimi.ingsw.am23.model.state.*;
@@ -25,7 +25,6 @@ public final class CLIView implements VirtualView {
     private volatile String playerName;
     private volatile String currentLobbyId;
     private volatile boolean owner;
-    private volatile boolean gameStarted;
     private volatile String connectError;
     private volatile List<LobbyState> lobbies = List.of();
     private volatile GameState currentGameState;
@@ -77,7 +76,7 @@ public final class CLIView implements VirtualView {
         awaitConnected();
     }
 
-    public void run() throws Exception {
+    public void run() {
         printHelp();
         while (true) {
             System.out.print("> ");
@@ -151,7 +150,6 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onGameStarted(GameState gameState) {
-        this.gameStarted = true;
         this.currentGameState = gameState;
         gameStartedLatch.countDown();
         System.out.println("Partita avviata.");

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am23.network;
 
-import it.polimi.ingsw.am23.model.cards.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 
 public interface VirtualServer {
 

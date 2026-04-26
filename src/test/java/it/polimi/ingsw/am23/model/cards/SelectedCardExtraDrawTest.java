@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.model.cards;
 
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

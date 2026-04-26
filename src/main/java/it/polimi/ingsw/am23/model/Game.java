@@ -10,10 +10,13 @@ import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
 import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
+import it.polimi.ingsw.am23.model.draw.CardDrawState;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.resolvers.EventResolver;
 import it.polimi.ingsw.am23.model.resolvers.ScoreCalculator;
@@ -42,11 +45,7 @@ public class Game implements GameModel {
     private int currentRound;
     private GamePhase phase;
     private String pendingExtraDrawPlayerId;
-    private int upperPickedCount = 0;
-    private int lowerPickedCount = 0;
-    private int upperMaxCount = 0;
-    private int lowerMaxCount = 0;
-    private boolean drawingStarted = false;
+    private final CardDrawState drawState;
 
     // TODO : fare moduli per conteggio pescaggio carte
 
@@ -63,6 +62,7 @@ public class Game implements GameModel {
         this.currentRound = currentRound;
         this.phase = GamePhase.SETUP;
         this.gameState = buildGameState();
+        this.drawState = new CardDrawState();
     }
 
 
@@ -134,25 +134,16 @@ public class Game implements GameModel {
             return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PLAYER, "It's not your turn.");
 
         // Inizializzazione turno se è la prima carta
-        if (!drawingStarted) {
+        if (!drawState.isDrawingStarted()) {
             p.applyFoodDelta(tile.getAction().getFoodReward());
-            upperMaxCount = Math.min(
-                    tile.getAction().getUpperDrawRowCount(),
-                    cardMarket.getDrawableCount(RowType.TOP));
-            lowerMaxCount = Math.min(
-                    tile.getAction().getBottomDrawCount(),
-                    cardMarket.getDrawableCount(RowType.BOTTOM));
-            upperPickedCount = 0;
-            lowerPickedCount = 0;
-            drawingStarted = true;
+            drawState.init(tile, cardMarket);
             currentPlayerId = playerId;
         }
 
         // Verifico che il player possa ancora pescare da questa riga
-        if (selectedSingleCard.getRow() == RowType.TOP && upperPickedCount >= upperMaxCount)
-            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, "You already picked the maximun from the top row.");
-        if (selectedSingleCard.getRow() == RowType.BOTTOM && lowerPickedCount >= lowerMaxCount)
-            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, "You already picked the maximun from the bottom row.");
+        if (!drawState.canDraw(selectedSingleCard)) {
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, "You already picked the maximum number of cards from the " + selectedSingleCard.getRow() + " row.");
+        }
 
         int foodDiscount = p.getTribe().getBuildingDiscount();
 
@@ -179,16 +170,11 @@ public class Game implements GameModel {
         }
 
         // aggiorno i contatori
-        if (selectedSingleCard.getRow() == RowType.TOP)
-            upperPickedCount++;
-        else
-            lowerPickedCount++;
+        drawState.incrementDrawCount(selectedSingleCard);
 
         // Verifico se il turno è concluso - se ha pescato tutte le carte che doveva
-        if (upperPickedCount == upperMaxCount && lowerPickedCount == lowerMaxCount) {
-            drawingStarted = false;
-            upperPickedCount = 0;
-            lowerPickedCount = 0;
+        if (drawState.hasFinishedDrawing()) {
+            drawState.reset();
             returnToTurnOrder(playerId);
             currentPlayerId = null;
 
