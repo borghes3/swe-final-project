@@ -8,6 +8,7 @@ import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.view.controllers.ConnectionController;
 import it.polimi.ingsw.am23.view.controllers.LobbyController;
+import it.polimi.ingsw.am23.view.controllers.ScoreboardController;
 import it.polimi.ingsw.am23.view.controllers.WaitingRoomController;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -25,11 +26,13 @@ public class JavaFXView extends Application implements VirtualView {
     private volatile String currentLobbyId;
     private volatile boolean owner;
     private volatile boolean leftVoluntarily = false;
+    private volatile GameState currentGameState;
 
     private Stage primaryStage;
     private ConnectionController connectionController;
     private LobbyController lobbyController;
     private WaitingRoomController waitingRoomController;
+    private ScoreboardController scoreboardController;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -53,6 +56,12 @@ public class JavaFXView extends Application implements VirtualView {
         connectionController = loader.getController();
         connectionController.setView(this);
         primaryStage.setScene(new Scene(root, 400, 500));
+
+        /* TEST scoreboard - da rimuovere
+        Platform.runLater(() -> {
+            try { showScoreboardScreen(null); }
+            catch (Exception e) { e.printStackTrace(); }
+        });*/
     }
 
     public void connect(String host, String nickname, String connectionType) throws Exception{
@@ -110,6 +119,29 @@ public class JavaFXView extends Application implements VirtualView {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    // SCOREBOARD
+    public void showScoreboardScreen(GameState gameState) throws Exception{
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/scoreboard.fxml")
+        );
+        Parent root = loader.load();
+        scoreboardController = loader.getController();
+        scoreboardController.setView(this);
+        scoreboardController.showScoreboard(gameState);
+        primaryStage.getScene().setRoot(root);
+    }
+
+    public void goToLobby(){
+        Platform.runLater(()-> {
+            try{
+                scoreboardController = null;
+                showLobbyScreen(java.util.List.of());
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        });
     }
 
     // -----------------
@@ -246,7 +278,14 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onScoreboardAvailable(GameState gameState) throws Exception {
-
+        this.currentGameState = gameState;
+        Platform.runLater(() -> {
+            try{
+                showScoreboardScreen(gameState);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
