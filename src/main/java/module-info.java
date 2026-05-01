@@ -31,4 +31,6 @@ module it.polimi.ingsw.am23 {
     opens it.polimi.ingsw.am23.trash to javafx.fxml;
     exports it.polimi.ingsw.am23.model.draw;
     opens it.polimi.ingsw.am23.model.draw to com.google.gson;
+
+    opens it.polimi.ingsw.am23.view.controllers to javafx.fxml;
 }
