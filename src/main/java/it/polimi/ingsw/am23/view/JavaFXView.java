@@ -6,10 +6,7 @@ import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
-import it.polimi.ingsw.am23.view.controllers.ConnectionController;
-import it.polimi.ingsw.am23.view.controllers.LobbyController;
-import it.polimi.ingsw.am23.view.controllers.ScoreboardController;
-import it.polimi.ingsw.am23.view.controllers.WaitingRoomController;
+import it.polimi.ingsw.am23.view.controllers.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -32,6 +29,7 @@ public class JavaFXView extends Application implements VirtualView {
     private ConnectionController connectionController;
     private LobbyController lobbyController;
     private WaitingRoomController waitingRoomController;
+    private GameScreenController gameScreenController;
     private ScoreboardController scoreboardController;
 
     @Override
@@ -122,6 +120,7 @@ public class JavaFXView extends Application implements VirtualView {
     }
 
     // SCOREBOARD
+
     public void showScoreboardScreen(GameState gameState) throws Exception{
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/scoreboard.fxml")
@@ -144,6 +143,27 @@ public class JavaFXView extends Application implements VirtualView {
         });
     }
 
+    // GAME
+
+    private void showGameScreen(GameState gameState) throws Exception{
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/gameScreen.fxml")
+        );
+        Parent root = loader.load();
+        gameScreenController = loader.getController();
+        gameScreenController.setView(this);
+        gameScreenController.setMyPlayerId(playerId);
+        gameScreenController.updateGameState(gameState);
+        primaryStage.setScene(new Scene(root, 1100, 800));
+    }
+
+    public void startGame() {
+        try {
+            server.startGame(playerId, currentLobbyId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     // -----------------
 
     @Override
@@ -238,12 +258,24 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onGameStarted(GameState gameState) throws Exception {
+        Platform.runLater(() -> {
+            try{
+                waitingRoomController = null;
+                showGameScreen(gameState);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        });
 
     }
 
     @Override
     public void onGameStateChanged(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if(gameScreenController != null){
+                gameScreenController.updateGameState(gameState);
+            }
+        });
     }
 
     @Override
@@ -290,6 +322,10 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onActionError(ActionType actionType, String message) throws Exception {
-
+        Platform.runLater( () -> {
+            if(waitingRoomController != null){
+                waitingRoomController.showError(message);
+            }
+        });
     }
 }

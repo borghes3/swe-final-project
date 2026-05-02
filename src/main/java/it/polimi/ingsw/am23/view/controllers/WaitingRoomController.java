@@ -29,9 +29,23 @@ public class WaitingRoomController {
         });
     }
 
+    public void showError(String message){
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.ERROR
+        );
+        alert.setTitle("Errore");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     @FXML
     private void onStartClicked(){
-        // TODO : notificare che vuole avviare la partita
+        if(lobbyListView.getItems().size() < 2){
+            showError("Servono almeno 2 giocatori per iniziare la partita.");
+            return;
+        }
+        view.startGame();
     }
 
     @FXML
