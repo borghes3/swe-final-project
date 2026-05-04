@@ -46,7 +46,7 @@ public class Player {
     }
 
     public void applyFoodDelta(int amount) {
-        if (amount < 0 && amount > food) {
+        if (amount < 0 && -amount > food) {
             throw new IllegalArgumentException("Not enough food");
         }
         food += amount;
