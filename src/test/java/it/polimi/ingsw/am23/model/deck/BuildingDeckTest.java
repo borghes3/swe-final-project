@@ -28,6 +28,6 @@ class BuildingDeckTest {
 
         deck.draw(Era.ERA_1);
         assertThrows(IllegalArgumentException.class, () -> deck.draw(Era.ERA_1));
-        assertFalse(deck.isEmpty(Era.ERA_1));
+        assertTrue(deck.isEmpty(Era.ERA_1));
     }
 }

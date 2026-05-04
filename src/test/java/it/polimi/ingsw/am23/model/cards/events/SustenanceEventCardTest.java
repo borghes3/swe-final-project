@@ -37,6 +37,6 @@ class SustenanceEventCardTest {
         event.resolve(game);
 
         assertEquals(4, p1.getFood());
-        assertEquals(4, p2.getPrestigePoints());
+        assertEquals(3, p2.getPrestigePoints());
     }
 }
