@@ -53,6 +53,7 @@ public final class CLIView implements VirtualView {
     private volatile String connectError;
     private volatile List<LobbyState> lobbies = List.of();
     private volatile GameState currentGameState;
+    private volatile CardState currentPeekedCard;
 
     public CLIView(LineReader lineReader) {
         this.lineReader = Objects.requireNonNull(lineReader, "lineReader cannot be null");
@@ -67,8 +68,8 @@ public final class CLIView implements VirtualView {
 
             LineReader reader = LineReaderBuilder.builder()
                     .completer(new StringsCompleter(
-                            "help", "refresh", "lobbies", "create", "join", "leave",
-                            "start", "place", "take", "extra", "state", "quit", "exit"
+                                "help", "refresh", "lobbies", "create", "join", "leave",
+                                "start", "place", "take", "extra", "state", "peek", "quit", "exit"
                     ))
                     .option(LineReader.Option.AUTO_LIST, true)
                     .option(LineReader.Option.LIST_PACKED, true)
@@ -280,6 +281,10 @@ public final class CLIView implements VirtualView {
         String[] tokens = line.split("\\s+");
         String command = tokens[0].toLowerCase();
 
+        if (!"peek".equals(command)) {
+            currentPeekedCard = null;
+        }
+
         return switch (command) {
             case "?", "help", "info", "lobbies" -> false;
             case "refresh" -> {
@@ -367,6 +372,7 @@ public final class CLIView implements VirtualView {
                 if (currentGameState == null) {
                     renderCurrentScreen(WARNING_MARKER + " No game state available.");
                 } else {
+                    currentPeekedCard = null;
                     renderCurrentScreen(null);
                 }
                 yield false;
@@ -376,7 +382,7 @@ public final class CLIView implements VirtualView {
                 if (currentGameState == null) {
                     printWarning("No game state available.");
                 } else {
-                    handlePeek();
+                    handlePeek(line.substring(command.length()).trim());
                 }
                 yield false;
             }
@@ -410,6 +416,9 @@ public final class CLIView implements VirtualView {
     private void renderGameView(GameState gameState, String message) {
         clearScreen();
         boardRenderer.render(gameState, message, playerId);
+        if (currentPeekedCard != null) {
+            renderCardDetails(currentPeekedCard);
+        }
     }
 
     private void renderLobbyView(String message) {
@@ -445,7 +454,18 @@ public final class CLIView implements VirtualView {
         return List.copyOf(merged);
     }
 
-    private void handlePeek() throws Exception {
+    private void handlePeek(String cardIdArgument) throws Exception {
+        if (!cardIdArgument.isBlank()) {
+            CardState selectedCard = findCardById(cardIdArgument);
+            if (selectedCard == null) {
+                printWarning("Card not found: " + cardIdArgument);
+                return;
+            }
+
+            displayCardDetails(selectedCard);
+            return;
+        }
+
         ConsolePrompt prompt = new ConsolePrompt();
         PromptBuilder builder = prompt.getPromptBuilder();
 
@@ -501,38 +521,123 @@ public final class CLIView implements VirtualView {
         displayCardDetails(selected);
     }
 
-    private void displayCardDetails(CardState card) {
-        System.out.println();
-        System.out.println("--- Card details ---");
-        System.out.println("Id: " + safeText(card.getCardId()));
-        System.out.println("Kind: " + safeText(card.getCardKind().toString()));
-        System.out.println("Era: " + safeText(card.getEra().toString()));
-        System.out.println("PrintedPoints: " + card.getPrintedPoints());
+    private CardState findCardById(String cardId) {
+        BoardState board = currentGameState.getBoard();
+        if (board == null || cardId == null || cardId.isBlank()) {
+            return null;
+        }
 
-        Object o;
-        o = invokeGetterOptional(card, "getCharacterType");
-        if (o != null) System.out.println("CharacterType: " + o);
-        o = invokeGetterOptional(card, "getHasFoodSymbol");
-        if (o != null) System.out.println("HasFoodSymbol: " + o);
-        o = invokeGetterOptional(card, "getStars");
-        if (o != null) System.out.println("Stars: " + o);
-        o = invokeGetterOptional(card, "getDiscount");
-        if (o != null) System.out.println("Discount: " + o);
-        o = invokeGetterOptional(card, "getInventionIcon");
-        if (o != null) System.out.println("InventionIcon: " + o);
-        o = invokeGetterOptional(card, "getFoodCost");
-        if (o != null) System.out.println("FoodCost: " + o);
-        o = invokeGetterOptional(card, "getEffectId");
-        if (o != null) System.out.println("EffectId: " + o);
-        o = invokeGetterOptional(card, "getMinPlayers");
-        if (o != null) System.out.println("MinPlayers: " + o);
+        for (CardState card : getAllBoardCards(board)) {
+            if (Objects.equals(card.getCardId(), cardId)) {
+                return card;
+            }
+        }
+
+        return null;
+    }
+
+    private List<CardState> getAllBoardCards(BoardState board) {
+        List<CardState> cards = new ArrayList<>();
+        cards.addAll(board.getTopRow());
+        cards.addAll(board.getBottomRow());
+        cards.addAll(board.getTopBuildings());
+        cards.addAll(board.getBottomBuildings());
+        return cards;
+    }
+
+    private void displayCardDetails(CardState card) {
+        this.currentPeekedCard = card;
+        renderCurrentScreen(INFO_MARKER + " Inspecting card " + safeText(card.getCardId()));
+    }
+
+    private void renderCardDetails(CardState card) {
+        List<String> contentLines = buildCardDisplayLines(card);
+        int width = contentLines.stream().mapToInt(String::length).max().orElse(0) + 4;
+
+        System.out.println();
+        printCardBorder(width);
+        for (String line : contentLines) {
+            System.out.println("| " + padRight(line, width - 4) + " |");
+        }
+        printCardBorder(width);
         System.out.println();
     }
 
-    private Object invokeGetterOptional(Object target, String methodName) {
+    private List<String> buildCardDisplayLines(CardState card) {
+        List<String> lines = new ArrayList<>();
+        lines.add(centerText("CARD DETAILS", 24));
+        lines.add("");
+        lines.addAll(centerAsciiArt(36));
+        lines.add("");
+        lines.add("Id: " + safeText(card.getCardId()));
+        lines.add("Kind: " + safeText(String.valueOf(card.getCardKind())));
+        lines.add("Era: " + safeText(String.valueOf(card.getEra())));
+        lines.add("Printed points: " + card.getPrintedPoints());
+
+        addOptionalCardLine(lines, card, "Character type", "getCharacterType", "isCharacterType");
+        addOptionalCardLine(lines, card, "Food symbol", "getHasFoodSymbol", "isHasFoodSymbol", "hasFoodSymbol");
+        addOptionalCardLine(lines, card, "Stars", "getStars", "isStars");
+        addOptionalCardLine(lines, card, "Discount", "getDiscount", "isDiscount");
+        addOptionalCardLine(lines, card, "Invention icon", "getInventionIcon", "isInventionIcon");
+        addOptionalCardLine(lines, card, "Food cost", "getFoodCost", "isFoodCost");
+        addOptionalCardLine(lines, card, "Effect id", "getEffectId", "isEffectId");
+        addOptionalCardLine(lines, card, "Min players", "getMinPlayers", "isMinPlayers");
+
+        return lines;
+    }
+
+    private List<String> centerAsciiArt(int width) {
+        return List.of(
+                centerText("  /\\", width),
+                centerText(" /  \\", width),
+                centerText("| [] |", width),
+                centerText("|____|", width),
+                centerText("  \\/", width)
+        );
+    }
+
+    private void addOptionalCardLine(List<String> lines, CardState card, String label, String... methodNames) {
+        Object value = invokeGetterOptional(card, methodNames);
+        if (value != null) {
+            lines.add(label + ": " + value);
+        }
+    }
+
+    private void printCardBorder(int width) {
+        System.out.println("+" + "-".repeat(Math.max(0, width - 2)) + "+");
+    }
+
+    private String padRight(String text, int width) {
+        String value = text == null ? "" : text;
+        if (value.length() >= width) {
+            return value;
+        }
+        return value + " ".repeat(width - value.length());
+    }
+
+    private String centerText(String text, int width) {
+        String value = text == null ? "" : text;
+        if (value.length() >= width) {
+            return value;
+        }
+
+        int totalPadding = width - value.length();
+        int leftPadding = totalPadding / 2;
+        int rightPadding = totalPadding - leftPadding;
+        return " ".repeat(leftPadding) + value + " ".repeat(rightPadding);
+    }
+
+    private Object invokeGetterOptional(Object target, String... methodNames) {
         try {
-            Method m = target.getClass().getMethod(methodName);
-            return m.invoke(target);
+            for (String methodName : methodNames) {
+                try {
+                    Method m = target.getClass().getMethod(methodName);
+                    return m.invoke(target);
+                } catch (NoSuchMethodException ignored) {
+                    // try next candidate
+                }
+            }
+            return null;
         } catch (Exception e) {
             return null;
         }
