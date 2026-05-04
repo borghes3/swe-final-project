@@ -56,6 +56,15 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
+    public void requestLobbyList(String playerId) throws RemoteException {
+        try {
+            serverController.requestLobbyList(playerId);
+        } catch (Exception e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    @Override
     public void leaveLobby(String playerId, String lobbyId) throws RemoteException {
         try {
             serverController.leaveLobby(playerId, lobbyId);

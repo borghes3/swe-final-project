@@ -12,6 +12,8 @@ public interface VirtualServer {
 
     void joinLobby(String playerId, String lobbyId) throws Exception;
 
+    void requestLobbyList(String playerId) throws Exception;
+
     void leaveLobby(String playerId, String lobbyId) throws Exception;
 
     void startGame(String playerId, String lobbyId) throws Exception;

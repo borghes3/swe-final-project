@@ -101,6 +101,15 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
+    @Override
+    public synchronized void requestLobbyList(String playerId) throws Exception {
+        requireConnectedPlayer(playerId);
+        VirtualView client = clientsByPlayerId.get(playerId);
+        if (client != null) {
+            client.onLobbyListUpdated(currentLobbyStates());
+        }
+    }
+
     public synchronized void leaveLobby(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);

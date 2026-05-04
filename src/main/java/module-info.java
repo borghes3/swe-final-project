@@ -8,6 +8,10 @@ module it.polimi.ingsw.am23 {
 
 //    JSON PARSING
     requires com.google.gson;
+    requires java.logging;
+    requires org.jline;
+    requires consoleui;
+    requires jline;
     opens it.polimi.ingsw.am23.model.cards to com.google.gson;
 
 
@@ -25,10 +29,11 @@ module it.polimi.ingsw.am23 {
     exports it.polimi.ingsw.am23.model.resolvers;
     exports it.polimi.ingsw.am23.model.cards;
     exports it.polimi.ingsw.am23.model.state;
-//    exports it.polimi.ingsw.am23.view.tui;
+    exports it.polimi.ingsw.am23.view.tui;
 
     opens it.polimi.ingsw.am23.model.state to javafx.fxml;
     opens it.polimi.ingsw.am23.trash to javafx.fxml;
     exports it.polimi.ingsw.am23.model.draw;
     opens it.polimi.ingsw.am23.model.draw to com.google.gson;
+    exports it.polimi.ingsw.am23.view.cli;
 }

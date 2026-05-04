@@ -20,6 +20,9 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
     void joinLobby(String playerId, String lobbyId) throws RemoteException;
 
     @Override
+    void requestLobbyList(String playerId) throws RemoteException;
+
+    @Override
     void leaveLobby(String playerId, String lobbyId) throws RemoteException;
 
     @Override

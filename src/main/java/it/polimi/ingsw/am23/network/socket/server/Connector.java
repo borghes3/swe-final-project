@@ -50,6 +50,9 @@ public final class Connector implements VirtualView, Runnable {
         if (message instanceof ConnectMessage m) {
             serverController.connect(m.getPlayerName(), this);
 
+
+        } else if (message instanceof RefreshLobbyListMessage m) {
+            serverController.requestLobbyList(m.getPlayerId());
         } else if (message instanceof CreateLobbyMessage m) {
             serverController.createLobby(m.getPlayerId(), m.getLobbyName(), m.getMaxPlayers());
 
@@ -60,34 +63,36 @@ public final class Connector implements VirtualView, Runnable {
                 onJoinError(e.getMessage());  // "Lobby not found: YYYY"
             }
 
-        } else if (message instanceof LeaveLobbyMessage m) {
-            try {
-                serverController.leaveLobby(m.getPlayerId(), m.getLobbyId());
-            } catch (IllegalStateException | IllegalArgumentException e) {
-                onActionError(ActionType.GENERIC, e.getMessage());
+        } else {
+            if (message instanceof LeaveLobbyMessage m) {
+                try {
+                    serverController.leaveLobby(m.getPlayerId(), m.getLobbyId());
+                } catch (IllegalStateException | IllegalArgumentException e) {
+                    onActionError(ActionType.GENERIC, e.getMessage());
+                }
+
+            } else if (message instanceof StartGameMessage m) {
+                try {
+                    serverController.startGame(m.getPlayerId(), m.getLobbyId());
+                } catch (IllegalStateException | IllegalArgumentException e) {
+                    onActionError(ActionType.GENERIC, e.getMessage());
+                }
+
+            } else if (message instanceof PlaceTotemMessage m) {
+                serverController.placeTotem(m.getPlayerId(), m.getOfferTileChar());
+
+            } else if (message instanceof TakeCardMessage m) {
+                serverController.takeSingleCard(m.getPlayerId(), m.getSelectedCard());
+
+            } else if (message instanceof TakeExtraCardMessage m) {
+                serverController.takeExtraCard(m.getPlayerId(), m.getIndex());
+
+            } else if (message instanceof DisconnectMessage m) {
+                serverController.disconnect(m.getPlayerId());
             }
-
-        } else if (message instanceof StartGameMessage m) {
-            try {
-                serverController.startGame(m.getPlayerId(), m.getLobbyId());
-            } catch (IllegalStateException | IllegalArgumentException e) {
-                onActionError(ActionType.GENERIC, e.getMessage());
+            else {
+                System.err.println("<Controller>: messaggio sconosciuto –>" + message.getClass().getName());
             }
-
-        } else if (message instanceof PlaceTotemMessage m) {
-            serverController.placeTotem(m.getPlayerId(), m.getOfferTileChar());
-
-        } else if (message instanceof TakeCardMessage m) {
-            serverController.takeSingleCard(m.getPlayerId(), m.getSelectedCard());
-
-        } else if (message instanceof TakeExtraCardMessage m) {
-            serverController.takeExtraCard(m.getPlayerId(), m.getIndex());
-
-        } else if (message instanceof DisconnectMessage m) {
-            serverController.disconnect(m.getPlayerId());
-        }
-        else {
-            System.err.println("<Controller>: messaggio sconosciuto –>" + message.getClass().getName());
         }
     }
 

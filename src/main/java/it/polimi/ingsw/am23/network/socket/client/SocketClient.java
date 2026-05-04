@@ -180,4 +180,9 @@ public final class SocketClient implements VirtualServer {
     public void disconnect(String playerId) throws Exception {
         send(new DisconnectMessage(playerId));
     }
+
+    @Override
+    public void requestLobbyList(String playerId) throws Exception {
+        send(new RefreshLobbyListMessage(playerId));
+    }
 }
