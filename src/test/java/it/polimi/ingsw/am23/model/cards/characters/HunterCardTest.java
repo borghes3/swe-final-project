@@ -34,4 +34,24 @@ class HunterCardTest {
 
         assertEquals(3, p.getFood());
     }
+
+    @Test
+    void onTakenDoesNotAddFoodWhenCardHasNoFoodSymbol() {
+        Player p = TestUtils.player("p", 5, 0);
+        Game game = TestUtils.game(
+                List.of(p),
+                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0,null)),
+                List.of(),
+                List.of(),
+                List.of(),
+                Era.ERA_1,
+                1
+        );
+
+        new HunterCard("h1", Era.ERA_1, 0, false, 2).onTaken(game, p);
+        new HunterCard("h2", Era.ERA_1, 0, false, 2).onTaken(game, p);
+
+        assertEquals(5, p.getFood());
+    }
 }

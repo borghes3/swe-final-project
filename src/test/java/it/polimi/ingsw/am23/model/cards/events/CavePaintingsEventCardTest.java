@@ -36,4 +36,25 @@ class CavePaintingsEventCardTest {
 
         assertEquals(9, p1.getPrestigePoints());
     }
-}
+
+    @Test
+    void resolveRemovesPrestigeWhenInsufficientArtists() {
+        Player p1 = TestUtils.player("p1", 0, 10);
+        p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.ArtistCard("a1", Era.ERA_1, 0, 2));
+
+        Game game = TestUtils.game(
+                List.of(p1),
+                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0,null)),
+                List.of(),
+                List.of(),
+                List.of(),
+                Era.ERA_1,
+                1
+        );
+
+        new CavePaintingsEventCard("c", Era.ERA_1, 0, false, 2, 3, 2).resolve(game);
+
+        assertEquals(7, p1.getPrestigePoints());
+        }
+    }

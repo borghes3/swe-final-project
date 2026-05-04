@@ -20,4 +20,20 @@ class TurnOrderSlotTest {
         slot.clear();
         assertTrue(slot.isFree());
     }
+
+        @Test
+        void foodDeltaConditionsAreCorrect() {
+            TurnOrderSlot negativeSlot = new TurnOrderSlot(0, -3, "p1");
+            TurnOrderSlot positiveSlot = new TurnOrderSlot(1, 2, "p2");
+            TurnOrderSlot zeroSlot = new TurnOrderSlot(2, 0, null);
+
+            assertTrue(negativeSlot.requiresPayment());
+            assertFalse(negativeSlot.givesFood());
+
+            assertFalse(positiveSlot.requiresPayment());
+            assertTrue(positiveSlot.givesFood());
+
+            assertFalse(zeroSlot.requiresPayment());
+            assertFalse(zeroSlot.givesFood());
+        }
 }

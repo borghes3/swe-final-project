@@ -99,4 +99,33 @@ class CardMarketTest {
         assertEquals(1, market.getBottomBuildings().size());
         assertEquals("e2", market.getTopBuildings().get(0).getId());
     }
+
+    @Test
+    void handleEraProgressionClearsBottomBuildingsOnlyForEra3() {
+        Map<Era, List<it.polimi.ingsw.am23.model.cards.BuildingCard>> byEra = new EnumMap<>(Era.class);
+        byEra.put(Era.ERA_3, List.of(TestUtils.building("e3", Era.ERA_3, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))));
+        
+        CardMarket market = new CardMarket(
+                List.of(),
+                List.of(),
+                List.of(TestUtils.building("old-top", Era.ERA_1, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0)))
+        );
+        
+        market.addBuilding(it.polimi.ingsw.am23.model.enums.RowType.BOTTOM, TestUtils.building("old-bottom", Era.ERA_1, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0)));
+        assertEquals(1, market.getBottomBuildings().size());
+        
+        BuildingDeck deck = new BuildingDeck(byEra) {
+            @Override
+            public boolean isEmpty(Era era) {
+                return size(era) == 0;
+            }
+        };
+        
+        market.handleEraProgression(deck, Era.ERA_3);
+        
+        assertEquals(1, market.getBottomBuildings().size());
+        assertEquals("old-top", market.getBottomBuildings().get(0).getId());
+        assertEquals(1, market.getTopBuildings().size());
+        assertEquals("e3", market.getTopBuildings().get(0).getId());
+    }
 }

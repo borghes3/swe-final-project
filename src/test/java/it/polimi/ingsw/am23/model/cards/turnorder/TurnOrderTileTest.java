@@ -22,4 +22,15 @@ class TurnOrderTileTest {
         s2.placeTotem("p2");
         assertThrows(NoFreeSlotsException.class, tile::getFirstFreeSlot);
     }
+
+        @Test
+        void allFreeSlotsReturnsNullForOccupiedAndTrueForEmpty() {
+            TurnOrderSlot s1 = new TurnOrderSlot(0, 0, null);
+            TurnOrderSlot s2 = new TurnOrderSlot(1, 0, null);
+            TurnOrderTile tile = new TurnOrderTile(List.of(s1, s2));
+
+            assertEquals(s1, tile.getFirstFreeSlot());
+            assertNull(tile.getFirstOccupiedSlot());
+            assertTrue(tile.isEmpty());
+        }
 }
