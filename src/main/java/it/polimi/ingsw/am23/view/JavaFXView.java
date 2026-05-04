@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.view;
 
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.LobbyState;
@@ -164,6 +165,31 @@ public class JavaFXView extends Application implements VirtualView {
             e.printStackTrace();
         }
     }
+
+    public void placeTotem(char tileId) {
+        try{
+            server.placeTotem(playerId, tileId);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void takeSingleCard(SelectedSingleCard card){
+        try{
+            server.takeSingleCard(playerId, card);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void takeExtraCard(int index){
+        try{
+            server.takeExtraCard(playerId, index);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     // -----------------
 
     @Override
@@ -280,32 +306,57 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onEndOfPlacingPhase(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if(gameScreenController != null){
+                gameScreenController.updateGameState(gameState);
+            }
+        });
     }
 
     @Override
     public void onEndOfDrawingPhase(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if(gameScreenController != null){
+                gameScreenController.updateGameState(gameState);
+            }
+        });
     }
 
     @Override
     public void onExtraDrawRequest(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if (gameScreenController != null) {
+                gameScreenController.updateGameState(gameState);
+                gameScreenController.showExtraDrawDialog(gameState);
+            }
+        });
     }
 
     @Override
     public void onEndOfResolvingPhase(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if(gameScreenController != null){
+                gameScreenController.updateGameState(gameState);
+            }
+        });
     }
 
     @Override
     public void onEraProgression(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if(gameScreenController != null){
+                gameScreenController.updateGameState(gameState);
+            }
+        });
     }
 
     @Override
     public void onGameOver(GameState gameState) throws Exception {
-
+        Platform.runLater(() -> {
+            if(gameScreenController != null){
+                gameScreenController.updateGameState(gameState);
+            }
+        });
     }
 
     @Override
@@ -323,9 +374,13 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onActionError(ActionType actionType, String message) throws Exception {
         Platform.runLater( () -> {
-            if(waitingRoomController != null){
-                waitingRoomController.showError(message);
-            }
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.WARNING
+        );
+            alert.setTitle("Azione non valida");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
         });
     }
 }

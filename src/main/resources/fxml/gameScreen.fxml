@@ -30,9 +30,6 @@
                     <font><Font size="13.0" /></font>
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="currentPlayerLabel" text="Turno di: -" textFill="#f1c400">
-                    <font><Font name="System Bold" size="14.0" /></font>
-                </Label>
             </children>
         </HBox>
     </top>

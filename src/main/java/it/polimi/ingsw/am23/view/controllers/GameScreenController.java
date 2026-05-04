@@ -1,18 +1,21 @@
 package it.polimi.ingsw.am23.view.controllers;
 
-import it.polimi.ingsw.am23.model.enums.CardKind;
-import it.polimi.ingsw.am23.model.enums.CharacterType;
-import it.polimi.ingsw.am23.model.enums.TotemColors;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+import it.polimi.ingsw.am23.model.enums.*;
 import it.polimi.ingsw.am23.model.state.*;
 import it.polimi.ingsw.am23.view.JavaFXView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.*;
 
@@ -20,7 +23,6 @@ public class GameScreenController {
     @FXML private Label eraLabel;
     @FXML private Label roundLabel;
     @FXML private Label phaseLabel;
-    @FXML private Label currentPlayerLabel;
 
     @FXML private HBox topRowContainer;
     @FXML private HBox bottomRowContainer;
@@ -52,7 +54,7 @@ public class GameScreenController {
             playerPanelW = Math.max(190, Math.min(260, w/6.0));
 
             if(lastState != null){
-                updateBoard(lastState.getBoard(), lastState.getPlayers());
+                updateBoard(lastState.getBoard(), lastState.getPlayers(), lastState.getPhase());
                 updatePlayers(lastState.getPlayers());
             }
         });
@@ -66,13 +68,14 @@ public class GameScreenController {
         this.myPlayerId = playerId;
     }
 
+
     // ENTRY POINT
 
     public void updateGameState(GameState state){
         Platform.runLater(() -> {
             this.lastState = state;
             updateTopBar(state);
-            updateBoard(state.getBoard(), state.getPlayers());
+            updateBoard(state.getBoard(), state.getPlayers(), state.getPhase());
             updatePlayers(state.getPlayers());
         });
     }
@@ -84,19 +87,10 @@ public class GameScreenController {
         roundLabel.setText("Round " + state.getCurrentRound() + " / 10");
         phaseLabel.setText("Fase: " + formatPhase(state.getPhase().name()));
 
-        String currentId = state.getCurrentPlayerId();
-        if(currentId != null){
-            state.getPlayers().stream()
-                    .filter(p -> p.getPlayerId().equals(currentId))
-                    .findFirst()
-                    .ifPresent(p -> currentPlayerLabel.setText("Turno di: " + p.getNickname()));
-        }else{
-            currentPlayerLabel.setText("Turno di: -");
-        }
     }
 
     // BOARD
-    private void updateBoard(BoardState board, List<PlayerState> players){
+    private void updateBoard(BoardState board, List<PlayerState> players, GamePhase phase){
         Map<String, String> nicknames = new HashMap<>();
         Map<String, String> colors = new HashMap<>();
 
@@ -105,28 +99,30 @@ public class GameScreenController {
             colors.put(p.getPlayerId(), resolveTotemColor(p.getTotemColor()));
         }
 
-        updateCardRow(topRowContainer, board.getTopRow(), board.getTopBuildings());
-        updateCardRow(bottomRowContainer, board.getBottomRow(), board.getBottomBuildings());
-        updateOfferTiles(board.getOfferTiles(), nicknames, colors);
+        updateCardRow(topRowContainer, board.getTopRow(), board.getTopBuildings(), phase, true);
+        updateCardRow(bottomRowContainer, board.getBottomRow(), board.getBottomBuildings(), phase, false);
+        updateOfferTiles(board.getOfferTiles(), nicknames, colors, phase);
         updateTurnOrder(board.getTurnOrderSlots(), nicknames, colors);
     }
 
-    private void updateCardRow(HBox container, List<CardState> characters, List<CardState> buildings){
+    private void updateCardRow(HBox container, List<CardState> characters, List<CardState> buildings, GamePhase phase, boolean isTopRow){
         container.getChildren().clear();
+        if(characters == null || buildings == null)
+            return;
 
-        for(CardState card : characters){
-            container.getChildren().add(buildCardPlaceholder(card));
+        for(int i=0; i<characters.size(); i++){
+            container.getChildren().add(buildCardPlaceholder(characters.get(i), phase, i, isTopRow));
         }
-        for(CardState card : buildings){
-            container.getChildren().add(buildBuildingCardPlaceholder(card));
+        for(int i=0; i<buildings.size(); i++){
+            container.getChildren().add(buildBuildingCardPlaceholder(buildings.get(i), phase, i));
         }
     }
 
-    private void updateOfferTiles(List<OfferTileState> tiles, Map<String, String> nicknames, Map<String, String> colors){
+    private void updateOfferTiles(List<OfferTileState> tiles, Map<String, String> nicknames, Map<String, String> colors, GamePhase phase){
         offerTilesContainer.getChildren().clear();
         tiles.stream()
                 .sorted(Comparator.comparingInt(OfferTileState::getPositionIndex))
-                .forEach(tile -> offerTilesContainer.getChildren().add(buildOfferTile(tile, nicknames, colors)));
+                .forEach(tile -> offerTilesContainer.getChildren().add(buildOfferTile(tile, nicknames, colors, phase)));
     }
 
     private void updateTurnOrder(List<TurnOrderSlotState> slots, Map<String, String> nicknames, Map<String, String> colors){
@@ -139,7 +135,7 @@ public class GameScreenController {
 
     // CARTE PERSONAGGIO - Placeholder colorati per tipo
 
-    private VBox buildCardPlaceholder(CardState card){
+    private VBox buildCardPlaceholder(CardState card, GamePhase phase, int boardIndex, boolean isTopRow){
         VBox box = new VBox(4);
         box.setAlignment(Pos.CENTER);
         box.setPrefSize(cardW, cardH);
@@ -167,18 +163,77 @@ public class GameScreenController {
             foodLabel.setStyle("-fx-text-fill: white; -fx-font-size: 9px; -fx-font-weight: bold;");
             box.getChildren().add(foodLabel);
         }
+
+        boolean canTake = phase == GamePhase.RESOLVING_OFFERS && card.getCardKind() != CardKind.EVENT && myPlayerId != null;
+
+        if(canTake){
+            boolean isBuilging = card.getCardKind() == CardKind.BUILDING;
+            RowType row = isTopRow ? RowType.TOP : RowType.BOTTOM;
+            SelectedSingleCard selected = new SelectedSingleCard(row, boardIndex, isBuilging);
+
+            box.setStyle(box.getStyle() + "-fx-cursor: hand;");
+            box.setOnMouseClicked(e -> view.takeSingleCard(selected));
+            box.setOnMouseEntered(e -> box.setOpacity(0.75));
+            box.setOnMouseExited(e -> box.setOpacity(1.0));
+
+        }
+
         return box;
     }
 
-    private VBox buildBuildingCardPlaceholder(CardState card){
-        VBox box = buildCardPlaceholder(card);
+    private VBox buildBuildingCardPlaceholder(CardState card, GamePhase phase, int boardIndex){
+        VBox box = buildCardPlaceholder(card, phase, boardIndex, true);
         box.setStyle(box.getStyle() + "-fx-border-color: #f1c400; -fx-border-width: 2;");
         return box;
     }
 
+    // EXTRA DRAW
+    public void showExtraDrawDialog(GameState gameState){
+        List<CardState> topRow = gameState.getBoard().getTopRow()
+                .stream()
+                .filter(c -> c.getCardKind() != CardKind.EVENT)
+                .collect(java.util.stream.Collectors.toList());
+
+        if(topRow.isEmpty())
+            return;
+
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Pescaggio Extra");
+
+        VBox root = new VBox(12);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
+        root.setStyle("-fx-background-color: #3d1a0a;");
+
+        Label title = new Label("Scegli una carta dalla fila superiore.");
+        title.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        HBox cardsRow = new HBox(8);
+        cardsRow.setAlignment(Pos.CENTER);
+
+        for(int i=0; i<topRow.size(); i++){
+            final int index = i;
+            VBox card = buildCardPlaceholder(topRow.get(i), GamePhase.RESOLVING_OFFERS, i, true);
+            card.setOnMouseClicked(e -> {
+                view.takeExtraCard(index);
+                dialog.close();
+            });
+
+            card.setOnMouseEntered(e -> card.setOpacity(0.75));
+            card.setOnMouseExited(e -> card.setOpacity(1.0));
+            card.setStyle(card.getStyle() +  "-fx-cursor: hand;");
+            cardsRow.getChildren().add(card);
+        }
+
+        root.getChildren().addAll(title, cardsRow);
+        dialog.setScene(new javafx.scene.Scene(root));
+        dialog.show();
+    }
+
     // TESSERE OFFERTA
 
-    private VBox buildOfferTile(OfferTileState tile, Map<String, String> nicknames, Map<String, String> colors){
+    private VBox buildOfferTile(OfferTileState tile, Map<String, String> nicknames, Map<String, String> colors, GamePhase phase){
         VBox box = new VBox(3);
         box.setAlignment(Pos.TOP_CENTER);
         box.setPrefWidth(tileW);
@@ -211,6 +266,16 @@ public class GameScreenController {
             box.getChildren().addAll(tileId, actionLabel, totemLabel);
         }else{
             box.getChildren().addAll(tileId, actionLabel);
+        }
+
+        boolean alreadyPlaced = lastState.getBoard().getOfferTiles().stream().anyMatch(t -> myPlayerId.equals(t.getOccupiedByPlayerId()));
+        boolean canPlace = myPlayerId != null && phase == GamePhase.PLACING_TOTEMS && tile.getOccupiedByPlayerId() == null && !alreadyPlaced;
+
+        if(canPlace){
+            box.setStyle(box.getStyle() + "-fx-cursor: hand;");
+            box.setOnMouseClicked(e -> view.placeTotem(tile.getTileId()));
+            box.setOnMouseEntered(e -> box.setOpacity(0.75));
+            box.setOnMouseExited(e -> box.setOpacity(1.0));
         }
 
         return box;
