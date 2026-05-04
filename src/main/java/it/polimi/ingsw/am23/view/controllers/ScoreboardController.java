@@ -27,18 +27,6 @@ public class ScoreboardController {
 
     public void showScoreboard(GameState gameState){
 
-        /* TEST scoreboard - rimuovi dopo
-        if (gameState == null) {
-            rankingContainer.getChildren().clear();
-            rankingContainer.setSpacing(10);
-            rankingContainer.getChildren().add(buildRow(1, "Mario", 12, 8));
-            rankingContainer.getChildren().add(buildRow(2, "Luigi", 10, 8));
-            rankingContainer.getChildren().add(buildRow(3, "Peach", 9, 5));
-            rankingContainer.getChildren().add(buildRow(4, "Peaches", 8, 5));
-            rankingContainer.getChildren().add(buildRow(5, "Pe", 7, 5));
-            return;
-        }*/
-
         List<ScoreEntry> scores = gameState.getScores();
         if(scores == null)
             return;

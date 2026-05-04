@@ -55,12 +55,6 @@ public class JavaFXView extends Application implements VirtualView {
         connectionController = loader.getController();
         connectionController.setView(this);
         primaryStage.setScene(new Scene(root, 400, 500));
-
-        /* TEST scoreboard - da rimuovere
-        Platform.runLater(() -> {
-            try { showScoreboardScreen(null); }
-            catch (Exception e) { e.printStackTrace(); }
-        });*/
     }
 
     public void connect(String host, String nickname, String connectionType) throws Exception{
