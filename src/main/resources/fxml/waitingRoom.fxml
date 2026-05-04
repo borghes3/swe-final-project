@@ -14,6 +14,11 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
+      <Label fx:id="lobbyInfoLabel" text="" textFill="#f5f0e8" style="-fx-font-size: 11px;">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
       <ListView fx:id="lobbyListView" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" />
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="90.0">
          <children>

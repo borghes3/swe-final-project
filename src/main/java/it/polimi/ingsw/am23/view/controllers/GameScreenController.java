@@ -338,6 +338,7 @@ public class GameScreenController {
     private void updatePlayers(List<PlayerState> players){
         playersContainer.getChildren().clear();
         for(PlayerState player : players){
+            System.out.println("DEBUG totemColor=" + player.getTotemColor());
             boolean isMe = player.getPlayerId().equals(myPlayerId);
             playersContainer.getChildren().add(buildPlayerPanel(player, isMe, playerPanelW));
         }
@@ -538,6 +539,7 @@ public class GameScreenController {
 
     private String resolveTotemColor(String totemColor) {
         if (totemColor == null) return "#f5f0e8";
+        if (totemColor.startsWith("#")) return totemColor;
         try {
             return TotemColors.valueOf(totemColor.toUpperCase()).getColor();
         } catch (IllegalArgumentException e) {

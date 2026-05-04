@@ -3,6 +3,7 @@ package it.polimi.ingsw.am23.view.controllers;
 import it.polimi.ingsw.am23.view.JavaFXView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Button;
 
@@ -12,6 +13,7 @@ public class WaitingRoomController {
     @FXML private ListView<String> lobbyListView;
     @FXML private Button startButton;
     @FXML private Button leaveButton;
+    @FXML private Label lobbyInfoLabel;
 
     private JavaFXView view;
 
@@ -37,6 +39,12 @@ public class WaitingRoomController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void setLobbyInfo(String lobbyId, String lobbyName){
+        Platform.runLater(()->{
+            lobbyInfoLabel.setText(lobbyId + " | " + lobbyName);
+        });
     }
 
     @FXML

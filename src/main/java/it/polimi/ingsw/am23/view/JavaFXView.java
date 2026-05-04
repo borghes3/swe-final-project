@@ -107,6 +107,7 @@ public class JavaFXView extends Application implements VirtualView {
         waitingRoomController = loader.getController();
         waitingRoomController.setView(this);
         waitingRoomController.setOwner(owner);
+        waitingRoomController.setLobbyInfo(lobby.getLobbyId(),lobby.getLobbyName());
         waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(player -> player.getNickname()).collect(java.util.stream.Collectors.toList()));
         primaryStage.setScene(new Scene(root, 400, 500));
     }
@@ -327,7 +328,10 @@ public class JavaFXView extends Application implements VirtualView {
         Platform.runLater(() -> {
             if (gameScreenController != null) {
                 gameScreenController.updateGameState(gameState);
-                gameScreenController.showExtraDrawDialog(gameState);
+
+                if(playerId != null && playerId.equals(gameState.getCurrentPlayerId())){
+                    gameScreenController.showExtraDrawDialog(gameState);
+                }
             }
         });
     }
