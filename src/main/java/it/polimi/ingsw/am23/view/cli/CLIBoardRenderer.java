@@ -7,10 +7,7 @@ import it.polimi.ingsw.am23.model.state.OfferTileState;
 import it.polimi.ingsw.am23.model.state.PlayerState;
 import it.polimi.ingsw.am23.model.state.TurnOrderSlotState;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 final class CLIBoardRenderer {
@@ -36,11 +33,18 @@ final class CLIBoardRenderer {
 
         BoardState board = gameState.getBoard();
 
-        System.out.println(center(TITLE_MARKER + " Game State " + TITLE_MARKER));
-        System.out.println(center("Phase: " + gameState.getPhase().name() + " | Era: " + gameState.getCurrentEra().name() + " | Round: " + gameState.getCurrentRound()));
-        System.out.println(center("You: " + highlightIfLocal(displayName(localPlayerId, playerNamesById), localPlayerId, localPlayerId)));
-        System.out.println(center("Current player: " + highlightIfLocal(displayName(gameState.getCurrentPlayerId(), playerNamesById), gameState.getCurrentPlayerId(), localPlayerId)));
+        System.out.println(TITLE_MARKER + " Game State " + TITLE_MARKER);
+        System.out.println("Phase: " + gameState.getPhase().name() + " | Era: " + gameState.getCurrentEra().name() + " | Round: " + gameState.getCurrentRound());
         System.out.println();
+
+        // Players
+        System.out.println("=== Players ===");
+        System.out.println(YOU_MARKER_LEFT + " " + displayName(localPlayerId, playerNamesById) + " " + YOU_MARKER_RIGHT);
+        gameState.getPlayers().stream()
+                .filter(p -> !Objects.equals(p.getPlayerId(), localPlayerId))
+                .forEach(p -> System.out.println(displayName(p.getPlayerId(), playerNamesById)));
+        System.out.println();
+
 
         // Turn order
         System.out.println("=== Turn order ===");
@@ -92,17 +96,6 @@ final class CLIBoardRenderer {
 
         String playerName = playerNamesById.get(playerId);
         return playerName == null || playerName.isBlank() ? playerId : playerName;
-    }
-
-    private String highlightIfLocal(String value, String candidatePlayerId, String localPlayerId) {
-        if (candidatePlayerId != null && candidatePlayerId.equals(localPlayerId)) {
-            return YOU_MARKER_LEFT + value + YOU_MARKER_RIGHT;
-        }
-        return value;
-    }
-
-    private String center(String value) {
-        return value;
     }
 
     private void printCardList(String title, BoardState board, String rowType, boolean isCards) {
