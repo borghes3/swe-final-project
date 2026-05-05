@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am23.view;
+package it.polimi.ingsw.am23.view.gui;
 
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
@@ -7,7 +7,7 @@ import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
-import it.polimi.ingsw.am23.view.controllers.*;
+import it.polimi.ingsw.am23.view.gui.controllers.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -39,6 +39,15 @@ public class JavaFXView extends Application implements VirtualView {
         primaryStage.setTitle("MESOS");
         showConnectionScreen();
         primaryStage.show();
+
+        // disconnessine alla chiusura della finestra
+        primaryStage.setOnCloseRequest(e -> {
+            if(server != null && playerId != null){
+                try{
+                    server.disconnect(playerId);
+                } catch (Exception ignored) {}
+            }
+        });
     }
 
     public static void main(String[] args){
@@ -132,6 +141,9 @@ public class JavaFXView extends Application implements VirtualView {
         Platform.runLater(()-> {
             try{
                 scoreboardController = null;
+                gameScreenController = null;
+                currentGameState = null;
+                server.requestLobbyList(playerId);
                 showLobbyScreen(java.util.List.of());
             }catch(Exception e){
                 e.printStackTrace();
@@ -190,6 +202,9 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onConnected(String playerId, List<LobbyState> lobbies) throws Exception {
         this.playerId = playerId;
+        try{ server.requestLobbyList(playerId);
+        } catch (Exception ignored) {}
+
         Platform.runLater(() -> {
             try {
                 showLobbyScreen(lobbies);
@@ -362,6 +377,7 @@ public class JavaFXView extends Application implements VirtualView {
         this.currentGameState = gameState;
         Platform.runLater(() -> {
             try{
+                gameScreenController = null;
                 showScoreboardScreen(gameState);
             }catch (Exception e){
                 e.printStackTrace();

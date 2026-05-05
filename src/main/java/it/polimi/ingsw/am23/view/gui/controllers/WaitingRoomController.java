@@ -1,6 +1,6 @@
-package it.polimi.ingsw.am23.view.controllers;
+package it.polimi.ingsw.am23.view.gui.controllers;
 
-import it.polimi.ingsw.am23.view.JavaFXView;
+import it.polimi.ingsw.am23.view.gui.JavaFXView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

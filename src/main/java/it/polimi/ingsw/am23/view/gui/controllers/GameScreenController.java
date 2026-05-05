@@ -1,15 +1,13 @@
-package it.polimi.ingsw.am23.view.controllers;
+package it.polimi.ingsw.am23.view.gui.controllers;
 
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.*;
 import it.polimi.ingsw.am23.model.state.*;
-import it.polimi.ingsw.am23.view.JavaFXView;
+import it.polimi.ingsw.am23.view.gui.JavaFXView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;

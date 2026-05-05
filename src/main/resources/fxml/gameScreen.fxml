@@ -12,7 +12,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<BorderPane minHeight="800.0" minWidth="1100.0" style="-fx-background-color: #3d1a0a;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am23.view.controllers.GameScreenController">
+<BorderPane minHeight="800.0" minWidth="1100.0" style="-fx-background-color: #3d1a0a;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am23.view.gui.controllers.GameScreenController">
 
     <!-- TOP BAR -->
     <top>

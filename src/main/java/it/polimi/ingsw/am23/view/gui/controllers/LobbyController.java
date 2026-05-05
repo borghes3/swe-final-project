@@ -1,7 +1,7 @@
-package it.polimi.ingsw.am23.view.controllers;
+package it.polimi.ingsw.am23.view.gui.controllers;
 
 import it.polimi.ingsw.am23.network.LobbyState;
-import it.polimi.ingsw.am23.view.JavaFXView;
+import it.polimi.ingsw.am23.view.gui.JavaFXView;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Button;
