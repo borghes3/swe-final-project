@@ -36,4 +36,6 @@ module it.polimi.ingsw.am23 {
     exports it.polimi.ingsw.am23.model.draw;
     opens it.polimi.ingsw.am23.model.draw to com.google.gson;
     exports it.polimi.ingsw.am23.view.cli;
+
+    opens it.polimi.ingsw.am23.view.controllers to javafx.fxml;
 }
