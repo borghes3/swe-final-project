@@ -117,6 +117,10 @@ public final class GameController implements VirtualServer, ModelObserver {
         lobby.state.removePlayer(playerId);
         lobbyByPlayerId.remove(playerId);
 
+        VirtualView leavingView = clientsByPlayerId.get(playerId);
+        if(leavingView != null)
+            leavingView.onLobbyClosed();
+
         if (lobby.state.getOwnerPlayerId().equals(playerId) || lobby.state.getCurrentPlayers() == 0) {
             lobbiesById.remove(lobbyId);
             for (String memberId : lobby.memberIds()) {
