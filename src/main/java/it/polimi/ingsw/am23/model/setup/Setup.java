@@ -158,13 +158,15 @@ public class Setup {
         // Creo tre mazzetti Era1, Era 2, Era 3 buildings
         List<BuildingCard> era1Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_1).toList());
         Collections.shuffle(era1Buildings);
-        era1Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][0]);
+        era1Buildings = era1Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][0]);
+
         List<BuildingCard> era2Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_2).toList());
         Collections.shuffle(era2Buildings);
-        era2Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][1]);
+        era2Buildings = era2Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][1]);
+
         List<BuildingCard> era3Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_3).toList());
         Collections.shuffle(era3Buildings);
-        era3Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][2]);
+        era3Buildings = era3Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][2]);
 
         // Costruisco BuildingDeck con le carte di era 2 ed era 3 (le carte di era 1 vengono ritornate separatamente per istanziare il game, vedi constructor game)
         BuildingDeck buildingDeck = new BuildingDeck(Map.of(
