@@ -11,8 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane minHeight="800.0" minWidth="1100.0" style="-fx-background-color: #3d1a0a;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am23.view.gui.controllers.GameScreenController">
+<BorderPane minHeight="800.0" minWidth="1100.0" style="-fx-background-color: #195206;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am23.view.gui.controllers.GameScreenController">
 
     <!-- TOP BAR -->
     <top>
@@ -43,16 +42,15 @@
             <children>
 
                 <!-- Fila superiore -->
-                <Label text="FILA SUPERIORE" textFill="#f5f0e8" style="-fx-font-size: 11px;" />
-                <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
-                            style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px;" text="FILA SUPERIORE" textFill="#f5f0e8" />
+                <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" style="-fx-background: transparent; -fx-background-color: transparent;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
                     <content>
-                        <HBox fx:id="topRowContainer" spacing="8.0" alignment="CENTER_LEFT" minHeight="130.0" style="-fx-padding: 2 0 4 0;" />
+                        <HBox fx:id="topRowContainer" alignment="CENTER_LEFT" minHeight="130.0" spacing="8.0" style="-fx-padding: 2 0 4 0;" />
                     </content>
                 </ScrollPane>
 
                 <!-- Tracciato: mazzo | ordine turno | tessere -->
-                <HBox spacing="8.0" alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
                     <padding>
                         <Insets bottom="4.0" top="4.0" />
                     </padding>
@@ -61,9 +59,8 @@
                         <!-- Mazzo -->
                         <VBox alignment="CENTER" spacing="4.0">
                             <children>
-                                <Label text="MAZZO" textFill="#f5f0e8" style="-fx-font-size: 10px;" />
-                                <StackPane fx:id="deckContainer" prefWidth="65.0" prefHeight="95.0"
-                                           style="-fx-background-color: #6b3a1f; -fx-background-radius: 6; -fx-border-color: #f5f0e8; -fx-border-radius: 6; -fx-border-width: 1;">
+                                <Label style="-fx-font-size: 10px;" text="MAZZO" textFill="#f5f0e8" />
+                                <StackPane fx:id="deckContainer" prefHeight="95.0" prefWidth="65.0" style="-fx-background-color: #6b3a1f; -fx-background-radius: 6; -fx-border-color: #f5f0e8; -fx-border-radius: 6; -fx-border-width: 1;">
                                     <children>
                                         <Label fx:id="deckCountLabel" text="?" textFill="#f5f0e8">
                                             <font><Font name="System Bold" size="16.0" /></font>
@@ -76,19 +73,17 @@
                         <!-- Ordine di turno -->
                         <VBox alignment="CENTER" spacing="4.0">
                             <children>
-                                <Label text="ORDINE TURNO" textFill="#f5f0e8" style="-fx-font-size: 10px;" />
-                                <VBox fx:id="turnOrderContainer" spacing="4.0" alignment="CENTER_LEFT"
-                                      prefWidth="100.0" minHeight="95.0"
-                                      style="-fx-background-color: #5a2e10; -fx-background-radius: 6; -fx-border-color: #f5f0e8; -fx-border-radius: 6; -fx-border-width: 1; -fx-padding: 6;">
+                                <Label style="-fx-font-size: 10px;" text="ORDINE TURNO" textFill="#f5f0e8" />
+                                <VBox fx:id="turnOrderContainer" alignment="CENTER_LEFT" minHeight="95.0" prefWidth="100.0" spacing="4.0" style="-fx-background-color: #5a2e10; -fx-background-radius: 6; -fx-border-color: #f5f0e8; -fx-border-radius: 6; -fx-border-width: 1; -fx-padding: 6;">
                                 </VBox>
                             </children>
                         </VBox>
 
                         <!-- Tessere offerta -->
-                        <VBox spacing="4.0" alignment="TOP_LEFT" HBox.hgrow="ALWAYS">
+                        <VBox alignment="TOP_LEFT" spacing="4.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="TRACCIATO OFFERTE" textFill="#f5f0e8" style="-fx-font-size: 10px;" />
-                                <HBox fx:id="offerTilesContainer" spacing="6.0" alignment="CENTER_LEFT" minHeight="95.0" />
+                                <Label style="-fx-font-size: 10px;" text="TRACCIATO OFFERTE" textFill="#f5f0e8" />
+                                <HBox fx:id="offerTilesContainer" alignment="CENTER_LEFT" minHeight="95.0" spacing="6.0" />
                             </children>
                         </VBox>
 
@@ -96,11 +91,10 @@
                 </HBox>
 
                 <!-- Fila inferiore -->
-                <Label text="FILA INFERIORE" textFill="#f5f0e8" style="-fx-font-size: 11px;" />
-                <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
-                            style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px;" text="FILA INFERIORE" textFill="#f5f0e8" />
+                <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" style="-fx-background: transparent; -fx-background-color: transparent;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
                     <content>
-                        <HBox fx:id="bottomRowContainer" spacing="8.0" alignment="CENTER_LEFT" minHeight="130.0" style="-fx-padding: 2 0 4 0;" />
+                        <HBox fx:id="bottomRowContainer" alignment="CENTER_LEFT" minHeight="130.0" spacing="8.0" style="-fx-padding: 2 0 4 0;" />
                     </content>
                 </ScrollPane>
 
@@ -112,8 +106,8 @@
     <bottom>
         <VBox style="-fx-background-color: #2a1005; -fx-padding: 8 16 12 16;" BorderPane.alignment="CENTER">
             <children>
-                <Label text="TRIBE" textFill="#f5f0e8" style="-fx-font-size: 11px; -fx-padding: 0 0 6 0;" />
-                <FlowPane fx:id="playersContainer" hgap="10.0" vgap="10.0" alignment="CENTER" prefWrapLength="1400.0" />
+                <Label style="-fx-font-size: 11px; -fx-padding: 0 0 6 0;" text="TRIBE" textFill="#f5f0e8" />
+                <FlowPane fx:id="playersContainer" alignment="CENTER" hgap="10.0" prefWrapLength="1400.0" vgap="10.0" />
             </children>
         </VBox>
     </bottom>
