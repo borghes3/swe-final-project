@@ -38,5 +38,8 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
     void takeExtraCard(String playerId, int index) throws RemoteException;
 
     @Override
+    void skipTurn(String playerId) throws RemoteException;
+
+    @Override
     void disconnect(String playerId) throws RemoteException;
 }

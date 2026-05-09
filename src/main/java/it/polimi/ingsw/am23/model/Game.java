@@ -46,6 +46,7 @@ public class Game implements GameModel {
     private GamePhase phase;
     private String pendingExtraDrawPlayerId;
     private final CardDrawState drawState;
+    private boolean skipAllowed = false;  // for the GUI to show the 'skip' button
 
     // TODO : fare moduli per conteggio pescaggio carte
 
@@ -111,7 +112,7 @@ public class Game implements GameModel {
         if (board.getTurnOrderTile().isEmpty()) {
             this.phase = GamePhase.RESOLVING_OFFERS;
             currentPlayerId = null; // Reset del ID salvato
-            gameState = buildGameState();
+            gameState =  buildGameState();
             notifyEndOfPlacingPhase();
         } else { // non tutti hanno ancora pizzato, aggiorno solo lo stato
             gameState = buildGameState();
@@ -192,10 +193,108 @@ public class Game implements GameModel {
         }
 
         // notifico la view dopo ogni carta pescata
-        gameState = buildGameState();
-        notifyGameStateChanged();
+        if (phase == GamePhase.RESOLVING_OFFERS) {
+            gameState = buildGameState();
+            notifyGameStateChanged();
+        }
 
         return ActionResult.success(ActionType.TAKE_CARD, "Card taken successfully.");
+
+    @Override
+    public ActionResult skipTurn(String playerId) {
+        Player p = findPlayer(playerId);
+
+        // extra draw skipping logic
+        if (phase == GamePhase.EXTRA_DRAW) {
+            if (!Objects.equals(p.getId(), pendingExtraDrawPlayerId)) {
+                return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PLAYER, "You cannot skip, it's not your turn for the extra draw");
+            }
+            if (!calculateSkipAllowed()) {
+                return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.CANNOT_SKIP, "You must take a character card, you cannot skip.");
+            }
+
+            // Chiudiamo l'extra draw e passiamo agli eventi
+            pendingExtraDrawPlayerId = null;
+            phase = GamePhase.RESOLVING_EVENTS;
+            gameState = buildGameState();
+            notifyEndOfDrawingPhase(); // O una notifica specifica se ne hai una
+            return ActionResult.success(ActionType.SKIP_TURN, "Extra draw skipped successfully.");
+        }
+
+        // normal draw skipping logic
+        if (phase != GamePhase.RESOLVING_OFFERS) {
+            return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PHASE, "You can only skip during the drawing phase.");
+        }
+
+        OfferTile tile = board.getFirstOccupiedOfferTile();
+        if (tile == null || !Objects.equals(p.getId(), tile.getOccupiedByPlayerId())) {
+            return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PLAYER, "It's not your turn.");
+        }
+
+        if (!calculateSkipAllowed()) {
+            return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.CANNOT_SKIP, "You must take a character card, you cannot skip.");
+        }
+
+        if (!drawState.isDrawingStarted()) {
+            // only for offer tile with food reward
+            p.applyFoodDelta(tile.getAction().getFoodReward());
+        }
+
+        setNextPhase(playerId);
+
+        if (phase == GamePhase.RESOLVING_OFFERS) {
+            gameState = buildGameState();
+            notifyGameStateChanged();
+        }
+        return ActionResult.success(ActionType.SKIP_TURN, "Turn skipped successfully.");
+    }
+
+    private boolean calculateSkipAllowed() {
+        // if not in resolving offer -> false
+        if (!(phase == GamePhase.RESOLVING_OFFERS || phase == GamePhase.EXTRA_DRAW)) {
+            return false;
+        }
+
+        String currPlayerId = computeCurrentPlayerId();
+        if (currPlayerId == null) {
+            return false;
+        }
+        boolean topRowAllowed = false;
+        boolean bottomRowAllowed = false;
+
+        if (phase == GamePhase.EXTRA_DRAW) {
+            topRowAllowed = true;
+        } else if (phase == GamePhase.RESOLVING_OFFERS) {
+            OfferTile tile = board.getOfferTileByPlayerId(currPlayerId);
+            if (tile == null) {
+                return false;
+            }
+            // first card already drawn (in case of multiple draw offer) -> check remaining draws
+            if (drawState.isDrawingStarted()) {
+                topRowAllowed = drawState.canDrawFromRow(RowType.TOP);
+                bottomRowAllowed = drawState.canDrawFromRow(RowType.BOTTOM);
+            } else {
+                // first card not drawn
+                topRowAllowed = tile.getAction().getUpperDrawRowCount() > 0;
+                bottomRowAllowed = tile.getAction().getBottomDrawCount() > 0;
+            }
+        }
+
+        boolean topHasCharacters = false;
+        boolean bottomHasCharacters = false;
+
+        if (topRowAllowed) {
+            topHasCharacters = cardMarket.getTopRow().stream()
+                    .anyMatch(card -> !(card instanceof EventCard) && card.canBeTaken());
+        }
+
+        if (bottomRowAllowed) {
+            bottomHasCharacters = cardMarket.getBottomRow().stream()
+                    .anyMatch(card -> !(card instanceof EventCard) && card.canBeTaken());
+        }
+
+        // skip allowed only if no character cards available to draw
+        return !topHasCharacters && !bottomHasCharacters;
     }
 
     // Dopo aver finito di pescare, ritorno al turn order tile
@@ -340,7 +439,6 @@ public class Game implements GameModel {
         }
 
         phase = GamePhase.RESOLVING_EVENTS;
-        clearPendingExtraDrawPlayer();
         gameState = buildGameState();
         notifyGameStateChanged();
 
@@ -351,30 +449,12 @@ public class Game implements GameModel {
         this.pendingExtraDrawPlayerId = playerId;
     }
 
-    public void clearPendingExtraDrawPlayer() {
-        this.pendingExtraDrawPlayerId = null;
-    }
-
 
     // ------------------------------------------
     // GAMESTATE
     // ------------------------------------------
     private GameState buildGameState() {
-        return new GameState(
-                currentEra,
-                currentRound,
-                phase,
-                computeCurrentPlayerId(),
-                players.stream().map(Player::getState).toList(),
-                board.getState(cardMarket)
-        );
-    }
-
-    private GameState buildGameStateWithScores(List<ScoreResult> scoreBoard) {
-        List<ScoreEntry> scores = scoreBoard.stream()
-                .map(r -> new ScoreEntry(r.player.getId(), r.foodPoints, r.PP))
-                .toList();
-
+        skipAllowed = calculateSkipAllowed();
         return new GameState(
                 currentEra,
                 currentRound,
@@ -382,7 +462,24 @@ public class Game implements GameModel {
                 computeCurrentPlayerId(),
                 players.stream().map(Player::getState).toList(),
                 board.getState(cardMarket),
-                scores
+                skipAllowed
+        );
+    }
+
+    private GameState buildGameStateWithScores(List<ScoreResult> scoreBoard) {
+        List<ScoreEntry> scores = scoreBoard.stream()
+                .map(r -> new ScoreEntry(r.player.getId(), r.foodPoints, r.PP))
+                .toList();
+        skipAllowed = calculateSkipAllowed();
+        return new GameState(
+                currentEra,
+                currentRound,
+                phase,
+                computeCurrentPlayerId(),
+                players.stream().map(Player::getState).toList(),
+                board.getState(cardMarket),
+                scores,
+                skipAllowed
         );
     }
 

@@ -175,6 +175,10 @@ public final class SocketClient implements VirtualServer {
     public void takeExtraCard(String playerId, int index) throws Exception {
         send(new TakeExtraCardMessage(playerId, index));
     }
+    @Override
+    public void skipTurn(String playerId) throws Exception {
+        send(new SkipTurnMessage(playerId));
+    }
 
     @Override
     public void disconnect(String playerId) throws Exception {

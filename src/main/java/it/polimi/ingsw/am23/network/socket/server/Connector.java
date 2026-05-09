@@ -89,6 +89,9 @@ public final class Connector implements VirtualView, Runnable {
 
             } else if (message instanceof DisconnectMessage m) {
                 serverController.disconnect(m.getPlayerId());
+
+            } else if (message instanceof SkipTurnMessage m) {
+                serverController.skipTurn(m.getPlayerId());
             }
             else {
                 System.err.println("<Controller>: messaggio sconosciuto –>" + message.getClass().getName());

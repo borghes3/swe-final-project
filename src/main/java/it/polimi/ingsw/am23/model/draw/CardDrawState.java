@@ -57,4 +57,11 @@ public class CardDrawState {
     public boolean isDrawingStarted() {
         return drawingStarted;
     }
+
+    public boolean canDrawFromRow(RowType row) {
+        return switch (row) {
+            case TOP -> upperPickedCount < upperMaxCount;
+            case BOTTOM -> lowerPickedCount < lowerMaxCount;
+        };
+    }
 }

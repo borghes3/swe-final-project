@@ -26,5 +26,7 @@ public interface VirtualServer {
 
     void takeExtraCard(String playerId, int index) throws Exception;
 
+    void skipTurn(String playerId) throws Exception;
+
     void disconnect(String playerId) throws Exception;
 }

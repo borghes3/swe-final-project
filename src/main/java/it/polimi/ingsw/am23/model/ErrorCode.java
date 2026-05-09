@@ -11,5 +11,6 @@ public enum ErrorCode {
     NOT_ENOUGH_FOOD,
     NO_PENDING_EXTRA_DRAW,
     INVALID_EXTRA_DRAW,
-     GAME_ENDED
+    CANNOT_SKIP,
+    GAME_ENDED,
 }

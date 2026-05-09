@@ -110,6 +110,15 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
+    public void skipTurn(String playerId) throws RemoteException {
+        try {
+            serverController.skipTurn(playerId);
+        } catch (Exception e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    @Override
     public void disconnect(String playerId) throws RemoteException {
         try {
             serverController.disconnect(playerId);

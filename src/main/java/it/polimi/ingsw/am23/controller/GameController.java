@@ -10,6 +10,7 @@ import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
 import it.polimi.ingsw.am23.model.setup.Setup;
 import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.network.LobbyPhase;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
@@ -89,6 +90,11 @@ public final class GameController implements VirtualServer, ModelObserver {
             return;
         }
 
+        if(lobby.state.getLobbyPhase() != LobbyPhase.OPEN) {
+            clientsByPlayerId.get(playerId).onJoinError("Lobby is closed.");
+            return;
+        }
+
         boolean alreadyInside = lobby.state.getPlayers().stream()
                 .anyMatch(p -> p.getId().equals(playerId));
         if (alreadyInside) {
@@ -154,6 +160,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         }
 
         List<PlayerConnectionInfo> players = new ArrayList<>(lobby.state.getPlayers());
+        requireLobby(lobbyId).state.setLobbyPhase(LobbyPhase.CLOSE);
         Setup setup = new Parser().parse(players);
         Game game = setup.make();
         gamesByLobbyId.put(lobbyId, game);
@@ -178,6 +185,18 @@ public final class GameController implements VirtualServer, ModelObserver {
         String lobbyId = requireLobbyIdForPlayer(playerId);
         Game game = requireGame(lobbyId);
         ActionResult result = withActiveLobby(lobbyId, () -> game.takeSingleCard(playerId, selectedSingleCard));
+        handleActionResult(playerId, result);
+        if (result.isSuccess()) {
+            broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
+            advanceGameFlow(lobbyId);
+        }
+    }
+
+    @Override
+    public synchronized void skipTurn(String playerId) throws Exception {
+        String lobbyId = requireLobbyIdForPlayer(playerId);
+        Game game = requireGame(lobbyId);
+        ActionResult result = withActiveLobby(lobbyId, () -> game.skipTurn(playerId));
         handleActionResult(playerId, result);
         if (result.isSuccess()) {
             broadcastEndOfDrawingPhase(lobbyId, game.getGameState());

@@ -24,6 +24,8 @@ public interface GameModel {
 
     ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw);
 
+    ActionResult skipTurn(String playerId);
+
     ActionResult resolveEvents();
 
     ActionResult calculateScores();

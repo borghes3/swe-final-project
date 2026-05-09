@@ -16,7 +16,7 @@ public class GameState implements Serializable {
     private final List<PlayerState> players;
     private final BoardState board;
     private final List<ScoreEntry> scores;
-
+    private final boolean skipAllowed;
 
 
     public GameState(Era currentEra,
@@ -24,7 +24,8 @@ public class GameState implements Serializable {
                      GamePhase phase,
                      String currentPlayerId,
                      List<PlayerState> players,
-                     BoardState board) {
+                     BoardState board,
+                     boolean skipAllowed) {
         this.currentEra = Objects.requireNonNull(currentEra, "currentEra is null");
         this.currentRound = currentRound;
         this.phase = Objects.requireNonNull(phase, "phase is null");
@@ -32,6 +33,7 @@ public class GameState implements Serializable {
         this.players = List.copyOf(Objects.requireNonNull(players, "players is null")); //
         this.board = board;
         this.scores = null;
+        this.skipAllowed = skipAllowed;
     }
 
     // usare getScore() != null per sapere se i punteggi sono disponibili
@@ -42,7 +44,8 @@ public class GameState implements Serializable {
                      String currentPlayerId,
                      List<PlayerState> players,
                      BoardState board,
-                     List<ScoreEntry> scores) {
+                     List<ScoreEntry> scores,
+                     boolean skipAllowed) {
         this.currentEra = Objects.requireNonNull(currentEra, "currentEra is null");
         this.currentRound = currentRound;
         this.phase = Objects.requireNonNull(phase, "phase is null");
@@ -50,6 +53,7 @@ public class GameState implements Serializable {
         this.players = List.copyOf(Objects.requireNonNull(players, "players is null")); //
         this.board = board;
         this.scores = List.copyOf(scores);
+        this.skipAllowed = skipAllowed;
     }
 
 
@@ -79,5 +83,9 @@ public class GameState implements Serializable {
 
     public List<ScoreEntry> getScores() {
         return scores;
+    }
+
+    public boolean getSkipAllowed() {
+        return skipAllowed;
     }
 }

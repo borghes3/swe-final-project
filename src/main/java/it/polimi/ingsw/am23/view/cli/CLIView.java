@@ -386,6 +386,15 @@ public final class CLIView implements VirtualView {
                 }
                 yield false;
             }
+            case "skip" -> {
+                ensureConnected();
+                if (currentGameState == null) {
+                    printWarning("No game state available.");
+                } else {
+                    server.skipTurn(playerId);
+                }
+                yield false;
+            }
             case "quit", "exit" -> {
                 if (playerId != null && server != null) {
                     try {
