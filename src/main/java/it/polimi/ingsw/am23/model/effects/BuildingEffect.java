@@ -38,5 +38,5 @@ public interface BuildingEffect {
         return 0;
     } // per calcolo finale dei punti
 
-    default void onBuildingAdded(Player player){}
+    default void onBuildingAdded(Game game, Player player){}
 }

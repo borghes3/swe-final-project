@@ -44,7 +44,7 @@ public class Game implements GameModel {
     private Era currentEra;
     private int currentRound;
     private GamePhase phase;
-    private String pendingExtraDrawPlayerId;
+    private String pendingExtraDrawPlayerId = null;
     private final CardDrawState drawState;
     private boolean skipAllowed = false;  // for the GUI to show the 'skip' button
 
@@ -156,7 +156,7 @@ public class Game implements GameModel {
                 return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "Not enough food.");
             cardMarket.removeBuilding(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
             c.onTaken(this, p);
-            c.getEffect().onBuildingAdded(p);
+            c.getEffect().onBuildingAdded(this, p);
             c.getEffect().onAfterAllActions(this, p);
             p.applyFoodDelta(-c.getFoodCost() - foodDiscount);  // -c.getFoodCost() perchè è un delta! Dare valore positivo AGGIUNGE cibo!
         } else {
@@ -456,7 +456,7 @@ public class Game implements GameModel {
             }
             cardMarket.removeBuilding(RowType.TOP, boardIndex);
             c.onTaken(this, p);
-            c.getEffect().onBuildingAdded(p);
+            c.getEffect().onBuildingAdded(this, p);
             c.getEffect().onAfterAllActions(this, p);
             p.applyFoodDelta(-c.getFoodCost() - foodDiscount);
         }

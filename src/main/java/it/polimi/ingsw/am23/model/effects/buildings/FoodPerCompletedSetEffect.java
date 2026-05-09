@@ -10,7 +10,7 @@ public class FoodPerCompletedSetEffect implements BuildingEffect {
     private int lastKnownSetCount = 0;
 
     @Override
-    public void onBuildingAdded(Player player){
+    public void onBuildingAdded(Game game, Player player){
         // memorizzo numero attuale di set
         lastKnownSetCount = player.getTribe().countCompletedSets();
     }

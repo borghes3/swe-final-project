@@ -33,7 +33,7 @@ class FoodPerInventorPairEffectTest {
         FoodPerInventorPairEffect effect = new FoodPerInventorPairEffect();
 
         new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 2).onTaken(game, p);
-        effect.onBuildingAdded(p);
+        effect.onBuildingAdded(null, p);
 
         new InventorCard("i2", Era.ERA_1, 0, InventionIcon.BOAT, 2).onTaken(game, p);
         effect.onCardTaken(game, p, null);

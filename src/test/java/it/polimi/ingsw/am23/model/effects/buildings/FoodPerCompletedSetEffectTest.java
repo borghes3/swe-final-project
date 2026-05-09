@@ -26,7 +26,7 @@ class FoodPerCompletedSetEffectTest {
         p.getTribe().addCharacter(new ArtistCard("a", Era.ERA_1, 0, 2));
 
         FoodPerCompletedSetEffect effect = new FoodPerCompletedSetEffect();
-        effect.onBuildingAdded(p);
+        effect.onBuildingAdded(null, p);
 
         effect.onCardTaken(null, p, new InventorCard("i", Era.ERA_1, 0, InventionIcon.BOAT, 2));
         p.getTribe().addCharacter(new InventorCard("i", Era.ERA_1, 0, InventionIcon.BOAT, 2));

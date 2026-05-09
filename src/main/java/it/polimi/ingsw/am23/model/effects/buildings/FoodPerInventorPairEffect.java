@@ -10,7 +10,7 @@ public class FoodPerInventorPairEffect implements BuildingEffect {
     private int lastKnownPairs = 0;
 
     @Override
-    public void onBuildingAdded(Player player) {
+    public void onBuildingAdded(Game game, Player player) {
         // memorizzo le coppie già esistenti
         lastKnownPairs = player.getTribe().countInventorPairsByIcon();
     }

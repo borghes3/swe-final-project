@@ -13,6 +13,7 @@ public class LobbyState implements Serializable {
     private final String ownerPlayerId;
     private final List<PlayerConnectionInfo> players;
     private final int maxPlayers;
+    private LobbyPhase lobbyPhase;
 
     public LobbyState(String lobbyId, String lobbyName, String ownerPlayerId, int maxPlayers) {
         this.lobbyId = lobbyId;
@@ -20,6 +21,7 @@ public class LobbyState implements Serializable {
         this.ownerPlayerId = ownerPlayerId;
         this.maxPlayers = maxPlayers;
         this.players = new ArrayList<>();
+        this.lobbyPhase = LobbyPhase.OPEN;
     }
 
     public void addPlayer(PlayerConnectionInfo player) {
@@ -56,5 +58,13 @@ public class LobbyState implements Serializable {
 
     public int getCurrentPlayers() {
         return players.size();
+    }
+
+    public void setLobbyPhase(LobbyPhase lobbyPhase) {
+        this.lobbyPhase = lobbyPhase;
+    }
+
+    public LobbyPhase getLobbyPhase() {
+        return lobbyPhase;
     }
 }

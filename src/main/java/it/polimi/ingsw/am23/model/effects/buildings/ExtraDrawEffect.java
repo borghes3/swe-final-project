@@ -7,7 +7,7 @@ import it.polimi.ingsw.am23.model.player.Player;
 public class ExtraDrawEffect implements BuildingEffect{
 
     @Override
-    public void onAfterAllActions(Game game, Player player){
+    public void onBuildingAdded(Game game, Player player){
         game.setPendingExtraDrawPlayerId(player.getId());
     }
 }
