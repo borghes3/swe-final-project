@@ -13,6 +13,7 @@ import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
 import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
+import it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
@@ -461,6 +462,116 @@ class GameTest {
         assertTrue(result.isSuccess());
         assertEquals(GamePhase.ENDED, game.getGamePhase());
         assertEquals(1, observer.gameOverCount);
+    }
+    @Test
+    void autoResolveProcessesZeroDrawTilesAutomatically() {
+        Player p1 = TestUtils.player("p1", 0, 0);
+        Player p2 = TestUtils.player("p2", 0, 0);
+        Game game = TestUtils.game(
+                List.of(p1, p2),
+                List.of(
+                        new OfferTile('A', null, 2, new OfferAction(0, 0, 3)),
+                        new OfferTile('B', null, 2, new OfferAction(1, 0, 0))
+                ),
+                List.of(new TurnOrderSlot(0, 0, "p1"), new TurnOrderSlot(1, 0, "p2")),
+                List.of(TestUtils.artist("a1", Era.ERA_1)),
+                List.of(),
+                List.of(),
+                Era.ERA_1,
+                1
+        );
+
+        game.startGame();
+
+        game.placeTotem("p1", 'A');
+        game.placeTotem("p2", 'B');
+
+        assertEquals(GamePhase.RESOLVING_OFFERS, game.getGamePhase());
+
+        assertTrue(game.getBoard().getOfferTile('A').isFree());
+        assertNotNull(game.getBoard().findTurnOrderSlotOccupiedBy("p1"));
+        assertEquals(3, p1.getFood());
+        assertEquals("p2", game.getBoard().getOfferTile('B').getOccupiedByPlayerId());
+    }
+
+    @Test
+    void skipTurnFailsWhenCharacterCardIsAvailable() {
+        Player p1 = TestUtils.player("p1", 0, 0);
+
+        Game game = TestUtils.game(
+                List.of(p1),
+                List.of(new OfferTile('A', null, 1, new OfferAction(1, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0, "p1")),
+                List.of(TestUtils.artist("a1", Era.ERA_1)),
+                List.of(),
+                List.of(),
+                Era.ERA_1,
+                1
+        );
+
+        game.startGame();
+        game.placeTotem("p1", 'A');
+
+        ActionResult result = game.skipTurn("p1");
+
+        assertFalse(result.isSuccess());
+        assertEquals(ErrorCode.CANNOT_SKIP, result.getError());
+    }
+
+    @Test
+    void skipTurnSucceedsWhenOnlyBuildingsAvailable() {
+        Player p1 = TestUtils.player("p1", 0, 0);
+
+        Game game = TestUtils.game(
+                List.of(p1),
+                List.of(new OfferTile('A', null, 1, new OfferAction(1, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0, "p1")),
+                List.of(),
+                List.of(),
+                List.of(TestUtils.building("b1", Era.ERA_1, 0, 0, new FlatEndGamePointsEffect(0))),
+                Era.ERA_1,
+                1
+        );
+
+        game.startGame();
+        game.placeTotem("p1", 'A');
+
+        ActionResult result = game.skipTurn("p1");
+
+        assertTrue(result.isSuccess());
+        assertTrue(game.getBoard().getOfferTile('A').isFree());
+        assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());
+    }
+
+    @Test
+    void skipTurnSucceedsInExtraDrawPhase() {
+        Player p1 = TestUtils.player("p1", 0, 0);
+
+        Game game = TestUtils.game(
+                List.of(p1),
+                List.of(new OfferTile('A', null, 1, new OfferAction(1, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0, "p1")),
+                List.of(),
+                List.of(),
+                List.of(TestUtils.building("b1", Era.ERA_1, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))),
+                Era.ERA_1,
+                1
+        );
+
+        game.startGame();
+        game.placeTotem("p1", 'A');
+
+        game.setPendingExtraDrawPlayerId("p1");
+
+        game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, true));
+
+        assertEquals(GamePhase.EXTRA_DRAW, game.getGamePhase());
+
+        ActionResult result = game.skipTurn("p1");
+
+        assertTrue(result.isSuccess());
+        assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());
+        assertNull(game.getGameState().getCurrentPlayerId());
     }
 
     private static class RecordingObserver implements ModelObserver {

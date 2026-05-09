@@ -114,6 +114,7 @@ public class Game implements GameModel {
             currentPlayerId = null; // Reset del ID salvato
             gameState =  buildGameState();
             notifyEndOfPlacingPhase();
+            processAutoResolvingOffer();
         } else { // non tutti hanno ancora pizzato, aggiorno solo lo stato
             gameState = buildGameState();
             notifyGameStateChanged();
@@ -175,21 +176,7 @@ public class Game implements GameModel {
 
         // Verifico se il turno è concluso - se ha pescato tutte le carte che doveva
         if (drawState.hasFinishedDrawing()) {
-            drawState.reset();
-            returnToTurnOrder(playerId);
-            currentPlayerId = null;
-
-            if (board.getFirstOccupiedOfferTile() == null) {
-                phase = GamePhase.RESOLVING_EVENTS;
-                gameState = buildGameState();
-                if (pendingExtraDrawPlayerId != null) {
-                    phase = GamePhase.EXTRA_DRAW;
-                    gameState = buildGameState();
-                    notifyExtraDrawRequest();
-                } else {
-                    notifyEndOfDrawingPhase();
-                }
-            }
+            setNextPhase(playerId);
         }
 
         // notifico la view dopo ogni carta pescata
@@ -199,6 +186,7 @@ public class Game implements GameModel {
         }
 
         return ActionResult.success(ActionType.TAKE_CARD, "Card taken successfully.");
+    }
 
     @Override
     public ActionResult skipTurn(String playerId) {
@@ -247,6 +235,24 @@ public class Game implements GameModel {
             notifyGameStateChanged();
         }
         return ActionResult.success(ActionType.SKIP_TURN, "Turn skipped successfully.");
+    }
+
+    private void setNextPhase(String playerId) {
+        drawState.reset();
+        returnToTurnOrder(playerId);
+        currentPlayerId = null;
+
+        if (board.getFirstOccupiedOfferTile() == null) {
+            if (pendingExtraDrawPlayerId != null) {
+                phase = GamePhase.EXTRA_DRAW;
+                gameState = buildGameState();
+                notifyExtraDrawRequest();
+            } else {
+                phase = GamePhase.RESOLVING_EVENTS;
+                gameState = buildGameState();
+                notifyEndOfDrawingPhase();
+            }
+        }
     }
 
     private boolean calculateSkipAllowed() {
@@ -319,6 +325,23 @@ public class Game implements GameModel {
                 findPlayer(playerId).applyFoodDelta(slot.getFoodDelta());
             } else {
                 findPlayer(playerId).spendPrestigePoints(slot.getFoodDelta() * 2);
+            }
+        }
+    }
+
+    private void processAutoResolvingOffer(){
+        if (phase == GamePhase.RESOLVING_OFFERS){
+            OfferTile tile = board.getFirstOccupiedOfferTile();
+            if(tile != null && (tile.getAction().getUpperDrawRowCount() == 0 && tile.getAction().getBottomDrawCount() == 0)){
+                String autoPlayerId = tile.getOccupiedByPlayerId();
+                Player p = findPlayer(autoPlayerId);
+
+                p.applyFoodDelta(tile.getAction().getFoodReward());
+
+                returnToTurnOrder(autoPlayerId);
+
+                gameState = buildGameState();
+                notifyGameStateChanged();
             }
         }
     }
