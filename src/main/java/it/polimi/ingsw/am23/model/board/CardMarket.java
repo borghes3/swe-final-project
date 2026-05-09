@@ -27,7 +27,7 @@ public class CardMarket {
 
     private <T> void checkIndex(List<T> list, int index) {
         if (index < 0 || index >= list.size()) {
-            throw new IndexOutOfBoundsException("invalid index" + index);
+            throw new IllegalArgumentException("invalid index " + index);
         }
     }
 

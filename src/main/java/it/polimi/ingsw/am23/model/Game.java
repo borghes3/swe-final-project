@@ -158,7 +158,7 @@ public class Game implements GameModel {
             c.onTaken(this, p);
             c.getEffect().onBuildingAdded(this, p);
             c.getEffect().onAfterAllActions(this, p);
-            p.applyFoodDelta(-c.getFoodCost() - foodDiscount);  // -c.getFoodCost() perchè è un delta! Dare valore positivo AGGIUNGE cibo!
+            p.applyFoodDelta(-(c.getFoodCost() - foodDiscount));  // -c.getFoodCost() perchè è un delta! Dare valore positivo AGGIUNGE cibo!
         } else {
             Card c = cardMarket.getCard(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
             if (!c.canBeTaken())
@@ -458,7 +458,7 @@ public class Game implements GameModel {
             c.onTaken(this, p);
             c.getEffect().onBuildingAdded(this, p);
             c.getEffect().onAfterAllActions(this, p);
-            p.applyFoodDelta(-c.getFoodCost() - foodDiscount);
+            p.applyFoodDelta(-c.getFoodCost() + foodDiscount);
         }
 
         phase = GamePhase.RESOLVING_EVENTS;

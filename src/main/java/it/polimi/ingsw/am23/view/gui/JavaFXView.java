@@ -26,6 +26,7 @@ public class JavaFXView extends Application implements VirtualView {
     private volatile boolean owner;
     private volatile boolean leftVoluntarily = false;
     private volatile GameState currentGameState;
+    private volatile boolean returningToLobby = false;
 
     private Stage primaryStage;
     private ConnectionController connectionController;
@@ -145,8 +146,8 @@ public class JavaFXView extends Application implements VirtualView {
                 scoreboardController = null;
                 gameScreenController = null;
                 currentGameState = null;
+                returningToLobby = true;
                 server.requestLobbyList(playerId);
-                showLobbyScreen(java.util.List.of());
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -179,7 +180,16 @@ public class JavaFXView extends Application implements VirtualView {
         try{
             server.placeTotem(playerId, tileId);
         } catch (Exception e){
-            e.printStackTrace();
+            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            Platform.runLater(() -> {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.WARNING
+                );
+                alert.setTitle("Azione non valida");
+                alert.setHeaderText(null);
+                alert.setContentText(msg);
+                alert.showAndWait();
+            });
         }
     }
 
@@ -187,7 +197,16 @@ public class JavaFXView extends Application implements VirtualView {
         try{
             server.takeSingleCard(playerId, card);
         } catch (Exception e){
-            e.printStackTrace();
+            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            Platform.runLater(() -> {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.WARNING
+                );
+                alert.setTitle("Azione non valida");
+                alert.setHeaderText(null);
+                alert.setContentText(msg);
+                alert.showAndWait();
+            });
         }
     }
 
@@ -195,7 +214,16 @@ public class JavaFXView extends Application implements VirtualView {
         try{
             server.takeExtraCard(playerId, index);
         } catch (Exception e){
-            e.printStackTrace();
+            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            Platform.runLater(() -> {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.WARNING
+                );
+                alert.setTitle("Azione non valida");
+                alert.setHeaderText(null);
+                alert.setContentText(msg);
+                alert.showAndWait();
+            });
         }
     }
 
@@ -228,7 +256,14 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onLobbyListUpdated(List<LobbyState> lobbies) throws Exception {
         Platform.runLater(()-> {
-            if(lobbyController != null){
+            if(returningToLobby){
+                returningToLobby = false;
+                try{
+                    showLobbyScreen(lobbies);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            } else if(lobbyController != null) {
                 lobbyController.updateLobbies(lobbies);
             }
         });
@@ -288,6 +323,7 @@ public class JavaFXView extends Application implements VirtualView {
                     lobbyController.showError("La lobby è stata chiusa. Scegliene una nuova.");
                 }
                 leftVoluntarily = false;
+                server.requestLobbyList(playerId);
             }catch (Exception e){
                 e.printStackTrace();
             }

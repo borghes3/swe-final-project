@@ -112,7 +112,7 @@ public class GameScreenController {
             container.getChildren().add(buildCardPlaceholder(characters.get(i), phase, i, isTopRow));
         }
         for(int i=0; i<buildings.size(); i++){
-            container.getChildren().add(buildBuildingCardPlaceholder(buildings.get(i), phase, i));
+            container.getChildren().add(buildBuildingCardPlaceholder(buildings.get(i), phase, i, isTopRow));
         }
     }
 
@@ -170,7 +170,7 @@ public class GameScreenController {
             SelectedSingleCard selected = new SelectedSingleCard(row, boardIndex, isBuilging);
 
             box.setStyle(box.getStyle() + "-fx-cursor: hand;");
-            box.setOnMouseClicked(e -> view.takeSingleCard(selected));
+            box.setOnMouseClicked(e -> {box.setOnMouseClicked(null); view.takeSingleCard(selected);});
             box.setOnMouseEntered(e -> box.setOpacity(0.75));
             box.setOnMouseExited(e -> box.setOpacity(1.0));
 
@@ -179,8 +179,8 @@ public class GameScreenController {
         return box;
     }
 
-    private VBox buildBuildingCardPlaceholder(CardState card, GamePhase phase, int boardIndex){
-        VBox box = buildCardPlaceholder(card, phase, boardIndex, true);
+    private VBox buildBuildingCardPlaceholder(CardState card, GamePhase phase, int boardIndex, boolean isTopRow){
+        VBox box = buildCardPlaceholder(card, phase, boardIndex, isTopRow);
         box.setStyle(box.getStyle() + "-fx-border-color: #f1c400; -fx-border-width: 2;");
         return box;
     }
