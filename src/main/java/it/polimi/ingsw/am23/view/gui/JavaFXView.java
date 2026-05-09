@@ -11,6 +11,7 @@ import it.polimi.ingsw.am23.view.gui.controllers.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.Parent;
@@ -42,6 +43,7 @@ public class JavaFXView extends Application implements VirtualView {
 
         // disconnessine alla chiusura della finestra
         primaryStage.setOnCloseRequest(e -> {
+            NetworkSetter.stopHeartbeat();
             if(server != null && playerId != null){
                 try{
                     server.disconnect(playerId);
@@ -395,6 +397,35 @@ public class JavaFXView extends Application implements VirtualView {
             alert.setHeaderText(null);
             alert.setContentText(message);
             alert.showAndWait();
+        });
+    }
+
+    @Override
+    public void onServerCrashed(){
+        NetworkSetter.stopHeartbeat();
+        Platform.runLater(() -> {
+            server = null;
+            playerId = null;
+            currentLobbyId = null;
+            owner = false;
+            leftVoluntarily = false;
+            waitingRoomController = null;
+            gameScreenController = null;
+            scoreboardController = null;
+
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    Alert.AlertType.ERROR
+            );
+            alert.setTitle("Connessione persa.");
+            alert.setHeaderText("Server non raggiungibile.");
+            alert.setContentText("Tornerai alla schermata di connessione.");
+            alert.showAndWait();
+
+            try{
+                showConnectionScreen();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 }

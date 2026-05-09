@@ -126,4 +126,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             throw new RemoteException(e.getMessage());
         }
     }
+
+    @Override
+    public void ping() throws RemoteException {}
 }

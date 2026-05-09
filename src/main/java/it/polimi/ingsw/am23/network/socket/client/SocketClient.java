@@ -10,7 +10,10 @@ import it.polimi.ingsw.am23.network.socket.messages.response.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public final class SocketClient implements VirtualServer {
 
@@ -30,7 +33,8 @@ public final class SocketClient implements VirtualServer {
     // to create a connection to the socket (different from connect() method)
     // in RMI they are one nested into the other
     public static VirtualServer connectToServer(String host, VirtualView view) throws IOException {
-        Socket socket = new Socket(host, 1235);
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(host, 1235), 2000);
         SocketClient client = new SocketClient(socket, view);
         client.startListening();
         return client;
@@ -51,13 +55,23 @@ public final class SocketClient implements VirtualServer {
                 Message message = (Message) in.readObject();
                 dispatch(message);
             }
-        } catch (IOException e) {
+        }catch (java.io.EOFException | SocketException e) {
+            System.err.println("<SocketClient>: server caduto – " + e.getMessage());
+            notifyCrash();
+        }catch (IOException e) {
             System.err.println("<SocketClient>: connessione chiusa – " + e.getMessage());
+            notifyCrash();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             close();
         }
+    }
+
+    private void notifyCrash(){
+        try{
+            view.onServerCrashed();
+        } catch(Exception ignored){}
     }
 
     private void dispatch(Message message) throws Exception {
@@ -189,4 +203,8 @@ public final class SocketClient implements VirtualServer {
     public void requestLobbyList(String playerId) throws Exception {
         send(new RefreshLobbyListMessage(playerId));
     }
+
+    @Override
+    public void ping() throws Exception{}
+    // socket rileva il crash dalla readLoop, non serve il ping
 }

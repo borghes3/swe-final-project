@@ -314,6 +314,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastScoreboardAvailable(activeLobbyId, gameState);
     }
 
+    @Override
+    public synchronized void ping() {}
+
     private ActionResult withActiveLobby(String lobbyId, GameAction action) throws Exception {
         String previousLobbyId = activeLobbyId;
         activeLobbyId = lobbyId;

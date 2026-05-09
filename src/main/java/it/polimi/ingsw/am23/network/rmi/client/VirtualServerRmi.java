@@ -42,4 +42,7 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
 
     @Override
     void disconnect(String playerId) throws RemoteException;
+
+    @Override
+    void ping() throws RemoteException;
 }

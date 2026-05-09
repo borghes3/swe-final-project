@@ -13,7 +13,6 @@ public interface VirtualView {
     // 'reason' = error's motivation (eg. "nome già in uso")
     void onConnectError(String reason) throws Exception;
 
-
     // lobby
     void onLobbyListUpdated(List<LobbyState> lobbies) throws Exception;
 
@@ -49,20 +48,14 @@ public interface VirtualView {
 
     void onEraProgression(GameState gameState) throws Exception;
 
-/*  DECOMMENTARE PER VERSIONE PAYLOADS - e eliminare quelli sotto
-
-    void onGameOver() throws Exception;
-
-    void onScoreboardAvailable() throws Exception;
-*/
-
     void onGameOver(GameState gameState) throws Exception;
 
     void onScoreboardAvailable(GameState gameState) throws Exception;
 
 
-
     // errors (eg. action not allowed)
     void onActionError(ActionType actionType, String message) throws Exception;
+
+    void onServerCrashed() throws Exception;
 }
 

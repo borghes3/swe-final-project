@@ -412,6 +412,13 @@ public final class CLIView implements VirtualView {
         };
     }
 
+    @Override
+    public synchronized void onServerCrashed(){
+        NetworkSetter.stopHeartbeat();
+        renderCurrentScreen(ERROR_MARKER + "Connessione persa.");
+        System.exit(0);
+    }
+
     private void ensureConnected() {
         if (playerId == null) {
             throw new IllegalStateException(connectError != null ? connectError : "Client not connected");

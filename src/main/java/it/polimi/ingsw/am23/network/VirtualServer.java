@@ -29,4 +29,6 @@ public interface VirtualServer {
     void skipTurn(String playerId) throws Exception;
 
     void disconnect(String playerId) throws Exception;
+
+    void ping() throws Exception;
 }

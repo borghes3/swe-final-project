@@ -6,10 +6,15 @@ import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.network.rmi.server.VirtualViewRmi;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +30,24 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
 
     public static VirtualServerRmi connect(String host, String playerName, VirtualView view)
             throws RemoteException, NotBoundException {
+
+        try{
+            RMISocketFactory.setSocketFactory(new RMISocketFactory() {
+                @Override
+                public Socket createSocket(String host, int port) throws IOException {
+                    Socket s = new Socket();
+                    s.connect(new InetSocketAddress(host, port), 2000);
+                    s.setSoTimeout(5000);
+                    return s;
+                }
+
+                @Override
+                public ServerSocket createServerSocket(int port) throws IOException {
+                    return new ServerSocket(port);
+                }
+            });
+        }catch(IOException ignored){}
+
         final String serverName = "ServerName";
         Registry registry = LocateRegistry.getRegistry(host, 1234);
         VirtualServerRmi server = (VirtualServerRmi) registry.lookup(serverName);
@@ -181,6 +204,15 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
     public void onActionError(ActionType actionType, String message) throws RemoteException {
         try {
             view.onActionError(actionType, message);
+        } catch (Exception exception) {
+            throw new RemoteException(exception.getMessage(), exception);
+        }
+    }
+
+    @Override
+    public void onServerCrashed() throws RemoteException{
+        try{
+            view.onServerCrashed();
         } catch (Exception exception) {
             throw new RemoteException(exception.getMessage(), exception);
         }
