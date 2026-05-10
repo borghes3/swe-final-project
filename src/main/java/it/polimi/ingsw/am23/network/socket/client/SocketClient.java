@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.network.socket.client;
 
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
@@ -186,8 +187,8 @@ public final class SocketClient implements VirtualServer {
     }
 
     @Override
-    public void takeExtraCard(String playerId, int index) throws Exception {
-        send(new TakeExtraCardMessage(playerId, index));
+    public void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws Exception {
+        send(new TakeExtraCardMessage(playerId, selectedCardExtraDraw));
     }
     @Override
     public void skipTurn(String playerId) throws Exception {

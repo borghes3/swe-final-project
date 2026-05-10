@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.network;
 
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 
 public interface VirtualServer {
@@ -24,7 +25,7 @@ public interface VirtualServer {
 
     void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws Exception;
 
-    void takeExtraCard(String playerId, int index) throws Exception;
+    void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws Exception;
 
     void skipTurn(String playerId) throws Exception;
 

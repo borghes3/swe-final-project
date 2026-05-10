@@ -1,17 +1,18 @@
 package it.polimi.ingsw.am23.network.socket.messages.request;
 
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.network.socket.messages.Message;
 
 public final class TakeExtraCardMessage extends Message {
 
     private final String playerId;
-    private final int index;
+    private final SelectedCardExtraDraw selectedCardExtraDraw;
 
-    public TakeExtraCardMessage(String playerId, int index) {
+    public TakeExtraCardMessage(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) {
         this.playerId = playerId;
-        this.index = index;
+        this.selectedCardExtraDraw = selectedCardExtraDraw;
     }
 
     public String getPlayerId() { return playerId; }
-    public int getIndex() { return index; }
+    public SelectedCardExtraDraw getSelectedCardExtraDraw() { return selectedCardExtraDraw; }
 }

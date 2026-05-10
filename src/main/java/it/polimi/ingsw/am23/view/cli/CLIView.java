@@ -362,9 +362,14 @@ public final class CLIView implements VirtualView {
             case "extra" -> {
                 ensureConnected();
                 if (tokens.length < 2) {
-                    printWarning("Use: extra <index>");
+                    printWarning("Use: extra <index> [card|building]");
                 } else {
-                    server.takeExtraCard(playerId, Integer.parseInt(tokens[1]));
+                    int index = Integer.parseInt(tokens[1]);
+                    boolean isBuilding = tokens.length >= 3 && tokens[2].equalsIgnoreCase("building");
+                    it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw selected = isBuilding
+                            ? new it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw(null, index)
+                            : new it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw(index, null);
+                    server.takeExtraCard(playerId, selected);
                 }
                 yield false;
             }

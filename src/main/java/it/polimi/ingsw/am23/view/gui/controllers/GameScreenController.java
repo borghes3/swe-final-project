@@ -187,12 +187,11 @@ public class GameScreenController {
 
     // EXTRA DRAW
     public void showExtraDrawDialog(GameState gameState){
-        List<CardState> topRow = gameState.getBoard().getTopRow()
-                .stream()
-                .filter(c -> c.getCardKind() != CardKind.EVENT)
-                .collect(java.util.stream.Collectors.toList());
+        List<CardState> allTopRow = gameState.getBoard().getTopRow();
+        List<CardState> buildings = new ArrayList<>(gameState.getBoard().getTopBuildings());
 
-        if(topRow.isEmpty())
+        boolean hasSelectableCards = allTopRow.stream().anyMatch(c -> c.getCardKind() != CardKind.EVENT);
+        if(!hasSelectableCards && buildings.isEmpty())
             return;
 
         Stage dialog = new Stage();
@@ -210,11 +209,14 @@ public class GameScreenController {
         HBox cardsRow = new HBox(8);
         cardsRow.setAlignment(Pos.CENTER);
 
-        for(int i=0; i<topRow.size(); i++){
+        for(int i=0; i<allTopRow.size(); i++){
+            CardState cardState = allTopRow.get(i);
+            if(cardState.getCardKind() == CardKind.EVENT) continue;
             final int index = i;
-            VBox card = buildCardPlaceholder(topRow.get(i), GamePhase.RESOLVING_OFFERS, i, true);
+            VBox card = buildCardPlaceholder(allTopRow.get(i), GamePhase.RESOLVING_OFFERS, i, true);
             card.setOnMouseClicked(e -> {
-                view.takeExtraCard(index);
+                card.setOnMouseClicked(null);
+                view.takeExtraCard(index, true);
                 dialog.close();
             });
 
@@ -224,7 +226,39 @@ public class GameScreenController {
             cardsRow.getChildren().add(card);
         }
 
+        for(int i = 0; i < buildings.size(); i++){
+            final int index = i;
+            VBox card = buildBuildingCardPlaceholder(buildings.get(i), GamePhase.RESOLVING_OFFERS, i, true);
+            card.setOnMouseClicked(e -> {
+                card.setOnMouseClicked(null);
+                view.takeExtraCard(index, false);
+                dialog.close();
+            });
+            card.setOnMouseEntered(ev -> card.setOpacity(0.75));
+            card.setOnMouseExited(ev -> card.setOpacity(1.0));
+            card.setStyle(card.getStyle() + "-fx-cursor: hand;");
+            cardsRow.getChildren().add(card);
+        }
+
         root.getChildren().addAll(title, cardsRow);
+
+        if(gameState.getSkipAllowed()){
+            javafx.scene.control.Button skipButton = new javafx.scene.control.Button("Salta turno");
+            skipButton.setStyle(
+                    "-fx-background-color: #5a2e10;" +
+                            "-fx-text-fill: #f5f0e8;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-padding: 6 16 6 16;" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-cursor: hand;"
+            );
+            skipButton.setOnAction(e -> {
+                view.skipTurn();
+                dialog.close();
+            });
+            root.getChildren().add(skipButton);
+        }
+
         dialog.setScene(new javafx.scene.Scene(root));
         dialog.show();
     }

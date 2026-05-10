@@ -257,10 +257,9 @@ public final class GameController implements VirtualServer, ModelObserver {
     }
 
     @Override
-    public synchronized void takeExtraCard(String playerId, int index) throws Exception {
+    public synchronized void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws Exception {
         String lobbyId = requireLobbyIdForPlayer(playerId);
         Game game = requireGame(lobbyId);
-        SelectedCardExtraDraw selectedCardExtraDraw = new SelectedCardExtraDraw(index, null);
         ActionResult result = withActiveLobby(lobbyId, () -> game.takeExtraCard(playerId, selectedCardExtraDraw));
         handleActionResult(playerId, result);
         if (result.isSuccess()) {

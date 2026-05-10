@@ -108,7 +108,7 @@ public final class Connector implements VirtualView, Runnable {
                 }
             } else if (message instanceof TakeExtraCardMessage m) {
                 try {
-                    serverController.takeExtraCard(m.getPlayerId(), m.getIndex());
+                    serverController.takeExtraCard(m.getPlayerId(), m.getSelectedCardExtraDraw());
                 } catch (IllegalArgumentException | IllegalStateException e){
                     onActionError(ActionType.GENERIC, e.getMessage());
                 }

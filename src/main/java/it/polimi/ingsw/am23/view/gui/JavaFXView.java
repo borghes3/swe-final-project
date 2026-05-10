@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am23.view.gui;
 
+import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.state.GameState;
@@ -185,7 +186,7 @@ public class JavaFXView extends Application implements VirtualView {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida");
+                alert.setTitle("Azione non valida.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
@@ -202,7 +203,7 @@ public class JavaFXView extends Application implements VirtualView {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida");
+                alert.setTitle("Azione non valida.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
@@ -210,16 +211,36 @@ public class JavaFXView extends Application implements VirtualView {
         }
     }
 
-    public void takeExtraCard(int index){
+    public void takeExtraCard(int index, boolean isTribeCard){
         try{
-            server.takeExtraCard(playerId, index);
+            SelectedCardExtraDraw selected = isTribeCard
+                    ? new SelectedCardExtraDraw(index, null)
+                    : new SelectedCardExtraDraw(null, index);
+            server.takeExtraCard(playerId, selected);
         } catch (Exception e){
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida");
+                alert.setTitle("Azione non valida.");
+                alert.setHeaderText(null);
+                alert.setContentText(msg);
+                alert.showAndWait();
+            });
+        }
+    }
+
+    public void skipTurn() {
+        try {
+            server.skipTurn(playerId);
+        } catch (Exception e) {
+            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            Platform.runLater(() -> {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.WARNING
+                );
+                alert.setTitle("Azione non valida.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
