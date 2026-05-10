@@ -34,6 +34,7 @@ public class GameScreenController {
     private JavaFXView view;
     private String myPlayerId;
     private GameState lastState;
+    private boolean skipDialogShown = false;
 
     private double cardW = 75;
     private double cardH = 110;
@@ -75,6 +76,17 @@ public class GameScreenController {
             updateTopBar(state);
             updateBoard(state.getBoard(), state.getPlayers(), state.getPhase());
             updatePlayers(state.getPlayers());
+
+            boolean isMyTurn = myPlayerId != null && myPlayerId.equals(state.getCurrentPlayerId());
+            boolean isDrawPhase = state.getPhase() == GamePhase.RESOLVING_OFFERS;
+            boolean shouldSkip = isMyTurn && isDrawPhase && state.getSkipAllowed();
+
+            if(shouldSkip && !skipDialogShown){
+                skipDialogShown = true;
+                showSkipDialog();
+            } else if(!shouldSkip){
+                skipDialogShown = false;
+            }
         });
     }
 
@@ -325,6 +337,27 @@ public class GameScreenController {
             sb.append("+").append(tile.getFoodReward()).append("🍖");
 
         return sb.toString().trim();
+    }
+
+    private void showSkipDialog(){
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.CONFIRMATION
+        );
+        alert.setTitle("Nessuna carta disponibile.");
+        alert.setHeaderText(null);
+        alert.setContentText("Non ci sono carte pescabili. Vuoi saltare il turno?");
+
+        javafx.scene.control.ButtonType skipButton = new javafx.scene.control.ButtonType("Salta turno");
+        javafx.scene.control.ButtonType cancelButton = new javafx.scene.control.ButtonType(
+                "Annulla", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE
+        );
+        alert.getButtonTypes().setAll(skipButton, cancelButton);
+
+        alert.showAndWait().ifPresent(result -> {
+            if(result == skipButton){
+                view.skipTurn();
+            }
+        });
     }
 
     // TURN ORDER SLOT

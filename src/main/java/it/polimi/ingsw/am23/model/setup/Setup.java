@@ -166,7 +166,7 @@ public class Setup {
 
         List<BuildingCard> era3Buildings = new ArrayList<>(buildings.stream().filter(b -> b.getEra() == Era.ERA_3).toList());
         Collections.shuffle(era3Buildings);
-     //   era3Buildings = era3Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][2]);
+        era3Buildings = era3Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][2]);
 
         // Costruisco BuildingDeck con le carte di era 2 ed era 3 (le carte di era 1 vengono ritornate separatamente per istanziare il game, vedi constructor game)
         BuildingDeck buildingDeck = new BuildingDeck(Map.of(
