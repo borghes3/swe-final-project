@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -11,105 +12,237 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="800.0" minWidth="1100.0" style="-fx-background-color: #195206;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am23.view.gui.controllers.GameScreenController">
+<StackPane fx:id="rootStack"
+           minHeight="800.0"
+           minWidth="1100.0"
+           xmlns="http://javafx.com/javafx/26"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.am23.view.gui.controllers.GameScreenController">
 
-    <!-- TOP BAR -->
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #2a1005; -fx-padding: 8 16 8 16;">
-            <children>
-                <Label fx:id="eraLabel" text="Era I" textFill="#f5f0e8">
-                    <font><Font name="System Bold" size="14.0" /></font>
-                </Label>
-                <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="roundLabel" text="Round 1 / 10" textFill="#f5f0e8">
-                    <font><Font size="14.0" /></font>
-                </Label>
-                <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="phaseLabel" text="Fase: -" textFill="#f5f0e8">
-                    <font><Font size="13.0" /></font>
-                </Label>
-                <Region HBox.hgrow="ALWAYS" />
-            </children>
-        </HBox>
-    </top>
+    <children>
 
-    <!-- CENTER: BOARD -->
-    <center>
-        <VBox spacing="10.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="8.0" left="16.0" right="16.0" top="12.0" />
-            </padding>
-            <children>
+        <!-- BACKGROUND IMAGE LAYER -->
+        <ImageView fx:id="backgroundImageView"
+                   preserveRatio="false"
+                   smooth="true"
+                   cache="true"
+                   pickOnBounds="true" />
 
-                <!-- Fila superiore -->
-                <Label style="-fx-font-size: 11px;" text="FILA SUPERIORE" textFill="#f5f0e8" />
-                <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" style="-fx-background: transparent; -fx-background-color: transparent;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
-                    <content>
-                        <HBox fx:id="topRowContainer" alignment="CENTER_LEFT" minHeight="130.0" spacing="8.0" style="-fx-padding: 2 0 4 0;" />
-                    </content>
-                </ScrollPane>
+        <!-- MAIN UI LAYER -->
+        <BorderPane fx:id="rootPane"
+                    minHeight="800.0"
+                    minWidth="1100.0"
+                    style="-fx-background-color: transparent;">
 
-                <!-- Tracciato: mazzo | ordine turno | tessere -->
-                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                    <padding>
-                        <Insets bottom="4.0" top="4.0" />
-                    </padding>
+            <!-- TOP BAR -->
+            <top>
+                <HBox alignment="CENTER_LEFT"
+                      spacing="20.0"
+                      style="
+                          -fx-background-color: rgba(24,8,4,0.62);
+                          -fx-border-color: rgba(245,240,232,0.10);
+                          -fx-border-width: 0 0 1 0;
+                          -fx-padding: 8 16 8 16;
+                      ">
                     <children>
+                        <Label fx:id="eraLabel" text="Era I" textFill="#f5f0e8">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
 
-                        <!-- Mazzo -->
-                        <VBox alignment="CENTER" spacing="4.0">
-                            <children>
-                                <Label style="-fx-font-size: 10px;" text="MAZZO" textFill="#f5f0e8" />
-                                <StackPane fx:id="deckContainer" prefHeight="95.0" prefWidth="65.0" style="-fx-background-color: #6b3a1f; -fx-background-radius: 6; -fx-border-color: #f5f0e8; -fx-border-radius: 6; -fx-border-width: 1;">
-                                    <children>
-                                        <Label fx:id="deckCountLabel" text="?" textFill="#f5f0e8">
-                                            <font><Font name="System Bold" size="16.0" /></font>
-                                        </Label>
-                                    </children>
-                                </StackPane>
-                            </children>
-                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
 
-                        <!-- Ordine di turno -->
-                        <VBox alignment="CENTER" spacing="4.0">
-                            <children>
-                                <Label style="-fx-font-size: 10px;" text="ORDINE TURNO" textFill="#f5f0e8" />
-                                <VBox fx:id="turnOrderContainer" alignment="CENTER_LEFT" minHeight="95.0" prefWidth="100.0" spacing="4.0" style="-fx-background-color: #5a2e10; -fx-background-radius: 6; -fx-border-color: #f5f0e8; -fx-border-radius: 6; -fx-border-width: 1; -fx-padding: 6;">
-                                </VBox>
-                            </children>
-                        </VBox>
+                        <Label fx:id="roundLabel" text="Round 1 / 10" textFill="#f5f0e8">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
 
-                        <!-- Tessere offerta -->
-                        <VBox alignment="TOP_LEFT" spacing="4.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label style="-fx-font-size: 10px;" text="TRACCIATO OFFERTE" textFill="#f5f0e8" />
-                                <HBox fx:id="offerTilesContainer" alignment="CENTER_LEFT" minHeight="95.0" spacing="6.0" />
-                            </children>
-                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
 
+                        <Label fx:id="phaseLabel" text="Fase: -" textFill="#f5f0e8">
+                            <font>
+                                <Font size="13.0" />
+                            </font>
+                        </Label>
+
+                        <Region HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
+            </top>
 
-                <!-- Fila inferiore -->
-                <Label style="-fx-font-size: 11px;" text="FILA INFERIORE" textFill="#f5f0e8" />
-                <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" style="-fx-background: transparent; -fx-background-color: transparent;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
-                    <content>
-                        <HBox fx:id="bottomRowContainer" alignment="CENTER_LEFT" minHeight="130.0" spacing="8.0" style="-fx-padding: 2 0 4 0;" />
-                    </content>
-                </ScrollPane>
+            <!-- CENTER: BOARD -->
+            <center>
+                <VBox fx:id="boardRoot"
+                      alignment="TOP_CENTER"
+                      spacing="10.0"
+                      style="
+                          -fx-background-color: rgba(36,12,6,0.28);
+                          -fx-background-radius: 0;
+                      "
+                      BorderPane.alignment="CENTER">
 
-            </children>
-        </VBox>
-    </center>
+                    <padding>
+                        <Insets bottom="8.0" left="16.0" right="16.0" top="12.0" />
+                    </padding>
 
-    <!-- BOTTOM: GIOCATORI -->
-    <bottom>
-        <VBox style="-fx-background-color: #2a1005; -fx-padding: 8 16 12 16;" BorderPane.alignment="CENTER">
-            <children>
-                <Label style="-fx-font-size: 11px; -fx-padding: 0 0 6 0;" text="TRIBE" textFill="#f5f0e8" />
-                <FlowPane fx:id="playersContainer" alignment="CENTER" hgap="10.0" prefWrapLength="1400.0" vgap="10.0" />
-            </children>
-        </VBox>
-    </bottom>
+                    <children>
 
-</BorderPane>
+                        <!-- FILA SUPERIORE -->
+                        <Label style="-fx-font-size: 11px;"
+                               text="FILA SUPERIORE"
+                               textFill="#f5f0e8" />
+
+                        <ScrollPane fitToHeight="true"
+                                    fitToWidth="true"
+                                    hbarPolicy="AS_NEEDED"
+                                    vbarPolicy="NEVER"
+                                    style="
+                                        -fx-background: transparent;
+                                        -fx-background-color: transparent;
+                                    "
+                                    VBox.vgrow="ALWAYS">
+                            <content>
+                                <HBox fx:id="topRowContainer"
+                                      alignment="CENTER"
+                                      minHeight="130.0"
+                                      spacing="8.0"
+                                      style="-fx-padding: 2 0 4 0;" />
+                            </content>
+                        </ScrollPane>
+
+                        <!-- MAZZO | ORDINE TURNO | TRACCIATO OFFERTE -->
+                        <HBox fx:id="boardTrackContainer"
+                              alignment="CENTER"
+                              spacing="16.0"
+                              maxWidth="-Infinity">
+
+                            <padding>
+                                <Insets bottom="4.0" top="4.0" />
+                            </padding>
+
+                            <children>
+
+                                <!-- MAZZO -->
+                                <VBox alignment="CENTER" spacing="4.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 10px;"
+                                               text="MAZZO"
+                                               textFill="#f5f0e8" />
+
+                                        <StackPane fx:id="deckContainer"
+                                                   prefHeight="95.0"
+                                                   prefWidth="65.0"
+                                                   style="
+                                                       -fx-background-color: rgba(107,58,31,0.76);
+                                                       -fx-background-radius: 8;
+                                                       -fx-border-color: rgba(245,240,232,0.75);
+                                                       -fx-border-radius: 8;
+                                                       -fx-border-width: 1;
+                                                   ">
+                                            <children>
+                                                <Label fx:id="deckCountLabel"
+                                                       text="?"
+                                                       textFill="#f5f0e8">
+                                                    <font>
+                                                        <Font name="System Bold" size="16.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- ORDINE TURNO -->
+                                <VBox alignment="CENTER" spacing="4.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 10px;"
+                                               text="ORDINE TURNO"
+                                               textFill="#f5f0e8" />
+
+                                        <!-- The real visual node is created by TurnOrderNodeFactory. -->
+                                        <VBox fx:id="turnOrderContainer"
+                                              alignment="CENTER"
+                                              minHeight="95.0"
+                                              prefWidth="100.0"
+                                              spacing="0.0"
+                                              style="
+                                                  -fx-background-color: transparent;
+                                                  -fx-padding: 0;
+                                              " />
+                                    </children>
+                                </VBox>
+
+                                <!-- TRACCIATO OFFERTE -->
+                                <VBox alignment="CENTER" spacing="4.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 10px;"
+                                               text="TRACCIATO OFFERTE"
+                                               textFill="#f5f0e8" />
+
+                                        <HBox fx:id="offerTilesContainer"
+                                              alignment="CENTER"
+                                              minHeight="95.0"
+                                              spacing="6.0"
+                                              maxWidth="-Infinity" />
+                                    </children>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+
+                        <!-- FILA INFERIORE -->
+                        <Label style="-fx-font-size: 11px;"
+                               text="FILA INFERIORE"
+                               textFill="#f5f0e8" />
+
+                        <ScrollPane fitToHeight="true"
+                                    fitToWidth="true"
+                                    hbarPolicy="AS_NEEDED"
+                                    vbarPolicy="NEVER"
+                                    style="
+                                        -fx-background: transparent;
+                                        -fx-background-color: transparent;
+                                    "
+                                    VBox.vgrow="ALWAYS">
+                            <content>
+                                <HBox fx:id="bottomRowContainer"
+                                      alignment="CENTER"
+                                      minHeight="130.0"
+                                      spacing="8.0"
+                                      style="-fx-padding: 2 0 4 0;" />
+                            </content>
+                        </ScrollPane>
+
+                    </children>
+                </VBox>
+            </center>
+
+            <!-- BOTTOM: PLAYER TRIBES -->
+            <bottom>
+                <VBox style="
+                          -fx-background-color: rgba(18,6,3,0.68);
+                          -fx-border-color: rgba(245,240,232,0.10);
+                          -fx-border-width: 1 0 0 0;
+                          -fx-padding: 8 16 12 16;
+                      "
+                      BorderPane.alignment="CENTER">
+                    <children>
+                        <Label style="-fx-font-size: 11px; -fx-padding: 0 0 6 0;"
+                               text="TRIBE"
+                               textFill="#f5f0e8" />
+
+                        <FlowPane fx:id="playersContainer"
+                                  alignment="CENTER"
+                                  hgap="10.0"
+                                  prefWrapLength="1400.0"
+                                  vgap="10.0" />
+                    </children>
+                </VBox>
+            </bottom>
+
+        </BorderPane>
+
+    </children>
+</StackPane>
