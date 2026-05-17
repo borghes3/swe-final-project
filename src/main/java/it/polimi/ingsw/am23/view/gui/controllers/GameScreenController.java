@@ -6,6 +6,8 @@ import it.polimi.ingsw.am23.model.enums.CharacterType;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
 import it.polimi.ingsw.am23.model.enums.TotemColors;
+import it.polimi.ingsw.am23.model.payloads.EventResolvedPayload;
+import it.polimi.ingsw.am23.model.payloads.PlayerDelta;
 import it.polimi.ingsw.am23.model.state.BoardState;
 import it.polimi.ingsw.am23.model.state.CardState;
 import it.polimi.ingsw.am23.model.state.CharacterCardState;
@@ -77,6 +79,12 @@ public class GameScreenController {
     private double tileW = 78;
     private double tileH = tileW * TILE_ASPECT;
     private double playerPanelW = 210;
+
+    private Stage primaryStage;
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
 
     @FXML
     public void initialize() {
@@ -235,7 +243,7 @@ public class GameScreenController {
 
         updateCardRow(topRowContainer, board.getTopRow(), board.getTopBuildings(), phase, true);
         updateCardRow(bottomRowContainer, board.getBottomRow(), board.getBottomBuildings(), phase, false);
-        updateOfferTiles(board.getOfferTiles(), nicknames, colors, phase);
+        updateOfferTiles(board.getOfferTiles(), nicknames, colors, phase, board);
         updateTurnOrder(board.getTurnOrderSlots(), nicknames, colors);
     }
 
@@ -262,7 +270,7 @@ public class GameScreenController {
     private void updateOfferTiles(List<OfferTileState> tiles,
                                   Map<String, String> nicknames,
                                   Map<String, String> colors,
-                                  GamePhase phase) {
+                                  GamePhase phase, BoardState board) {
         offerTilesContainer.getChildren().clear();
         offerTilesContainer.setAlignment(Pos.CENTER);
         offerTilesContainer.setMaxWidth(Region.USE_PREF_SIZE);
@@ -274,7 +282,7 @@ public class GameScreenController {
         tiles.stream()
                 .sorted(Comparator.comparingInt(OfferTileState::getPositionIndex))
                 .forEach(tile -> offerTilesContainer.getChildren().add(
-                        buildOfferTile(tile, nicknames, colors, phase)
+                        buildOfferTile(tile, nicknames, colors, phase, board)
                 ));
     }
 
@@ -340,7 +348,6 @@ public class GameScreenController {
             box.setOnMouseEntered(e -> box.setOpacity(0.75));
             box.setOnMouseExited(e -> box.setOpacity(1.0));
         }
-
         return box;
     }
 
@@ -440,7 +447,7 @@ public class GameScreenController {
     private StackPane buildOfferTile(OfferTileState tile,
                                      Map<String, String> nicknames,
                                      Map<String, String> colors,
-                                     GamePhase phase) {
+                                     GamePhase phase, BoardState currentBoard) {
         String occupied = tile.getOccupiedByPlayerId();
 
         String borderColor = occupied != null
@@ -459,8 +466,27 @@ public class GameScreenController {
                 occupantName
         );
 
-        boolean alreadyPlaced = lastState != null
-                && lastState.getBoard().getOfferTiles().stream()
+        // evidenzia la tile del giocatore corrente in fase di pescaggio
+        boolean isMyActiveTile = myPlayerId != null
+                && myPlayerId.equals(occupied)
+                && phase == GamePhase.RESOLVING_OFFERS
+                && lastState != null
+                && myPlayerId.equals(lastState.getCurrentPlayerId());
+
+        if (isMyActiveTile) {
+            String myColor = colors.getOrDefault(myPlayerId, "#f5f0e8");
+            // crea un rettangolo overlay con bordo colorato
+            javafx.scene.shape.Rectangle border = new javafx.scene.shape.Rectangle(tileW, tileH);
+            border.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            border.setStroke(javafx.scene.paint.Color.web(myColor));
+            border.setStrokeWidth(3);
+            border.setArcWidth(6);
+            border.setArcHeight(6);
+            border.setMouseTransparent(true); // non interferisce con i click
+            box.getChildren().add(border);
+        }
+
+        boolean alreadyPlaced = currentBoard.getOfferTiles().stream()
                 .anyMatch(t -> myPlayerId != null && myPlayerId.equals(t.getOccupiedByPlayerId()));
 
         boolean canPlace = myPlayerId != null
@@ -474,7 +500,6 @@ public class GameScreenController {
             box.setOnMouseEntered(e -> box.setOpacity(0.75));
             box.setOnMouseExited(e -> box.setOpacity(1.0));
         }
-
         return box;
     }
 
@@ -501,6 +526,102 @@ public class GameScreenController {
             }
         });
     }
+
+    // EVENTS
+    public void showEventsResolvedDialog(List<EventResolvedPayload> events, List<PlayerState> players) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.NONE);
+        dialog.setTitle("Eventi del round");
+
+        VBox root = new VBox(16);
+        root.setAlignment(Pos.TOP_LEFT);
+        root.setPadding(new Insets(24));
+        root.setStyle("-fx-background-color: #2a1205;");
+
+        Map<String, String> nicknames = new HashMap<>();
+        for (PlayerState p : players) nicknames.put(p.getPlayerId(), p.getNickname());
+
+        Map<String, int[]> totalDeltas = new HashMap<>();
+        for (PlayerState p : players) totalDeltas.put(p.getPlayerId(), new int[]{0, 0});
+
+        for (EventResolvedPayload event : events) {
+            Label eventLabel = new Label("◆ " + event.eventCardId());
+            eventLabel.setStyle("-fx-text-fill: #f5d78e; -fx-font-size: 14px; -fx-font-weight: bold;");
+            root.getChildren().add(eventLabel);
+
+            for (PlayerState p : players) {
+                PlayerDelta delta = event.playerDeltas().stream()
+                        .filter(d -> d.playerId().equals(p.getPlayerId()))
+                        .findFirst().orElse(null);
+
+                String nick = nicknames.getOrDefault(p.getPlayerId(), p.getPlayerId());
+                String foodStr = delta == null || delta.foodDelta() == 0 ? ""
+                        : (delta.foodDelta() > 0 ? "+" : "") + delta.foodDelta() + "🍖";
+                String ppStr = delta == null || delta.prestigeDelta() == 0 ? ""
+                        : (delta.prestigeDelta() > 0 ? "+" : "") + delta.prestigeDelta() + "⭐";
+                String changes = foodStr.isEmpty() && ppStr.isEmpty()
+                        ? "nessuna variazione"
+                        : foodStr + (ppStr.isEmpty() ? "" : " " + ppStr);
+
+                Label deltaLabel = new Label("  " + nick + ": " + changes);
+                deltaLabel.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 12px;");
+                root.getChildren().add(deltaLabel);
+
+                if (delta != null) {
+                    int[] acc = totalDeltas.get(p.getPlayerId());
+                    if (acc != null) { acc[0] += delta.foodDelta(); acc[1] += delta.prestigeDelta(); }
+                }
+            }
+
+            Region sep = new Region();
+            sep.setPrefHeight(1);
+            sep.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
+            root.getChildren().add(sep);
+        }
+
+        if (events.size() > 1) {
+            Label summaryLabel = new Label("Riepilogo round:");
+            summaryLabel.setStyle("-fx-text-fill: #f5d78e; -fx-font-size: 14px; -fx-font-weight: bold;");
+            root.getChildren().add(summaryLabel);
+
+            for (PlayerState p : players) {
+                int[] acc = totalDeltas.get(p.getPlayerId());
+                String nick = nicknames.getOrDefault(p.getPlayerId(), p.getPlayerId());
+                String foodStr = acc[0] == 0 ? "" : (acc[0] > 0 ? "+" : "") + acc[0] + "🍖";
+                String ppStr = acc[1] == 0 ? "" : (acc[1] > 0 ? "+" : "") + acc[1] + "⭐";
+                String changes = foodStr.isEmpty() && ppStr.isEmpty()
+                        ? "nessuna variazione"
+                        : foodStr + (ppStr.isEmpty() ? "" : " " + ppStr);
+                Label l = new Label("  " + nick + ": " + changes);
+                l.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 12px;");
+                root.getChildren().add(l);
+            }
+        }
+
+        javafx.scene.control.Button proceedButton = new javafx.scene.control.Button("Continua");
+        proceedButton.setStyle(
+                "-fx-background-color: #5a2e10; -fx-text-fill: #f5f0e8;" +
+                        "-fx-font-size: 12px; -fx-padding: 6 16 6 16;" +
+                        "-fx-background-radius: 6; -fx-cursor: hand;"
+        );
+        root.getChildren().add(proceedButton);
+
+        javafx.scene.control.ScrollPane scroll = new javafx.scene.control.ScrollPane(root);
+        scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background: #2a1205; -fx-background-color: #2a1205;");
+
+        dialog.setScene(new javafx.scene.Scene(scroll, 420, 500));
+
+        if (primaryStage != null) {
+            dialog.setX(primaryStage.getX() + primaryStage.getWidth() - 440);
+            dialog.setY(primaryStage.getY() + 40);
+        }
+
+        dialog.show();
+
+        proceedButton.setOnAction(e -> dialog.close());
+    }
+
 
     // PLAYER BOARDS
 

@@ -5,10 +5,10 @@ import de.codeshelf.consoleui.prompt.InputResult;
 import de.codeshelf.consoleui.prompt.ListResult;
 import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import it.polimi.ingsw.am23.model.enums.ActionType;
+import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
-import it.polimi.ingsw.am23.model.state.BoardState;
-import it.polimi.ingsw.am23.model.state.CardState;
-import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.model.payloads.*;
+import it.polimi.ingsw.am23.model.state.*;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
 import it.polimi.ingsw.am23.network.VirtualServer;
@@ -52,6 +52,7 @@ public final class CLIView implements VirtualView {
     private volatile boolean owner;
     private volatile String connectError;
     private volatile List<LobbyState> lobbies = List.of();
+
     private volatile GameState currentGameState;
     private volatile CardState currentPeekedCard;
 
@@ -218,58 +219,211 @@ public final class CLIView implements VirtualView {
     }
 
     @Override
-    public synchronized void onGameStarted(GameState gameState) {
-        this.currentGameState = gameState;
+    public synchronized void onGameStarted(GameStartedPayload payload) {
+        // snapshot completo iniziale
+        this.currentGameState = payload.fullSnapshot();
         gameStartedLatch.countDown();
         renderCurrentScreen(SUCCESS_MARKER + " Game started.");
     }
 
     @Override
-    public synchronized void onGameStateChanged(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(INFO_MARKER + " Game state updated.");
+    public synchronized void onTotemPlaced(TotemPlacedPayload payload) {
+        if (currentGameState == null) return;
+        BoardState board = currentGameState.getBoard();
+        List<OfferTileState> updatedTiles = board.getOfferTiles().stream()
+                .map(tile -> tile.getTileId() == payload.offerTileChar()
+                        ? new OfferTileState(tile.getPositionIndex(), tile.getTileId(), payload.playerId(),
+                        tile.getMinPlayers(), tile.getTopDrawCount(), tile.getBottomDrawCount(), tile.getFoodReward())
+                        : tile)
+                .toList();
+        List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
+                .map(s -> Objects.equals(s.getOccupiedByPlayerId(), payload.playerId())
+                        ? new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null)
+                        : s)
+                .toList();
+        currentGameState = rebuildWithBoard(currentGameState,
+                rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
+                        board.getTopBuildings(), board.getBottomBuildings(),
+                        updatedTiles, updatedSlots));
+        renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha piazzato il totem su [" + payload.offerTileChar() + "].");
+    }
+
+        @Override
+    public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
+        // Tutti i totem sono stati piazzati. Aggiorna l'ordine di turno.
+        if (currentGameState == null) return;
+        BoardState board = currentGameState.getBoard();
+        List<TurnOrderSlotState> updatedSlots = buildTurnOrderSlots(payload.playerOrderOnOfferTrack());
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
+                GamePhase.RESOLVING_OFFERS,
+                payload.firstPlayerId(),
+                currentGameState.getPlayers(),
+                rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
+                        board.getTopBuildings(), board.getBottomBuildings(),
+                        board.getOfferTiles(), updatedSlots),
+                payload.skipAllowed()
+        );
+        renderCurrentScreen(INFO_MARKER + " Fine fase di piazzamento totem.");
     }
 
     @Override
-    public synchronized void onEndOfPlacingPhase(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(INFO_MARKER + " End of totem placing phase.");
+    public synchronized void onCardsTaken(CardsTakenPayload payload) {
+        if (currentGameState == null) return;
+        BoardState board = currentGameState.getBoard();
+
+        List<CardState> newTopRow = removeCardsById(board.getTopRow(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newBottomRow = removeCardsById(board.getBottomRow(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newTopBuildings = removeCardsById(board.getTopBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newBottomBuildings = removeCardsById(board.getBottomBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
+
+        boolean turnFinished = !(payload.newPhase() == GamePhase.RESOLVING_OFFERS
+                && payload.playerId().equals(payload.nextPlayerId()));
+
+        List<OfferTileState> clearedTiles = board.getOfferTiles().stream()
+                .map(t -> turnFinished && Objects.equals(t.getOccupiedByPlayerId(), payload.playerId())
+                        ? new OfferTileState(t.getPositionIndex(), t.getTileId(), null,
+                        t.getMinPlayers(), t.getTopDrawCount(), t.getBottomDrawCount(), t.getFoodReward())
+                        : t)
+                .toList();
+
+        List<TurnOrderSlotState> updatedSlots = turnFinished
+                ? updateTurnOrderSlot(board.getTurnOrderSlots(), payload.turnOrderSlotIndex(), payload.playerId())
+                : board.getTurnOrderSlots();
+
+        BoardState newBoard = rebuildBoard(board, newTopRow, newBottomRow,
+                newTopBuildings, newBottomBuildings, clearedTiles, updatedSlots);
+
+        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
+                .map(p -> p.getPlayerId().equals(payload.playerId())
+                        ? applyCardDeltaToPlayer(p, payload)
+                        : p)
+                .toList();
+
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
+                payload.newPhase(),
+                payload.nextPlayerId(),
+                updatedPlayers,
+                newBoard,
+                payload.skipAllowed()
+        );
+        renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha preso le carte.");
+
     }
 
     @Override
-    public synchronized void onEndOfDrawingPhase(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(INFO_MARKER + " End of drawing phase.");
+    public synchronized void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
+        if (currentGameState == null) return;
+        renderCurrentScreen(WARNING_MARKER + " Extra draw richiesto per: " + safeText(payload.pendingPlayerId()));
     }
 
     @Override
-    public synchronized void onExtraDrawRequest(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(WARNING_MARKER + " Requested extra draw for player " + safeText(gameState.getCurrentPlayerId()));
+    public synchronized void onExtraCardTaken(ExtraCardTakenPayload payload) {
+        if (currentGameState == null) return;
+        BoardState board = currentGameState.getBoard();
+        List<String> cardId = List.of(payload.cardId());
+        List<CardState> newTopRow = removeCardsById(board.getTopRow(), cardId, List.of());
+        List<CardState> newBottomRow = removeCardsById(board.getBottomRow(), cardId, List.of());
+        List<CardState> newTopBuildings = removeCardsById(board.getTopBuildings(), List.of(), cardId);
+        List<CardState> newBottomBuildings = removeCardsById(board.getBottomBuildings(), List.of(), cardId);
+        BoardState newBoard = rebuildBoard(board, newTopRow, newBottomRow,
+                newTopBuildings, newBottomBuildings, board.getOfferTiles(), board.getTurnOrderSlots());
+        currentGameState = rebuildWithBoard(currentGameState, newBoard);
+        renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha preso la carta extra.");
     }
 
     @Override
-    public synchronized void onEndOfResolvingPhase(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(INFO_MARKER + " End of resolving phase.");
+    public synchronized void onEventResolved(EventResolvedPayload payload) {
+        // Aggiorna food e PP di ogni giocatore secondo i delta.
+        if (currentGameState == null) return;
+        List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.getPlayers(), payload.playerDeltas());
+        currentGameState = rebuildWithPlayers(currentGameState, updatedPlayers);
+        renderCurrentScreen(INFO_MARKER + " Evento risolto: " + payload.eventCardId());
     }
 
     @Override
-    public synchronized void onEraProgression(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(TITLE_MARKER + " New era: " + gameState.getCurrentEra());
+    public synchronized void onMarketRefreshed(MarketRefresherPayload payload) {
+        if (currentGameState == null) return;
+        BoardState board = currentGameState.getBoard();
+
+        // scarta dalla fila inferiore
+        List<CardState> newBottomRow = board.getBottomRow().stream()
+                .filter(c -> !payload.discardedCardIds().contains(c.getCardId()))
+                .toList();
+
+        // sposta dalla fila superiore alla inferiore
+        List<CardState> movedCards = board.getTopRow().stream()
+                .filter(c -> payload.movedBottomCardIds().contains(c.getCardId()))
+                .toList();
+        List<CardState> mergedBottom = new ArrayList<>(newBottomRow);
+        mergedBottom.addAll(movedCards);
+
+        // nuova fila superiore = rimaste + nuove carte complete dal payload
+        List<CardState> remainingTop = board.getTopRow().stream()
+                .filter(c -> !payload.movedBottomCardIds().contains(c.getCardId()))
+                .toList();
+        List<CardState> newUpperRow = new ArrayList<>(remainingTop);
+        newUpperRow.addAll(payload.newUpperRowCards()); // aggiunge le nuove carte
+
+        BoardState newBoard = rebuildBoard(board, newUpperRow, mergedBottom,
+                board.getTopBuildings(), board.getBottomBuildings(),
+                board.getOfferTiles(), board.getTurnOrderSlots());
+
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(),
+                currentGameState.getCurrentRound() >= 10 ? 10 : currentGameState.getCurrentRound() + 1,
+                currentGameState.getCurrentRound() >= 10 ? GamePhase.RESOLVING_EVENTS : GamePhase.PLACING_TOTEMS,
+                null,
+                currentGameState.getPlayers(),
+                newBoard,
+                false
+        );
+        renderCurrentScreen(INFO_MARKER + " Mercato aggiornato.");
     }
 
     @Override
-    public synchronized void onGameOver(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(TITLE_MARKER + " Game ended.");
+    public synchronized void onEraProgression(EraProgressionPayload payload) {
+        if (currentGameState == null) return;
+        BoardState board = currentGameState.getBoard();
+
+        // i vecchi topBuildings scendono in bottom (eccetto quelli scartati)
+        List<CardState> newBottomBuildings = board.getTopBuildings().stream()
+                .filter(c -> !payload.discardedBuildingIds().contains(c.getCardId()))
+                .toList();
+
+        // i nuovi edifici dell'era sostituiscono completamente la top
+        List<CardState> newTopBuildings = new ArrayList<>(payload.newBuildingCards());
+
+        BoardState newBoard = rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
+                newTopBuildings, newBottomBuildings,
+                board.getOfferTiles(), board.getTurnOrderSlots());
+        currentGameState = new GameState(
+                payload.newEra(),
+                currentGameState.getCurrentRound(),
+                currentGameState.getPhase(),
+                currentGameState.getCurrentPlayerId(),
+                currentGameState.getPlayers(),
+                newBoard,
+                currentGameState.getSkipAllowed()
+        );
+        renderCurrentScreen(TITLE_MARKER + " Nuova era: " + payload.newEra());
     }
 
     @Override
-    public synchronized void onScoreboardAvailable(GameState gameState) {
-        this.currentGameState = gameState;
-        renderCurrentScreen(SUCCESS_MARKER + " Scoreboard available.");
+    public synchronized void onGameOver() {
+        renderCurrentScreen(TITLE_MARKER + " Partita terminata.");
+    }
+
+    @Override
+    public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
+        // mostra il punteggio finale
+        System.out.println();
+        System.out.println(TITLE_MARKER + " CLASSIFICA FINALE " + TITLE_MARKER);
+        payload.scores().stream()
+                .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints).reversed())
+                .forEach(s -> System.out.println("  " + s.playerId() + ": " + s.totalPrestigePoints() + " PP"));
+        System.out.println();
     }
 
     @Override
@@ -277,6 +431,82 @@ public final class CLIView implements VirtualView {
         renderCurrentScreen(ERROR_MARKER + " Error " + actionType + ": " + message);
     }
 
+    @Override
+    public synchronized void onServerCrashed() {
+        NetworkSetter.stopHeartbeat();
+        renderCurrentScreen(ERROR_MARKER + " Connessione persa.");
+        System.exit(0);
+    }
+
+    // applicazione delta
+    private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
+        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
+        newCharacters.addAll(payload.takenCards());
+
+        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+        newBuildings.addAll(payload.takenBuildings());
+
+        return new PlayerState(p.getPlayerId(), p.getNickname(),
+                payload.absoluteFood(),  // usa il valore assoluto dal model
+                p.getPrestigePoints(),
+                p.getTotemColor(), newCharacters, newBuildings);}
+
+    private List<PlayerState> applyPlayerDeltas(List<PlayerState> players, List<PlayerDelta> deltas) {
+        Map<String, PlayerDelta> deltaMap = new HashMap<>();
+        for (PlayerDelta d : deltas) deltaMap.put(d.playerId(), d);
+        return players.stream().map(p -> {
+            PlayerDelta d = deltaMap.get(p.getPlayerId());
+            if (d == null) return p;
+            return new PlayerState(p.getPlayerId(), p.getNickname(),
+                    d.absoluteFood(),
+                    d.absolutePrestige(),
+                    p.getTotemColor(), p.getCharacters(), p.getBuildings());
+        }).toList();
+    }
+
+    private List<CardState> removeCardsById(List<CardState> cards, List<String> cardIds, List<String> buildingIds) {
+        Set<String> toRemove = new HashSet<>(cardIds);
+        toRemove.addAll(buildingIds);
+        return cards.stream().filter(c -> !toRemove.contains(c.getCardId())).toList();
+    }
+
+    private List<TurnOrderSlotState> buildTurnOrderSlots(List<String> playerOrder) {
+        List<TurnOrderSlotState> slots = new ArrayList<>();
+        for (int i = 0; i < playerOrder.size(); i++) {
+            slots.add(new TurnOrderSlotState(i, 0, playerOrder.get(i)));
+        }
+        return slots;
+    }
+
+    private List<TurnOrderSlotState> updateTurnOrderSlot(List<TurnOrderSlotState> slots, int slotIndex, String playerId) {
+        return slots.stream().map(s -> s.getPositionIndex() == slotIndex
+                ? new TurnOrderSlotState(slotIndex, s.getFoodDelta(), playerId)
+                : s).toList();
+    }
+
+    private BoardState rebuildBoard(BoardState original,
+                                    List<CardState> topRow, List<CardState> bottomRow,
+                                    List<CardState> topBuildings, List<CardState> bottomBuildings,
+                                    List<OfferTileState> offerTiles, List<TurnOrderSlotState> turnOrderSlots) {
+        return new BoardState(topRow, bottomRow, topBuildings, bottomBuildings, offerTiles, turnOrderSlots);
+    }
+
+    private GameState rebuildWithBoard(GameState gs, BoardState newBoard) {
+        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
+                gs.getCurrentPlayerId(), gs.getPlayers(), newBoard, gs.getSkipAllowed());
+    }
+
+    private GameState rebuildWithPlayers(GameState gs, List<PlayerState> newPlayers) {
+        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
+                gs.getCurrentPlayerId(), newPlayers, gs.getBoard(), gs.getSkipAllowed());
+    }
+
+    private GameState rebuildWithBoardAndPlayers(GameState gs, BoardState newBoard, List<PlayerState> newPlayers) {
+        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
+                gs.getCurrentPlayerId(), newPlayers, newBoard, gs.getSkipAllowed());
+    }
+
+    // handling
     private boolean handleCommand(String line) throws Exception {
         String[] tokens = line.split("\\s+");
         String command = tokens[0].toLowerCase();
@@ -415,13 +645,6 @@ public final class CLIView implements VirtualView {
                 yield false;
             }
         };
-    }
-
-    @Override
-    public synchronized void onServerCrashed(){
-        NetworkSetter.stopHeartbeat();
-        renderCurrentScreen(ERROR_MARKER + "Connessione persa.");
-        System.exit(0);
     }
 
     private void ensureConnected() {

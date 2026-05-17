@@ -1,8 +1,7 @@
 package it.polimi.ingsw.am23.view.gui.controllers;
 
-import it.polimi.ingsw.am23.model.state.GameState;
-import it.polimi.ingsw.am23.model.state.PlayerState;
-import it.polimi.ingsw.am23.model.state.ScoreEntry;
+import it.polimi.ingsw.am23.model.payloads.PlayerScore;
+import it.polimi.ingsw.am23.model.payloads.ScoreBoardPayload;
 import it.polimi.ingsw.am23.view.gui.JavaFXView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,49 +24,39 @@ public class ScoreboardController {
         this.view = view;
     }
 
-    public void showScoreboard(GameState gameState){
+    public void showScoreboard(ScoreBoardPayload payload){
+        if (payload == null || payload.scores() == null) return;
 
-        List<ScoreEntry> scores = gameState.getScores();
-        if(scores == null)
-            return;
-
-        Map<String, String> nicknames = gameState.getPlayers().stream()
-                .collect(Collectors.toMap(PlayerState::getPlayerId, PlayerState::getNickname));
-
-        // ordina per PP decrescenti e usa food come tiebreaker
-        List<ScoreEntry> sorted = scores.stream()
-                .sorted(Comparator.comparingInt(ScoreEntry::prestigePoints)
-                    .thenComparingInt(ScoreEntry::foodPoints)
-                    .reversed())
+        List<PlayerScore> sorted = payload.scores().stream()
+                .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints)
+                        .thenComparingInt(PlayerScore::foodPoints)
+                        .reversed())
                 .collect(Collectors.toList());
 
-        // calcolo posizioni
         List<Integer> positions = new ArrayList<>();
-        for(int i=0; i<sorted.size(); i++){
-            if(i==0){
+        for (int i = 0; i < sorted.size(); i++) {
+            if (i == 0) {
                 positions.add(1);
-            }else{
-                ScoreEntry prev = sorted.get(i-1);
-                ScoreEntry curr = sorted.get(i);
-                if(curr.prestigePoints() == prev.prestigePoints()
-                        && curr.foodPoints() == prev.foodPoints()){
-                    positions.add(positions.get(i-1)); // stessa posizione del precedente
-                }else{
-                    positions.add(i+1); // per saltare le posizioni
+            } else {
+                PlayerScore prev = sorted.get(i - 1);
+                PlayerScore curr = sorted.get(i);
+                if (curr.totalPrestigePoints() == prev.totalPrestigePoints()
+                        && curr.foodPoints() == prev.foodPoints()) {
+                    positions.add(positions.get(i - 1));
+                } else {
+                    positions.add(i + 1);
                 }
             }
         }
 
-        // costruzione righe
         rankingContainer.getChildren().clear();
         rankingContainer.setSpacing(10);
 
-        for(int i=0; i<sorted.size(); i++){
-            ScoreEntry entry = sorted.get(i);
+        for (int i = 0; i < sorted.size(); i++) {
+            PlayerScore entry = sorted.get(i);
             int pos = positions.get(i);
-            String nickname = nicknames.getOrDefault(entry.playerId(), entry.playerId());
-
-            HBox row = buildRow(pos, nickname, entry.prestigePoints(), entry.foodPoints());
+            String nickname = entry.nickname() != null ? entry.nickname() : entry.playerId();
+            HBox row = buildRow(pos, nickname, entry.totalPrestigePoints(), entry.foodPoints());
             rankingContainer.getChildren().add(row);
         }
     }
