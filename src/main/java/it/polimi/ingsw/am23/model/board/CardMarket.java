@@ -109,13 +109,17 @@ public class CardMarket {
 
 
     // CLEANUP PHASE
-    public void clearBottomRow() {
+    public List<String> clearBottomRow() {
+        List<String> discardedIds = bottomRow.stream().map(Card::getId).toList();
         bottomRow.clear();
+        return discardedIds;
     }
 
-    public void moveTopRowToBottom() {
+    public List<String> moveTopRowToBottom() {
+        List<String> movedIds = topRow.stream().map(Card::getId).toList();
         bottomRow = new ArrayList<>(topRow);
         topRow.clear();
+        return movedIds;
     }
 
     public RefillResult refillTopRow(TribeDeck tribeDeck, int numberOfPlayers, Era currentEra) {
@@ -132,6 +136,7 @@ public class CardMarket {
         while (topRow.size() < targetSize && !tribeDeck.isEmpty()) {
             Card draw = tribeDeck.draw();
             topRow.add(draw);
+            result.registerAddedCard(draw);
 
             if (draw.getEra().ordinal() > currentEra.ordinal()) {
                 result.registerEraAdvance(draw.getEra()); //segnala che c'è da fare il cambio era al Game
@@ -142,9 +147,12 @@ public class CardMarket {
 
 
     // ERA PROGRESSION
-    public void handleEraProgression(BuildingDeck nextEraDeck, Era newEra) {
+    public EraProgressionResult handleEraProgression(BuildingDeck nextEraDeck, Era newEra) {
+        List<BuildingCard> discarded = new ArrayList<>();
+
         // Solo all'inizio di Era 3 si scartano i bottomBuildings
         if (newEra == Era.ERA_3) {
+            discarded.addAll(bottomBuildings);
             bottomBuildings.clear();
         }
         // Sposto edifici da sopra a sotto
@@ -154,6 +162,7 @@ public class CardMarket {
         while (!nextEraDeck.isEmpty(newEra)) {
             topBuildings.add(nextEraDeck.draw(newEra));
         }
+        return new EraProgressionResult(List.copyOf(topBuildings), List.copyOf(discarded));
     }
 
     public List<Card> getTopRow() {

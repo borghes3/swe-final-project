@@ -23,6 +23,15 @@ public class TurnOrderTile {
         return slots.get(index);
     }
 
+    public int getSlotIndex(TurnOrderSlot target) {
+        for (int i = 0; i < slots.size(); i++) {
+            if (slots.get(i) == target) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Slot not found in this TurnOrderTile");
+    }
+
     public TurnOrderSlot getFirstFreeSlot() {
         for (TurnOrderSlot slot : slots) {
             if (slot.isFree()) {
