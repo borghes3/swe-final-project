@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am23.network.rmi.server;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualView;
@@ -34,32 +35,41 @@ public interface VirtualViewRmi extends VirtualView, Remote {
     void onLobbyClosed() throws RemoteException;
 
     @Override
-    void onGameStarted(GameState gameState) throws RemoteException;
+    void onGameStarted(GameStartedPayload payload) throws RemoteException;
 
     @Override
-    void onGameStateChanged(GameState gameState) throws RemoteException;
+    void onTotemPlaced(TotemPlacedPayload payload) throws RemoteException;
 
     @Override
-    void onEndOfPlacingPhase(GameState gameState) throws RemoteException;
+    void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws RemoteException;
 
     @Override
-    void onEndOfDrawingPhase(GameState gameState) throws RemoteException;
+    void onCardsTaken(CardsTakenPayload payload) throws RemoteException;
 
     @Override
-    void onExtraDrawRequest(GameState gameState) throws RemoteException;
+    void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws RemoteException;
 
     @Override
-    void onEndOfResolvingPhase(GameState gameState) throws RemoteException;
+    void onExtraCardTaken(ExtraCardTakenPayload payload) throws RemoteException;
 
     @Override
-    void onEraProgression(GameState gameState) throws RemoteException;
+    void onEventResolved(EventResolvedPayload payload) throws RemoteException;
 
     @Override
-    void onGameOver(GameState gameState) throws RemoteException;
+    void onMarketRefreshed(MarketRefresherPayload payload) throws RemoteException;
 
     @Override
-    void onScoreboardAvailable(GameState gameState) throws RemoteException;
+    void onEraProgression(EraProgressionPayload payload) throws RemoteException;
+
+    @Override
+    void onGameOver() throws RemoteException;
+
+    @Override
+    void onScoreboardAvailable(ScoreBoardPayload payload) throws RemoteException;
 
     @Override
     void onActionError(ActionType actionType, String message) throws RemoteException;
+
+    @Override
+    void onServerCrashed() throws RemoteException;
 }

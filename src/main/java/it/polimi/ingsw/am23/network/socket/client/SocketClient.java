@@ -14,7 +14,6 @@ import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 
 public final class SocketClient implements VirtualServer {
 
@@ -98,31 +97,40 @@ public final class SocketClient implements VirtualServer {
             view.onLobbyClosed();
 
         } else if (message instanceof OnGameStartedMessage m) {
-            view.onGameStarted(m.getGameState());
+            view.onGameStarted(m.getPayload());
 
-        } else if (message instanceof OnGameStateChangedMessage m) {
-            view.onGameStateChanged(m.getGameState());
+        } else if (message instanceof OnGameStartedMessage m) {
+            view.onGameStarted(m.getPayload());
+
+        } else if (message instanceof OnTotemPlacedMessage m) {
+            view.onTotemPlaced(m.getPayload());
 
         } else if (message instanceof OnEndOfPlacingPhaseMessage m) {
-            view.onEndOfPlacingPhase(m.getGameState());
+            view.onEndOfPlacingPhase(m.getPayload());
 
-        } else if (message instanceof OnEndOfDrawingPhaseMessage m) {
-            view.onEndOfDrawingPhase(m.getGameState());
+        } else if (message instanceof OnCardsTakenMessage m) {
+            view.onCardsTaken(m.getPayload());
 
         } else if (message instanceof OnExtraDrawRequestMessage m) {
-            view.onExtraDrawRequest(m.getGameState());
+            view.onExtraDrawRequest(m.getPayload());
 
-        } else if (message instanceof OnEndOfResolvingPhaseMessage m) {
-            view.onEndOfResolvingPhase(m.getGameState());
+        } else if (message instanceof OnExtraCardTakenMessage m) {
+            view.onExtraCardTaken(m.getPayload());
+
+        } else if (message instanceof OnEventResolvedMessage m) {
+            view.onEventResolved(m.getPayload());
+
+        } else if (message instanceof OnMarketRefreshedMessage m) {
+            view.onMarketRefreshed(m.getPayload());
 
         } else if (message instanceof OnEraProgressionMessage m) {
-            view.onEraProgression(m.getGameState());
+            view.onEraProgression(m.getPayload());
 
-        } else if (message instanceof OnGameOverMessage m) {
-            view.onGameOver(m.getGameState());
+        } else if (message instanceof OnGameOverMessage) {
+            view.onGameOver();
 
         } else if (message instanceof OnScoreboardAvailableMessage m) {
-            view.onScoreboardAvailable(m.getGameState());
+            view.onScoreboardAvailable(m.getPayload());
 
         } else if (message instanceof OnActionErrorMessage m) {
             view.onActionError(m.getActionType(), m.getMessage());

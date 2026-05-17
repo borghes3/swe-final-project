@@ -1,15 +1,15 @@
 package it.polimi.ingsw.am23.network.socket.messages.response;
 
-import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.model.payloads.GameStartedPayload;
 import it.polimi.ingsw.am23.network.socket.messages.Message;
 
 public final class OnGameStartedMessage extends Message {
 
-    private final GameState gameState;
+    private final GameStartedPayload payload;
 
-    public OnGameStartedMessage(GameState gameState) {
-        this.gameState = gameState;
+    public OnGameStartedMessage(GameStartedPayload payload) {
+        this.payload = payload;
     }
 
-    public GameState getGameState() { return gameState; }
+    public GameStartedPayload getPayload() { return payload; }
 }

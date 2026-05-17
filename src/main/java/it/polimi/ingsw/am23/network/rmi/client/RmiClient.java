@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am23.network.rmi.client;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
-import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualView;
 import it.polimi.ingsw.am23.network.rmi.server.VirtualViewRmi;
@@ -120,101 +120,66 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
     }
 
     @Override
-    public void onGameStarted(GameState gameState) throws RemoteException {
-        try {
-            view.onGameStarted(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onGameStarted(GameStartedPayload payload) throws RemoteException {
+        try { view.onGameStarted(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onGameStateChanged(GameState gameState) throws RemoteException {
-        try {
-            view.onGameStateChanged(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onTotemPlaced(TotemPlacedPayload payload) throws RemoteException {
+        try { view.onTotemPlaced(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onEndOfPlacingPhase(GameState gameState) throws RemoteException {
-        try {
-            view.onEndOfPlacingPhase(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws RemoteException {
+        try { view.onEndOfPlacingPhase(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
+    }
+    @Override
+    public void onCardsTaken(CardsTakenPayload payload) throws RemoteException {
+        try { view.onCardsTaken(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onEndOfDrawingPhase(GameState gameState) throws RemoteException {
-        try {
-            view.onEndOfDrawingPhase(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws RemoteException {
+        try { view.onExtraDrawRequest(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onExtraDrawRequest(GameState gameState) throws RemoteException {
-        try {
-            view.onExtraDrawRequest(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onExtraCardTaken(ExtraCardTakenPayload payload) throws RemoteException {
+        try { view.onExtraCardTaken(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onEndOfResolvingPhase(GameState gameState) throws RemoteException {
-        try {
-            view.onEndOfResolvingPhase(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onEventResolved(EventResolvedPayload payload) throws RemoteException {
+        try { view.onEventResolved(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onEraProgression(GameState gameState) throws RemoteException {
-        try {
-            view.onEraProgression(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onMarketRefreshed(MarketRefresherPayload payload) throws RemoteException {
+        try { view.onMarketRefreshed(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onGameOver(GameState gameState) throws RemoteException {
-        try {
-            view.onGameOver(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onEraProgression(EraProgressionPayload payload) throws RemoteException {
+        try { view.onEraProgression(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onScoreboardAvailable(GameState gameState) throws RemoteException {
-        try {
-            view.onScoreboardAvailable(gameState);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onGameOver() throws RemoteException {
+        try { view.onGameOver(); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
+    }
+
+    @Override public void onScoreboardAvailable(ScoreBoardPayload payload) throws RemoteException {
+        try { view.onScoreboardAvailable(payload); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
     public void onActionError(ActionType actionType, String message) throws RemoteException {
-        try {
-            view.onActionError(actionType, message);
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+        try { view.onActionError(actionType, message); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
 
     @Override
-    public void onServerCrashed() throws RemoteException{
-        try{
-            view.onServerCrashed();
-        } catch (Exception exception) {
-            throw new RemoteException(exception.getMessage(), exception);
-        }
+    public void onServerCrashed() throws RemoteException {
+        try { view.onServerCrashed(); } catch (Exception e) { throw new RemoteException(e.getMessage(), e); }
     }
+
 }

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am23.network.socket.server;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
-import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
@@ -184,48 +184,58 @@ public final class Connector implements VirtualView, Runnable {
     }
 
     @Override
-    public void onGameStarted(GameState gameState) throws IOException {
-        send(new OnGameStartedMessage(gameState));
+    public void onGameStarted(GameStartedPayload payload) throws IOException {
+        send(new OnGameStartedMessage(payload));
     }
 
     @Override
-    public void onGameStateChanged(GameState gameState) throws IOException {
-        send(new OnGameStateChangedMessage(gameState));
+    public void onTotemPlaced(TotemPlacedPayload payload) throws IOException {
+        send(new OnTotemPlacedMessage(payload));
     }
 
     @Override
-    public void onEndOfPlacingPhase(GameState gameState) throws IOException {
-        send(new OnEndOfPlacingPhaseMessage(gameState));
+    public void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws IOException {
+        send(new OnEndOfPlacingPhaseMessage(payload));
     }
 
     @Override
-    public void onEndOfDrawingPhase(GameState gameState) throws IOException {
-        send(new OnEndOfDrawingPhaseMessage(gameState));
+    public void onCardsTaken(CardsTakenPayload payload) throws IOException {
+        send(new OnCardsTakenMessage(payload));
     }
 
     @Override
-    public void onExtraDrawRequest(GameState gameState) throws IOException {
-        send(new OnExtraDrawRequestMessage(gameState));
+    public void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws IOException {
+        send(new OnExtraDrawRequestMessage(payload));
     }
 
     @Override
-    public void onEndOfResolvingPhase(GameState gameState) throws IOException {
-        send(new OnEndOfResolvingPhaseMessage(gameState));
+    public void onExtraCardTaken(ExtraCardTakenPayload payload) throws IOException {
+        send(new OnExtraCardTakenMessage(payload));
     }
 
     @Override
-    public void onEraProgression(GameState gameState) throws IOException {
-        send(new OnEraProgressionMessage(gameState));
+    public void onEventResolved(EventResolvedPayload payload) throws IOException {
+        send(new OnEventResolvedMessage(payload));
     }
 
     @Override
-    public void onGameOver(GameState gameState) throws IOException {
-        send(new OnGameOverMessage(gameState));
+    public void onMarketRefreshed(MarketRefresherPayload payload) throws IOException {
+        send(new OnMarketRefreshedMessage(payload));
     }
 
     @Override
-    public void onScoreboardAvailable(GameState gameState) throws IOException {
-        send(new OnScoreboardAvailableMessage(gameState));
+    public void onEraProgression(EraProgressionPayload payload) throws IOException {
+        send(new OnEraProgressionMessage(payload));
+    }
+
+    @Override
+    public void onGameOver() throws IOException {
+        send(new OnGameOverMessage());
+    }
+
+    @Override
+    public void onScoreboardAvailable(ScoreBoardPayload payload) throws IOException {
+        send(new OnScoreboardAvailableMessage(payload));
     }
 
     @Override

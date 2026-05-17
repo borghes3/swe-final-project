@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am23.network;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
-import it.polimi.ingsw.am23.model.state.GameState;
+import it.polimi.ingsw.am23.model.payloads.*;
+import it.polimi.ingsw.am23.model.payloads.ScoreBoardPayload;
 
 import java.util.List;
 
@@ -32,26 +33,29 @@ public interface VirtualView {
 
 
     // setup
-    void onGameStarted(GameState gameState) throws Exception;
+    void onGameStarted(GameStartedPayload payload) throws Exception;
 
 
     // game
-    void onGameStateChanged(GameState gameState) throws Exception;
+    void onTotemPlaced(TotemPlacedPayload payload) throws Exception;
 
-    void onEndOfPlacingPhase(GameState gameState) throws Exception;
+    void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws Exception;
 
-    void onEndOfDrawingPhase(GameState gameState) throws Exception;
+    void onCardsTaken(CardsTakenPayload payload) throws Exception;
 
-    void onExtraDrawRequest(GameState gameState) throws Exception;
+    void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws Exception;
 
-    void onEndOfResolvingPhase(GameState gameState) throws Exception;
+    void onExtraCardTaken(ExtraCardTakenPayload payload) throws Exception;
 
-    void onEraProgression(GameState gameState) throws Exception;
+    void onEventResolved(EventResolvedPayload payload) throws Exception;
 
-    void onGameOver(GameState gameState) throws Exception;
+    void onMarketRefreshed(MarketRefresherPayload payload) throws Exception;
 
-    void onScoreboardAvailable(GameState gameState) throws Exception;
+    void onEraProgression(EraProgressionPayload payload) throws Exception;
 
+    void onGameOver() throws Exception;
+
+    void onScoreboardAvailable(ScoreBoardPayload payload) throws Exception;
 
     // errors (eg. action not allowed)
     void onActionError(ActionType actionType, String message) throws Exception;

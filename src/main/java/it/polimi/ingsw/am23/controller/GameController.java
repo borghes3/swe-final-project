@@ -7,9 +7,9 @@ import it.polimi.ingsw.am23.model.ModelObserver;
 import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
 import it.polimi.ingsw.am23.model.setup.Setup;
-import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.LobbyPhase;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualServer;
@@ -187,7 +187,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         ActionResult result = withActiveLobby(lobbyId, () -> game.takeSingleCard(playerId, selectedSingleCard));
         handleActionResult(playerId, result);
         if (result.isSuccess()) {
-            broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
             advanceGameFlow(lobbyId);
         }
     }
@@ -199,7 +198,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         ActionResult result = withActiveLobby(lobbyId, () -> game.skipTurn(playerId));
         handleActionResult(playerId, result);
         if (result.isSuccess()) {
-            broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
             advanceGameFlow(lobbyId);
         }
     }
@@ -263,54 +261,63 @@ public final class GameController implements VirtualServer, ModelObserver {
         ActionResult result = withActiveLobby(lobbyId, () -> game.takeExtraCard(playerId, selectedCardExtraDraw));
         handleActionResult(playerId, result);
         if (result.isSuccess()) {
-            broadcastEndOfDrawingPhase(lobbyId, game.getGameState());
             advanceGameFlow(lobbyId);
         }
     }
 
     @Override
-    public synchronized void onGameStarted(GameState gameState) {
-        broadcastGameStarted(activeLobbyId, gameState);
+    public synchronized void onGameStarted(GameStartedPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onGameStarted(payload));
     }
 
     @Override
-    public synchronized void onGameStateChanged(GameState gameState) {
-        broadcastGameState(activeLobbyId);
+    public synchronized void onTotemPlaced(TotemPlacedPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onTotemPlaced(payload));
     }
 
     @Override
-    public synchronized void onEndOfPlacingPhase(GameState gameState) {
-        broadcastEndOfPlacingPhase(activeLobbyId, gameState);
+    public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onEndOfPlacingPhase(payload));
     }
 
     @Override
-    public synchronized void onEndOfDrawingPhase(GameState gameState) {
-        broadcastEndOfDrawingPhase(activeLobbyId, gameState);
+    public synchronized void onCardsTaken(CardsTakenPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onCardsTaken(payload));
     }
 
     @Override
-    public synchronized void onExtraDrawRequest(GameState gameState) {
-        broadcastExtraDrawRequest(activeLobbyId, gameState);
+    public synchronized void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onExtraDrawRequest(payload));
     }
 
     @Override
-    public synchronized void onEventResolved(GameState gameState) {
-        broadcastGameState(activeLobbyId);
+    public synchronized void onExtraCardTaken(ExtraCardTakenPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onExtraCardTaken(payload));
     }
 
     @Override
-    public synchronized void onEraProgression(GameState gameState) {
-        broadcastEraProgression(activeLobbyId, gameState);
+    public synchronized void onEventResolved(EventResolvedPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onEventResolved(payload));
     }
 
     @Override
-    public synchronized void onGameOver(GameState gameState) {
-        broadcastGameOver(activeLobbyId, gameState);
+    public synchronized void onMarketRefreshed(MarketRefresherPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onMarketRefreshed(payload));
     }
 
     @Override
-    public synchronized void onScoreboardAvailable(GameState gameState) {
-        broadcastScoreboardAvailable(activeLobbyId, gameState);
+    public synchronized void onEraProgression(EraProgressionPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onEraProgression(payload));
+    }
+
+    @Override
+    public synchronized void onGameOver() {
+        broadcastToLobby(activeLobbyId, view -> view.onGameOver());
+    }
+
+    @Override
+    public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
+        broadcastToLobby(activeLobbyId, view -> view.onScoreboardAvailable(payload));
     }
 
     @Override
@@ -348,8 +355,6 @@ public final class GameController implements VirtualServer, ModelObserver {
                 withActiveLobby(lobbyId, game::resolveEvents);
                 if (game.getGamePhase() == GamePhase.ENDED) {
                     withActiveLobby(lobbyId, game::calculateScores);
-                } else {
-                    broadcastEndOfResolvingPhase(lobbyId, game.getGameState());
                 }
                 continue;
             }
@@ -374,65 +379,6 @@ public final class GameController implements VirtualServer, ModelObserver {
             throw new IllegalStateException("Game not started for lobby: " + lobbyId);
         }
         return game;
-    }
-
-    private void broadcastGameStarted(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onGameStarted(gameState));
-    }
-
-    private void broadcastGameState(String lobbyId) {
-        Game game = gamesByLobbyId.get(lobbyId);
-        if (game != null) {
-            broadcastToLobby(lobbyId, view -> view.onGameStateChanged(game.getGameState()));
-        }
-    }
-
-    private void broadcastEndOfPlacingPhase(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onEndOfPlacingPhase(gameState));
-    }
-
-    private void broadcastEndOfDrawingPhase(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onEndOfDrawingPhase(gameState));
-    }
-
-    private void broadcastExtraDrawRequest(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onExtraDrawRequest(gameState));
-    }
-
-    private void broadcastEndOfResolvingPhase(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onEndOfResolvingPhase(gameState));
-    }
-
-    private void broadcastEraProgression(String lobbyId, it.polimi.ingsw.am23.model.state.GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onEraProgression(gameState));
-    }
-
-    private void broadcastGameOver(String lobbyId, GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onGameOver(gameState));
-    }
-
-    private void broadcastScoreboardAvailable(String lobbyId, GameState gameState) {
-        broadcastToLobby(lobbyId, view -> view.onScoreboardAvailable(gameState));
-    }
-
-    private void broadcastToLobby(String lobbyId, RemoteViewAction action) {
-        if (lobbyId == null) {
-            return;
-        }
-        LobbyRoom lobby = lobbiesById.get(lobbyId);
-        if (lobby == null) {
-            return;
-        }
-        for (String memberId : lobby.memberIds()) {
-            VirtualView view = clientsByPlayerId.get(memberId);
-            if (view != null) {
-                try {
-                    action.apply(view);
-                } catch (Exception ignored) {
-                    // Ignore transient remote failures during broadcast.
-                }
-            }
-        }
     }
 
     private PlayerConnectionInfo requireConnectedPlayer(String playerId) {
@@ -469,6 +415,20 @@ public final class GameController implements VirtualServer, ModelObserver {
         return lobbiesById.values().stream()
                 .map(lobby -> copyLobby(lobby.state))
                 .toList();
+    }
+
+    private void broadcastToLobby(String lobbyId, RemoteViewAction action) {
+        if (lobbyId == null) return;
+        LobbyRoom lobby = lobbiesById.get(lobbyId);
+        if (lobby == null) return;
+        for (String memberId : lobby.memberIds()) {
+            VirtualView view = clientsByPlayerId.get(memberId);
+            if (view != null) {
+                try {
+                    action.apply(view);
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     private void broadcastLobbyUpdate(LobbyRoom lobby) throws Exception {
@@ -508,7 +468,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         }
         throw new IllegalStateException("Unable to generate a unique lobby code.");
     }
-
 
     private record LobbyRoom(LobbyState state) {
         private List<String> memberIds() {
