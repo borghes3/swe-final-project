@@ -21,6 +21,18 @@ public final class Connector implements VirtualView, Runnable {
     private final VirtualServer serverController;
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
+    /*
+     * The connector learns the playerId only after the controller calls
+     * onConnected(...). We store it so that an unexpected socket closure can be
+     * propagated to the application controller.
+     */
+    private volatile String connectedPlayerId;
+
+    /*
+     * Avoids calling serverController.disconnect(...) twice:
+     * once for an explicit DisconnectMessage and once in the run() finally block.
+     */
+    private volatile boolean disconnectAlreadyHandled;
 
     public Connector(Socket clientSocket, VirtualServer serverController) throws IOException {
         this.clientSocket = clientSocket;
@@ -37,14 +49,21 @@ public final class Connector implements VirtualView, Runnable {
                 Message message = (Message) in.readObject();
                 dispatch(message);
             }
-        } catch (IOException e) { // communication error
-            System.err.println("<Connector>: connessione chiusa –> " + e.getMessage());
-        } catch (ClassNotFoundException e) {  //
-            System.err.println("<Connector>: classe sconosciuta –> " + e.getMessage());
-        } catch (Exception e) { // communication error
-            System.err.println("<Connector>: errore –> " + e.getMessage()); // errore non gestito da dispatch
+
+        } catch (IOException e) {
+            if (!disconnectAlreadyHandled) {
+                System.err.println("<Connector>: connection closed -> " + e.getMessage());
+            }
+
+        } catch (ClassNotFoundException e) {
+            System.err.println("<Connector>: unknown message class -> " + e.getMessage());
+
+        } catch (Exception e) {
+            System.err.println("<Connector>: unexpected error -> " + e.getMessage());
             e.printStackTrace();
+
         } finally {
+            handleUnexpectedDisconnect();
             close();
         }
     }
@@ -114,9 +133,18 @@ public final class Connector implements VirtualView, Runnable {
                 }
 
             } else if (message instanceof DisconnectMessage m) {
+                String playerId = m.getPlayerId() != null ? m.getPlayerId() : connectedPlayerId;
+                markDisconnected(playerId);
+
                 try {
-                    serverController.disconnect(m.getPlayerId());
-                } catch (Exception ignored){}
+                    if (playerId != null) {
+                        serverController.disconnect(playerId);
+                    }
+                } catch (Exception e) {
+                    System.err.println("<Connector>: error during explicit disconnect -> " + e.getMessage());
+                } finally {
+                    close();
+                }
             } else if (message instanceof SkipTurnMessage m) {
                 try {
                     serverController.skipTurn(m.getPlayerId());
@@ -132,8 +160,44 @@ public final class Connector implements VirtualView, Runnable {
 
     private void close() {
         try {
+            in.close();
+        } catch (IOException ignored) {
+        }
+
+        try {
+            out.close();
+        } catch (IOException ignored) {
+        }
+
+        try {
             clientSocket.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
+    }
+
+    private void handleUnexpectedDisconnect() {
+        String playerId = connectedPlayerId;
+
+        if (playerId == null || disconnectAlreadyHandled) {
+            return;
+        }
+
+        markDisconnected(playerId);
+
+        try {
+            serverController.disconnect(playerId);
+        } catch (Exception e) {
+            System.err.println("<Connector>: error while handling unexpected disconnect for player "
+                    + playerId + " -> " + e.getMessage());
+        }
+    }
+
+    private void markDisconnected(String playerId) {
+        disconnectAlreadyHandled = true;
+
+        if (playerId != null) {
+            connectedPlayerId = playerId;
+        }
     }
 
     // from controller to client
@@ -150,6 +214,7 @@ public final class Connector implements VirtualView, Runnable {
 
     @Override
     public void onConnected(String playerId, List<LobbyState> lobbies) throws IOException {
+        this.connectedPlayerId = playerId;
         send(new OnConnectedMessage(playerId, lobbies));
     }
 

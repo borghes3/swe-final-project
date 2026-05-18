@@ -489,7 +489,11 @@ public class GameScreenController {
         boolean alreadyPlaced = currentBoard.getOfferTiles().stream()
                 .anyMatch(t -> myPlayerId != null && myPlayerId.equals(t.getOccupiedByPlayerId()));
 
-        boolean canPlace = myPlayerId != null
+        boolean isMyPlacingTurn = lastState != null
+                && myPlayerId != null
+                && myPlayerId.equals(lastState.getCurrentPlayerId());
+
+        boolean canPlace = isMyPlacingTurn
                 && phase == GamePhase.PLACING_TOTEMS
                 && tile.getOccupiedByPlayerId() == null
                 && !alreadyPlaced;

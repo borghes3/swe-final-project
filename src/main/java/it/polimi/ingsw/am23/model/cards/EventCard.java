@@ -39,4 +39,7 @@ public abstract class EventCard extends Card {
                 getPoints()
         );
     }
+    public int getResolutionPriority() {
+        return 0;
+    }
 }

@@ -35,6 +35,7 @@ public final class GameController implements VirtualServer, ModelObserver {
     private final Map<String, Game> gamesByLobbyId = new HashMap<>();
     private final Random random = new Random();
     private String activeLobbyId;
+    private final Set<String> scoredLobbyIds = new HashSet<>();
 
     public synchronized void connect(String playerName, VirtualView client) throws Exception {
         Objects.requireNonNull(playerName, "playerName cannot be null");
@@ -349,20 +350,30 @@ public final class GameController implements VirtualServer, ModelObserver {
             return;
         }
 
-        while (true) {
-            GamePhase phase = game.getGamePhase();
-            if (phase == GamePhase.RESOLVING_EVENTS) {
-                withActiveLobby(lobbyId, game::resolveEvents);
-                if (game.getGamePhase() == GamePhase.ENDED) {
-                    withActiveLobby(lobbyId, game::calculateScores);
-                }
-                continue;
+        GamePhase phase = game.getGamePhase();
+
+        if (phase == GamePhase.RESOLVING_EVENTS) {
+            withActiveLobby(lobbyId, game::resolveEvents);
+
+            if (game.getGamePhase() == GamePhase.ENDED) {
+                calculateScoresOnce(lobbyId, game);
             }
-            if (phase == GamePhase.ENDED) {
-                withActiveLobby(lobbyId, game::calculateScores);
-            }
-            break;
+
+            return;
         }
+
+        if (phase == GamePhase.ENDED) {
+            calculateScoresOnce(lobbyId, game);
+        }
+    }
+
+    private void calculateScoresOnce(String lobbyId, Game game) throws Exception {
+        if (scoredLobbyIds.contains(lobbyId)) {
+            return;
+        }
+
+        scoredLobbyIds.add(lobbyId);
+        withActiveLobby(lobbyId, game::calculateScores);
     }
 
     private String requireLobbyIdForPlayer(String playerId) {

@@ -77,6 +77,7 @@ public class Game implements GameModel {
     // Setup completato, comunico al controller setup terminato
     public void startGame() {
         phase = GamePhase.PLACING_TOTEMS;
+        currentPlayerId = getNextPlacingPlayerId();
         gameState = buildGameState();
         notifyGameStarted();
     }
@@ -94,34 +95,42 @@ public class Game implements GameModel {
     @Override
     public ActionResult placeTotem(String playerId, char offerTileChar) {
         Player p = findPlayer(playerId);
-        // Verifico che sia lui il prossimo a dover piazzare il totem
-        if (!Objects.equals(board.getTurnOrderTile().getFirstOccupiedSlot().getPlayerId(), p.getId())) {
-            return ActionResult.failure(ActionType.PLACE_TOTEM, ErrorCode.WRONG_PLAYER, "It's not your turn.");
+
+        TurnOrderSlot currentSlot = board.getTurnOrderTile().getFirstOccupiedSlot();
+        if (currentSlot == null || !Objects.equals(currentSlot.getPlayerId(), p.getId())) {
+            return ActionResult.failure(
+                    ActionType.PLACE_TOTEM,
+                    ErrorCode.WRONG_PLAYER,
+                    "It's not your turn."
+            );
         }
 
-        // Verifico che la tile sia vuota
         OfferTile tile = board.getOfferTile(offerTileChar);
         if (!tile.isFree()) {
-            return ActionResult.failure(ActionType.PLACE_TOTEM, ErrorCode.INVALID_TILE, "The selected offer tile is not empty.");
+            return ActionResult.failure(
+                    ActionType.PLACE_TOTEM,
+                    ErrorCode.INVALID_TILE,
+                    "The selected offer tile is not empty."
+            );
         }
 
-        // Salvo ID del player che sta piazzando (per costruzione GameState)
-        currentPlayerId = playerId;
-        // Rimuovo il totem dalla tessera ordine di turno
         board.findTurnOrderSlotOccupiedBy(playerId).clear();
-        // E lo piazzo nella offer tile selezionata
         tile.placeTotem(p.getId());
 
-        notifyTotemPlaced(playerId, offerTileChar);
+        currentPlayerId = getNextPlacingPlayerId();
 
-        // Se tutti hanno piazzato, la tessera ordine di turno é vuota, notifico il controller
+        notifyTotemPlaced(playerId, offerTileChar, currentPlayerId);
+
         if (board.getTurnOrderTile().isEmpty()) {
-            this.phase = GamePhase.RESOLVING_OFFERS;
-            currentPlayerId = null; // Reset del ID salvato
-            gameState =  buildGameState();
+            phase = GamePhase.RESOLVING_OFFERS;
+            currentPlayerId = null;
+            gameState = buildGameState();
             notifyEndOfPlacingPhase();
             processAutoResolvingOffer();
+        } else {
+            gameState = buildGameState();
         }
+
         return ActionResult.success(ActionType.PLACE_TOTEM, "Totem placed successfully");
     }
 
@@ -362,20 +371,27 @@ public class Game implements GameModel {
         if (currentRound == 10) {
             events = new ArrayList<>(events);
             events.addAll(cardMarket.getTopRowEvents());
-            for (EventCard event : events) {
+
+            for (EventCard event : eventResolver.orderEvents(events)) {
                 resolveAndNotifySingleEvent(event);
             }
-            cleanUp();
+
             phase = GamePhase.ENDED;
+            currentPlayerId = null;
+            cleanUp();
             gameState = buildGameState();
             notifyGameOver();
+
         } else {
-            for (EventCard event : events) {
+            for (EventCard event : eventResolver.orderEvents(events)) {
                 resolveAndNotifySingleEvent(event);
             }
-            cleanUp();
+
             currentRound++;
             phase = GamePhase.PLACING_TOTEMS;
+            currentPlayerId = getNextPlacingPlayerId();
+
+            cleanUp();
             gameState = buildGameState();
         }
 
@@ -456,52 +472,86 @@ public class Game implements GameModel {
     public ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) {
         Player p = findPlayer(playerId);
 
-        // Se non ci sono player salvati per l'extra draw dò errore
         if (pendingExtraDrawPlayerId == null) {
-            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NO_PENDING_EXTRA_DRAW, "There are no pending extra draws.");
+            return ActionResult.failure(
+                    ActionType.TAKE_CARD,
+                    ErrorCode.NO_PENDING_EXTRA_DRAW,
+                    "There are no pending extra draws."
+            );
         }
 
-        // Verifico sia il player corretto per fare l'extra draw
         if (!Objects.equals(p.getId(), pendingExtraDrawPlayerId)) {
-            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_EXTRA_DRAW, "It's not your turn.");
+            return ActionResult.failure(
+                    ActionType.TAKE_CARD,
+                    ErrorCode.INVALID_EXTRA_DRAW,
+                    "It's not your turn."
+            );
         }
 
-        // Aggiungo le carte alla tribù del Player
         int foodDiscount = p.getTribe().getBuildingDiscount();
-        // Distinzione tribe card - building card
+
         String takenCardId;
+        CardState takenCardState;
+        boolean takenBuilding;
 
         if (selectedCardExtraDraw.isTribeCard()) {
             int boardIndex = selectedCardExtraDraw.getCardIndex();
             Card c = cardMarket.getCard(RowType.TOP, boardIndex);
-            // Verifico sia prendibile
+
             if (!c.canBeTaken()) {
-                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_EXTRA_DRAW, "This card cannot be drawn from the card market.");
+                return ActionResult.failure(
+                        ActionType.TAKE_CARD,
+                        ErrorCode.INVALID_EXTRA_DRAW,
+                        "This card cannot be drawn from the card market."
+                );
             }
+
             cardMarket.removeCard(RowType.TOP, boardIndex);
             c.onTaken(this, p);
+
             for (BuildingCard building : p.getTribe().getBuildings()) {
                 building.getEffect().onCardTaken(this, p, c);
             }
+
             takenCardId = c.getId();
+            takenCardState = c.toState();
+            takenBuilding = false;
+
         } else {
             int boardIndex = selectedCardExtraDraw.getBuildingIndex();
             BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);
-            if (c.getFoodCost() - foodDiscount > p.getFood())
-                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, "The food cost exceeds the player's reserve.");
+
+            int effectiveCost = c.getFoodCost() - foodDiscount;
+            if (effectiveCost > p.getFood()) {
+                return ActionResult.failure(
+                        ActionType.TAKE_CARD,
+                        ErrorCode.NOT_ENOUGH_FOOD,
+                        "The food cost exceeds the player's reserve."
+                );
+            }
+
             cardMarket.removeBuilding(RowType.TOP, boardIndex);
             c.onTaken(this, p);
             c.getEffect().onBuildingAdded(this, p);
             c.getEffect().onAfterAllActions(this, p);
-            p.applyFoodDelta(-c.getFoodCost() + foodDiscount);
-            takenCardId = c.getId();
+            p.applyFoodDelta(-effectiveCost);
 
+            takenCardId = c.getId();
+            takenCardState = c.toState();
+            takenBuilding = true;
         }
 
         pendingExtraDrawPlayerId = null;
         phase = GamePhase.RESOLVING_EVENTS;
         gameState = buildGameState();
-        notifyExtraCardTaken(playerId, takenCardId);
+
+        notifyExtraCardTaken(
+                playerId,
+                takenCardId,
+                takenCardState,
+                takenBuilding,
+                p.getFood()
+        );
 
         return ActionResult.success(ActionType.TAKE_CARD, "Extra card taken successfully");
     }
@@ -558,6 +608,10 @@ public class Game implements GameModel {
         }
         return currentPlayerId;
     }
+    private String getNextPlacingPlayerId() {
+        TurnOrderSlot nextSlot = board.getTurnOrderTile().getFirstOccupiedSlot();
+        return nextSlot != null ? nextSlot.getPlayerId() : null;
+    }
 
 
     // ------------------------------------------
@@ -580,8 +634,13 @@ public class Game implements GameModel {
         observers.forEach(o -> o.onGameStarted(payload));
     }
 
-    private void notifyTotemPlaced(String playerId, char offerTileChar) {
-        TotemPlacedPayload payload = new TotemPlacedPayload(playerId, offerTileChar);
+    private void notifyTotemPlaced(String playerId, char offerTileChar, String nextPlayerId) {
+        TotemPlacedPayload payload = new TotemPlacedPayload(
+                playerId,
+                offerTileChar,
+                nextPlayerId
+        );
+
         observers.forEach(o -> o.onTotemPlaced(payload));
     }
 
@@ -675,8 +734,21 @@ public class Game implements GameModel {
         observers.forEach(o -> o.onExtraDrawRequest(payload));
     }
 
-    private void notifyExtraCardTaken(String playerId, String cardId) {
-        ExtraCardTakenPayload payload = new ExtraCardTakenPayload(playerId, cardId);
+    private void notifyExtraCardTaken(String playerId,
+                                      String cardId,
+                                      CardState takenCard,
+                                      boolean building,
+                                      int absoluteFood) {
+        ExtraCardTakenPayload payload = new ExtraCardTakenPayload(
+                playerId,
+                cardId,
+                takenCard,
+                building,
+                absoluteFood,
+                phase,
+                skipAllowed
+        );
+
         observers.forEach(o -> o.onExtraCardTaken(payload));
     }
 
@@ -685,10 +757,23 @@ public class Game implements GameModel {
         observers.forEach(o -> o.onEventResolved(payload));
     }
 
-    private void notifyMarketRefreshed(List<String> discardedIds, List<String> movedIds,
-                                       List<String> newUpperRowIds, List<CardState> newUpperRowCards) {
+    private void notifyMarketRefreshed(List<String> discardedIds,
+                                       List<String> movedIds,
+                                       List<String> newUpperRowIds,
+                                       List<CardState> newUpperRowCards) {
         MarketRefresherPayload payload = new MarketRefresherPayload(
-                discardedIds, movedIds, newUpperRowIds, newUpperRowCards);
+                discardedIds,
+                movedIds,
+                newUpperRowIds,
+                newUpperRowCards,
+                board.buildOfferTileState(),
+                board.buildTurnOrderSlotsState(),
+                currentRound,
+                phase,
+                computeCurrentPlayerId(),
+                calculateSkipAllowed()
+        );
+
         observers.forEach(o -> o.onMarketRefreshed(payload));
     }
 

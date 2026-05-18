@@ -99,10 +99,11 @@ public final class SocketClient implements VirtualServer {
         } else if (message instanceof OnGameStartedMessage m) {
             view.onGameStarted(m.getPayload());
 
-        } else if (message instanceof OnGameStartedMessage m) {
-            view.onGameStarted(m.getPayload());
+        //} else if (message instanceof OnGameStartedMessage m) {
+         //   view.onGameStarted(m.getPayload());
 
-        } else if (message instanceof OnTotemPlacedMessage m) {
+        }
+        else if (message instanceof OnTotemPlacedMessage m) {
             view.onTotemPlaced(m.getPayload());
 
         } else if (message instanceof OnEndOfPlacingPhaseMessage m) {

@@ -357,25 +357,59 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onTotemPlaced(TotemPlacedPayload payload) throws Exception {
-        if (currentGameState == null) return;
+        if (currentGameState == null) {
+            return;
+        }
+
         BoardState board = currentGameState.getBoard();
+
         List<OfferTileState> updatedTiles = board.getOfferTiles().stream()
-                .map(t -> t.getTileId() == payload.offerTileChar() ? new OfferTileState(t.getPositionIndex(), t.getTileId(), payload.playerId(),
-                        t.getMinPlayers(), t.getTopDrawCount(), t.getBottomDrawCount(), t.getFoodReward()) : t)
+                .map(t -> t.getTileId() == payload.offerTileChar()
+                        ? new OfferTileState(
+                        t.getPositionIndex(),
+                        t.getTileId(),
+                        payload.playerId(),
+                        t.getMinPlayers(),
+                        t.getTopDrawCount(),
+                        t.getBottomDrawCount(),
+                        t.getFoodReward()
+                )
+                        : t)
                 .toList();
+
         List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
                 .map(s -> Objects.equals(s.getOccupiedByPlayerId(), payload.playerId())
                         ? new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null)
                         : s)
                 .toList();
 
-        currentGameState = rebuildWithBoard(currentGameState,
-                rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
-                        board.getTopBuildings(), board.getBottomBuildings(),
-                        updatedTiles, updatedSlots));
-        
+        BoardState newBoard = rebuildBoard(
+                board,
+                board.getTopRow(),
+                board.getBottomRow(),
+                board.getTopBuildings(),
+                board.getBottomBuildings(),
+                updatedTiles,
+                updatedSlots
+        );
+
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(),
+                currentGameState.getCurrentRound(),
+                currentGameState.getPhase(),
+                payload.nextPlayerId(),
+                currentGameState.getPlayers(),
+                newBoard,
+                currentGameState.getSkipAllowed()
+        );
+
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+
+        Platform.runLater(() -> {
+            if (gameScreenController != null) {
+                gameScreenController.updateGameState(snap);
+            }
+        });
     }
 
     @Override
@@ -459,17 +493,45 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onExtraCardTaken(ExtraCardTakenPayload payload) throws Exception {
-        if (currentGameState == null) return;
+        if (currentGameState == null) {
+            return;
+        }
+
         BoardState board = currentGameState.getBoard();
         List<String> id = List.of(payload.cardId());
-        currentGameState = rebuildWithBoard(currentGameState, rebuildBoard(board,
+
+        BoardState newBoard = rebuildBoard(
+                board,
                 removeCardsById(board.getTopRow(), id, List.of()),
                 removeCardsById(board.getBottomRow(), id, List.of()),
                 removeCardsById(board.getTopBuildings(), List.of(), id),
                 removeCardsById(board.getBottomBuildings(), List.of(), id),
-                board.getOfferTiles(), board.getTurnOrderSlots()));
+                board.getOfferTiles(),
+                board.getTurnOrderSlots()
+        );
+
+        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
+                .map(p -> p.getPlayerId().equals(payload.playerId())
+                        ? applyExtraCardDeltaToPlayer(p, payload)
+                        : p)
+                .toList();
+
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(),
+                currentGameState.getCurrentRound(),
+                payload.newPhase(),
+                null,
+                updatedPlayers,
+                newBoard,
+                payload.skipAllowed()
+        );
+
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+        Platform.runLater(() -> {
+            if (gameScreenController != null) {
+                gameScreenController.updateGameState(snap);
+            }
+        });
     }
 
     @Override
@@ -502,14 +564,20 @@ public class JavaFXView extends Application implements VirtualView {
         // aggiorna anche fase e round
         currentGameState = new GameState(
                 currentGameState.getCurrentEra(),
-                currentGameState.getCurrentRound() >= 10 ? 10 : currentGameState.getCurrentRound() + 1,
-                currentGameState.getCurrentRound() >= 10 ? GamePhase.RESOLVING_EVENTS : GamePhase.PLACING_TOTEMS,
-                null,
+                payload.newRound(),
+                payload.newPhase(),
+                payload.nextPlayerId(),
                 currentGameState.getPlayers(),
-                rebuildBoard(board, newTop, newBottom,
-                        board.getTopBuildings(), board.getBottomBuildings(),
-                        board.getOfferTiles(), board.getTurnOrderSlots()),
-                false
+                rebuildBoard(
+                        board,
+                        newTop,
+                        newBottom,
+                        board.getTopBuildings(),
+                        board.getBottomBuildings(),
+                        payload.offerTiles(),
+                        payload.turnOrderSlots()
+                ),
+                payload.skipAllowed()
         );
         final GameState snap = currentGameState;
         final List<EventResolvedPayload> events = List.copyOf(pendingEventPayloads);
@@ -626,15 +694,66 @@ public class JavaFXView extends Application implements VirtualView {
     // -----------
     private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
         List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
-        newCharacters.addAll(payload.takenCards());
+        Set<String> existingCharacterIds = newCharacters.stream()
+                .map(CardState::getCardId)
+                .collect(Collectors.toSet());
+
+        for (CardState card : payload.takenCards()) {
+            if (existingCharacterIds.add(card.getCardId())) {
+                newCharacters.add(card);
+            }
+        }
 
         List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
-        newBuildings.addAll(payload.takenBuildings());
+        Set<String> existingBuildingIds = newBuildings.stream()
+                .map(CardState::getCardId)
+                .collect(Collectors.toSet());
 
-        return new PlayerState(p.getPlayerId(), p.getNickname(),
-                payload.absoluteFood(),  // usa il valore assoluto dal model
+        for (CardState building : payload.takenBuildings()) {
+            if (existingBuildingIds.add(building.getCardId())) {
+                newBuildings.add(building);
+            }
+        }
+
+        return new PlayerState(
+                p.getPlayerId(),
+                p.getNickname(),
+                payload.absoluteFood(),
                 p.getPrestigePoints(),
-                p.getTotemColor(), newCharacters, newBuildings);
+                p.getTotemColor(),
+                newCharacters,
+                newBuildings
+        );
+    }
+    private PlayerState applyExtraCardDeltaToPlayer(PlayerState p, ExtraCardTakenPayload payload) {
+        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
+        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+
+        if (payload.building()) {
+            boolean alreadyPresent = newBuildings.stream()
+                    .anyMatch(card -> card.getCardId().equals(payload.takenCard().getCardId()));
+
+            if (!alreadyPresent) {
+                newBuildings.add(payload.takenCard());
+            }
+        } else {
+            boolean alreadyPresent = newCharacters.stream()
+                    .anyMatch(card -> card.getCardId().equals(payload.takenCard().getCardId()));
+
+            if (!alreadyPresent) {
+                newCharacters.add(payload.takenCard());
+            }
+        }
+
+        return new PlayerState(
+                p.getPlayerId(),
+                p.getNickname(),
+                payload.absoluteFood(),
+                p.getPrestigePoints(),
+                p.getTotemColor(),
+                newCharacters,
+                newBuildings
+        );
     }
 
     private List<PlayerState> applyPlayerDeltas(List<PlayerState> players, List<PlayerDelta> deltas) {

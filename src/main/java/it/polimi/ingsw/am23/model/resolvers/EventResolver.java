@@ -2,40 +2,28 @@ package it.polimi.ingsw.am23.model.resolvers;
 
 import it.polimi.ingsw.am23.model.Game;
 import it.polimi.ingsw.am23.model.cards.EventCard;
-import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class EventResolver {
-    public void resolveEvents(List<EventCard> events, Game game) {
-        List<EventCard> orderedEvents = orderEvents(events);
 
-        for (EventCard event : orderedEvents) {
+    public void resolveEvents(List<EventCard> events, Game game) {
+        for (EventCard event : orderEvents(events)) {
             event.resolve(game);
         }
     }
 
-    public void resolveSingleEvent(EventCard event, Game game){
+    public void resolveSingleEvent(EventCard event, Game game) {
         event.resolve(game);
     }
 
-    private List<EventCard> orderEvents(List<EventCard> events) {
-        List<EventCard> normalEvents = new ArrayList<>();
-        List<EventCard> sustenanceEvents = new ArrayList<>(); //nel caso in cui ce ne possano essere più di uno
-
-        for (EventCard event : events) {
-            if (event instanceof SustenanceEventCard) {
-                sustenanceEvents.add(event);
-            } else {
-                normalEvents.add(event);
-            }
-        }
-        // Sort eventi normali by era per rispettare la regola sulla presenza di eventi identici
-        normalEvents.sort(Comparator.comparingInt(e -> e.getEra().ordinal()));
-
-        normalEvents.addAll(sustenanceEvents);
-        return normalEvents;
+    public List<EventCard> orderEvents(List<EventCard> events) {
+        return events.stream()
+                .sorted(
+                        Comparator.comparingInt(EventCard::getResolutionPriority)
+                                .thenComparingInt(e -> e.getEra().ordinal())
+                )
+                .toList();
     }
 }

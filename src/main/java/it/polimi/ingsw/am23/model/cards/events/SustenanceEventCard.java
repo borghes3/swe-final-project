@@ -15,6 +15,11 @@ public class SustenanceEventCard extends EventCard {
     }
 
     @Override
+    public int getResolutionPriority() {
+        return 1;
+    }
+
+    @Override
     public void resolve(Game game) {
         List<Player> players = game.getPlayers();
 

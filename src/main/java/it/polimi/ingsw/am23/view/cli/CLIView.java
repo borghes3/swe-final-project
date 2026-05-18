@@ -228,24 +228,58 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onTotemPlaced(TotemPlacedPayload payload) {
-        if (currentGameState == null) return;
+        if (currentGameState == null) {
+            return;
+        }
+
         BoardState board = currentGameState.getBoard();
+
         List<OfferTileState> updatedTiles = board.getOfferTiles().stream()
                 .map(tile -> tile.getTileId() == payload.offerTileChar()
-                        ? new OfferTileState(tile.getPositionIndex(), tile.getTileId(), payload.playerId(),
-                        tile.getMinPlayers(), tile.getTopDrawCount(), tile.getBottomDrawCount(), tile.getFoodReward())
+                        ? new OfferTileState(
+                        tile.getPositionIndex(),
+                        tile.getTileId(),
+                        payload.playerId(),
+                        tile.getMinPlayers(),
+                        tile.getTopDrawCount(),
+                        tile.getBottomDrawCount(),
+                        tile.getFoodReward()
+                )
                         : tile)
                 .toList();
+
         List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
                 .map(s -> Objects.equals(s.getOccupiedByPlayerId(), payload.playerId())
                         ? new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null)
                         : s)
                 .toList();
-        currentGameState = rebuildWithBoard(currentGameState,
-                rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
-                        board.getTopBuildings(), board.getBottomBuildings(),
-                        updatedTiles, updatedSlots));
-        renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha piazzato il totem su [" + payload.offerTileChar() + "].");
+
+        BoardState newBoard = rebuildBoard(
+                board,
+                board.getTopRow(),
+                board.getBottomRow(),
+                board.getTopBuildings(),
+                board.getBottomBuildings(),
+                updatedTiles,
+                updatedSlots
+        );
+
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(),
+                currentGameState.getCurrentRound(),
+                currentGameState.getPhase(),
+                payload.nextPlayerId(),
+                currentGameState.getPlayers(),
+                newBoard,
+                currentGameState.getSkipAllowed()
+        );
+
+        renderCurrentScreen(
+                INFO_MARKER + " " + payload.playerId()
+                        + " ha piazzato il totem su ["
+                        + payload.offerTileChar()
+                        + "]."
+        );
     }
 
         @Override
@@ -320,16 +354,44 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onExtraCardTaken(ExtraCardTakenPayload payload) {
-        if (currentGameState == null) return;
+        if (currentGameState == null) {
+            return;
+        }
+
         BoardState board = currentGameState.getBoard();
         List<String> cardId = List.of(payload.cardId());
+
         List<CardState> newTopRow = removeCardsById(board.getTopRow(), cardId, List.of());
         List<CardState> newBottomRow = removeCardsById(board.getBottomRow(), cardId, List.of());
         List<CardState> newTopBuildings = removeCardsById(board.getTopBuildings(), List.of(), cardId);
         List<CardState> newBottomBuildings = removeCardsById(board.getBottomBuildings(), List.of(), cardId);
-        BoardState newBoard = rebuildBoard(board, newTopRow, newBottomRow,
-                newTopBuildings, newBottomBuildings, board.getOfferTiles(), board.getTurnOrderSlots());
-        currentGameState = rebuildWithBoard(currentGameState, newBoard);
+
+        BoardState newBoard = rebuildBoard(
+                board,
+                newTopRow,
+                newBottomRow,
+                newTopBuildings,
+                newBottomBuildings,
+                board.getOfferTiles(),
+                board.getTurnOrderSlots()
+        );
+
+        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
+                .map(p -> p.getPlayerId().equals(payload.playerId())
+                        ? applyExtraCardDeltaToPlayer(p, payload)
+                        : p)
+                .toList();
+
+        currentGameState = new GameState(
+                currentGameState.getCurrentEra(),
+                currentGameState.getCurrentRound(),
+                payload.newPhase(),
+                null,
+                updatedPlayers,
+                newBoard,
+                payload.skipAllowed()
+        );
+
         renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha preso la carta extra.");
     }
 
@@ -368,16 +430,17 @@ public final class CLIView implements VirtualView {
 
         BoardState newBoard = rebuildBoard(board, newUpperRow, mergedBottom,
                 board.getTopBuildings(), board.getBottomBuildings(),
-                board.getOfferTiles(), board.getTurnOrderSlots());
+                payload.offerTiles(),
+                payload.turnOrderSlots());
 
         currentGameState = new GameState(
                 currentGameState.getCurrentEra(),
-                currentGameState.getCurrentRound() >= 10 ? 10 : currentGameState.getCurrentRound() + 1,
-                currentGameState.getCurrentRound() >= 10 ? GamePhase.RESOLVING_EVENTS : GamePhase.PLACING_TOTEMS,
-                null,
+                payload.newRound(),
+                payload.newPhase(),
+                payload.nextPlayerId(),
                 currentGameState.getPlayers(),
                 newBoard,
-                false
+                payload.skipAllowed()
         );
         renderCurrentScreen(INFO_MARKER + " Mercato aggiornato.");
     }
@@ -441,15 +504,67 @@ public final class CLIView implements VirtualView {
     // applicazione delta
     private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
         List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
-        newCharacters.addAll(payload.takenCards());
+        Set<String> existingCharacterIds = newCharacters.stream()
+                .map(CardState::getCardId)
+                .collect(java.util.stream.Collectors.toSet());
+
+        for (CardState card : payload.takenCards()) {
+            if (existingCharacterIds.add(card.getCardId())) {
+                newCharacters.add(card);
+            }
+        }
 
         List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
-        newBuildings.addAll(payload.takenBuildings());
+        Set<String> existingBuildingIds = newBuildings.stream()
+                .map(CardState::getCardId)
+                .collect(java.util.stream.Collectors.toSet());
 
-        return new PlayerState(p.getPlayerId(), p.getNickname(),
-                payload.absoluteFood(),  // usa il valore assoluto dal model
+        for (CardState building : payload.takenBuildings()) {
+            if (existingBuildingIds.add(building.getCardId())) {
+                newBuildings.add(building);
+            }
+        }
+
+        return new PlayerState(
+                p.getPlayerId(),
+                p.getNickname(),
+                payload.absoluteFood(),
                 p.getPrestigePoints(),
-                p.getTotemColor(), newCharacters, newBuildings);}
+                p.getTotemColor(),
+                newCharacters,
+                newBuildings
+        );
+    }
+    private PlayerState applyExtraCardDeltaToPlayer(PlayerState p, ExtraCardTakenPayload payload) {
+        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
+        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+
+        if (payload.building()) {
+            boolean alreadyPresent = newBuildings.stream()
+                    .anyMatch(card -> card.getCardId().equals(payload.takenCard().getCardId()));
+
+            if (!alreadyPresent) {
+                newBuildings.add(payload.takenCard());
+            }
+        } else {
+            boolean alreadyPresent = newCharacters.stream()
+                    .anyMatch(card -> card.getCardId().equals(payload.takenCard().getCardId()));
+
+            if (!alreadyPresent) {
+                newCharacters.add(payload.takenCard());
+            }
+        }
+
+        return new PlayerState(
+                p.getPlayerId(),
+                p.getNickname(),
+                payload.absoluteFood(),
+                p.getPrestigePoints(),
+                p.getTotemColor(),
+                newCharacters,
+                newBuildings
+        );
+    }
 
     private List<PlayerState> applyPlayerDeltas(List<PlayerState> players, List<PlayerDelta> deltas) {
         Map<String, PlayerDelta> deltaMap = new HashMap<>();
