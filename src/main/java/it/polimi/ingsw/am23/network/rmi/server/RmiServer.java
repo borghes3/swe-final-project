@@ -10,11 +10,14 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
 
     private final VirtualServer serverController;
     private static final int PORT = 1234;
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public RmiServer(VirtualServer serverController) throws RemoteException {
         super();
@@ -31,101 +34,105 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
 
     @Override
     public void connect(String playerName, VirtualView client) throws RemoteException {
-        try {
-            serverController.connect(playerName, client);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.connect(playerName, client);
+            } catch (Exception e) {
+                try {
+                    client.onConnectError(e.getMessage());
+                } catch (Exception ignored) {}
+            }
+        });
     }
 
     @Override
     public void createLobby(String playerId, String lobbyName, int maxPlayers) throws RemoteException {
-        try {
-            serverController.createLobby(playerId, lobbyName, maxPlayers);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.createLobby(playerId, lobbyName, maxPlayers);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void joinLobby(String playerId, String lobbyId) throws RemoteException {
-        try {
-            serverController.joinLobby(playerId, lobbyId);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.joinLobby(playerId, lobbyId);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void requestLobbyList(String playerId) throws RemoteException {
-        try {
-            serverController.requestLobbyList(playerId);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.requestLobbyList(playerId);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void leaveLobby(String playerId, String lobbyId) throws RemoteException {
-        try {
-            serverController.leaveLobby(playerId, lobbyId);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.leaveLobby(playerId, lobbyId);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void startGame(String playerId, String lobbyId) throws RemoteException {
-        try {
-            serverController.startGame(playerId, lobbyId);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.startGame(playerId, lobbyId);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void placeTotem(String playerId, char offerTileChar) throws RemoteException {
-        try {
-            serverController.placeTotem(playerId, offerTileChar);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.placeTotem(playerId, offerTileChar);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws RemoteException {
-        try {
-            serverController.takeSingleCard(playerId, selectedSingleCard);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.takeSingleCard(playerId, selectedSingleCard);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws RemoteException {
-        try {
-            serverController.takeExtraCard(playerId, selectedCardExtraDraw);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.takeExtraCard(playerId, selectedCardExtraDraw);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void skipTurn(String playerId) throws RemoteException {
-        try {
-            serverController.skipTurn(playerId);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.skipTurn(playerId);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
     public void disconnect(String playerId) throws RemoteException {
-        try {
-            serverController.disconnect(playerId);
-        } catch (Exception e) {
-            throw new RemoteException(e.getMessage());
-        }
+        executor.submit(() -> {
+            try {
+                serverController.disconnect(playerId);
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
