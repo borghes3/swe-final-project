@@ -16,10 +16,9 @@ import it.polimi.ingsw.am23.model.state.OfferTileState;
 import it.polimi.ingsw.am23.model.state.PlayerState;
 import it.polimi.ingsw.am23.model.state.TurnOrderSlotState;
 import it.polimi.ingsw.am23.view.gui.JavaFXView;
-import it.polimi.ingsw.am23.view.gui.components.CardNodeFactory;
-import it.polimi.ingsw.am23.view.gui.components.OfferTileNodeFactory;
-import it.polimi.ingsw.am23.view.gui.components.TurnOrderNodeFactory;
+import it.polimi.ingsw.am23.view.gui.components.*;
 import javafx.application.Platform;
+import javafx.stage.Window;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -206,6 +205,7 @@ public class GameScreenController {
             this.lastState = state;
 
             updateTopBar(state);
+            updateDeckBack(state);
             updateBoard(state.getBoard(), state.getPlayers(), state.getPhase());
             updatePlayers(state.getPlayers());
 
@@ -220,6 +220,43 @@ public class GameScreenController {
                 skipDialogShown = false;
             }
         });
+    }
+
+    //DECK BACK
+
+    private void updateDeckBack(GameState state) {
+        deckContainer.getChildren().clear();
+
+        int eraNumber = state.getCurrentEra().ordinal() + 1;
+
+        double deckW = cardW;
+        double deckH = cardH;
+
+        deckContainer.setMinSize(deckW, deckH);
+        deckContainer.setPrefSize(deckW, deckH);
+        deckContainer.setMaxSize(deckW, deckH);
+
+        deckContainer.setStyle(
+                "-fx-background-color: rgba(107,58,31,0.40);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: rgba(245,240,232,0.70);" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1;"
+        );
+
+        ImageView back = new ImageView(CardImageResolver.loadCharacterBackImage(eraNumber));
+        back.setFitWidth(deckW);
+        back.setFitHeight(deckH);
+        back.setPreserveRatio(false);
+        back.setSmooth(true);
+        back.setCache(true);
+
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(deckW, deckH);
+        clip.setArcWidth(10);
+        clip.setArcHeight(10);
+        back.setClip(clip);
+
+        deckContainer.getChildren().add(back);
     }
 
     // TOP BAR
@@ -534,7 +571,18 @@ public class GameScreenController {
     // EVENTS
     public void showEventsResolvedDialog(List<EventResolvedPayload> events, List<PlayerState> players) {
         Stage dialog = new Stage();
-        dialog.initModality(Modality.NONE);
+
+        Window owner = rootPane != null && rootPane.getScene() != null
+                ? rootPane.getScene().getWindow()
+                : null;
+
+        if (owner != null) {
+            dialog.initOwner(owner);
+            dialog.initModality(Modality.WINDOW_MODAL);
+        } else {
+            dialog.initModality(Modality.NONE);
+        }
+
         dialog.setTitle("Eventi del round");
 
         VBox root = new VBox(16);
@@ -543,44 +591,43 @@ public class GameScreenController {
         root.setStyle("-fx-background-color: #2a1205;");
 
         Map<String, String> nicknames = new HashMap<>();
-        for (PlayerState p : players) nicknames.put(p.getPlayerId(), p.getNickname());
+        for (PlayerState p : players) {
+            nicknames.put(p.getPlayerId(), p.getNickname());
+        }
 
         Map<String, int[]> totalDeltas = new HashMap<>();
-        for (PlayerState p : players) totalDeltas.put(p.getPlayerId(), new int[]{0, 0});
+        for (PlayerState p : players) {
+            totalDeltas.put(p.getPlayerId(), new int[]{0, 0});
+        }
 
         for (EventResolvedPayload event : events) {
-            Label eventLabel = new Label("◆ " + event.eventCardId());
+            Label eventLabel = new Label("◆ " + formatEventTitle(event));
             eventLabel.setStyle("-fx-text-fill: #f5d78e; -fx-font-size: 14px; -fx-font-weight: bold;");
             root.getChildren().add(eventLabel);
 
             for (PlayerState p : players) {
                 PlayerDelta delta = event.playerDeltas().stream()
                         .filter(d -> d.playerId().equals(p.getPlayerId()))
-                        .findFirst().orElse(null);
+                        .findFirst()
+                        .orElse(null);
 
                 String nick = nicknames.getOrDefault(p.getPlayerId(), p.getPlayerId());
-                String foodStr = delta == null || delta.foodDelta() == 0 ? ""
-                        : (delta.foodDelta() > 0 ? "+" : "") + delta.foodDelta() + "🍖";
-                String ppStr = delta == null || delta.prestigeDelta() == 0 ? ""
-                        : (delta.prestigeDelta() > 0 ? "+" : "") + delta.prestigeDelta() + "⭐";
-                String changes = foodStr.isEmpty() && ppStr.isEmpty()
-                        ? "nessuna variazione"
-                        : foodStr + (ppStr.isEmpty() ? "" : " " + ppStr);
 
-                Label deltaLabel = new Label("  " + nick + ": " + changes);
-                deltaLabel.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 12px;");
-                root.getChildren().add(deltaLabel);
+                root.getChildren().add(buildEventDeltaRow(nick, delta));
 
                 if (delta != null) {
                     int[] acc = totalDeltas.get(p.getPlayerId());
-                    if (acc != null) { acc[0] += delta.foodDelta(); acc[1] += delta.prestigeDelta(); }
+                    if (acc != null) {
+                        acc[0] += delta.foodDelta();
+                        acc[1] += delta.prestigeDelta();
+                    }
                 }
             }
 
-            Region sep = new Region();
-            sep.setPrefHeight(1);
-            sep.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
-            root.getChildren().add(sep);
+            Region separator = new Region();
+            separator.setPrefHeight(1);
+            separator.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
+            root.getChildren().add(separator);
         }
 
         if (events.size() > 1) {
@@ -591,39 +638,132 @@ public class GameScreenController {
             for (PlayerState p : players) {
                 int[] acc = totalDeltas.get(p.getPlayerId());
                 String nick = nicknames.getOrDefault(p.getPlayerId(), p.getPlayerId());
-                String foodStr = acc[0] == 0 ? "" : (acc[0] > 0 ? "+" : "") + acc[0] + "🍖";
-                String ppStr = acc[1] == 0 ? "" : (acc[1] > 0 ? "+" : "") + acc[1] + "⭐";
-                String changes = foodStr.isEmpty() && ppStr.isEmpty()
-                        ? "nessuna variazione"
-                        : foodStr + (ppStr.isEmpty() ? "" : " " + ppStr);
-                Label l = new Label("  " + nick + ": " + changes);
-                l.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 12px;");
-                root.getChildren().add(l);
+
+                root.getChildren().add(buildEventSummaryRow(nick, acc[0], acc[1]));
             }
         }
 
         javafx.scene.control.Button proceedButton = new javafx.scene.control.Button("Continua");
         proceedButton.setStyle(
-                "-fx-background-color: #5a2e10; -fx-text-fill: #f5f0e8;" +
-                        "-fx-font-size: 12px; -fx-padding: 6 16 6 16;" +
-                        "-fx-background-radius: 6; -fx-cursor: hand;"
+                "-fx-background-color: #5a2e10;" +
+                        "-fx-text-fill: #f5f0e8;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-padding: 6 16 6 16;" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-cursor: hand;"
         );
+        proceedButton.setOnAction(e -> dialog.close());
         root.getChildren().add(proceedButton);
 
-        javafx.scene.control.ScrollPane scroll = new javafx.scene.control.ScrollPane(root);
-        scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background: #2a1205; -fx-background-color: #2a1205;");
+        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: #2a1205; -fx-background-color: #2a1205;");
 
-        dialog.setScene(new javafx.scene.Scene(scroll, 420, 500));
+        dialog.setScene(new javafx.scene.Scene(scrollPane, 420, 500));
+        dialog.setOnShown(e -> centerDialogOnOwner(dialog, owner));
+        dialog.show();
+    }
 
-        if (primaryStage != null) {
-            dialog.setX(primaryStage.getX() + primaryStage.getWidth() - 440);
-            dialog.setY(primaryStage.getY() + 40);
+    //helper
+    private String formatEventTitle(EventResolvedPayload event) {
+        return eventTypeName(event.eventCardId())
+                + " - Era " + toRoman(event.era().ordinal() + 1)
+                + " [" + event.eventCardId() + "]";
+    }
+    private HBox buildEventDeltaRow(String nickname, PlayerDelta delta) {
+        int foodDelta = delta != null ? delta.foodDelta() : 0;
+        int prestigeDelta = delta != null ? delta.prestigeDelta() : 0;
+
+        return buildEventChangeRow(nickname, foodDelta, prestigeDelta);
+    }
+
+    private HBox buildEventSummaryRow(String nickname, int foodDelta, int prestigeDelta) {
+        return buildEventChangeRow(nickname, foodDelta, prestigeDelta);
+    }
+
+    private HBox buildEventChangeRow(String nickname, int foodDelta, int prestigeDelta) {
+        HBox row = new HBox(8);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setStyle("-fx-padding: 0 0 0 10;");
+
+        Label nameLabel = new Label(nickname + ":");
+        nameLabel.setMinWidth(90);
+        nameLabel.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 12px;");
+
+        row.getChildren().add(nameLabel);
+
+        boolean hasChanges = false;
+
+        if (foodDelta != 0) {
+            row.getChildren().add(
+                    IconNodeFactory.createSmallIconWithText(
+                            IconNodeFactory.FOOD_ICON,
+                            formatSigned(foodDelta),
+                            13
+                    )
+            );
+            hasChanges = true;
         }
 
-        dialog.show();
+        if (prestigeDelta != 0) {
+            row.getChildren().add(
+                    IconNodeFactory.createSmallIconWithText(
+                            IconNodeFactory.PRESTIGE_ICON,
+                            formatSigned(prestigeDelta),
+                            13
+                    )
+            );
+            hasChanges = true;
+        }
 
-        proceedButton.setOnAction(e -> dialog.close());
+        if (!hasChanges) {
+            Label noChange = new Label("nessuna variazione");
+            noChange.setStyle("-fx-text-fill: rgba(245,240,232,0.65); -fx-font-size: 12px;");
+            row.getChildren().add(noChange);
+        }
+
+        return row;
+    }
+
+    private String formatSigned(int value) {
+        return value > 0 ? "+" + value : String.valueOf(value);
+    }
+
+    private String eventTypeName(String eventCardId) {
+        if (eventCardId == null) {
+            return "Evento";
+        }
+
+        if (eventCardId.startsWith("ECP")) {
+            return "Pitture rupestri";
+        }
+
+        if (eventCardId.startsWith("EHU")) {
+            return "Caccia";
+        }
+
+        if (eventCardId.startsWith("ESH")) {
+            return "Rituale sciamanico";
+        }
+
+        if (eventCardId.startsWith("ESU")) {
+            return "Sostentamento";
+        }
+
+        return "Evento";
+    }
+
+    private void centerDialogOnOwner(Stage dialog, Window owner) {
+        if (owner == null) {
+            dialog.centerOnScreen();
+            return;
+        }
+
+        double x = owner.getX() + (owner.getWidth() - dialog.getWidth()) / 2.0;
+        double y = owner.getY() + (owner.getHeight() - dialog.getHeight()) / 2.0;
+
+        dialog.setX(x);
+        dialog.setY(y);
     }
 
 
@@ -671,8 +811,8 @@ public class GameScreenController {
         HBox resourcesRow = new HBox(10);
         resourcesRow.setAlignment(Pos.CENTER_LEFT);
         resourcesRow.getChildren().addAll(
-                buildResource("🍖", String.valueOf(player.getFood())),
-                buildResource("⭐", player.getPrestigePoints() + " PP")
+                buildResource(IconNodeFactory.FOOD_ICON, String.valueOf(player.getFood())),
+                buildResource(IconNodeFactory.PRESTIGE_ICON, player.getPrestigePoints() + " PP")
         );
 
         Region div1 = new Region();
@@ -716,18 +856,8 @@ public class GameScreenController {
         return card;
     }
 
-    private HBox buildResource(String icon, String value) {
-        HBox row = new HBox(4);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        Label iconLabel = new Label(icon);
-        iconLabel.setStyle("-fx-font-size: 12px;");
-
-        Label valLabel = new Label(value);
-        valLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
-
-        row.getChildren().addAll(iconLabel, valLabel);
-        return row;
+    private HBox buildResource(String iconFileName, String value) {
+        return IconNodeFactory.createIconWithText(iconFileName, value, 15);
     }
 
     private GridPane buildStatsGrid(PlayerState player) {
@@ -763,35 +893,40 @@ public class GameScreenController {
         int differentIcons = inventionIcons.size();
 
         Object[][] rows = {
-                {"🎨", "Artists", counts.getOrDefault(CharacterType.ARTIST, 0L), null, null},
-                {"🔧", "Builders", counts.getOrDefault(CharacterType.BUILDER, 0L), "-" + finalTotalDiscount + "🍖", null},
-                {"🏹", "Hunters", counts.getOrDefault(CharacterType.HUNTER, 0L), null, null},
-                {"💡", "Inventors", counts.getOrDefault(CharacterType.INVENTOR, 0L), null, "⬡" + differentIcons},
-                {"🍓", "Gatherers", counts.getOrDefault(CharacterType.GATHERER, 0L), null, null},
-                {"🔮", "Shamans", counts.getOrDefault(CharacterType.SHAMAN, 0L), "★" + finalTotalStars, null},
+                {CharacterType.ARTIST, counts.getOrDefault(CharacterType.ARTIST, 0L), null, null},
+                {CharacterType.BUILDER, counts.getOrDefault(CharacterType.BUILDER, 0L), "-" + finalTotalDiscount, IconNodeFactory.FOOD_ICON},
+                {CharacterType.HUNTER, counts.getOrDefault(CharacterType.HUNTER, 0L), null, null},
+                {CharacterType.INVENTOR, counts.getOrDefault(CharacterType.INVENTOR, 0L), "⬡" + differentIcons, null},
+                {CharacterType.GATHERER, counts.getOrDefault(CharacterType.GATHERER, 0L), null, null},
+                {CharacterType.SHAMAN, counts.getOrDefault(CharacterType.SHAMAN, 0L), "★" + finalTotalStars, null},
         };
 
         for (int i = 0; i < rows.length; i++) {
             int col = (i % 2) * 3;
             int row = i / 2;
 
-            Label icon = new Label((String) rows[i][0]);
-            icon.setStyle("-fx-font-size: 14px;");
+            CharacterType type = (CharacterType) rows[i][0];
 
-            Label val = new Label(String.valueOf(rows[i][2]));
+            ImageView icon = IconNodeFactory.createCharacterTypeIcon(type, 15);
+
+            Label val = new Label(String.valueOf(rows[i][1]));
             val.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
 
             grid.add(icon, col, row);
             grid.add(val, col + 1, row);
 
-            String extra1 = (String) rows[i][3];
-            String extra2 = (String) rows[i][4];
-            String extraText = extra1 != null ? extra1 : (extra2 != null ? extra2 : "");
+            String extraText = (String) rows[i][2];
+            String extraIcon = (String) rows[i][3];
 
-            if (!extraText.isEmpty()) {
-                Label extraLabel = new Label(extraText);
-                extraLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.6); -fx-font-size: 10px;");
-                grid.add(extraLabel, col + 2, row);
+            if (extraText != null && !extraText.isEmpty()) {
+                if (extraIcon != null) {
+                    HBox extraNode = IconNodeFactory.createSmallIconWithText(extraIcon, extraText, 10);
+                    grid.add(extraNode, col + 2, row);
+                } else {
+                    Label extraLabel = new Label(extraText);
+                    extraLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.6); -fx-font-size: 10px;");
+                    grid.add(extraLabel, col + 2, row);
+                }
             }
         }
 

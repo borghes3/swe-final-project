@@ -55,6 +55,12 @@ public final class CardImageResolver {
         return new Image(inputStream);
     }
 
+    public static Image loadCharacterBackImage(int eraNumber) {
+        int safeEra = Math.max(1, Math.min(3, eraNumber));
+        String path = CARDS_BASE_PATH + "C_back_" + safeEra + ".png";
+        return IMAGE_CACHE.computeIfAbsent(path, CardImageResolver::loadImageFromResource);
+    }
+
     private static Map<String, String> createIdToImageNameMap() {
         Map<String, String> map = new HashMap<>();
 
