@@ -20,7 +20,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public RmiServer(VirtualServer serverController) throws RemoteException {
-        super();
+        super(PORT);
         this.serverController = serverController;
     }
 
