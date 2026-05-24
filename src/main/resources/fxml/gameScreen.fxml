@@ -76,7 +76,7 @@
             <center>
                 <VBox fx:id="boardRoot"
                       alignment="TOP_CENTER"
-                      spacing="10.0"
+                      spacing="4.0"
                       style="
                           -fx-background-color: rgba(36,12,6,0.28);
                           -fx-background-radius: 0;
@@ -84,16 +84,12 @@
                       BorderPane.alignment="CENTER">
 
                     <padding>
-                        <Insets bottom="8.0" left="16.0" right="16.0" top="12.0" />
+                        <Insets bottom="4.0" left="16.0" right="16.0" top="8.0" />
                     </padding>
 
                     <children>
 
                         <!-- FILA SUPERIORE -->
-                        <Label style="-fx-font-size: 11px;"
-                               text="FILA SUPERIORE"
-                               textFill="#f5f0e8" />
-
                         <ScrollPane fitToHeight="true"
                                     fitToWidth="true"
                                     hbarPolicy="AS_NEEDED"
@@ -106,34 +102,61 @@
                             <content>
                                 <HBox fx:id="topRowContainer"
                                       alignment="CENTER"
-                                      minHeight="130.0"
+                                      minHeight="150.0"
                                       spacing="8.0"
-                                      style="-fx-padding: 2 0 4 0;" />
+                                      style="-fx-padding: 2 0 2 0;" />
                             </content>
                         </ScrollPane>
 
-                        <!-- MAZZO | ORDINE TURNO | TRACCIATO OFFERTE -->
+                        <!-- SUMMARYCARD | MAZZO | ORDINE TURNO | TRACCIATO OFFERTE -->
                         <HBox fx:id="boardTrackContainer"
                               alignment="CENTER"
                               spacing="16.0"
                               maxWidth="-Infinity">
 
                             <padding>
-                                <Insets bottom="4.0" top="4.0" />
+                                <Insets bottom="2.0" top="2.0" />
                             </padding>
 
                             <children>
 
-                                <!-- MAZZO -->
-                                <VBox alignment="CENTER" spacing="4.0">
+                                <!-- SUMMARY BUTTON -->
+                                <VBox alignment="CENTER" spacing="0.0">
                                     <children>
-                                        <Label style="-fx-font-size: 10px;"
-                                               text="MAZZO"
-                                               textFill="#f5f0e8" />
+                                        <StackPane fx:id="summaryButton"
+                                                   prefHeight="110.0"
+                                                   prefWidth="75.0"
+                                                   style="
+                       -fx-background-color: rgba(107,58,31,0.55);
+                       -fx-background-radius: 8;
+                       -fx-border-color: rgba(245,240,232,0.50);
+                       -fx-border-radius: 8;
+                       -fx-border-width: 1;
+                       -fx-cursor: hand;
+                   ">
+                                            <children>
+                                                <VBox alignment="CENTER" spacing="4.0">
+                                                    <children>
+                                                        <Label text="SUMMARY"
+                                                               textFill="#f5f0e8"
+                                                               style="-fx-font-size: 10px; -fx-opacity: 0.75;" />
+                                                        <Label text="CARDS"
+                                                               textFill="#f5f0e8"
+                                                               style="-fx-font-size: 10px; -fx-opacity: 0.75;" />
 
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- MAZZO -->
+                                <VBox alignment="CENTER" spacing="0.0">
+                                    <children>
                                         <StackPane fx:id="deckContainer"
-                                                   prefHeight="95.0"
-                                                   prefWidth="65.0"
+                                                   prefHeight="110.0"
+                                                   prefWidth="75.0"
                                                    style="
                                                        -fx-background-color: rgba(107,58,31,0.76);
                                                        -fx-background-radius: 8;
@@ -155,16 +178,12 @@
                                 </VBox>
 
                                 <!-- ORDINE TURNO -->
-                                <VBox alignment="CENTER" spacing="4.0">
+                                <VBox alignment="CENTER" spacing="0.0">
                                     <children>
-                                        <Label style="-fx-font-size: 10px;"
-                                               text="ORDINE TURNO"
-                                               textFill="#f5f0e8" />
-
-                                        <!-- The real visual node is created by TurnOrderNodeFactory. -->
+                                       <!-- The real visual node is created by TurnOrderNodeFactory. -->
                                         <VBox fx:id="turnOrderContainer"
                                               alignment="CENTER"
-                                              minHeight="95.0"
+                                              minHeight="110.0"
                                               prefWidth="100.0"
                                               spacing="0.0"
                                               style="
@@ -175,15 +194,11 @@
                                 </VBox>
 
                                 <!-- TRACCIATO OFFERTE -->
-                                <VBox alignment="CENTER" spacing="4.0">
+                                <VBox alignment="CENTER" spacing="0.0">
                                     <children>
-                                        <Label style="-fx-font-size: 10px;"
-                                               text="TRACCIATO OFFERTE"
-                                               textFill="#f5f0e8" />
-
                                         <HBox fx:id="offerTilesContainer"
                                               alignment="CENTER"
-                                              minHeight="95.0"
+                                              minHeight="110.0"
                                               spacing="6.0"
                                               maxWidth="-Infinity" />
                                     </children>
@@ -193,10 +208,6 @@
                         </HBox>
 
                         <!-- FILA INFERIORE -->
-                        <Label style="-fx-font-size: 11px;"
-                               text="FILA INFERIORE"
-                               textFill="#f5f0e8" />
-
                         <ScrollPane fitToHeight="true"
                                     fitToWidth="true"
                                     hbarPolicy="AS_NEEDED"
@@ -209,9 +220,9 @@
                             <content>
                                 <HBox fx:id="bottomRowContainer"
                                       alignment="CENTER"
-                                      minHeight="130.0"
+                                      minHeight="150.0"
                                       spacing="8.0"
-                                      style="-fx-padding: 2 0 4 0;" />
+                                      style="-fx-padding: 2 0 2 0;" />
                             </content>
                         </ScrollPane>
 

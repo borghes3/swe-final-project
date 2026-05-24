@@ -61,6 +61,12 @@ public final class CardImageResolver {
         return IMAGE_CACHE.computeIfAbsent(path, CardImageResolver::loadImageFromResource);
     }
 
+    public static Image loadSummaryImage(int face) {
+        int safeFace = Math.max(1, Math.min(2, face));
+        String path = CARDS_BASE_PATH + "summary" + safeFace + ".png";
+        return IMAGE_CACHE.computeIfAbsent(path, CardImageResolver::loadImageFromResource);
+    }
+
     private static Map<String, String> createIdToImageNameMap() {
         Map<String, String> map = new HashMap<>();
 

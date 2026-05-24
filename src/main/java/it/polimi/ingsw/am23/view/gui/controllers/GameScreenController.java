@@ -64,6 +64,7 @@ public class GameScreenController {
     @FXML private HBox boardTrackContainer;
 
     @FXML private FlowPane playersContainer;
+    @FXML private StackPane summaryButton;
 
     private JavaFXView view;
     private String myPlayerId;
@@ -73,9 +74,9 @@ public class GameScreenController {
     private static final double CARD_ASPECT = 1111.0 / 756.0;
     private static final double TILE_ASPECT = 932.0 / 582.0;
 
-    private double cardW = 75;
+    private double cardW = 95;
     private double cardH = cardW * CARD_ASPECT;
-    private double tileW = 78;
+    private double tileW = 98;
     private double tileH = tileW * TILE_ASPECT;
     private double playerPanelW = 210;
 
@@ -117,6 +118,12 @@ public class GameScreenController {
             turnOrderContainer.setSpacing(0);
             turnOrderContainer.setPadding(Insets.EMPTY);
             turnOrderContainer.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+        }
+
+        if (summaryButton != null) {
+            summaryButton.setOnMouseClicked(e -> showSummaryDialog());
+            summaryButton.setOnMouseEntered(e -> summaryButton.setOpacity(0.72));
+            summaryButton.setOnMouseExited(e -> summaryButton.setOpacity(1.0));
         }
 
         rootPane.widthProperty().addListener((obs, oldW, newW) -> {
@@ -172,22 +179,22 @@ public class GameScreenController {
             return;
         }
 
-        cardW = Math.max(60, Math.min(82, width / 18.0));
+        cardW = Math.max(80, Math.min(110, width / 13.0));
         cardH = cardW * CARD_ASPECT;
 
-        tileW = Math.max(58, Math.min(78, width / 20.0));
+        tileW = Math.max(80, Math.min(110, width / 14.0));
         tileH = tileW * TILE_ASPECT;
 
         playerPanelW = Math.max(190, Math.min(260, width / 6.0));
 
-        topRowContainer.setMinHeight(cardH + 12);
-        topRowContainer.setPrefHeight(cardH + 12);
+        topRowContainer.setMinHeight(cardH + 8);
+        topRowContainer.setPrefHeight(cardH + 8);
 
-        bottomRowContainer.setMinHeight(cardH + 12);
-        bottomRowContainer.setPrefHeight(cardH + 12);
+        bottomRowContainer.setMinHeight(cardH + 8);
+        bottomRowContainer.setPrefHeight(cardH + 8);
 
-        offerTilesContainer.setMinHeight(tileH + 8);
-        offerTilesContainer.setPrefHeight(tileH + 8);
+        offerTilesContainer.setMinHeight(tileH + 4);
+        offerTilesContainer.setPrefHeight(tileH + 4);
     }
 
     public void setView(JavaFXView view) {
@@ -336,7 +343,7 @@ public class GameScreenController {
                 .sorted(Comparator.comparingInt(TurnOrderSlotState::getPositionIndex))
                 .toList();
 
-        double width = Math.max(62, Math.min(78, tileW * 0.95));
+        double width = Math.max(75, Math.min(100, tileW * 0.95));
         double height = width * TILE_ASPECT;
 
         turnOrderContainer.setAlignment(Pos.CENTER);
@@ -664,6 +671,104 @@ public class GameScreenController {
         dialog.show();
     }
 
+    // SUMMARY DIALOG
+
+    private void showSummaryDialog() {
+        Stage dialog = new Stage();
+
+        Window owner = rootPane != null && rootPane.getScene() != null
+                ? rootPane.getScene().getWindow()
+                : null;
+
+        if (owner != null) {
+            dialog.initOwner(owner);
+            dialog.initModality(Modality.APPLICATION_MODAL);
+        }
+
+        dialog.setTitle("Summary Card");
+
+        Image summary1 = CardImageResolver.loadSummaryImage(1);
+        Image summary2 = CardImageResolver.loadSummaryImage(2);
+
+        double imgW = 190;
+        double imgH = 270;
+
+        VBox root = new VBox(16);
+        root.setAlignment(Pos.TOP_CENTER);
+        root.setPadding(new Insets(20));
+        root.setStyle("-fx-background-color: #1e0a04;");
+
+        HBox imagesRow = new HBox(16);
+        imagesRow.setAlignment(Pos.CENTER);
+        imagesRow.getChildren().addAll(
+                buildSummaryCardFace(summary1, imgW, imgH),
+                buildSummaryCardFace(summary2, imgW, imgH)
+        );
+
+        javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Chiudi");
+        closeButton.setStyle(
+                "-fx-background-color: #5a2e10;" +
+                        "-fx-text-fill: #f5f0e8;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-padding: 6 20 6 20;" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-cursor: hand;"
+        );
+        closeButton.setOnAction(e -> dialog.close());
+
+        root.getChildren().addAll(imagesRow, closeButton);
+
+        dialog.setScene(new javafx.scene.Scene(root, imgW * 2 + 70, imgH + 100));
+        dialog.setResizable(true);
+        dialog.setOnShown(e -> centerDialogOnOwner(dialog, owner));
+        dialog.show();
+    }
+
+    private VBox buildSummaryCardFace(Image image, double imgW, double imgH) {
+        VBox box = new VBox(6);
+        box.setAlignment(Pos.TOP_CENTER);
+
+        if (image != null) {
+            ImageView iv = new ImageView(image);
+            iv.setFitWidth(imgW);
+            iv.setFitHeight(imgH);
+            iv.setPreserveRatio(true);
+            iv.setSmooth(true);
+
+            javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(imgW, imgH);
+            clip.setArcWidth(10);
+            clip.setArcHeight(10);
+            iv.setClip(clip);
+
+            StackPane imagePane = new StackPane(iv);
+            imagePane.setMaxSize(imgW, imgH);
+            imagePane.setStyle(
+                    "-fx-border-color: rgba(245,240,232,0.25);" +
+                            "-fx-border-radius: 8;" +
+                            "-fx-border-width: 1;"
+            );
+
+            box.getChildren().addAll(imagePane);
+        } else {
+            StackPane placeholder = new StackPane();
+            placeholder.setPrefSize(imgW, imgH);
+            placeholder.setStyle(
+                    "-fx-background-color: rgba(107,58,31,0.40);" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-border-color: rgba(245,240,232,0.25);" +
+                            "-fx-border-radius: 8;" +
+                            "-fx-border-width: 1;"
+            );
+            Label missing = new Label("Immagine non trovata\n");
+            missing.setStyle("-fx-text-fill: rgba(245,240,232,0.55); -fx-font-size: 12px; -fx-text-alignment: center;");
+            placeholder.getChildren().add(missing);
+            box.getChildren().addAll(placeholder);
+        }
+
+        return box;
+    }
+
+
     //helper
     private String formatEventTitle(EventResolvedPayload event) {
         return eventTypeName(event.eventCardId())
@@ -781,9 +886,9 @@ public class GameScreenController {
     private VBox buildPlayerPanel(PlayerState player, boolean isMe, double width) {
         String totemHex = resolveTotemColor(player.getTotemColor());
 
-        VBox card = new VBox(5);
+        VBox card = new VBox(4);
         card.setPrefWidth(width);
-        card.setPadding(new Insets(8, 10, 8, 10));
+        card.setPadding(new Insets(6, 10, 6, 10));
         card.setStyle(
                 "-fx-background-color: rgba(18,6,3,0.82);" +
                         "-fx-background-radius: 12;" +
@@ -803,16 +908,24 @@ public class GameScreenController {
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
             Label meLabel = new Label("TU");
-            meLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.45); -fx-font-size: 10px;");
+            meLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.75); -fx-font-size: 12px; -fx-font-weight: bold;");
 
             nameRow.getChildren().addAll(spacer, meLabel);
         }
 
         HBox resourcesRow = new HBox(10);
         resourcesRow.setAlignment(Pos.CENTER_LEFT);
+
+        Region resSpacer = new Region();
+        HBox.setHgrow(resSpacer, Priority.ALWAYS);
+
+        Label totLabel = new Label("TOT: " + player.getCharacters().size());
+        totLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
+
         resourcesRow.getChildren().addAll(
                 buildResource(IconNodeFactory.FOOD_ICON, String.valueOf(player.getFood())),
-                buildResource(IconNodeFactory.PRESTIGE_ICON, player.getPrestigePoints() + " PP")
+                buildResource(IconNodeFactory.PRESTIGE_ICON, String.valueOf(player.getPrestigePoints())),
+                totLabel
         );
 
         Region div1 = new Region();
@@ -825,21 +938,6 @@ public class GameScreenController {
         div2.setPrefHeight(1);
         div2.setStyle("-fx-background-color: rgba(255,255,255,0.08);");
 
-        HBox totalRow = new HBox(5);
-        totalRow.setAlignment(Pos.CENTER_LEFT);
-
-        Label totalLabel = new Label("tot. personaggi:");
-        totalLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.55); -fx-font-size: 11px;");
-
-        Label totalVal = new Label(String.valueOf(player.getCharacters().size()));
-        totalVal.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
-
-        totalRow.getChildren().addAll(totalLabel, totalVal);
-
-        Region div3 = new Region();
-        div3.setPrefHeight(1);
-        div3.setStyle("-fx-background-color: rgba(255,255,255,0.08);");
-
         VBox buildingsSection = buildBuildingsSection(player.getBuildings());
 
         card.getChildren().addAll(
@@ -848,8 +946,6 @@ public class GameScreenController {
                 div1,
                 statsGrid,
                 div2,
-                totalRow,
-                div3,
                 buildingsSection
         );
 
@@ -863,7 +959,7 @@ public class GameScreenController {
     private GridPane buildStatsGrid(PlayerState player) {
         GridPane grid = new GridPane();
         grid.setHgap(8);
-        grid.setVgap(4);
+        grid.setVgap(8);
 
         Map<CharacterType, Long> counts = new HashMap<>();
         int totalStars = 0;
@@ -893,12 +989,12 @@ public class GameScreenController {
         int differentIcons = inventionIcons.size();
 
         Object[][] rows = {
-                {CharacterType.ARTIST, counts.getOrDefault(CharacterType.ARTIST, 0L), null, null},
-                {CharacterType.BUILDER, counts.getOrDefault(CharacterType.BUILDER, 0L), "-" + finalTotalDiscount, IconNodeFactory.FOOD_ICON},
-                {CharacterType.HUNTER, counts.getOrDefault(CharacterType.HUNTER, 0L), null, null},
-                {CharacterType.INVENTOR, counts.getOrDefault(CharacterType.INVENTOR, 0L), "⬡" + differentIcons, null},
-                {CharacterType.GATHERER, counts.getOrDefault(CharacterType.GATHERER, 0L), null, null},
-                {CharacterType.SHAMAN, counts.getOrDefault(CharacterType.SHAMAN, 0L), "★" + finalTotalStars, null},
+                {CharacterType.ARTIST, counts.getOrDefault(CharacterType.ARTIST, 0L), "   "},
+                {CharacterType.BUILDER, counts.getOrDefault(CharacterType.BUILDER, 0L), "  - " + finalTotalDiscount + " 🍖"},
+                {CharacterType.HUNTER, counts.getOrDefault(CharacterType.HUNTER, 0L), "   "},
+                {CharacterType.INVENTOR, counts.getOrDefault(CharacterType.INVENTOR, 0L), "  ⬡ " + differentIcons},
+                {CharacterType.GATHERER, counts.getOrDefault(CharacterType.GATHERER, 0L), "   "},
+                {CharacterType.SHAMAN, counts.getOrDefault(CharacterType.SHAMAN, 0L), "  ★ " + finalTotalStars},
         };
 
         for (int i = 0; i < rows.length; i++) {
@@ -916,17 +1012,11 @@ public class GameScreenController {
             grid.add(val, col + 1, row);
 
             String extraText = (String) rows[i][2];
-            String extraIcon = (String) rows[i][3];
 
             if (extraText != null && !extraText.isEmpty()) {
-                if (extraIcon != null) {
-                    HBox extraNode = IconNodeFactory.createSmallIconWithText(extraIcon, extraText, 10);
-                    grid.add(extraNode, col + 2, row);
-                } else {
                     Label extraLabel = new Label(extraText);
                     extraLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.6); -fx-font-size: 10px;");
                     grid.add(extraLabel, col + 2, row);
-                }
             }
         }
 
@@ -948,7 +1038,7 @@ public class GameScreenController {
             slotsRow.getChildren().add(slot);
         }
 
-        int emptySlots = Math.max(2, 4 - buildings.size());
+        int emptySlots = Math.max(2, 3 - buildings.size());
 
         for (int i = 0; i < emptySlots; i++) {
             VBox slot = new VBox();
