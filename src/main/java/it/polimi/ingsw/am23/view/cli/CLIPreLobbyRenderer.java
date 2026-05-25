@@ -54,8 +54,9 @@ final class CLIPreLobbyRenderer {
                 : lobby.getPlayers().stream().map(PlayerConnectionInfo::getNickname).collect(Collectors.joining(", "));
         String occupancy = lobby.isFull() ? "full" : "free";
         String owner = lobby.getOwnerPlayerId() == null ? "unknown" : lobby.getOwnerPlayerId();
+        String count = lobby.getCurrentPlayers() + "/" + lobby.getMaxPlayers();
 
-        System.out.println("  " + title + " - " + occupancy + " - owner: " + owner);
+        System.out.println("  " + title + " - " + count + " - " + occupancy + " - owner: " + owner);
         System.out.println("    players: " + players);
     }
 

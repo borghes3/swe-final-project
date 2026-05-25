@@ -16,6 +16,7 @@ public class WaitingRoomController {
     @FXML private Label lobbyInfoLabel;
 
     private JavaFXView view;
+    private int maxPlayers;
 
     public void setView(JavaFXView view){
         this.view = view;
@@ -23,12 +24,6 @@ public class WaitingRoomController {
 
     public void setOwner(boolean isOwner){
         startButton.setVisible(isOwner);
-    }
-
-    public void updatePlayerList(List<String> players){
-        Platform.runLater(()->{
-            lobbyListView.getItems().setAll(players);
-        });
     }
 
     public void showError(String message){
@@ -41,9 +36,22 @@ public class WaitingRoomController {
         alert.showAndWait();
     }
 
-    public void setLobbyInfo(String lobbyId, String lobbyName){
+    private String lobbyInfo = "";
+
+    public void setLobbyInfo(String lobbyId, String lobbyName, int maxPlayers){
+        this.maxPlayers = maxPlayers;
+        this.lobbyInfo = lobbyId + " | " + lobbyName;
         Platform.runLater(()->{
-            lobbyInfoLabel.setText(lobbyId + " | " + lobbyName);
+            lobbyInfoLabel.setText(lobbyInfo + " | 0/" + maxPlayers);
+        });
+    }
+
+    public void updatePlayerList(List<String> players) {
+        Platform.runLater(() -> {
+            lobbyListView.getItems().setAll(players);
+            // aggiorna solo numPlayers, mantiene id e nome
+            String current = lobbyInfoLabel.getText();
+            lobbyInfoLabel.setText(lobbyInfo + " | " + players.size() + "/" + maxPlayers);
         });
     }
 

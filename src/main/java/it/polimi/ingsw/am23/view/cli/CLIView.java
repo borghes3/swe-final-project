@@ -645,7 +645,21 @@ public final class CLIView implements VirtualView {
                 if (lobbyName.isEmpty()) {
                     printWarning("Use: create <lobby-name>");
                 } else {
-                    server.createLobby(playerId, lobbyName, DEFAULT_LOBBY_MAX_PLAYERS);
+                    ConsolePrompt prompt = new ConsolePrompt();
+                    PromptBuilder builder = prompt.getPromptBuilder();
+                    builder.createListPrompt()
+                            .name("maxPlayers")
+                            .message("Max players")
+                            .newItem("2").text("2").add()
+                            .newItem("3").text("3").add()
+                            .newItem("4").text("4").add()
+                            .newItem("5").text("5").add()
+                            .addPrompt();
+                    HashMap<String, ?> result = prompt.prompt(builder.build());
+                    int maxPlayers = Integer.parseInt(
+                            ((ListResult) result.get("maxPlayers")).getSelectedId()
+                    );
+                    server.createLobby(playerId, lobbyName, maxPlayers);
                 }
                 yield false;
             }

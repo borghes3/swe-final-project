@@ -101,9 +101,9 @@ public class JavaFXView extends Application implements VirtualView {
         }
     }
 
-    public void createLobby(String name){
+    public void createLobby(String name, int maxPlayers){
         try {
-            server.createLobby(playerId, name, 5);
+            server.createLobby(playerId, name, maxPlayers);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -119,7 +119,7 @@ public class JavaFXView extends Application implements VirtualView {
         waitingRoomController = loader.getController();
         waitingRoomController.setView(this);
         waitingRoomController.setOwner(owner);
-        waitingRoomController.setLobbyInfo(lobby.getLobbyId(),lobby.getLobbyName());
+        waitingRoomController.setLobbyInfo(lobby.getLobbyId(),lobby.getLobbyName(), lobby.getMaxPlayers());
         waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(player -> player.getNickname()).collect(java.util.stream.Collectors.toList()));
         primaryStage.setScene(new Scene(root, 400, 500));
     }

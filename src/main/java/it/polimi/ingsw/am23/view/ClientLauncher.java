@@ -5,7 +5,7 @@ import it.polimi.ingsw.am23.view.gui.JavaFXView;
 
 import java.util.Scanner;
 
-public class Client{
+public class ClientLauncher{
 
     public static void main(String[] args) {
         System.out.println("Scegli UI:");
