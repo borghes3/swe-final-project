@@ -39,3 +39,4 @@ build/
 ### Mac OS ###
 .DS_Store
 /coverage-reports/
+/src/main/resources/db.properties

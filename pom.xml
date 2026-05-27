@@ -67,6 +67,12 @@
             <version>0.0.13</version>
             <scope>compile</scope>
         </dependency>
+        <!-- PostgreSQL JDBC driver for the persistent match leaderboard. -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.4</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

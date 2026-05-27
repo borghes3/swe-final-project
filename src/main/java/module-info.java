@@ -4,6 +4,7 @@ module it.polimi.ingsw.am23 {
     requires jdk.jfr;
     requires java.desktop;
     requires java.rmi;
+    requires java.sql;
     requires com.googlecode.lanterna;
 
 //    JSON PARSING
@@ -37,4 +38,6 @@ module it.polimi.ingsw.am23 {
 
     opens it.polimi.ingsw.am23.view.gui.controllers to javafx.fxml;
     exports it.polimi.ingsw.am23.view.gui;
+    exports it.polimi.ingsw.am23.persistence;
+    exports it.polimi.ingsw.am23.model.payloads;
 }
