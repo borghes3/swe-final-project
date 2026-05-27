@@ -123,6 +123,12 @@ public final class Connector implements VirtualView, Runnable {
                 } catch (IllegalArgumentException | IllegalStateException e) {
                     onActionError(ActionType.GENERIC, e.getMessage());
                 }
+            } else if (message instanceof RequestLeaderboardMessage m) {
+                try {
+                    serverController.requestLeaderboard(m.getPlayerId(), m.getPlayerCount());
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    onActionError(ActionType.GENERIC, e.getMessage());
+                }
             }
             else {
                 System.err.println("<Controller>: messaggio sconosciuto –>" + message.getClass().getName());
@@ -236,6 +242,16 @@ public final class Connector implements VirtualView, Runnable {
     @Override
     public void onScoreboardAvailable(ScoreBoardPayload payload) throws IOException {
         send(new OnScoreboardAvailableMessage(payload));
+    }
+
+    @Override
+    public void onMatchRankingsAvailable(MatchRankingsPayload payload) throws IOException {
+        send(new OnMatchRankingsAvailableMessage(payload));
+    }
+
+    @Override
+    public void onLeaderboardAvailable(LeaderboardPayload payload) throws IOException {
+        send(new OnLeaderboardAvailableMessage(payload));
     }
 
     @Override

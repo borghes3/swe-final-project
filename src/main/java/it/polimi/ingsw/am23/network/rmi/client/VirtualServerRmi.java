@@ -46,4 +46,7 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
 
     @Override
     void ping() throws RemoteException;
+
+    @Override
+    void requestLeaderboard(String playerId, int playerCount) throws RemoteException;
 }

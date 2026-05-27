@@ -57,6 +57,10 @@ public interface VirtualView {
 
     void onScoreboardAvailable(ScoreBoardPayload payload) throws Exception;
 
+    void onMatchRankingsAvailable(MatchRankingsPayload payload) throws Exception;
+
+    void onLeaderboardAvailable(LeaderboardPayload payload) throws Exception;
+
     // errors (eg. action not allowed)
     void onActionError(ActionType actionType, String message) throws Exception;
 

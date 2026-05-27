@@ -136,5 +136,14 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
+    public void requestLeaderboard(String playerId, int playerCount) throws RemoteException {
+        executor.submit(() -> {
+            try {
+                serverController.requestLeaderboard(playerId, playerCount);
+            } catch (Exception ignored) {}
+        });
+    }
+
+    @Override
     public void ping() throws RemoteException {}
 }

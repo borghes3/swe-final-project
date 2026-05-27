@@ -133,6 +133,12 @@ public final class SocketClient implements VirtualServer {
         } else if (message instanceof OnScoreboardAvailableMessage m) {
             view.onScoreboardAvailable(m.getPayload());
 
+        } else if (message instanceof OnMatchRankingsAvailableMessage m) {
+            view.onMatchRankingsAvailable(m.getPayload());
+
+        } else if (message instanceof OnLeaderboardAvailableMessage m) {
+            view.onLeaderboardAvailable(m.getPayload());
+
         } else if (message instanceof OnActionErrorMessage m) {
             view.onActionError(m.getActionType(), m.getMessage());
 
@@ -212,6 +218,11 @@ public final class SocketClient implements VirtualServer {
     @Override
     public void requestLobbyList(String playerId) throws Exception {
         send(new RefreshLobbyListMessage(playerId));
+    }
+
+    @Override
+    public void requestLeaderboard(String playerId, int playerCount) throws Exception {
+        send(new RequestLeaderboardMessage(playerId, playerCount));
     }
 
     @Override

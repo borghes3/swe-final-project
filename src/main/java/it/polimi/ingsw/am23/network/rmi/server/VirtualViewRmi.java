@@ -2,7 +2,6 @@ package it.polimi.ingsw.am23.network.rmi.server;
 
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.payloads.*;
-import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualView;
 
@@ -66,6 +65,12 @@ public interface VirtualViewRmi extends VirtualView, Remote {
 
     @Override
     void onScoreboardAvailable(ScoreBoardPayload payload) throws RemoteException;
+
+    @Override
+    void onMatchRankingsAvailable(MatchRankingsPayload payload) throws RemoteException;
+
+    @Override
+    void onLeaderboardAvailable(LeaderboardPayload payload) throws RemoteException;
 
     @Override
     void onActionError(ActionType actionType, String message) throws RemoteException;

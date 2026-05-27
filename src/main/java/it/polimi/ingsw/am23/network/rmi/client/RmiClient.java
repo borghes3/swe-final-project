@@ -241,6 +241,26 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
     }
 
     @Override
+    public void onMatchRankingsAvailable(MatchRankingsPayload payload) throws RemoteException {
+        executor.submit(() -> {
+            try {
+                view.onMatchRankingsAvailable(payload);
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    @Override
+    public void onLeaderboardAvailable(LeaderboardPayload payload) throws RemoteException {
+        executor.submit(() -> {
+            try {
+                view.onLeaderboardAvailable(payload);
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    @Override
     public void onActionError(ActionType actionType, String message) throws RemoteException {
         executor.submit(() -> {
             try {

@@ -32,4 +32,6 @@ public interface VirtualServer {
     void disconnect(String playerId) throws Exception;
 
     void ping() throws Exception;
+
+    void requestLeaderboard(String playerId, int playerCount) throws Exception;
 }
