@@ -490,6 +490,46 @@ public final class CLIView implements VirtualView {
     }
 
     @Override
+    public synchronized void onMatchRankingsAvailable(MatchRankingsPayload payload) {
+        if (payload == null) return;
+        System.out.println();
+        if (!payload.persistenceAvailable()) {
+            System.out.println(INFO_MARKER + " Classifica globale non disponibile (DB offline).");
+            return;
+        }
+        Integer pos = payload.positionByPlayerId() != null
+                ? payload.positionByPlayerId().get(playerId)
+                : null;
+        if (pos != null && pos > 0) {
+            System.out.println(TITLE_MARKER + " Sei #" + pos + " nella classifica globale a "
+                    + payload.playerCount() + " giocatori.");
+        }
+        if (payload.topEntries() != null && !payload.topEntries().isEmpty()) {
+            System.out.println("Top " + payload.topEntries().size() + " partite a "
+                    + payload.playerCount() + " giocatori:");
+            payload.topEntries().forEach(e ->
+                    System.out.println("  " + e.position() + "° " + e.nickname() + " - " + e.score() + " PP"));
+        }
+    }
+
+    @Override
+    public synchronized void onLeaderboardAvailable(LeaderboardPayload payload) {
+        if (payload == null) return;
+        System.out.println();
+        if (!payload.persistenceAvailable()) {
+            System.out.println(INFO_MARKER + " Classifica non disponibile (DB offline).");
+            return;
+        }
+        System.out.println(TITLE_MARKER + " Classifica completa - partite a " + payload.playerCount() + " giocatori");
+        if (payload.entries() == null || payload.entries().isEmpty()) {
+            System.out.println("  (Nessuna partita registrata.)");
+            return;
+        }
+        payload.entries().forEach(e ->
+                System.out.println("  " + e.position() + "° " + e.nickname() + " - " + e.score() + " PP   " + e.matchDate()));
+    }
+
+    @Override
     public synchronized void onActionError(ActionType actionType, String message) {
         renderCurrentScreen(ERROR_MARKER + " Error " + actionType + ": " + message);
     }

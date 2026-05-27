@@ -38,6 +38,9 @@ public class JavaFXView extends Application implements VirtualView {
     private WaitingRoomController waitingRoomController;
     private GameScreenController gameScreenController;
     private ScoreboardController scoreboardController;
+    private LeaderboardController leaderboardController;
+
+    private volatile int lastMatchPlayerCount = -1;
 
     private final List<EventResolvedPayload> pendingEventPayloads = new ArrayList<>();
 
@@ -631,12 +634,47 @@ public class JavaFXView extends Application implements VirtualView {
 
     @Override
     public void onScoreboardAvailable(ScoreBoardPayload payload) throws Exception {
+        if (payload != null && payload.scores() != null) {
+            lastMatchPlayerCount = payload.scores().size();
+        }
         Platform.runLater(() -> {
             try {
                 gameScreenController = null;
                 showScoreboardFromPayload(payload);
             } catch (Exception e) { e.printStackTrace(); }
         });
+    }
+
+    @Override
+    public void onMatchRankingsAvailable(MatchRankingsPayload payload) throws Exception {
+        Platform.runLater(() -> {
+            if (scoreboardController != null) {
+                scoreboardController.showMatchRankings(playerId, payload);
+            }
+        });
+    }
+
+    @Override
+    public void onLeaderboardAvailable(LeaderboardPayload payload) throws Exception {
+        Platform.runLater(() -> {
+            try {
+                showLeaderboardFromPayload(payload);
+            } catch (Exception e) { e.printStackTrace(); }
+        });
+    }
+
+    public void requestLeaderboard(int playerCount) {
+        try {
+            if (server != null && playerId != null) {
+                server.requestLeaderboard(playerId, playerCount);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getLastMatchPlayerCount() {
+        return lastMatchPlayerCount;
     }
 
     private void showScoreboardFromPayload(ScoreBoardPayload payload) throws Exception {
@@ -646,6 +684,23 @@ public class JavaFXView extends Application implements VirtualView {
         scoreboardController.setView(this);
         scoreboardController.showScoreboard(payload);
         primaryStage.getScene().setRoot(root);
+    }
+
+    private void showLeaderboardFromPayload(LeaderboardPayload payload) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/leaderboard.fxml"));
+        Parent root = loader.load();
+        leaderboardController = loader.getController();
+        leaderboardController.setView(this);
+        leaderboardController.showLeaderboard(payload, playerName);
+        primaryStage.getScene().setRoot(root);
+    }
+
+    public void backToScoreboard() {
+        Platform.runLater(() -> {
+            if (scoreboardController != null && scoreboardController.getRoot() != null) {
+                primaryStage.getScene().setRoot(scoreboardController.getRoot());
+            }
+        });
     }
 
 
