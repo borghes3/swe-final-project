@@ -14,7 +14,11 @@ import it.polimi.ingsw.am23.network.LobbyPhase;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
+import it.polimi.ingsw.am23.persistence.DatabaseConfig;
+import it.polimi.ingsw.am23.persistence.LeaderboardRepository;
+import it.polimi.ingsw.am23.persistence.RankingEntry;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -36,6 +40,15 @@ public final class GameController implements VirtualServer, ModelObserver {
     private final Random random = new Random();
     private String activeLobbyId;
     private final Set<String> scoredLobbyIds = new HashSet<>();
+    private final LeaderboardRepository leaderboard;
+
+    private static final int LEADERBOARD_TEASER_LIMIT = 10;
+    private static final int LEADERBOARD_FULL_LIMIT   = 100;
+
+    public GameController() {
+        this.leaderboard = new LeaderboardRepository(DatabaseConfig.load());
+        this.leaderboard.init();
+    }
 
     public synchronized void connect(String playerName, VirtualView client) throws Exception {
         Objects.requireNonNull(playerName, "playerName cannot be null");
@@ -319,6 +332,46 @@ public final class GameController implements VirtualServer, ModelObserver {
     @Override
     public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
         broadcastToLobby(activeLobbyId, view -> view.onScoreboardAvailable(payload));
+        persistAndBroadcastRankings(activeLobbyId, payload);
+    }
+
+    private void persistAndBroadcastRankings(String lobbyId, ScoreBoardPayload payload) {
+        if (lobbyId == null || payload == null || payload.scores() == null || payload.scores().isEmpty()) {
+            return;
+        }
+        int playerCount = payload.scores().size();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (PlayerScore s : payload.scores()) {
+            String nickname = s.nickname() != null ? s.nickname() : s.playerId();
+            leaderboard.saveResult(nickname, s.totalPrestigePoints(), playerCount, now);
+        }
+
+        Map<String, Integer> positionByPlayer = new HashMap<>();
+        for (PlayerScore s : payload.scores()) {
+            int pos = leaderboard.positionOf(s.totalPrestigePoints(), playerCount);
+            positionByPlayer.put(s.playerId(), pos);
+        }
+        List<RankingEntry> teaser = leaderboard.topForPlayerCount(playerCount, LEADERBOARD_TEASER_LIMIT);
+
+        MatchRankingsPayload rankings = new MatchRankingsPayload(
+                playerCount,
+                positionByPlayer,
+                teaser,
+                leaderboard.isAvailable()
+        );
+        broadcastToLobby(lobbyId, view -> view.onMatchRankingsAvailable(rankings));
+    }
+
+    @Override
+    public synchronized void requestLeaderboard(String playerId, int playerCount) throws Exception {
+        VirtualView view = clientsByPlayerId.get(playerId);
+        if (view == null) return;
+
+        List<RankingEntry> entries = playerCount > 0
+                ? leaderboard.topForPlayerCount(playerCount, LEADERBOARD_FULL_LIMIT)
+                : List.of();
+        view.onLeaderboardAvailable(new LeaderboardPayload(playerCount, entries, leaderboard.isAvailable()));
     }
 
     @Override
