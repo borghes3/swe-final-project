@@ -1,0 +1,4 @@
+db.url=jdbc:postgresql://localhost:5432/mesos_leaderboard?ssl=false&connectTimeout=3&socketTimeout=5
+db.user=mesos
+db.password=mesos
+db.driver=org.postgresql.Driver
