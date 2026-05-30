@@ -127,7 +127,7 @@ public class ScoreboardController {
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 0, 2);"
         );
 
-        String medal = position == 1 ? "🥇" : "°";
+        String medal = position == 1 ? "🥇" : position + "°";
 
         Label positionLabel = new Label(medal);
         positionLabel.setStyle("-fx-font-size: 20; -fx-min-width: 40;");
