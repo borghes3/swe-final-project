@@ -30,8 +30,6 @@ import java.util.concurrent.CountDownLatch;
 
 public final class CLIView implements VirtualView {
 
-    private static final int DEFAULT_LOBBY_MAX_PLAYERS = 5;
-
     private static final String TITLE_MARKER = "◆";
     private static final String INFO_MARKER = "ℹ";
     private static final String SUCCESS_MARKER = "✓";
@@ -40,6 +38,7 @@ public final class CLIView implements VirtualView {
 
     private final CLIPreLobbyRenderer preLobbyRenderer = new CLIPreLobbyRenderer();
     private final CLIBoardRenderer boardRenderer = new CLIBoardRenderer();
+    private final CLITribeRenderer tribeRenderer = new CLITribeRenderer();
 
     private final LineReader lineReader;
     private final CountDownLatch connectedLatch = new CountDownLatch(1);
@@ -69,7 +68,7 @@ public final class CLIView implements VirtualView {
 
             LineReader reader = LineReaderBuilder.builder()
                     .completer(new StringsCompleter(
-                                "help", "refresh", "lobbies", "create", "join", "leave",
+                                "refresh", "lobbies", "create", "join", "leave",
                                 "start", "place", "take", "extra", "state", "peek", "quit", "exit"
                     ))
                     .option(LineReader.Option.AUTO_LIST, true)
@@ -160,9 +159,10 @@ public final class CLIView implements VirtualView {
                 if (handleCommand(trimmed)) {
                     return;
                 }
-                renderCurrentScreen(null);
             } catch (Exception e) {
-                renderCurrentScreen(ERROR_MARKER + " Command failed to execute: " + e.getMessage());
+                synchronized (this) {
+                    renderCurrentScreen(ERROR_MARKER + " Command failed to execute: " + e.getMessage());
+                }
             }
         }
     }
@@ -275,7 +275,7 @@ public final class CLIView implements VirtualView {
         );
 
         renderCurrentScreen(
-                INFO_MARKER + " " + payload.playerId()
+                INFO_MARKER + " " + nickOf(payload.playerId())
                         + " ha piazzato il totem su ["
                         + payload.offerTileChar()
                         + "]."
@@ -342,7 +342,7 @@ public final class CLIView implements VirtualView {
                 newBoard,
                 payload.skipAllowed()
         );
-        renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha preso le carte.");
+        renderCurrentScreen(INFO_MARKER + " " + nickOf(payload.playerId()) + " ha preso le carte.");
 
     }
 
@@ -392,7 +392,7 @@ public final class CLIView implements VirtualView {
                 payload.skipAllowed()
         );
 
-        renderCurrentScreen(INFO_MARKER + " " + payload.playerId() + " ha preso la carta extra.");
+        renderCurrentScreen(INFO_MARKER + " " + nickOf(payload.playerId()) + " ha preso la carta extra.");
     }
 
     @Override
@@ -485,7 +485,7 @@ public final class CLIView implements VirtualView {
         System.out.println(TITLE_MARKER + " CLASSIFICA FINALE " + TITLE_MARKER);
         payload.scores().stream()
                 .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints).reversed())
-                .forEach(s -> System.out.println("  " + s.playerId() + ": " + s.totalPrestigePoints() + " PP"));
+                .forEach(s -> System.out.println("  " + s.nickname() + ": " + s.totalPrestigePoints() + " PP"));
         System.out.println();
     }
 
@@ -646,19 +646,18 @@ public final class CLIView implements VirtualView {
         return new BoardState(topRow, bottomRow, topBuildings, bottomBuildings, offerTiles, turnOrderSlots);
     }
 
-    private GameState rebuildWithBoard(GameState gs, BoardState newBoard) {
-        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
-                gs.getCurrentPlayerId(), gs.getPlayers(), newBoard, gs.getSkipAllowed());
-    }
-
     private GameState rebuildWithPlayers(GameState gs, List<PlayerState> newPlayers) {
         return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
                 gs.getCurrentPlayerId(), newPlayers, gs.getBoard(), gs.getSkipAllowed());
     }
 
-    private GameState rebuildWithBoardAndPlayers(GameState gs, BoardState newBoard, List<PlayerState> newPlayers) {
-        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
-                gs.getCurrentPlayerId(), newPlayers, newBoard, gs.getSkipAllowed());
+    private String nickOf(String pid) {
+        if (pid == null || currentGameState == null) return safeText(pid);
+        return currentGameState.getPlayers().stream()
+                .filter(p -> Objects.equals(p.getPlayerId(), pid))
+                .map(p -> p.getNickname())
+                .findFirst()
+                .orElse(safeText(pid));
     }
 
     // handling
@@ -671,7 +670,7 @@ public final class CLIView implements VirtualView {
         }
 
         return switch (command) {
-            case "?", "help", "info", "lobbies" -> false;
+            case "?", "lobbies" -> false;
             case "refresh" -> {
                 ensureConnected();
                 if (server != null && playerId != null) {
@@ -734,7 +733,7 @@ public final class CLIView implements VirtualView {
             }
             case "place" -> {
                 ensureConnected();
-                if (tokens.length < 2) {
+                 if (tokens.length < 2) {
                     printWarning("Use: place <tile-letter>");
                 } else {
                     server.placeTotem(playerId, tokens[1].charAt(0));
@@ -810,7 +809,7 @@ public final class CLIView implements VirtualView {
                 yield true;
             }
             default -> {
-                renderCurrentScreen(WARNING_MARKER + " Unknown command. Type 'help'.");
+                renderCurrentScreen(WARNING_MARKER + " Unknown command.");
                 yield false;
             }
         };
@@ -829,6 +828,7 @@ public final class CLIView implements VirtualView {
     private void renderGameView(GameState gameState, String message) {
         clearScreen();
         boardRenderer.render(gameState, message, playerId);
+        tribeRenderer.render(gameState.getPlayers(), playerId);
         if (currentPeekedCard != null) {
             renderCardDetails(currentPeekedCard);
         }
@@ -985,7 +985,7 @@ public final class CLIView implements VirtualView {
         lines.add("Id: " + safeText(card.getCardId()));
         lines.add("Kind: " + safeText(String.valueOf(card.getCardKind())));
         lines.add("Era: " + safeText(String.valueOf(card.getEra())));
-        lines.add("Printed points: " + card.getPrintedPoints());
+        lines.add("Prestige points: " + card.getPrintedPoints());
 
         addOptionalCardLine(lines, card, "Character type", "getCharacterType", "isCharacterType");
         addOptionalCardLine(lines, card, "Food symbol", "getHasFoodSymbol", "isHasFoodSymbol", "hasFoodSymbol");
@@ -1001,11 +1001,10 @@ public final class CLIView implements VirtualView {
 
     private List<String> centerAsciiArt(int width) {
         return List.of(
-                centerText("  /\\", width),
+                centerText(" /\\", width),
                 centerText(" /  \\", width),
                 centerText("| [] |", width),
-                centerText("|____|", width),
-                centerText("  \\/", width)
+                centerText("|____|", width)
         );
     }
 
@@ -1057,8 +1056,8 @@ public final class CLIView implements VirtualView {
     }
 
     private void clearScreen() {
-        System.out.print("\u001B[H\u001B[2J\u001B[3J");
-        System.out.flush();
+            System.out.print("\u001B[H\u001B[2J\u001B[3J");
+            System.out.flush();
     }
 
     private void printWarning(String message) {

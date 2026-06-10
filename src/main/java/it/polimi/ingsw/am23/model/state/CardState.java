@@ -31,7 +31,6 @@ public abstract class CardState implements Serializable {
 
     public abstract CardKind getCardKind();
 
-
     public int getPrintedPoints() {
         return printedPoints;
     }

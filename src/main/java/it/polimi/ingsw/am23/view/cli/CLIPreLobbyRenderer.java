@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.am23.view.cli.CLIColors.*;
+
 final class CLIPreLobbyRenderer {
 
     private static final String TITLE_MARKER = "◆";
@@ -19,18 +21,21 @@ final class CLIPreLobbyRenderer {
     }
 
     private void printBanner(String playerName, String playerId, String statusMessage) {
-        System.out.println(center(TITLE_MARKER + " Mesos CLI Client " + TITLE_MARKER));
-        System.out.println(center("Pre-lobby"));
-        System.out.println(center("User: " + highlight(playerName)));
-        System.out.println(center("Id: " + safe(playerId)));
+        System.out.println(TITLE_MARKER + "MESOS" + TITLE_MARKER);
+        System.out.println();
+        System.out.println("player: " + safe(playerName));
+        System.out.println("id: " + safe(playerId));
+        System.out.println();
         if (statusMessage != null && !statusMessage.isBlank()) {
-            System.out.println(center(statusMessage));
+            System.out.println(paint(BR_GREEN, statusMessage));
         }
         System.out.println();
     }
 
     private void printLobbyList(List<LobbyState> lobbies, String currentLobbyId) {
-        System.out.println("=== Available lobbies ===");
+        System.out.println(rule(80));
+        System.out.println("LOBBIES");
+        System.out.println(rule(80));
         if (lobbies == null || lobbies.isEmpty()) {
             System.out.println("No lobbies available.");
             System.out.println();
@@ -44,44 +49,35 @@ final class CLIPreLobbyRenderer {
     }
 
     private void printLobby(LobbyState lobby, boolean current) {
-        String title = lobby.getLobbyName() + " [" + lobby.getLobbyId() + "]";
-        if (current) {
-            title += " " + CURRENT_MARKER;
-        }
+        String nameColor  = current ? BR_CYAN : BR_WHITE;  // cyan se current, altrimenti white
 
+        String occupancy = lobby.isFull() ? paint(BR_RED, "FULL") : lobby.getCurrentPlayers() + "/" + lobby.getMaxPlayers();
+        String owner = lobby.getPlayers().stream()
+                .filter(p -> Objects.equals(p.getId(), lobby.getOwnerPlayerId()))
+                .map(PlayerConnectionInfo::getNickname)
+                .findFirst()
+                .orElse(safe(lobby.getOwnerPlayerId()));
+        String title = paint(nameColor, lobby.getLobbyName()) + "  " + paint(nameColor, "[" + lobby.getLobbyId() + "]");
         String players = lobby.getPlayers().isEmpty()
                 ? "empty"
                 : lobby.getPlayers().stream().map(PlayerConnectionInfo::getNickname).collect(Collectors.joining(", "));
-        String occupancy = lobby.isFull() ? "full" : "free";
-        String owner = lobby.getOwnerPlayerId() == null ? "unknown" : lobby.getOwnerPlayerId();
-        String count = lobby.getCurrentPlayers() + "/" + lobby.getMaxPlayers();
 
-        System.out.println("  " + title + " - " + count + " - " + occupancy + " - owner: " + owner);
-        System.out.println("    players: " + players);
+        System.out.println("  " + title + "   " + occupancy + "   owner: " + (current ? paint(nameColor, owner) : owner));
+        System.out.println("    " + paint(DIM, "players: " + players));
     }
 
     private void printCommands() {
-        System.out.println("=== Commands ===");
-        System.out.println("  refresh - updates the lobby list");
-        System.out.println("  create <lobby-name>");
-        System.out.println("  join <code>");
-        System.out.println("  leave");
-        System.out.println("  start");
-        System.out.println("  quit");
-    }
-
-    private String highlight(String value) {
-        if (value == null || value.isBlank()) {
-            return "n/a";
-        }
-        return CURRENT_MARKER + value + CURRENT_MARKER;
+        System.out.println();
+        System.out.println(rule(80));
+        System.out.println("  refresh  |"
+                + "  create " + paint(DIM, "<nome>  ") + "|"
+                + "  join " + paint(DIM, "<code>  ") + "|"
+                + "  start  |"
+                + "  quit");
+        System.out.println(rule(80));
     }
 
     private String safe(String value) {
         return value == null || value.isBlank() ? "n/a" : value;
-    }
-
-    private String center(String value) {
-        return value;
     }
 }
