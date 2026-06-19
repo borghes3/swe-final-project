@@ -8,6 +8,8 @@ class HuntingEffectDataTest {
 
     @Test
     void addMethodsAccumulateFoodAndPoints() {
+        // Input  : addExtraFood(2), addExtraPoints(4), addExtraFood(1), addExtraPoints(1).
+        // Output : getExtraFood()==3 and getExtraPoints()==5.
         HuntingEffectData data = new HuntingEffectData();
         data.addExtraFood(2);
         data.addExtraPoints(4);

@@ -18,6 +18,8 @@ class InventorCardTest {
 
     @Test
     void onTakenIncrementsInventorIconCountInTribe() {
+        // Input  : InventorCard("i", ERA_1, points=0, icon=BOAT, value=2).onTaken(game, p).
+        // Output : tribe.getDistinctInventionIcons()==1 (the single BOAT icon).
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),

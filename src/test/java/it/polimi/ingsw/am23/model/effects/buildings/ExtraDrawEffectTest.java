@@ -17,7 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ExtraDrawEffectTest {
 
     @Test
-    void onAfterAllActionsSetsPendingPlayerForExtraDraw() {
+    void onBuildingAddedSetsPendingPlayerForExtraDraw() {
+        // Input  : a player "p" with no food, a game with an artist available at TOP[0],
+        //          then ExtraDrawEffect.onBuildingAdded(game, p) is invoked.
+        // Output : game.takeExtraCard("p", TOP[0]) succeeds because the extra-draw pending
+        //          player has been registered as "p" (so the artist can be taken for free).
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),
@@ -31,7 +35,7 @@ class ExtraDrawEffectTest {
         );
 
         ExtraDrawEffect effect = new ExtraDrawEffect();
-        effect.onAfterAllActions(game, p);
+        effect.onBuildingAdded(game, p);
 
         assertTrue(game.takeExtraCard("p", new SelectedCardExtraDraw(0, null)).isSuccess());
     }

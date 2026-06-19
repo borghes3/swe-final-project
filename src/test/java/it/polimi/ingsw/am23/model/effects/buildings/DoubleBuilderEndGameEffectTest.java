@@ -13,6 +13,8 @@ class DoubleBuilderEndGameEffectTest {
 
     @Test
     void getEndGamePointsSumsCharacterPointsInTribe() {
+        // Input  : tribe with BuilderCard(points=3) and HunterCard(points=2).
+        // Output : DoubleBuilderEndGameEffect.getEndGamePoints==5 (sum of character points).
         Player p = TestUtils.player("p", 0, 0);
         p.getTribe().addCharacter(new BuilderCard("b", Era.ERA_1, 3, 1, 2));
         p.getTribe().addCharacter(new HunterCard("h", Era.ERA_1, 2, false, 2));

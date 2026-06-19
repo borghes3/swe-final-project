@@ -19,6 +19,9 @@ class FoodPerInventorPairEffectTest {
 
     @Test
     void onBuildingAddedAndOnCardTakenRewardOnlyNewPairs() {
+        // Input  : add 1st inventor, then onBuildingAdded (1 inventor → 0 pairs → no reward);
+        //          add 2nd inventor then onCardTaken (now 2 inventors → 1 new pair → reward).
+        // Output : p.getFood()==3 (food rewarded by the new completed pair).
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),

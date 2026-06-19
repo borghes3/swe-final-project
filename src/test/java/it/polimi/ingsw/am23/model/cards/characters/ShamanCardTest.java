@@ -17,6 +17,8 @@ class ShamanCardTest {
 
     @Test
     void onTakenAddsShamanStarsToTribe() {
+        // Input  : ShamanCard("s", ERA_1, points=0, stars=3, value=2).onTaken(game, p).
+        // Output : tribe.totalShamanStars()==3.
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),

@@ -17,6 +17,8 @@ class ArtistCardTest {
 
     @Test
     void inheritedOnTakenAddsCharacterToTribe() {
+        // Input  : ArtistCard("a", ERA_1, points=0, value=2); call canBeTaken() then onTaken(game, p).
+        // Output : canBeTaken()==true and after onTaken player's tribe contains exactly 1 character.
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),

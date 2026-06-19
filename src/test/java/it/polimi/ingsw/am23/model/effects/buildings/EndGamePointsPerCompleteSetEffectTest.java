@@ -18,6 +18,9 @@ class EndGamePointsPerCompleteSetEffectTest {
 
     @Test
     void getEndGamePointsScalesByCompletedSets() {
+        // Input  : tribe contains one of each character type (Hunter+Gatherer+Builder+Shaman+Artist+Inventor) → 1 full set;
+        //          effect = EndGamePointsPerCompleteSetEffect(pointsPerSet=4).
+        // Output : getEndGamePoints==4.
         Player p = TestUtils.player("p", 0, 0);
         p.getTribe().addCharacter(new HunterCard("h", Era.ERA_1, 0, false, 2));
         p.getTribe().addCharacter(new GathererCard("g", Era.ERA_1, 0, 2));

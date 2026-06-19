@@ -9,6 +9,8 @@ class ShamanBonusStarsEffectTest {
 
     @Test
     void applyShamanRitualSetsConfiguredBonusStars() {
+        // Input  : ShamanBonusStarsEffect(bonus=4).applyShamanRitual on empty data.
+        // Output : data.getBonusStars()==4.
         ShamanRitualEffectData data = new ShamanRitualEffectData();
         new ShamanBonusStarsEffect(4).applyShamanRitual(null, null, data);
         assertEquals(4, data.getBonusStars());

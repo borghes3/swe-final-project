@@ -19,6 +19,10 @@ class BuildingCardTest {
 
     @Test
     void canBeTakenAndOnTakenAddBuildingToTribe() {
+        // Input  : Player p1 (food=3), BuildingCard("b1", ERA_1, points=2, foodCost=1, FlatEndGamePointsEffect(3));
+        //          call canBeTaken(), then onTaken(game, p1).
+        // Output : canBeTaken()==true, after onTaken the player's tribe has 1 building,
+        //          and toState() has effectId "FlatEndGamePointsEffect".
         Player p = TestUtils.player("p1", 3, 0);
         Game game = TestUtils.game(
                 List.of(p),

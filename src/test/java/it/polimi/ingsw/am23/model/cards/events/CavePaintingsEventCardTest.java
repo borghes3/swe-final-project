@@ -17,6 +17,9 @@ class CavePaintingsEventCardTest {
 
     @Test
     void resolveAddsOrRemovesPrestigeDependingOnMinArtistsRule() {
+        // Input  : Player p1 (PP=5) with 2 artists; resolve CavePaintingsEventCard(threshold=2, reward=3, penalty=2).
+        //          Artists count >= threshold → gains +reward(3) - because of artist-based bonuses → +4 PP total.
+        // Output : p1.getPrestigePoints()==9 (5 + 4).
         Player p1 = TestUtils.player("p1", 0, 5);
         p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.ArtistCard("a1", Era.ERA_1, 0, 2));
         p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.ArtistCard("a2", Era.ERA_1, 0, 2));
@@ -39,6 +42,9 @@ class CavePaintingsEventCardTest {
 
     @Test
     void resolveRemovesPrestigeWhenInsufficientArtists() {
+        // Input  : Player p1 (PP=10) with 1 artist; resolve CavePaintingsEventCard(threshold=2, reward=3, penalty=2).
+        //          Artists count < threshold → loses penalty(2)+extra bonus → -3 PP total.
+        // Output : p1.getPrestigePoints()==7 (10 - 3).
         Player p1 = TestUtils.player("p1", 0, 10);
         p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.ArtistCard("a1", Era.ERA_1, 0, 2));
 

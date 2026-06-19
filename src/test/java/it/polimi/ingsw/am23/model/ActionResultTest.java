@@ -9,6 +9,8 @@ class ActionResultTest {
 
     @Test
     void successAndFailureFactoriesSetSemanticFields() {
+        // Input  : ActionResult.success(TAKE_CARD, "ok") and ActionResult.failure(PLACE_TOTEM, WRONG_PLAYER, "no").
+        // Output : success.isSuccess()==true with error==NONE; failure.isSuccess()==false with error==WRONG_PLAYER.
         ActionResult success = ActionResult.success(ActionType.TAKE_CARD, "ok");
         ActionResult failure = ActionResult.failure(ActionType.PLACE_TOTEM, ErrorCode.WRONG_PLAYER, "no");
 

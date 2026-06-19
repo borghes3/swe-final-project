@@ -18,6 +18,10 @@ class CharacterCardTest {
 
     @Test
     void onTakenValidatesArgumentsAndAddsCharacter() {
+        // Input  : a fresh CharacterCard (type=ARTIST, value=2); first call onTaken(null, null),
+        //          then call onTaken(game, p) with a valid player p.
+        // Output : onTaken(null, null) throws NullPointerException; valid onTaken adds 1 character
+        //          to the tribe and toState() is not null.
         CharacterCard card = new CharacterCard("c", Era.ERA_1, 0, CharacterType.ARTIST, 2) {
         };
 

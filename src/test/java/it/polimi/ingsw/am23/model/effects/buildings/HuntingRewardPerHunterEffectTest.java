@@ -13,6 +13,8 @@ class HuntingRewardPerHunterEffectTest {
 
     @Test
     void applyHuntingAddsBonusFoodAndPointsPerHunter() {
+        // Input  : tribe with 2 hunters; call HuntingRewardPerHunterEffect.applyHunting(null, p, data).
+        // Output : data.getExtraFood()==2 and data.getExtraPoints()==2 (one extra of each per hunter pair / rule).
         Player p = TestUtils.player("p", 0, 0);
         p.getTribe().addCharacter(new HunterCard("h1", Era.ERA_1, 0, false, 2));
         p.getTribe().addCharacter(new HunterCard("h2", Era.ERA_1, 0, false, 2));

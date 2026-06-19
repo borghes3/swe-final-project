@@ -13,6 +13,8 @@ class EndGamePointsPerCharacterTypeEffectTest {
 
     @Test
     void getEndGamePointsScalesByCharacterCount() {
+        // Input  : tribe with 2 hunters; effect = EndGamePointsPerCharacterTypeEffect(HUNTER, pointsPer=3).
+        // Output : getEndGamePoints==6 (2 hunters * 3 points each).
         Player p = TestUtils.player("p", 0, 0);
         p.getTribe().addCharacter(new HunterCard("h1", Era.ERA_1, 0, false, 2));
         p.getTribe().addCharacter(new HunterCard("h2", Era.ERA_1, 0, false, 2));

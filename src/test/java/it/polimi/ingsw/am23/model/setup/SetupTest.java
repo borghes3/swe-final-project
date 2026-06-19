@@ -23,6 +23,10 @@ class SetupTest {
 
     @Test
     void makeBuildsGameWithMatchingCriteria() {
+        // Input  : Setup for 2 players with buildings for ERA_1/2/3, no events, 9 artists; offer tiles for
+        //          1/2/3 players; turn-order tile sized for 2 slots. Call setup.make().
+        // Output : phase==SETUP, free offer tiles for the 2-player config are ['A','B'],
+        //          initial player food is [2, 3] (1st player gets 2, 2nd gets 3), turn-order tile has 2 slots.
         Setup setup = new Setup(
                 List.of(new PlayerConnectionInfo("p1", "n1"), new PlayerConnectionInfo("p2", "n2")),
                 List.of(
@@ -66,6 +70,8 @@ class SetupTest {
 
     @Test
     void makeRejectsNoMatchingOfferTiles() {
+        // Input  : Setup for 2 players but only one offer tile 'A' configured for 3 players (mismatched).
+        // Output : setup.make() throws UnmatchedGameCriteriaException.
         Setup setup = new Setup(
                 List.of(new PlayerConnectionInfo("p1", "n1"), new PlayerConnectionInfo("p2", "n2")),
                 List.of(),
@@ -80,6 +86,8 @@ class SetupTest {
 
     @Test
     void makeRejectsNoMatchingTurnOrderTile() {
+        // Input  : Setup for 2 players, offer tile sized for 1 player, turn-order tile with 3 slots (mismatched).
+        // Output : setup.make() throws UnmatchedGameCriteriaException.
         Setup setup = new Setup(
                 List.of(new PlayerConnectionInfo("p1", "n1"), new PlayerConnectionInfo("p2", "n2")),
                 List.of(),
@@ -94,6 +102,8 @@ class SetupTest {
 
     @Test
     void drawCardsSeparatesEventsAndCharactersByRow() throws Exception {
+        // Input  : reflectively call Setup.drawCards(TribeDeck) on a deck of [event e1, 8 character cards c1..c8].
+        // Output : upperRow has 6 cards including the event e1; lowerRow has 3 cards, all characters (ids start with 'c').
         Setup setup = new Setup(
                 List.of(new PlayerConnectionInfo("p1", "n1"), new PlayerConnectionInfo("p2", "n2")),
                 List.of(),

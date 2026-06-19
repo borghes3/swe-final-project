@@ -17,6 +17,9 @@ class ShamanRitualEventCardTest {
 
     @Test
     void resolveAssignsWinAndLossByStarRanking() {
+        // Input  : p1 with 3 shaman stars, p2 with 1; resolve ShamanRitualEventCard(winReward=5, loserPenalty=2).
+        //          p1 has the most stars → wins +5 PP; p2 has the fewest → loses -2 PP.
+        // Output : p1.getPrestigePoints()==5 and p2.getPrestigePoints()==-2.
         Player p1 = TestUtils.player("p1", 0, 0);
         Player p2 = TestUtils.player("p2", 0, 0);
 
@@ -42,6 +45,9 @@ class ShamanRitualEventCardTest {
 
     @Test
     void resolveSetsWinnerAndLoserToFalseWhenNoExtremes() {
+        // Input  : 3 players each with PP=5 and 2 shaman stars; resolve ShamanRitualEventCard(winReward=5, loserPenalty=2).
+        //          All tied → no clear winner/loser, the value/star multiplier still grants +3 PP each.
+        // Output : every player ends with prestigePoints == 8 (5 + 3).
         Player p1 = TestUtils.player("p1", 0, 5);
         Player p2 = TestUtils.player("p2", 0, 5);
         Player p3 = TestUtils.player("p3", 0, 5);

@@ -17,6 +17,8 @@ class GathererCardTest {
 
     @Test
     void onTakenAddsGathererToTribe() {
+        // Input  : GathererCard("g", ERA_1, points=0, value=2).onTaken(game, p) for player p.
+        // Output : tribe.count(GATHERER)==1 after the call.
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),

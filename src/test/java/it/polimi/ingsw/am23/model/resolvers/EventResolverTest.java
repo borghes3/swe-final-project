@@ -20,6 +20,9 @@ class EventResolverTest {
 
     @Test
     void resolveEventsExecutesSustenanceAfterAllOtherEventsAndOrdersByEra() {
+        // Input  : events = [n3(ERA_3), s(SustenanceERA_1), n1(ERA_1), n2(ERA_2)]; resolve them.
+        // Output : execution order = [N1, N2, N3, S] — non-sustenance events ordered by era,
+        //          sustenance always last regardless of its era.
         List<String> executionOrder = new ArrayList<>();
         EventResolver resolver = new EventResolver();
 

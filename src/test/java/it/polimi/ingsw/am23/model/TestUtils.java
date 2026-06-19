@@ -12,6 +12,7 @@ import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
 import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.enums.Era;
+import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.player.Totem;
 import it.polimi.ingsw.am23.model.resolvers.EventResolver;
@@ -53,5 +54,77 @@ public final class TestUtils {
         BuildingDeck buildingDeck = new BuildingDeck(Map.of());
 
         return new Game(players, board, tribeDeck, buildingDeck, new EventResolver(), cardMarket, currentEra, currentRound);
+    }
+
+    // Observer di test che conta le notifiche ricevute dal Game.
+    // Usato in qualunque test che voglia verificare il flusso di notifiche del model.
+    public static class RecordingObserver implements ModelObserver {
+        public int gameStartedCount;
+        public int stateChangedCount;
+        public int totemPlacedCount;
+        public int endPlacingCount;
+        public int cardsTakenCount;
+        public int extraDrawCount;
+        public int extraCardTakenCount;
+        public int eventResolvedCount;
+        public int marketRefreshedCount;
+        public int eraProgressionCount;
+        public int scoresCount;
+        public int gameOverCount;
+
+        @Override
+        public void onGameStarted(GameStartedPayload payload) {
+            gameStartedCount++;
+        }
+
+        @Override
+        public void onTotemPlaced(TotemPlacedPayload payload) {
+            totemPlacedCount++;
+        }
+
+        @Override
+        public void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
+            endPlacingCount++;
+        }
+
+        @Override
+        public void onCardsTaken(CardsTakenPayload payload) {
+            cardsTakenCount++;
+        }
+
+        @Override
+        public void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
+            extraDrawCount++;
+        }
+
+        @Override
+        public void onExtraCardTaken(ExtraCardTakenPayload payload) {
+            extraCardTakenCount++;
+        }
+
+        @Override
+        public void onEventResolved(EventResolvedPayload payload) {
+            eventResolvedCount++;
+        }
+
+        @Override
+        public void onMarketRefreshed(MarketRefresherPayload payload) {
+            marketRefreshedCount++;
+        }
+
+        @Override
+        public void onEraProgression(EraProgressionPayload payload) {
+            eraProgressionCount++;
+        }
+
+        @Override
+        public void onGameOver() {
+            gameOverCount++;
+        }
+
+        @Override
+        public void onScoreboardAvailable(ScoreBoardPayload payload) {
+            scoresCount++;
+        }
     }
 }

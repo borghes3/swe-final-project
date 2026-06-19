@@ -15,6 +15,10 @@ class BoardTest {
 
     @Test
     void tileAndSlotLookupAndFreeListsWork() {
+        // Input  : Board with offer 'A' (occupied by p1), 'B' (free), turn-order slots [free, occupied by p2].
+        // Output : getOfferTile('A')==tileA, getOfferTile('X') throws OfferTileNotFoundException,
+        //          getOfferTileByPlayerId("p1")==tileA, getFirstOccupiedOfferTile()==tileA,
+        //          findTurnOrderSlotOccupiedBy("p2")==s2, free offer tiles=1, free turn-order slots=1.
         OfferTile tileA = new OfferTile('A', "p1", 2, new OfferAction(1, 0, 0));
         OfferTile tileB = new OfferTile('B', null, 2, new OfferAction(0, 1, 0));
         TurnOrderSlot s1 = new TurnOrderSlot(0, 0,null);
@@ -33,6 +37,9 @@ class BoardTest {
 
     @Test
     void stateBuildersProduceCoherentStateShape() {
+        // Input  : Board with 1 offer tile + 1 turn-order slot, CardMarket TOP=[artist a1].
+        // Output : buildOfferTileState().size()==1, buildTurnOrderSlotsState().size()==1,
+        //          getState(market).getTopRow().size()==1; findTurnOrderSlotOccupiedBy(null) throws NPE.
         OfferTile tileA = new OfferTile('A', "p1", 2, new OfferAction(1, 0, 1));
         TurnOrderSlot slot = new TurnOrderSlot(2,0, "p1");
         Board board = new Board(List.of(tileA), new TurnOrderTile(List.of(slot)));

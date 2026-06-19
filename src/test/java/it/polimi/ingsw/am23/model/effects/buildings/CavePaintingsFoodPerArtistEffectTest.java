@@ -13,6 +13,9 @@ class CavePaintingsFoodPerArtistEffectTest {
 
     @Test
     void applyCavePaintingsAddsFoodPerArtist() {
+        // Input  : Player p with 2 artists; effect = CavePaintingsFoodPerArtistEffect(foodPerArtist=2).
+        //          applyCavePaintings(null, p, data) — 2 artists * 2 food each.
+        // Output : data.getExtraFood()==4.
         Player p = TestUtils.player("p", 0, 0);
         p.getTribe().addCharacter(new ArtistCard("a1", Era.ERA_1, 0, 2));
         p.getTribe().addCharacter(new ArtistCard("a2", Era.ERA_1, 0, 2));

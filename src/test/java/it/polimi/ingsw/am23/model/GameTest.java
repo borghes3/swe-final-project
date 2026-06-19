@@ -19,7 +19,6 @@ import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.resolvers.EventResolver;
-import it.polimi.ingsw.am23.model.state.GameState;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumMap;
@@ -32,6 +31,8 @@ class GameTest {
 
     @Test
     void startGameMovesToPlacingTotemsAndNotifiesObservers() {
+        // Input  : single player p1, one offer tile, one turn-order slot; attach observer; call startGame().
+        // Output : phase==PLACING_TOTEMS; observer received 1 onGameStarted, no extra state-changed events.
         Player p1 = TestUtils.player("p1", 3, 0);
         Game game = TestUtils.game(
                 List.of(p1),
@@ -43,7 +44,7 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
-        RecordingObserver observer = new RecordingObserver();
+        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();
         game.addObserver(observer);
 
         game.startGame();
@@ -55,6 +56,8 @@ class GameTest {
 
     @Test
     void findPlayerThrowsForMissingPlayer() {
+        // Input  : game with only player "p1"; call findPlayer("missing").
+        // Output : PlayerNotFoundException is thrown.
         Player p1 = TestUtils.player("p1", 3, 0);
         Game game = TestUtils.game(
                 List.of(p1),
@@ -72,6 +75,8 @@ class GameTest {
 
     @Test
     void placeTotemRejectsWrongPlayerInTurnOrder() {
+        // Input  : turn-order with p1 first then p2; call game.placeTotem("p2", 'A') (wrong order).
+        // Output : failure with ErrorCode.WRONG_PLAYER, offer tile 'A' remains free, turn-order still has p1 first.
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -102,6 +107,9 @@ class GameTest {
 
     @Test
     void placeTotemTransitionsToResolvingOffersWhenLastTotemIsPlaced() {
+        // Input  : two players p1/p2 in turn order; both call placeTotem in sequence ('A' then 'B').
+        // Output : both placements succeed, after the last one phase==RESOLVING_OFFERS,
+        //          and the turn-order tile is empty (no more pending totems).
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -133,6 +141,8 @@ class GameTest {
 
     @Test
     void placeTotemRejectsOccupiedOfferTile() {
+        // Input  : offer 'A' already occupied by another player; p1 (whose turn it is) calls placeTotem("p1", 'A').
+        // Output : failure with ErrorCode.INVALID_TILE.
         Player p1 = TestUtils.player("p1", 3, 0);
 
         Game game = TestUtils.game(
@@ -154,6 +164,8 @@ class GameTest {
 
     @Test
     void takeCardRejectsWronRow() {
+        // Input  : offer 'A' grants 1 TOP draw (bottom=0); p1 calls takeSingleCard with BOTTOM row.
+        // Output : failure with ErrorCode.INVALID_ROW (drawable count from BOTTOM is 0).
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -176,6 +188,8 @@ class GameTest {
 
     @Test
     void takeCardsRejectsEventCardsAndDoesNotConsumeTurn() {
+        // Input  : Market TOP=[event sustenance card, artist a1]; p1 calls takeSingleCard for TOP[0] (the event).
+        // Output : failure with ErrorCode.CARD_NOT_TAKABLE, p1 still has the offer tile (turn not consumed).
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -200,6 +214,8 @@ class GameTest {
 
     @Test
     void takeCardsSuccessReturnsPlayerToTurnOrderAndGrantsFoodReward() {
+        // Input  : p1(food=1) on offer 'A' with foodReward=2 and 1 TOP draw; takes artist a1.
+        // Output : success; p1.getFood()==3 (1+2 reward), tribe gets 1 character, p1 placed back on turn-order slot 0.
         Player p1 = TestUtils.player("p1", 1, 0);
         Player p2 = TestUtils.player("p2", 0, 0);
 
@@ -224,6 +240,8 @@ class GameTest {
 
     @Test
     void takeSingleCardAcceptsBuildingCardsAndPaysFoodCost() {
+        // Input  : p1(food=5), top building "b1" with cost=3; call takeSingleCard(TOP, 0, isBuilding=true).
+        // Output : success; p1.getFood()==2 (5-3), tribe has 1 building, p1 is placed in turn-order slot 0.
         Player p1 = TestUtils.player("p1", 5, 0);
 
         Game game = TestUtils.game(
@@ -247,6 +265,9 @@ class GameTest {
 
     @Test
     void takeSingleCardAppliesPositiveTurnOrderFoodDelta() {
+        // Input  : p1(food=1), offer 'A' with no food reward but turn-order slot has +2 food delta.
+        //          Take artist a1 → after drawing player is moved back to the slot (+2 food).
+        // Output : p1.getFood()==3 (1 + 2 from turn-order slot).
         Player p1 = TestUtils.player("p1", 1, 0);
 
         Game game = TestUtils.game(
@@ -268,6 +289,9 @@ class GameTest {
 
     @Test
     void takeSingleCardFallsBackToPrestigeWhenTurnOrderFoodIsTooExpensive() {
+        // Input  : p1(food=1, PP=10); turn-order slot delta = -2 food. p1 cannot afford 2 food.
+        //          Take artist; on return-to-slot the negative delta is paid in PP (2*delta) instead of food.
+        // Output : p1.getFood()==1 (unchanged), p1.getPrestigePoints()==6 (10 - 4).
         Player p1 = TestUtils.player("p1", 1, 10);
 
         Game game = TestUtils.game(
@@ -290,6 +314,10 @@ class GameTest {
 
     @Test
     void takeExtraCardValidatesPendingPlayerAndCost() {
+        // Input  : 3 sequential takeExtraCard calls — (a) before any pending player is set;
+        //          (b) after setting p1 as pending, p2 tries to draw; (c) p1 tries to buy a building
+        //          costing 4 food but only has 1.
+        // Output : (a) NO_PENDING_EXTRA_DRAW, (b) INVALID_EXTRA_DRAW, (c) NOT_ENOUGH_FOOD.
         Player p1 = TestUtils.player("p1", 1, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -314,6 +342,8 @@ class GameTest {
 
     @Test
     void takeExtraCardAcceptsTribeCardSelection() {
+        // Input  : p1 is set as pending extra-draw player; p1 picks TOP[0] (a tribe artist) as extra card.
+        // Output : success; p1's tribe gains 1 character; phase advances to RESOLVING_EVENTS.
         Player p1 = TestUtils.player("p1", 2, 0);
 
         Game game = TestUtils.game(
@@ -338,6 +368,8 @@ class GameTest {
 
     @Test
     void takeExtraCardAcceptsBuildingSelection() {
+        // Input  : p1(food=5) is pending extra-draw; picks the top building "b1" (cost=2) as extra card.
+        // Output : success; p1.getFood()==3 (5-2); 1 building added to tribe; phase==RESOLVING_EVENTS.
         Player p1 = TestUtils.player("p1", 5, 0);
 
         Game game = TestUtils.game(
@@ -363,6 +395,10 @@ class GameTest {
 
     @Test
     void resolveEventsAndCalculateScoresProduceObserverNotifications() {
+        // Input  : 2 players; BOTTOM has 1 sustenance event card; round=1; attach observer;
+        //          call resolveEvents() and calculateScores(); then removeObserver and calculateScores() again.
+        // Output : both ActionResults succeed; observer recorded 1 onEventResolved and 1 onScoreboardAvailable;
+        //          after removeObserver, scoresCount stays at 1.
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
         Game game = TestUtils.game(
@@ -376,7 +412,7 @@ class GameTest {
                 1
         );
 
-        RecordingObserver observer = new RecordingObserver();
+        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();
         game.addObserver(observer);
 
         ActionResult eventsResult = game.resolveEvents();
@@ -394,6 +430,9 @@ class GameTest {
 
         @Test
         void resolveEventsAdvancesEraDuringCleanup() {
+        // Input  : 2 players; BOTTOM has 1 ERA_1 event; tribe deck contains an ERA_2 artist + several ERA_1 fillers;
+        //         resolveEvents() triggers cleanup which refills TOP and discovers an ERA_2 card → era progression.
+        // Output : success; currentEra==ERA_2; phase==PLACING_TOTEMS; observer recorded 1 onEraProgression.
         Player p1 = TestUtils.player("p1", 3, 0);
             Player p2 = TestUtils.player("p2", 3, 0);
 
@@ -429,7 +468,7 @@ class GameTest {
             1
         );
 
-        RecordingObserver observer = new RecordingObserver();
+        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();
         game.addObserver(observer);
 
         ActionResult result = game.resolveEvents();
@@ -442,6 +481,8 @@ class GameTest {
 
     @Test
     void resolveEventsAtRoundTenEndsGameAndNotifiesGameOver() {
+        // Input  : currentRound=10 (last round); TOP and BOTTOM each contain a sustenance event; call resolveEvents().
+        // Output : success; phase==ENDED; observer recorded 1 onGameOver.
         Player p1 = TestUtils.player("p1", 3, 0);
         Player p2 = TestUtils.player("p2", 3, 0);
         Game game = TestUtils.game(
@@ -454,7 +495,7 @@ class GameTest {
                 Era.ERA_1,
                 10
         );
-        RecordingObserver observer = new RecordingObserver();
+        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();
         game.addObserver(observer);
 
         ActionResult result = game.resolveEvents();
@@ -465,6 +506,10 @@ class GameTest {
     }
     @Test
     void autoResolveProcessesZeroDrawTilesAutomatically() {
+        // Input  : offer 'A' = (0 draws, foodReward=3), offer 'B' = (1 TOP draw, no reward).
+        //          Both players place totems (p1→'A', p2→'B'). The 'A' tile has 0 draws → auto-resolved.
+        // Output : phase==RESOLVING_OFFERS; 'A' freed automatically; p1 returned to turn order with +3 food;
+        //          'B' remains occupied by p2 (still needs to draw).
         Player p1 = TestUtils.player("p1", 0, 0);
         Player p2 = TestUtils.player("p2", 0, 0);
         Game game = TestUtils.game(
@@ -496,6 +541,9 @@ class GameTest {
 
     @Test
     void skipTurnFailsWhenCharacterCardIsAvailable() {
+        // Input  : single player p1, offer 'A' grants 1 TOP draw, market TOP has 1 artist (a character) available.
+        //          After placeTotem, p1 calls skipTurn (but a character is available, so skipping is forbidden).
+        // Output : failure with ErrorCode.CANNOT_SKIP.
         Player p1 = TestUtils.player("p1", 0, 0);
 
         Game game = TestUtils.game(
@@ -520,13 +568,18 @@ class GameTest {
 
     @Test
     void skipTurnSucceedsWhenOnlyBuildingsAvailable() {
+        // Input  : p1 (food=0) places totem on offer 'A' that grants 2 top draws.
+        //          Market = [TOP=[artist a1], BOTTOM=[], top buildings=[b1]].
+        //          p1 takes the artist (1 of 2 top draws), then calls skipTurn("p1").
+        // Output : skipTurn succeeds (only buildings remain on TOP — no character forced),
+        //          offer 'A' is freed, and the game advances to RESOLVING_EVENTS.
         Player p1 = TestUtils.player("p1", 0, 0);
 
         Game game = TestUtils.game(
                 List.of(p1),
-                List.of(new OfferTile('A', null, 1, new OfferAction(1, 0, 0))),
+                List.of(new OfferTile('A', null, 1, new OfferAction(2, 0, 0))),
                 List.of(new TurnOrderSlot(0, 0, "p1")),
-                List.of(),
+                List.of(TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(TestUtils.building("b1", Era.ERA_1, 0, 0, new FlatEndGamePointsEffect(0))),
                 Era.ERA_1,
@@ -535,6 +588,7 @@ class GameTest {
 
         game.startGame();
         game.placeTotem("p1", 'A');
+        assertTrue(game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, false)).isSuccess());
 
         ActionResult result = game.skipTurn("p1");
 
@@ -545,6 +599,10 @@ class GameTest {
 
     @Test
     void skipTurnSucceedsInExtraDrawPhase() {
+        // Input  : p1 places totem on 'A' (1 TOP draw); pending extra-draw is set to p1;
+        //          p1 takes the only top building (consuming the draw and entering EXTRA_DRAW phase);
+        //          then p1 calls skipTurn (no characters available → skip allowed).
+        // Output : skipTurn succeeds; phase advances to RESOLVING_EVENTS; currentPlayerId becomes null.
         Player p1 = TestUtils.player("p1", 0, 0);
 
         Game game = TestUtils.game(
@@ -574,70 +632,4 @@ class GameTest {
         assertNull(game.getGameState().getCurrentPlayerId());
     }
 
-    private static class RecordingObserver implements ModelObserver {
-        int gameStartedCount;
-        int stateChangedCount;
-        int endPlacingCount;
-        int endDrawingCount;
-        int extraDrawCount;
-        int eventResolvedCount;
-        int eraProgressionCount;
-        int scoresCount;
-        int gameOverCount;
-        GameState lastGameState;
-
-        @Override
-        public void onGameStarted(GameState gameState) {
-            gameStartedCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onGameStateChanged(GameState gameState) {
-            stateChangedCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onEndOfPlacingPhase(GameState gameState) {
-            endPlacingCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onEndOfDrawingPhase(GameState gameState) {
-            endDrawingCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onExtraDrawRequest(GameState gameState) {
-            extraDrawCount ++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onEventResolved(GameState gameState) {
-            eventResolvedCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onEraProgression(GameState gameState) {
-            eraProgressionCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onGameOver(GameState gameState) {
-            gameOverCount++;
-            lastGameState = gameState;
-        }
-
-        @Override
-        public void onScoreboardAvailable(GameState gameState) {
-            scoresCount++;
-            lastGameState = gameState;
-        }
-    }
 }

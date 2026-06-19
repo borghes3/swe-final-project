@@ -17,6 +17,9 @@ class TribeTest {
 
     @Test
     void addCharacterAndCountersWorkIncludingSetsAndPairs() {
+        // Input  : add 5 of the 6 character types (no inventor) → 0 complete sets; then add 2 inventors and
+        //          increment BOAT icon counter twice.
+        // Output : count(HUNTER)==1, countCompletedSets()==1 (one of each type now), countInventorPairsByIcon()==1.
         Tribe tribe = new Tribe();
 
         tribe.addCharacter(new HunterCard("h1", Era.ERA_1, 0, false, 2));
@@ -39,6 +42,8 @@ class TribeTest {
 
     @Test
     void buildingsDiscountAndFlagsWork() {
+        // Input  : add 2 builders (discounts 1 and 2); then add a building.
+        // Output : getBuildingDiscount()==3 (sum of builder discounts); hasBuildings is false until a building is added.
         Tribe tribe = new Tribe();
 
         tribe.addCharacter(new BuilderCard("b1", Era.ERA_1, 0, 1, 2));
@@ -53,6 +58,9 @@ class TribeTest {
 
     @Test
     void shamanAndInventorSupportMethodsHandleEdgeCases() {
+        // Input  : increment icon counters ARROW and BOAT; add 2 shaman stars; try negative addShamanStars and count(null).
+        // Output : getDistinctInventionIcons()==2, totalShamanStars()==2;
+        //          addShamanStars(-1) throws IllegalArgumentException; count(null) throws NullPointerException.
         Tribe tribe = new Tribe();
 
         tribe.incrementInventorIconCount(InventionIcon.ARROW);

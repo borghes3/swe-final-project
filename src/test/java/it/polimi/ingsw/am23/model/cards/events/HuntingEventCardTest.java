@@ -17,6 +17,8 @@ class HuntingEventCardTest {
 
     @Test
     void resolveRewardsFoodAndPrestigeBasedOnHunters() {
+        // Input  : Player p1 (food=0, PP=0) with 2 hunters in tribe; resolve HuntingEventCard(prestige=2).
+        // Output : p1.getFood()==2 and p1.getPrestigePoints()==4 (based on hunters count and event rules).
         Player p1 = TestUtils.player("p1", 0, 0);
         p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.HunterCard("h1", Era.ERA_1, 0, false, 2));
         p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.HunterCard("h2", Era.ERA_1, 0, false, 2));

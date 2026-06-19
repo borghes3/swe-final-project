@@ -8,6 +8,8 @@ class ShamanRitualEffectDataTest {
 
     @Test
     void settersUpdateShamanRitualFlagsAndBonus() {
+        // Input  : setBonusStars(3), setIgnoreLoss(true), setDoubleWin(true).
+        // Output : getBonusStars()==3, ignoreLoss()==true, doubleWin()==true.
         ShamanRitualEffectData data = new ShamanRitualEffectData();
         data.setBonusStars(3);
         data.setIgnoreLoss(true);

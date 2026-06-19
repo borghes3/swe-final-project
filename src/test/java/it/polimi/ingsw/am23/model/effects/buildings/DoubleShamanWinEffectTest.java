@@ -9,6 +9,8 @@ class DoubleShamanWinEffectTest {
 
     @Test
     void applyShamanRitualEnablesDoubleWinFlag() {
+        // Input  : empty ShamanRitualEffectData; call DoubleShamanWinEffect.applyShamanRitual.
+        // Output : data.doubleWin()==true.
         ShamanRitualEffectData data = new ShamanRitualEffectData();
         new DoubleShamanWinEffect().applyShamanRitual(null, null, data);
         assertTrue(data.doubleWin());

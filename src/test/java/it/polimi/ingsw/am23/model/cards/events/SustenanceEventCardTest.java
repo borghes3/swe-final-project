@@ -17,6 +17,10 @@ class SustenanceEventCardTest {
 
     @Test
     void resolveConsumesFoodOrPrestigeWithFallback() {
+        // Input  : p1(food=5, PP=5) with 1 hunter; p2(food=0, PP=5) with 1 hunter; era ERA_2.
+        //          Resolve SustenanceEventCard — each player must pay the sustenance food cost.
+        // Output : p1 pays in food → p1.getFood()==4; p2 cannot pay in food → falls back to PP →
+        //          p2.getPrestigePoints()==3 (lost 2 PP since 1 missing food => 2 PP).
         Player p1 = TestUtils.player("p1", 5, 5);
         Player p2 = TestUtils.player("p2", 0, 5);
         p1.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.HunterCard("h", Era.ERA_1, 0, false, 2));

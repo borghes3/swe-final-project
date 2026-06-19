@@ -9,6 +9,8 @@ class RefillResultTest {
 
     @Test
     void registerEraAdvanceTracksHighestEraOnly() {
+        // Input  : RefillResult.registerEraAdvance with sequence [ERA_2, ERA_1, ERA_3].
+        // Output : isEraAdvanced()==true and getNewEra()==ERA_3 (highest seen).
         RefillResult result = new RefillResult();
 
         result.registerEraAdvance(Era.ERA_2);

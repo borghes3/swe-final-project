@@ -22,6 +22,9 @@ class ScoreCalculatorTest {
 
     @Test
     void calculateFinalScoresSortsByPrestigeThenFoodOnTie() {
+        // Input  : p1(food=1,PP=4)+scoringSet, p2(food=5,PP=10), p3(food=3,PP=4)+scoringSet.
+        //          Each scoringSet adds 22 PP from buildings/cards (one inventor pair, builder, artists, +3 building).
+        // Output : final ranking [p3, p1, p2] — p3/p1 tied at PP=26 but p3 has more food breaking tie; p2 has 10.
         Player p1 = TestUtils.player("p1", 1, 4);
         Player p2 = TestUtils.player("p2", 5, 10);
         Player p3 = TestUtils.player("p3", 3, 4);
@@ -42,6 +45,9 @@ class ScoreCalculatorTest {
 
     @Test
     void getWinnerThrowsIfScoresWereNeverCalculatedAndReturnsTieWinners() {
+        // Input  : 3 players, no scoring sets — p1/p2 have (food=2,PP=5), p3 has (food=1,PP=5).
+        //          Call getWinner() before calculateFinalScores(), then after.
+        // Output : first call throws IllegalStateException; after calculate, winners=[p1, p2] (tied on PP+food).
         Player p1 = TestUtils.player("p1", 2, 5);
         Player p2 = TestUtils.player("p2", 2, 5);
         Player p3 = TestUtils.player("p3", 1, 5);

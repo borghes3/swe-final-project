@@ -17,6 +17,9 @@ class HunterCardTest {
 
     @Test
     void onTakenAddsFoodBasedOnHuntersWhenCardHasFoodSymbol() {
+        // Input  : Player p (food=0); add two HunterCards with foodSymbol=true.
+        //          1st hunter: huntersInTribe=1 → +1 food; 2nd hunter: huntersInTribe=2 → +2 food.
+        // Output : p.getFood()==3 (0 + 1 + 2).
         Player p = TestUtils.player("p", 0, 0);
         Game game = TestUtils.game(
                 List.of(p),
@@ -37,6 +40,8 @@ class HunterCardTest {
 
     @Test
     void onTakenDoesNotAddFoodWhenCardHasNoFoodSymbol() {
+        // Input  : Player p (food=5); add two HunterCards with foodSymbol=false.
+        // Output : p.getFood()==5 (unchanged — no food symbol means no on-taken food gain).
         Player p = TestUtils.player("p", 5, 0);
         Game game = TestUtils.game(
                 List.of(p),

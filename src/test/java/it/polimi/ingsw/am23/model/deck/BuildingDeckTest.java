@@ -14,6 +14,9 @@ class BuildingDeckTest {
 
     @Test
     void drawPeekAndSizeBehavePerEra() {
+        // Input  : BuildingDeck for ERA_1 with 2 buildings [b1, b2]; do peek, draw, draw, draw.
+        // Output : peekTop(ERA_1).id=="b1", first draw().id=="b1", size==1, getCardsForEra(ERA_1).size()==1,
+        //          third draw throws IllegalArgumentException (empty), isEmpty(ERA_1)==true.
         Map<Era, List<it.polimi.ingsw.am23.model.cards.BuildingCard>> map = new EnumMap<>(Era.class);
         map.put(Era.ERA_1, List.of(
                 TestUtils.building("b1", Era.ERA_1, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0)),

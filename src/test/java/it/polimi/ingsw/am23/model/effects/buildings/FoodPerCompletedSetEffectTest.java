@@ -18,6 +18,10 @@ class FoodPerCompletedSetEffectTest {
 
     @Test
     void onBuildingAddedAndOnCardTakenRewardOnlyNewCompletedSets() {
+        // Input  : tribe already has 5 of 6 character types; onBuildingAdded gives initial reward,
+        //          then onCardTaken(Inventor) (still 5 distinct in tribe) → no new reward,
+        //          then add the Inventor and call onCardTaken again → completes the 6th set → reward.
+        // Output : p.getFood()==5 (sum of initial + one-set completion rewards).
         Player p = TestUtils.player("p", 0, 0);
         p.getTribe().addCharacter(new HunterCard("h", Era.ERA_1, 0, false, 2));
         p.getTribe().addCharacter(new GathererCard("g", Era.ERA_1, 0, 2));

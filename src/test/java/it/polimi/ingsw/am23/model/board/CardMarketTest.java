@@ -18,6 +18,10 @@ class CardMarketTest {
 
     @Test
     void cardAndBuildingOperationsUseCorrectRows() {
+        // Input  : Market with TOP=[a1], BOTTOM=[a2], topBuildings=[b1]; remove BOTTOM[0],
+        //          add new artist+building to BOTTOM, remove TOP building.
+        // Output : getCard returns the right cards per row, getRowSize(TOP)==1, BOTTOM size==0 after removal,
+        //          final getDrawableCount(BOTTOM)==2 (1 character + 1 building).
         Card top = TestUtils.artist("a1", Era.ERA_1);
         Card bottom = TestUtils.artist("a2", Era.ERA_1);
         CardMarket market = new CardMarket(List.of(top), List.of(bottom), List.of(TestUtils.building("b1", Era.ERA_1, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))));
@@ -38,6 +42,8 @@ class CardMarketTest {
 
     @Test
     void refillTopRowRejectsInvalidNumberOfPlayers() {
+        // Input  : empty Market, TribeDeck with 1 artist, call refillTopRow(deck, numberOfPlayers=1, ERA_1).
+        // Output : IllegalArgumentException ("Number of Players must be at least 2.").
         CardMarket market = new CardMarket(List.of(), List.of(), List.of());
         TribeDeck deck = new TribeDeck(List.of(TestUtils.artist("a1", Era.ERA_1)));
 
@@ -46,6 +52,9 @@ class CardMarketTest {
 
     @Test
     void refillTopRowStopsAtTargetSizeAndTracksHighestAdvancedEra() {
+        // Input  : empty Market, TribeDeck with 7 artists (eras [1,2,2,3,1,2,1]); refill for 2 players starting at ERA_1.
+        //          Target size = numberOfPlayers + 4 = 6.
+        // Output : market top row has 6 cards, deck has 1 left, era advanced to ERA_3 (max era seen).
         CardMarket market = new CardMarket(List.of(), List.of(), List.of());
         TribeDeck deck = new TribeDeck(List.of(
                 TestUtils.artist("a1", Era.ERA_1),
@@ -67,6 +76,10 @@ class CardMarketTest {
 
     @Test
     void resolvingAndEraProgressionHelpersWork() {
+        // Input  : Market TOP=[event,artist], BOTTOM=[event], topBuildings=[top-1]; perform clearBottom,
+        //          moveTopToBottom, then handleEraProgression to ERA_2 with BuildingDeck containing e2.
+        // Output : bottom events count=1, top events count=1, bottom empty after clear, then bottom size=2 after move;
+        //          after era progression bottomBuildings has 1 entry, topBuildings[0].id == "e2".
         CardMarket market = new CardMarket(
                 List.of(
                         new it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard("s-top", Era.ERA_1, 0, false),
@@ -102,6 +115,9 @@ class CardMarketTest {
 
     @Test
     void handleEraProgressionClearsBottomBuildingsOnlyForEra3() {
+        // Input  : Market with topBuildings=[old-top], bottomBuildings=[old-bottom]; era-3 deck has [e3];
+        //          call handleEraProgression(deck, ERA_3) — entering ERA_3 should discard old bottom.
+        // Output : bottomBuildings size=1 with id "old-top" (moved from top), topBuildings size=1 with id "e3".
         Map<Era, List<it.polimi.ingsw.am23.model.cards.BuildingCard>> byEra = new EnumMap<>(Era.class);
         byEra.put(Era.ERA_3, List.of(TestUtils.building("e3", Era.ERA_3, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))));
         

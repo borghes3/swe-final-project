@@ -10,6 +10,9 @@ class EventCardTest {
 
     @Test
     void eventCardsCannotBeTakenAndThrowOnOnTaken() {
+        // Input  : an EventCard with isFinal=true; call canBeTaken(), isFinal(), and onTaken(null,null).
+        // Output : canBeTaken()==false, isFinal()==true, onTaken throws UnsupportedOperationException,
+        //          toState() is not null.
         EventCard event = new EventCard("e", Era.ERA_1, 0, true) {
             @Override
             public void resolve(Game game) {

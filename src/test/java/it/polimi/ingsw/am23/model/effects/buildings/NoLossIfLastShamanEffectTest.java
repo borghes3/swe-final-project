@@ -9,6 +9,8 @@ class NoLossIfLastShamanEffectTest {
 
     @Test
     void applyShamanRitualEnablesIgnoreLossFlag() {
+        // Input  : empty ShamanRitualEffectData; call NoLossIfLastShamanEffect.applyShamanRitual.
+        // Output : data.ignoreLoss()==true.
         ShamanRitualEffectData data = new ShamanRitualEffectData();
         new NoLossIfLastShamanEffect().applyShamanRitual(null, null, data);
         assertTrue(data.ignoreLoss());
