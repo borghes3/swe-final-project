@@ -57,7 +57,7 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Label fx:id="errorLabel" text="-- errori --" textFill="#ff4444">
+      <Label fx:id="errorLabel" text="-- errors --" textFill="#ff4444">
          <VBox.margin>
             <Insets />
          </VBox.margin>

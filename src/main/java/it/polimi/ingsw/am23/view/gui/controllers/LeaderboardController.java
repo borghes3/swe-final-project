@@ -30,22 +30,22 @@ public class LeaderboardController {
         entriesContainer.getChildren().clear();
 
         if (payload == null) {
-            subtitleLabel.setText("Classifica non disponibile.");
+            subtitleLabel.setText("Leaderboard unavailable.");
             return;
         }
 
-        titleLabel.setText("Classifica globale - partite a " + payload.playerCount() + " giocatori");
+        titleLabel.setText("Global leaderboard - " + payload.playerCount() + "-player games");
 
         if (!payload.persistenceAvailable()) {
-            subtitleLabel.setText("Il server non riesce a contattare il database.");
+            subtitleLabel.setText("The server cannot reach the database.");
             return;
         }
         if (payload.entries() == null || payload.entries().isEmpty()) {
-            subtitleLabel.setText("Nessuna partita registrata.");
+            subtitleLabel.setText("No games recorded.");
             return;
         }
 
-        subtitleLabel.setText("Le migliori " + payload.entries().size() + " partite registrate.");
+        subtitleLabel.setText("Top " + payload.entries().size() + " recorded games.");
 
         entriesContainer.getChildren().add(buildHeader());
         for (RankingEntry e : payload.entries()) {
@@ -64,8 +64,8 @@ public class LeaderboardController {
         row.getChildren().addAll(
                 cell("#", 50),
                 cell("Nickname", 160),
-                cell("Punteggio", 90),
-                cell("Data", 140)
+                cell("PP", 90),
+                cell("Date", 140)
         );
         return row;
     }

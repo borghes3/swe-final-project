@@ -271,7 +271,7 @@ public class GameScreenController {
     private void updateTopBar(GameState state) {
         eraLabel.setText("Era " + toRoman(state.getCurrentEra().ordinal() + 1));
         roundLabel.setText("Round " + state.getCurrentRound() + " / 10");
-        phaseLabel.setText("Fase: " + formatPhase(state.getPhase().name()));
+        phaseLabel.setText("Phase: " + formatPhase(state.getPhase().name()));
     }
 
     // BOARD
@@ -408,14 +408,14 @@ public class GameScreenController {
 
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Pescaggio Extra");
+        dialog.setTitle("Extra Draw");
 
         VBox root = new VBox(12);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: #3d1a0a;");
 
-        Label title = new Label("Scegli una carta dalla fila superiore.");
+        Label title = new Label("Choose a card from the top row.");
         title.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         HBox cardsRow = new HBox(8);
@@ -464,7 +464,7 @@ public class GameScreenController {
         root.getChildren().addAll(title, cardsRow);
 
         if (gameState.getSkipAllowed()) {
-            javafx.scene.control.Button skipButton = new javafx.scene.control.Button("Salta turno");
+            javafx.scene.control.Button skipButton = new javafx.scene.control.Button("Skip turn");
             skipButton.setStyle(
                     "-fx-background-color: #5a2e10;" +
                             "-fx-text-fill: #f5f0e8;" +
@@ -556,13 +556,13 @@ public class GameScreenController {
                 javafx.scene.control.Alert.AlertType.CONFIRMATION
         );
 
-        alert.setTitle("Nessuna carta disponibile.");
+        alert.setTitle("No cards available.");
         alert.setHeaderText(null);
-        alert.setContentText("Non ci sono carte pescabili. Vuoi saltare il turno?");
+        alert.setContentText("There are no cards to draw. Do you want to skip your turn?");
 
-        javafx.scene.control.ButtonType skipButton = new javafx.scene.control.ButtonType("Salta turno");
+        javafx.scene.control.ButtonType skipButton = new javafx.scene.control.ButtonType("Skip turn");
         javafx.scene.control.ButtonType cancelButton = new javafx.scene.control.ButtonType(
-                "Annulla",
+                "Cancel",
                 javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE
         );
 
@@ -590,7 +590,7 @@ public class GameScreenController {
             dialog.initModality(Modality.NONE);
         }
 
-        dialog.setTitle("Eventi del round");
+        dialog.setTitle("Round events");
 
         VBox root = new VBox(16);
         root.setAlignment(Pos.TOP_LEFT);
@@ -638,7 +638,7 @@ public class GameScreenController {
         }
 
         if (events.size() > 1) {
-            Label summaryLabel = new Label("Riepilogo round:");
+            Label summaryLabel = new Label("Round summary:");
             summaryLabel.setStyle("-fx-text-fill: #f5d78e; -fx-font-size: 14px; -fx-font-weight: bold;");
             root.getChildren().add(summaryLabel);
 
@@ -650,7 +650,7 @@ public class GameScreenController {
             }
         }
 
-        javafx.scene.control.Button proceedButton = new javafx.scene.control.Button("Continua");
+        javafx.scene.control.Button proceedButton = new javafx.scene.control.Button("Continue");
         proceedButton.setStyle(
                 "-fx-background-color: #5a2e10;" +
                         "-fx-text-fill: #f5f0e8;" +
@@ -705,7 +705,7 @@ public class GameScreenController {
                 buildSummaryCardFace(summary2, imgW, imgH)
         );
 
-        javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Chiudi");
+        javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
         closeButton.setStyle(
                 "-fx-background-color: #5a2e10;" +
                         "-fx-text-fill: #f5f0e8;" +
@@ -759,7 +759,7 @@ public class GameScreenController {
                             "-fx-border-radius: 8;" +
                             "-fx-border-width: 1;"
             );
-            Label missing = new Label("Immagine non trovata\n");
+            Label missing = new Label("Image not found\n");
             missing.setStyle("-fx-text-fill: rgba(245,240,232,0.55); -fx-font-size: 12px; -fx-text-alignment: center;");
             placeholder.getChildren().add(missing);
             box.getChildren().addAll(placeholder);
@@ -822,7 +822,7 @@ public class GameScreenController {
         }
 
         if (!hasChanges) {
-            Label noChange = new Label("nessuna variazione");
+            Label noChange = new Label("no change");
             noChange.setStyle("-fx-text-fill: rgba(245,240,232,0.65); -fx-font-size: 12px;");
             row.getChildren().add(noChange);
         }
@@ -836,26 +836,26 @@ public class GameScreenController {
 
     private String eventTypeName(String eventCardId) {
         if (eventCardId == null) {
-            return "Evento";
+            return "Event";
         }
 
         if (eventCardId.startsWith("ECP")) {
-            return "Pitture rupestri";
+            return "Cave Painting";
         }
 
         if (eventCardId.startsWith("EHU")) {
-            return "Caccia";
+            return "Hunt";
         }
 
         if (eventCardId.startsWith("ESH")) {
-            return "Rituale sciamanico";
+            return "Shamanic";
         }
 
         if (eventCardId.startsWith("ESU")) {
-            return "Sostentamento";
+            return "Sustenance";
         }
 
-        return "Evento";
+        return "Event";
     }
 
     private void centerDialogOnOwner(Stage dialog, Window owner) {
@@ -907,7 +907,7 @@ public class GameScreenController {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
-            Label meLabel = new Label("TU");
+            Label meLabel = new Label("YOU");
             meLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.75); -fx-font-size: 12px; -fx-font-weight: bold;");
 
             nameRow.getChildren().addAll(spacer, meLabel);

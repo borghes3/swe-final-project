@@ -182,7 +182,7 @@ public class JavaFXView extends Application implements VirtualView {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida.");
+                alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
@@ -199,7 +199,7 @@ public class JavaFXView extends Application implements VirtualView {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida.");
+                alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
@@ -219,7 +219,7 @@ public class JavaFXView extends Application implements VirtualView {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida.");
+                alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
@@ -236,7 +236,7 @@ public class JavaFXView extends Application implements VirtualView {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.WARNING
                 );
-                alert.setTitle("Azione non valida.");
+                alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
                 alert.setContentText(msg);
                 alert.showAndWait();
@@ -337,7 +337,7 @@ public class JavaFXView extends Application implements VirtualView {
                 waitingRoomController = null;
                 showLobbyScreen(java.util.List.of());
                 if (!leftVoluntarily){
-                    lobbyController.showError("La lobby è stata chiusa. Scegliene una nuova.");
+                    lobbyController.showError("The lobby has been closed. Choose a new one.");
                 }
                 leftVoluntarily = false;
                 server.requestLobbyList(playerId);
@@ -710,7 +710,7 @@ public class JavaFXView extends Application implements VirtualView {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                 javafx.scene.control.Alert.AlertType.WARNING
         );
-            alert.setTitle("Azione non valida");
+            alert.setTitle("Invalid action.");
             alert.setHeaderText(null);
             alert.setContentText(message);
             alert.showAndWait();
@@ -733,9 +733,9 @@ public class JavaFXView extends Application implements VirtualView {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     Alert.AlertType.ERROR
             );
-            alert.setTitle("Connessione persa.");
-            alert.setHeaderText("Server non raggiungibile.");
-            alert.setContentText("Tornerai alla schermata di connessione.");
+            alert.setTitle("Connection lost.");
+            alert.setHeaderText("Server unreachable.");
+            alert.setContentText("You will be returned to the connection screen.");
             alert.showAndWait();
 
             try{

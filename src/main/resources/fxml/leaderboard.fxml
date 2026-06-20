@@ -13,7 +13,7 @@
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
    </padding>
-   <Label fx:id="titleLabel" text="Classifica globale" textFill="#f5f0e8">
+   <Label fx:id="titleLabel" text="Global leaderboard" textFill="#f5f0e8">
       <font>
          <Font name="System Bold" size="18.0"/>
       </font>
@@ -34,7 +34,7 @@
       <VBox fx:id="entriesContainer" spacing="6.0"/>
    </ScrollPane>
    <Button mnemonicParsing="false" onAction="#onBackClicked" prefHeight="35.0"
-           style="-fx-background-color: #ff4444; -fx-text-fill: #f5f0e8;" text="Torna ai risultati">
+           style="-fx-background-color: #ff4444; -fx-text-fill: #f5f0e8;" text="Back to results">
       <font>
          <Font name="System Bold" size="12.0"/>
       </font>

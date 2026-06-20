@@ -77,7 +77,7 @@ public class ScoreboardController {
         }
 
         if (positionLabel != null) {
-            positionLabel.setText("Classifica globale in arrivo…");
+            positionLabel.setText("Global leaderboard incoming...");
         }
         if (leaderboardButton != null) {
             leaderboardButton.setDisable(true);
@@ -88,7 +88,7 @@ public class ScoreboardController {
         if (payload == null || positionLabel == null) return;
 
         if (!payload.persistenceAvailable()) {
-            positionLabel.setText("Classifica non disponibile (DB offline).");
+            positionLabel.setText("Leaderboard unavailable (DB offline).");
             if (leaderboardButton != null) {
                 leaderboardButton.setDisable(true);
             }
@@ -100,11 +100,11 @@ public class ScoreboardController {
                 : null;
 
         if (pos == null || pos <= 0) {
-            positionLabel.setText("Posizione globale: n/d (partite a "
-                    + payload.playerCount() + " giocatori)");
+            positionLabel.setText("Global position: n/a ( "
+                    + payload.playerCount() + " -player games)");
         } else {
-            positionLabel.setText("Sei #" + pos + " nella classifica globale delle partite a "
-                    + payload.playerCount() + " giocatori.");
+            positionLabel.setText("You are #\" + pos + \" in the global leaderboard for "
+                    + payload.playerCount() + " -player games.");
         }
 
         if (leaderboardButton != null) {

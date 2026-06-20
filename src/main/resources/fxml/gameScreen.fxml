@@ -61,7 +61,7 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Label fx:id="phaseLabel" text="Fase: -" textFill="#f5f0e8">
+                        <Label fx:id="phaseLabel" text="Phase: -" textFill="#f5f0e8">
                             <font>
                                 <Font size="13.0" />
                             </font>
