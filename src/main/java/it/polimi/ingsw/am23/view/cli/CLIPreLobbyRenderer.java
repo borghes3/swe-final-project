@@ -21,7 +21,7 @@ final class CLIPreLobbyRenderer {
     }
 
     private void printBanner(String playerName, String playerId, String statusMessage) {
-        System.out.println(TITLE_MARKER + "MESOS" + TITLE_MARKER);
+        System.out.println(TITLE_MARKER + " MESOS " + TITLE_MARKER);
         System.out.println();
         System.out.println("player: " + safe(playerName));
         System.out.println("id: " + safe(playerId));
@@ -68,13 +68,13 @@ final class CLIPreLobbyRenderer {
 
     private void printCommands() {
         System.out.println();
-        System.out.println(rule(80));
-        System.out.println("  refresh  |"
-                + "  create " + paint(DIM, "<nome>  ") + "|"
-                + "  join " + paint(DIM, "<code>  ") + "|"
+        System.out.println(paint(DIM, rule(80)));
+        System.out.println(paint(DIM,"  refresh  |"
+                + "  create <name>  |"
+                + "  join  <code>  |"
                 + "  start  |"
-                + "  quit");
-        System.out.println(rule(80));
+                + "  quit"));
+        System.out.println(paint(DIM, rule(80)));
     }
 
     private String safe(String value) {

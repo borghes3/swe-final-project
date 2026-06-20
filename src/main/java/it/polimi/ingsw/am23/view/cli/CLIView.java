@@ -41,8 +41,7 @@ public final class CLIView implements VirtualView {
     private final CLITribeRenderer tribeRenderer = new CLITribeRenderer();
 
     private final LineReader lineReader;
-    private final CountDownLatch connectedLatch = new CountDownLatch(1);
-    private final CountDownLatch gameStartedLatch = new CountDownLatch(1);
+    private volatile CountDownLatch connectedLatch = new CountDownLatch(1);
 
     private volatile VirtualServer server;
     private volatile String playerId;
@@ -68,8 +67,8 @@ public final class CLIView implements VirtualView {
 
             LineReader reader = LineReaderBuilder.builder()
                     .completer(new StringsCompleter(
-                                "refresh", "lobbies", "create", "join", "leave",
-                                "start", "place", "take", "extra", "state", "peek", "quit", "exit"
+                                "refresh", "create", "join", "leave",
+                                "start", "place", "take", "extra", "skip", "state", "peek", "quit", "exit"
                     ))
                     .option(LineReader.Option.AUTO_LIST, true)
                     .option(LineReader.Option.LIST_PACKED, true)
@@ -90,21 +89,6 @@ public final class CLIView implements VirtualView {
             HashMap<String, ?> hostResult = prompt.prompt(builder.build());
             String host = ((InputResult) hostResult.get("host")).getInput();
 
-            String nick = null;
-            while (nick == null || nick.isBlank()) {
-                builder = prompt.getPromptBuilder();
-                builder.createInputPrompt()
-                        .name("nick")
-                        .message("Nickname:")
-                        .addPrompt();
-                HashMap<String, ?> nickResult = prompt.prompt(builder.build());
-                nick = ((InputResult) nickResult.get("nick")).getInput();
-
-                if (nick == null || nick.isBlank()) {
-                    System.out.println(WARNING_MARKER + " Input a valid nickname to continue.");
-                }
-            }
-
             builder = prompt.getPromptBuilder();
             builder.createListPrompt()
                     .name("connection")
@@ -116,8 +100,34 @@ public final class CLIView implements VirtualView {
             String connection = ((ListResult) connectionResult.get("connection")).getSelectedId();
 
             CLIView view = new CLIView(reader);
-            view.connect(host, nick, connection);
+
+            boolean connected = false;
+            while (!connected) {
+                String nick = null;
+                while (nick == null || nick.isBlank()) {
+                    builder = prompt.getPromptBuilder();
+                    builder.createInputPrompt()
+                            .name("nick")
+                            .message("Nickname:")
+                            .addPrompt();
+                    HashMap<String, ?> nickResult = prompt.prompt(builder.build());
+                    nick = ((InputResult) nickResult.get("nick")).getInput();
+
+                    if (nick == null || nick.isBlank()) {
+                        System.out.println(WARNING_MARKER + " Input a valid nickname to continue.");
+                    }
+                }
+
+                try{
+                    view.connect(host, nick, connection);
+                    connected = true;
+                }catch (IllegalStateException e){
+                    System.out.println(ERROR_MARKER + " " + e.getMessage());
+                    System.out.println(WARNING_MARKER + " Choose a different nickname.");
+                }
+            }
             view.run();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,6 +135,9 @@ public final class CLIView implements VirtualView {
 
     public void connect(String host, String nickname, String connectionType) throws Exception {
         this.playerName = Objects.requireNonNull(nickname, "nickname cannot be null").trim();
+        this.connectError = null;
+        this.playerId = null;
+        this.connectedLatch = new CountDownLatch(1);
         this.server = NetworkSetter.connect(host, playerName, this, connectionType);
         awaitConnected();
         if (playerId != null) {
@@ -178,7 +191,6 @@ public final class CLIView implements VirtualView {
     @Override
     public synchronized void onConnectError(String reason) {
         this.connectError = reason;
-        renderCurrentScreen(ERROR_MARKER + " Connection failed: " + reason);
         connectedLatch.countDown();
     }
 
@@ -198,6 +210,15 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onLobbyUpdate(LobbyState lobby) {
+        if (currentGameState != null) {
+            this.currentGameState = null;
+            this.currentPeekedCard = null;
+            this.currentLobbyId = null;
+            this.owner = false;
+            this.lobbies = mergeLobbyIntoList(this.lobbies, lobby);
+            renderCurrentScreen(WARNING_MARKER + " Game interrupted: a player left. Back to lobby.");
+            return;
+        }
         if (containsPlayer(lobby, playerId)) {
             this.currentLobbyId = lobby.getLobbyId();
             this.owner = Objects.equals(lobby.getOwnerPlayerId(), playerId);
@@ -215,6 +236,10 @@ public final class CLIView implements VirtualView {
     public synchronized void onLobbyClosed() {
         this.currentLobbyId = null;
         this.owner = false;
+        // righe in +
+        this.currentGameState = null;
+        this.currentPeekedCard = null;
+
         renderCurrentScreen(WARNING_MARKER + " Lobby has been closed.");
     }
 
@@ -222,7 +247,6 @@ public final class CLIView implements VirtualView {
     public synchronized void onGameStarted(GameStartedPayload payload) {
         // snapshot completo iniziale
         this.currentGameState = payload.fullSnapshot();
-        gameStartedLatch.countDown();
         renderCurrentScreen(SUCCESS_MARKER + " Game started.");
     }
 
@@ -276,18 +300,20 @@ public final class CLIView implements VirtualView {
 
         renderCurrentScreen(
                 INFO_MARKER + " " + nickOf(payload.playerId())
-                        + " ha piazzato il totem su ["
+                        + " has placed totem on ["
                         + payload.offerTileChar()
                         + "]."
         );
     }
 
-        @Override
+    @Override
     public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
         // Tutti i totem sono stati piazzati. Aggiorna l'ordine di turno.
         if (currentGameState == null) return;
         BoardState board = currentGameState.getBoard();
-        List<TurnOrderSlotState> updatedSlots = buildTurnOrderSlots(payload.playerOrderOnOfferTrack());
+        List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
+                .map(s -> new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null))
+                .toList();
         currentGameState = new GameState(
                 currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
                 GamePhase.RESOLVING_OFFERS,
@@ -298,7 +324,7 @@ public final class CLIView implements VirtualView {
                         board.getOfferTiles(), updatedSlots),
                 payload.skipAllowed()
         );
-        renderCurrentScreen(INFO_MARKER + " Fine fase di piazzamento totem.");
+        renderCurrentScreen(INFO_MARKER + " Placing Phase Completed.");
     }
 
     @Override
@@ -342,14 +368,14 @@ public final class CLIView implements VirtualView {
                 newBoard,
                 payload.skipAllowed()
         );
-        renderCurrentScreen(INFO_MARKER + " " + nickOf(payload.playerId()) + " ha preso le carte.");
+        renderCurrentScreen(INFO_MARKER + " " + nickOf(payload.playerId()) + " has taken the cards.");
 
     }
 
     @Override
     public synchronized void onExtraDrawRequest(ExtraDrawRequestPayload payload) {
         if (currentGameState == null) return;
-        renderCurrentScreen(WARNING_MARKER + " Extra draw richiesto per: " + safeText(payload.pendingPlayerId()));
+        renderCurrentScreen(WARNING_MARKER + " Extra draw requested for: " + safeText(payload.pendingPlayerId()));
     }
 
     @Override
@@ -392,7 +418,7 @@ public final class CLIView implements VirtualView {
                 payload.skipAllowed()
         );
 
-        renderCurrentScreen(INFO_MARKER + " " + nickOf(payload.playerId()) + " ha preso la carta extra.");
+        renderCurrentScreen(INFO_MARKER + " " + nickOf(payload.playerId()) + " has taken the extra card.");
     }
 
     @Override
@@ -401,7 +427,7 @@ public final class CLIView implements VirtualView {
         if (currentGameState == null) return;
         List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.getPlayers(), payload.playerDeltas());
         currentGameState = rebuildWithPlayers(currentGameState, updatedPlayers);
-        renderCurrentScreen(INFO_MARKER + " Evento risolto: " + payload.eventCardId());
+        renderCurrentScreen(INFO_MARKER + " Event resolved: " + payload.eventCardId());
     }
 
     @Override
@@ -442,7 +468,7 @@ public final class CLIView implements VirtualView {
                 newBoard,
                 payload.skipAllowed()
         );
-        renderCurrentScreen(INFO_MARKER + " Mercato aggiornato.");
+        renderCurrentScreen(INFO_MARKER + " Market Refreshed.");
     }
 
     @Override
@@ -470,19 +496,19 @@ public final class CLIView implements VirtualView {
                 newBoard,
                 currentGameState.getSkipAllowed()
         );
-        renderCurrentScreen(TITLE_MARKER + " Nuova era: " + payload.newEra());
+        renderCurrentScreen(TITLE_MARKER + " New era: " + payload.newEra());
     }
 
     @Override
     public synchronized void onGameOver() {
-        renderCurrentScreen(TITLE_MARKER + " Partita terminata.");
+        renderCurrentScreen(TITLE_MARKER + " Game Over.");
     }
 
     @Override
     public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
         // mostra il punteggio finale
         System.out.println();
-        System.out.println(TITLE_MARKER + " CLASSIFICA FINALE " + TITLE_MARKER);
+        System.out.println(TITLE_MARKER + " FINAL SCOREBOARD " + TITLE_MARKER);
         payload.scores().stream()
                 .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints).reversed())
                 .forEach(s -> System.out.println("  " + s.nickname() + ": " + s.totalPrestigePoints() + " PP"));
@@ -494,19 +520,19 @@ public final class CLIView implements VirtualView {
         if (payload == null) return;
         System.out.println();
         if (!payload.persistenceAvailable()) {
-            System.out.println(INFO_MARKER + " Classifica globale non disponibile (DB offline).");
+            System.out.println(INFO_MARKER + " Global leaderboard unavailable (DB offline).");
             return;
         }
         Integer pos = payload.positionByPlayerId() != null
                 ? payload.positionByPlayerId().get(playerId)
                 : null;
         if (pos != null && pos > 0) {
-            System.out.println(TITLE_MARKER + " Sei #" + pos + " nella classifica globale a "
-                    + payload.playerCount() + " giocatori.");
+            System.out.println(TITLE_MARKER + " You are #" + pos + " in the global leaderboard for "
+                    + payload.playerCount() + "-player games.");
         }
         if (payload.topEntries() != null && !payload.topEntries().isEmpty()) {
-            System.out.println("Top " + payload.topEntries().size() + " partite a "
-                    + payload.playerCount() + " giocatori:");
+            System.out.println("Top " + payload.topEntries().size() + " games for "
+                    + payload.playerCount() + " players:");
             payload.topEntries().forEach(e ->
                     System.out.println("  " + e.position() + "° " + e.nickname() + " - " + e.score() + " PP"));
         }
@@ -517,12 +543,12 @@ public final class CLIView implements VirtualView {
         if (payload == null) return;
         System.out.println();
         if (!payload.persistenceAvailable()) {
-            System.out.println(INFO_MARKER + " Classifica non disponibile (DB offline).");
+            System.out.println(INFO_MARKER + " Leaderboard unavailable (DB offline).");
             return;
         }
-        System.out.println(TITLE_MARKER + " Classifica completa - partite a " + payload.playerCount() + " giocatori");
+        System.out.println(TITLE_MARKER + " Full leaderboard - " + payload.playerCount() + "-player games");
         if (payload.entries() == null || payload.entries().isEmpty()) {
-            System.out.println("  (Nessuna partita registrata.)");
+            System.out.println("  (No games recorded.)");
             return;
         }
         payload.entries().forEach(e ->
@@ -537,7 +563,7 @@ public final class CLIView implements VirtualView {
     @Override
     public synchronized void onServerCrashed() {
         NetworkSetter.stopHeartbeat();
-        renderCurrentScreen(ERROR_MARKER + " Connessione persa.");
+        renderCurrentScreen(ERROR_MARKER + " Connection lost.");
         System.exit(0);
     }
 
@@ -625,14 +651,6 @@ public final class CLIView implements VirtualView {
         return cards.stream().filter(c -> !toRemove.contains(c.getCardId())).toList();
     }
 
-    private List<TurnOrderSlotState> buildTurnOrderSlots(List<String> playerOrder) {
-        List<TurnOrderSlotState> slots = new ArrayList<>();
-        for (int i = 0; i < playerOrder.size(); i++) {
-            slots.add(new TurnOrderSlotState(i, 0, playerOrder.get(i)));
-        }
-        return slots;
-    }
-
     private List<TurnOrderSlotState> updateTurnOrderSlot(List<TurnOrderSlotState> slots, int slotIndex, String playerId) {
         return slots.stream().map(s -> s.getPositionIndex() == slotIndex
                 ? new TurnOrderSlotState(slotIndex, s.getFoodDelta(), playerId)
@@ -670,7 +688,6 @@ public final class CLIView implements VirtualView {
         }
 
         return switch (command) {
-            case "?", "lobbies" -> false;
             case "refresh" -> {
                 ensureConnected();
                 if (server != null && playerId != null) {
@@ -735,19 +752,57 @@ public final class CLIView implements VirtualView {
                 ensureConnected();
                  if (tokens.length < 2) {
                     printWarning("Use: place <tile-letter>");
+                 } else if (currentGameState == null) {
+                     printWarning("No game state available.");
                 } else {
-                    server.placeTotem(playerId, tokens[1].charAt(0));
-                }
+                     char tile = Character.toUpperCase(tokens[1].charAt(0));
+                     boolean exists = currentGameState.getBoard().getOfferTiles().stream()
+                             .anyMatch(t -> Character.toUpperCase(t.getTileId()) == tile);
+                     if (!exists) {
+                         printWarning("No offer tile '" + tile + "' available in this game.");
+                     } else {
+                         server.placeTotem(playerId, tile);
+                     }
+                 }
                 yield false;
             }
             case "take" -> {
                 ensureConnected();
                 if (tokens.length < 4) {
                     printWarning("Use: take <top|bottom> <index> <card|building>");
+                }
+                else if (currentGameState == null) {
+                    printWarning("No game state available.");
+
                 } else {
                     String rowStr = tokens[1].toLowerCase();
-                    int boardIndex = Integer.parseInt(tokens[2]);
+                    if (!rowStr.equals("top") && !rowStr.equals("bottom")) {
+                        printWarning("Row must be 'top' or 'bottom'.");
+                        yield false;
+                    }
+
+                    int boardIndex;
+                    try {
+                        boardIndex = Integer.parseInt(tokens[2]);
+                    } catch (NumberFormatException e) {
+                        printWarning("Index must be a number.");
+                        yield false;
+                    }
+
                     boolean isBuilding = tokens[3].equalsIgnoreCase("building");
+
+                    BoardState board = currentGameState.getBoard();
+                    boolean top = rowStr.equals("top");
+                    int available = top
+                            ? (isBuilding ? board.getTopBuildings().size() : board.getTopRow().size())
+                            : (isBuilding ? board.getBottomBuildings().size() : board.getBottomRow().size());
+
+                    if (boardIndex < 0 || boardIndex >= available) {
+                        printWarning("Invalid index " + boardIndex + ": "
+                                + (available == 0 ? "that row is empty." : "choose 0-" + (available - 1) + "."));
+                        yield false;
+                    }
+
                     SelectedSingleCard selectedSingleCard = new SelectedSingleCard(
                             rowStr.equals("top") ? RowType.TOP : RowType.BOTTOM,
                             boardIndex,
@@ -761,9 +816,24 @@ public final class CLIView implements VirtualView {
                 ensureConnected();
                 if (tokens.length < 2) {
                     printWarning("Use: extra <index> [card|building]");
+                } else if (currentGameState == null) {
+                    printWarning("No game state available.");
                 } else {
-                    int index = Integer.parseInt(tokens[1]);
+                    int index;
+                    try {
+                        index = Integer.parseInt(tokens[1]);
+                    } catch (NumberFormatException e) {
+                        printWarning("Index must be a number.");
+                        yield false;
+                    }
                     boolean isBuilding = tokens.length >= 3 && tokens[2].equalsIgnoreCase("building");
+                    BoardState board = currentGameState.getBoard();
+                    int available = isBuilding ? board.getTopBuildings().size() : board.getTopRow().size();
+                    if (index < 0 || index >= available) {
+                        printWarning("Invalid index " + index + ": "
+                                + (available == 0 ? "nothing to draw there." : "choose 0-" + (available - 1) + "."));
+                        yield false;
+                    }
                     it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw selected = isBuilding
                             ? new it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw(null, index)
                             : new it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw(index, null);

@@ -7,7 +7,7 @@ public final class CLIColors {
 
     // da ANSI Escape Codes
 
-    static final String RESET  = "\u001B[0m"; // canella tutti gli effetti
+    static final String RESET  = "\u001B[0m"; // cancella tutti gli effetti
     static final String BOLD   = "\u001B[1m";
     static final String DIM    = "\u001B[2m"; // testo meno visibile
 
@@ -24,7 +24,7 @@ public final class CLIColors {
             "#EE2737", BR_RED,
             "#F1C400", BR_YELLOW,
             "#008EAA", BR_BLUE,
-            "#41273B", DIM + BR_WHITE,
+            "#41273B", DIM,
             "#FFFFFF", BR_WHITE
     );
 

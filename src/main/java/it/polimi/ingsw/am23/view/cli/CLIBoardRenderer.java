@@ -305,6 +305,7 @@ final class CLIBoardRenderer {
     private void printCommands() {
         System.out.println();
         System.out.println(paint(DIM, rule(TERMINAL_W)));
+        System.out.println();
         System.out.println(paint(DIM, "place <A-G>  |  take <top|bottom> <idx> <card|building>  |  extra <idx> [building]  |  skip  |  peek  |  state  |  exit "));
     }
 
