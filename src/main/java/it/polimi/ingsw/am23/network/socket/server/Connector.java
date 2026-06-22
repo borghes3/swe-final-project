@@ -14,12 +14,18 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Per-client connection handler on the server side.
  * Implements {@link VirtualView} to ship server callbacks to the client
  * and {@link Runnable} to consume requests off the client socket on a
  * dedicated thread.
+ * <p>
+ * Outbound messages are dispatched through a single-threaded executor so a
+ * slow or stuck client does not block the controller (which would otherwise
+ * keep its lock held during the broadcast and freeze the whole match).
  */
 public final class Connector implements VirtualView, Runnable {
 
@@ -27,6 +33,12 @@ public final class Connector implements VirtualView, Runnable {
     private final VirtualServer serverController;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private final ExecutorService sendExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "connector-sender");
+        t.setDaemon(true);
+        return t;
+    });
+    private volatile boolean sendingEnabled = true;
 
     /**
      * Builds a new connector for the supplied client socket.
@@ -117,14 +129,14 @@ public final class Connector implements VirtualView, Runnable {
             } else if (message instanceof TakeCardMessage m) {
                 try {
                     serverController.takeSingleCard(m.getPlayerId(), m.getSelectedCard());
-                } catch (IllegalArgumentException | IllegalStateException | IndexOutOfBoundsException e) {
-                    onActionError(ActionType.GENERIC, e.getMessage());
+                } catch (RuntimeException e) {
+                    onActionError(ActionType.TAKE_CARD, e.getMessage() != null ? e.getMessage() : e.toString());
                 }
             } else if (message instanceof TakeExtraCardMessage m) {
                 try {
                     serverController.takeExtraCard(m.getPlayerId(), m.getSelectedCardExtraDraw());
-                } catch (IllegalArgumentException | IllegalStateException e) {
-                    onActionError(ActionType.GENERIC, e.getMessage());
+                } catch (RuntimeException e) {
+                    onActionError(ActionType.TAKE_CARD, e.getMessage() != null ? e.getMessage() : e.toString());
                 }
 
             } else if (message instanceof DisconnectMessage m) {
@@ -151,6 +163,8 @@ public final class Connector implements VirtualView, Runnable {
     }
 
     private void close() {
+        sendingEnabled = false;
+        sendExecutor.shutdownNow();
         try {
             clientSocket.close();
         } catch (IOException ignored) {
@@ -159,14 +173,30 @@ public final class Connector implements VirtualView, Runnable {
 
     // from controller to client
 
-    private synchronized void send(Message message) throws IOException {
-        try {
-            out.writeObject(message);
-            out.flush();
-            out.reset();
-        } catch (IOException e) {
-            throw new IOException("Failed to send message to client: " + e.getMessage(), e);
-        }
+    /**
+     * Hands the message off to the dedicated send thread so a slow client
+     * never blocks the controller. The executor preserves submission order
+     * because it is single-threaded; if a write fails, sending is disabled
+     * and the connection is torn down.
+     */
+    private void send(Message message) {
+        if (!sendingEnabled) return;
+        sendExecutor.execute(() -> {
+            if (!sendingEnabled) return;
+            try {
+                out.writeObject(message);
+                out.flush();
+                out.reset();
+            } catch (IOException e) {
+                if (sendingEnabled) {
+                    sendingEnabled = false;
+                    System.err.println("<Connector>: send failed, closing connection –> " + e.getMessage());
+                    try {
+                        clientSocket.close();
+                    } catch (IOException ignored) {}
+                }
+            }
+        });
     }
 
     @Override

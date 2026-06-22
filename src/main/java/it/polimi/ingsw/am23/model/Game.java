@@ -172,7 +172,17 @@ public class Game implements GameModel {
     @Override
     public ActionResult takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) {
         Player p = findPlayer(playerId);
+
+        // Reject draws issued outside the resolving-offers phase (e.g. a late
+        // click arriving after the round already moved on to events).
+        if (phase != GamePhase.RESOLVING_OFFERS) {
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PHASE, "Drawing is not allowed in the current phase.");
+        }
+
         OfferTile tile = board.getFirstOccupiedOfferTile();
+        if (tile == null) {
+            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PHASE, "There is no offer tile to resolve.");
+        }
 
         if (!Objects.equals(p.getId(), tile.getOccupiedByPlayerId()))
             return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PLAYER, "It's not your turn.");
