@@ -281,7 +281,6 @@ public final class CLIView implements VirtualView {
     public synchronized void onLobbyClosed() {
         this.currentLobbyId = null;
         this.owner = false;
-        // righe in +
         this.currentGameState = null;
         this.currentPeekedCard = null;
 
@@ -290,7 +289,6 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onGameStarted(GameStartedPayload payload) {
-        // snapshot completo iniziale
         this.currentGameState = payload.fullSnapshot();
         renderCurrentScreen(SUCCESS_MARKER + " Game started.");
     }
@@ -352,7 +350,7 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
-        // Tutti i totem sono stati piazzati. Aggiorna l'ordine di turno.
+        // All totems have been placed: clear the turn order slots so the next phase starts clean.
         if (currentGameState == null) return;
         BoardState board = currentGameState.board();
         List<TurnOrderSlotState> updatedSlots = board.turnOrderSlots().stream()
@@ -466,7 +464,7 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onEventResolved(EventResolvedPayload payload) {
-        // Aggiorna food e PP di ogni giocatore secondo i delta.
+        // Apply the food and prestige changes that the event produced for each player.
         if (currentGameState == null) return;
         List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.players(), payload.playerDeltas());
         currentGameState = rebuildWithPlayers(currentGameState, updatedPlayers);
@@ -478,24 +476,24 @@ public final class CLIView implements VirtualView {
         if (currentGameState == null) return;
         BoardState board = currentGameState.board();
 
-        // scarta dalla fila inferiore
+        // Drop the cards the server marked as discarded from the bottom row.
         List<CardState> newBottomRow = board.bottomRow().stream()
                 .filter(c -> !payload.discardedCardIds().contains(c.getCardId()))
                 .toList();
 
-        // sposta dalla fila superiore alla inferiore
+        // Move the cards that have to slide down from the top row to the bottom row.
         List<CardState> movedCards = board.topRow().stream()
                 .filter(c -> payload.movedBottomCardIds().contains(c.getCardId()))
                 .toList();
         List<CardState> mergedBottom = new ArrayList<>(newBottomRow);
         mergedBottom.addAll(movedCards);
 
-        // nuova fila superiore = rimaste + nuove carte complete dal payload
+        // New top row = whatever stayed on top + the brand new cards sent by the server.
         List<CardState> remainingTop = board.topRow().stream()
                 .filter(c -> !payload.movedBottomCardIds().contains(c.getCardId()))
                 .toList();
         List<CardState> newUpperRow = new ArrayList<>(remainingTop);
-        newUpperRow.addAll(payload.newUpperRowCards()); // aggiunge le nuove carte
+        newUpperRow.addAll(payload.newUpperRowCards());
 
         BoardState newBoard = rebuildBoard(newUpperRow, mergedBottom,
                 board.topBuildings(), board.bottomBuildings(),
@@ -519,12 +517,12 @@ public final class CLIView implements VirtualView {
         if (currentGameState == null) return;
         BoardState board = currentGameState.board();
 
-        // i vecchi topBuildings scendono in bottom (eccetto quelli scartati)
+        // Old top buildings slide down to the bottom row, except the ones that were discarded.
         List<CardState> newBottomBuildings = board.topBuildings().stream()
                 .filter(c -> !payload.discardedBuildingIds().contains(c.getCardId()))
                 .toList();
 
-        // i nuovi edifici dell'era sostituiscono completamente la top
+        // The new era buildings replace the top row entirely.
         List<CardState> newTopBuildings = new ArrayList<>(payload.newBuildingCards());
 
         BoardState newBoard = rebuildBoard(board.topRow(), board.bottomRow(),
@@ -549,7 +547,7 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
-        // mostra il punteggio finale
+        // Print the final scoreboard, players sorted from highest to lowest score.
         System.out.println();
         System.out.println(TITLE_MARKER + " FINAL SCOREBOARD " + TITLE_MARKER);
         payload.scores().stream()
@@ -610,7 +608,15 @@ public final class CLIView implements VirtualView {
         System.exit(0);
     }
 
-    // applicazione delta
+    /**
+     * Adds to a player the characters and buildings they just took, skipping
+     * any card that is already in their tribe, and updates the food to the
+     * absolute value reported by the server.
+     *
+     * @param p       the player snapshot before the draw
+     * @param payload the server payload describing what was taken
+     * @return a new player snapshot with the cards and food updated
+     */
     private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
         List<CardState> newCharacters = new ArrayList<>(p.characters());
         Set<String> existingCharacterIds = newCharacters.stream()
@@ -645,6 +651,15 @@ public final class CLIView implements VirtualView {
         );
     }
 
+    /**
+     * Adds to a player the single extra card they just drew (either a tribe
+     * card or a building) and updates their food to the absolute value sent
+     * by the server. If the card is already in the tribe nothing is added.
+     *
+     * @param p       the player snapshot before the extra draw
+     * @param payload the server payload describing the extra card
+     * @return a new player snapshot reflecting the extra draw
+     */
     private PlayerState applyExtraCardDeltaToPlayer(PlayerState p, ExtraCardTakenPayload payload) {
         List<CardState> newCharacters = new ArrayList<>(p.characters());
         List<CardState> newBuildings = new ArrayList<>(p.buildings());
@@ -676,6 +691,16 @@ public final class CLIView implements VirtualView {
         );
     }
 
+    /**
+     * Returns a new list of players where the food and prestige of each
+     * player that appears in {@code deltas} is replaced with the absolute
+     * values the server sent. Players that have no delta are kept as they
+     * are.
+     *
+     * @param players the current player list
+     * @param deltas  per-player food and prestige updates
+     * @return a new list with the updated values
+     */
     private List<PlayerState> applyPlayerDeltas(List<PlayerState> players, List<PlayerDelta> deltas) {
         Map<String, PlayerDelta> deltaMap = new HashMap<>();
         for (PlayerDelta d : deltas) deltaMap.put(d.playerId(), d);
@@ -689,18 +714,50 @@ public final class CLIView implements VirtualView {
         }).toList();
     }
 
+    /**
+     * Returns a copy of {@code cards} without the entries whose id appears in
+     * either {@code cardIds} or {@code buildingIds}. Both lists are merged
+     * because a card list can hold either kind.
+     *
+     * @param cards       the source list of cards
+     * @param cardIds     ids of regular cards to drop
+     * @param buildingIds ids of buildings to drop
+     * @return a new list with the matching cards removed
+     */
     private List<CardState> removeCardsById(List<CardState> cards, List<String> cardIds, List<String> buildingIds) {
         Set<String> toRemove = new HashSet<>(cardIds);
         toRemove.addAll(buildingIds);
         return cards.stream().filter(c -> !toRemove.contains(c.getCardId())).toList();
     }
 
+    /**
+     * Returns a new turn order slot list where the slot at {@code slotIndex}
+     * is now occupied by {@code playerId}. The other slots are kept as they
+     * are.
+     *
+     * @param slots     the current slot list
+     * @param slotIndex the slot to update
+     * @param playerId  the player that now sits on that slot
+     * @return the updated slot list
+     */
     private List<TurnOrderSlotState> updateTurnOrderSlot(List<TurnOrderSlotState> slots, int slotIndex, String playerId) {
         return slots.stream().map(s -> s.positionIndex() == slotIndex
                 ? new TurnOrderSlotState(slotIndex, s.foodDelta(), playerId)
                 : s).toList();
     }
 
+    /**
+     * Small helper that builds a {@link BoardState} from its parts. It only
+     * exists to keep the call sites short.
+     *
+     * @param topRow          top row of cards
+     * @param bottomRow       bottom row of cards
+     * @param topBuildings    top row of buildings
+     * @param bottomBuildings bottom row of buildings
+     * @param offerTiles      offer tiles in their current state
+     * @param turnOrderSlots  turn order slots in their current state
+     * @return the assembled board state
+     */
     private BoardState rebuildBoard(
             List<CardState> topRow, List<CardState> bottomRow,
             List<CardState> topBuildings, List<CardState> bottomBuildings,
@@ -708,11 +765,26 @@ public final class CLIView implements VirtualView {
         return new BoardState(topRow, bottomRow, topBuildings, bottomBuildings, offerTiles, turnOrderSlots);
     }
 
+    /**
+     * Builds a new {@link GameState} that is identical to {@code gs} except
+     * for the player list, which is replaced with {@code newPlayers}.
+     *
+     * @param gs         the previous game state
+     * @param newPlayers the updated player list
+     * @return a new game state with the new players
+     */
     private GameState rebuildWithPlayers(GameState gs, List<PlayerState> newPlayers) {
         return new GameState(gs.currentEra(), gs.currentRound(), gs.phase(),
                 gs.currentPlayerId(), newPlayers, gs.board(), gs.skipAllowed());
     }
 
+    /**
+     * Returns the nickname of a player given its id, falling back to a safe
+     * placeholder when the id is unknown or the game state is not loaded yet.
+     *
+     * @param pid the player id, may be null
+     * @return the nickname if found, otherwise a safe textual fallback
+     */
     private String nickOf(String pid) {
         if (pid == null || currentGameState == null) return safeText(pid);
         return currentGameState.players().stream()
@@ -722,7 +794,15 @@ public final class CLIView implements VirtualView {
                 .orElse(safeText(pid));
     }
 
-    // handling
+    /**
+     * Parses one line of user input and runs the matching command. Returns
+     * {@code true} only when the user asked to leave (the {@code quit} or
+     * {@code exit} commands), so the caller can stop the main loop.
+     *
+     * @param line the raw line typed by the user (already trimmed)
+     * @return {@code true} if the loop must exit, {@code false} to keep going
+     * @throws Exception if the command code throws
+     */
     private boolean handleCommand(String line) throws Exception {
         String[] tokens = line.split("\\s+");
         String command = tokens[0].toLowerCase();
@@ -916,7 +996,7 @@ public final class CLIView implements VirtualView {
                     try {
                         server.disconnect(playerId);
                     } catch (Exception ignored) {
-                        // best effort shutdown
+                        // Best effort: if the server is already gone we just leave silently.
                     }
                 }
                 yield true;
@@ -928,16 +1008,36 @@ public final class CLIView implements VirtualView {
         };
     }
 
+    /**
+     * Throws if the client is not connected to a server yet. Commands that
+     * need to talk to the server use this to bail out with a clean error.
+     *
+     * @throws IllegalStateException if {@link #playerId} has not been set yet
+     */
     private void ensureConnected() {
         if (playerId == null) {
             throw new IllegalStateException(connectError != null ? connectError : "Client not connected");
         }
     }
 
+    /**
+     * Checks whether a player with the given id is part of a lobby.
+     *
+     * @param lobby    the lobby to inspect
+     * @param playerId the player id to look for
+     * @return {@code true} if the player is in the lobby
+     */
     private boolean containsPlayer(LobbyState lobby, String playerId) {
         return lobby.getPlayers().stream().anyMatch(player -> Objects.equals(player.id(), playerId));
     }
 
+    /**
+     * Draws the in-game screen: clears the terminal, prints the board and the
+     * tribes, and, if the user was inspecting a card, prints its details too.
+     *
+     * @param gameState the snapshot to draw
+     * @param message   an optional one-line message to show on top, may be null
+     */
     private void renderGameView(GameState gameState, String message) {
         clearScreen();
         boardRenderer.render(gameState, message);
@@ -947,11 +1047,22 @@ public final class CLIView implements VirtualView {
         }
     }
 
+    /**
+     * Draws the pre-game screen (lobby list and current lobby info).
+     *
+     * @param message an optional one-line message to show on top, may be null
+     */
     private void renderLobbyView(String message) {
         clearScreen();
         preLobbyRenderer.render(playerName, playerId, lobbies, message, currentLobbyId);
     }
 
+    /**
+     * Draws either the game screen or the lobby screen, depending on whether
+     * a game is currently running.
+     *
+     * @param message an optional one-line message to show on top, may be null
+     */
     private void renderCurrentScreen(String message) {
         if (currentGameState != null) {
             renderGameView(currentGameState, message);
@@ -960,6 +1071,16 @@ public final class CLIView implements VirtualView {
         renderLobbyView(message);
     }
 
+    /**
+     * Returns a new lobby list where the lobby with the same id as
+     * {@code updatedLobby} is replaced by it. If no lobby with that id is
+     * found the updated lobby is appended at the end. The returned list is
+     * immutable.
+     *
+     * @param existing     the current lobby list
+     * @param updatedLobby the lobby that has just changed
+     * @return the merged immutable lobby list
+     */
     private List<LobbyState> mergeLobbyIntoList(List<LobbyState> existing, LobbyState updatedLobby) {
         List<LobbyState> merged = new ArrayList<>();
         boolean replaced = false;
@@ -980,6 +1101,14 @@ public final class CLIView implements VirtualView {
         return List.copyOf(merged);
     }
 
+    /**
+     * Handles the {@code peek} command. If the user passed a card id, looks
+     * it up and shows its details. Otherwise it asks the user to pick a row
+     * and then a card from an interactive menu.
+     *
+     * @param cardIdArgument the rest of the line after {@code peek}; may be empty
+     * @throws Exception if the interactive prompt fails
+     */
     private void handlePeek(String cardIdArgument) throws Exception {
         if (!cardIdArgument.isBlank()) {
             CardState selectedCard = findCardById(cardIdArgument);
@@ -1031,7 +1160,7 @@ public final class CLIView implements VirtualView {
             return;
         }
 
-        // card selection
+        // Ask the user which card from the chosen row they want to inspect.
         builder = prompt.getPromptBuilder();
         var listPromptBuilder = builder.createListPrompt().name("card").message("Select card");
         for (int i = 0; i < cards.size(); i++) {
@@ -1047,6 +1176,13 @@ public final class CLIView implements VirtualView {
         displayCardDetails(selected);
     }
 
+    /**
+     * Looks up a card on the board by its id, searching both rows and both
+     * building rows.
+     *
+     * @param cardId the id of the card to find
+     * @return the matching card, or {@code null} if no card has that id
+     */
     private CardState findCardById(String cardId) {
         BoardState board = currentGameState.board();
         if (board == null || cardId == null || cardId.isBlank()) {
@@ -1062,6 +1198,13 @@ public final class CLIView implements VirtualView {
         return null;
     }
 
+    /**
+     * Returns every card currently on the board (top row, bottom row, top
+     * buildings and bottom buildings) in a single list.
+     *
+     * @param board the board snapshot
+     * @return all the cards on the board, in row order
+     */
     private List<CardState> getAllBoardCards(BoardState board) {
         List<CardState> cards = new ArrayList<>();
         cards.addAll(board.topRow());
@@ -1071,11 +1214,23 @@ public final class CLIView implements VirtualView {
         return cards;
     }
 
+    /**
+     * Stores the card the user wants to inspect and re-renders the screen so
+     * the details box shows up below the board.
+     *
+     * @param card the card to show
+     */
     private void displayCardDetails(CardState card) {
         this.currentPeekedCard = card;
         renderCurrentScreen(INFO_MARKER + " Inspecting card " + safeText(card.getCardId()));
     }
 
+    /**
+     * Prints the card details box: a small framed area with the card id, kind,
+     * era and any optional field the card has.
+     *
+     * @param card the card to draw
+     */
     private void renderCardDetails(CardState card) {
         List<String> contentLines = buildCardDisplayLines(card);
         int width = contentLines.stream().mapToInt(String::length).max().orElse(0) + 4;
@@ -1089,6 +1244,14 @@ public final class CLIView implements VirtualView {
         System.out.println();
     }
 
+    /**
+     * Builds the list of text lines shown inside the card details box: the
+     * header, a small ASCII art, the basic fields and the optional fields
+     * that the card actually carries.
+     *
+     * @param card the card to describe
+     * @return the lines to print, in order
+     */
     private List<String> buildCardDisplayLines(CardState card) {
         List<String> lines = new ArrayList<>();
         lines.add(centerText("CARD DETAILS", 24));
@@ -1112,6 +1275,12 @@ public final class CLIView implements VirtualView {
         return lines;
     }
 
+    /**
+     * Returns the four lines of the small house ASCII art used at the top of
+     * the card details box, each one centered inside the box.
+     *
+     * @return the centered ASCII art lines
+     */
     private List<String> centerAsciiArt() {
         return List.of(
                 centerText(" /\\", 36),
@@ -1121,6 +1290,16 @@ public final class CLIView implements VirtualView {
         );
     }
 
+    /**
+     * Adds a {@code "label: value"} line to {@code lines}, but only if the
+     * card exposes one of the given getters and that getter returns a
+     * non-null value. Used to print fields that not every card has.
+     *
+     * @param lines       the list to append to
+     * @param card        the card to read
+     * @param label       the label printed before the value
+     * @param methodNames candidate getter names tried in order
+     */
     private void addOptionalCardLine(List<String> lines, CardState card, String label, String... methodNames) {
         Object value = invokeGetterOptional(card, methodNames);
         if (value != null) {
@@ -1128,10 +1307,23 @@ public final class CLIView implements VirtualView {
         }
     }
 
+    /**
+     * Prints the horizontal border of the card details box.
+     *
+     * @param width the total width of the border, in characters
+     */
     private void printCardBorder(int width) {
         System.out.println("+" + "-".repeat(Math.max(0, width - 2)) + "+");
     }
 
+    /**
+     * Pads {@code text} with spaces on the right until it reaches {@code width}.
+     * If the text is already long enough it is returned unchanged.
+     *
+     * @param text  the text to pad, {@code null} is treated as empty
+     * @param width the target width
+     * @return the padded string
+     */
     private String padRight(String text, int width) {
         String value = text == null ? "" : text;
         if (value.length() >= width) {
@@ -1140,6 +1332,14 @@ public final class CLIView implements VirtualView {
         return value + " ".repeat(width - value.length());
     }
 
+    /**
+     * Centers {@code text} inside a field of the given width by adding spaces
+     * on both sides. If the text does not fit, it is returned unchanged.
+     *
+     * @param text  the text to center, {@code null} is treated as empty
+     * @param width the target width
+     * @return the centered string
+     */
     private String centerText(String text, int width) {
         String value = text == null ? "" : text;
         if (value.length() >= width) {
@@ -1152,6 +1352,16 @@ public final class CLIView implements VirtualView {
         return " ".repeat(leftPadding) + value + " ".repeat(rightPadding);
     }
 
+    /**
+     * Tries each method name in turn on {@code target} via reflection and
+     * returns the first one that exists and returns a value. Used to read
+     * optional fields of cards without having to know their concrete type.
+     * Returns {@code null} if no getter matches or the call fails.
+     *
+     * @param target      the object to read from
+     * @param methodNames candidate getter names tried in order
+     * @return the value returned by the first matching getter, or {@code null}
+     */
     private Object invokeGetterOptional(Object target, String... methodNames) {
         try {
             for (String methodName : methodNames) {
@@ -1159,7 +1369,7 @@ public final class CLIView implements VirtualView {
                     Method m = target.getClass().getMethod(methodName);
                     return m.invoke(target);
                 } catch (NoSuchMethodException ignored) {
-                    // try next candidate
+                    // No such getter on this card type: try the next candidate name.
                 }
             }
             return null;
@@ -1168,19 +1378,41 @@ public final class CLIView implements VirtualView {
         }
     }
 
+    /**
+     * Clears the terminal using ANSI escape codes (move cursor home, clear
+     * screen, clear scroll-back buffer).
+     */
     private void clearScreen() {
         System.out.print("\u001B[H\u001B[2J\u001B[3J");
         System.out.flush();
     }
 
+    /**
+     * Prints a warning message with the warning marker and a {@code WARN}
+     * prefix.
+     *
+     * @param message the warning text
+     */
     private void printWarning(String message) {
         System.out.println(WARNING_MARKER + " WARN " + message);
     }
 
+    /**
+     * Prints a plain, low-emphasis message with no marker.
+     *
+     * @param message the text to print
+     */
     private void printMuted(String message) {
         System.out.println(message);
     }
 
+    /**
+     * Returns {@code value} when it is non-null and not blank, otherwise the
+     * placeholder {@code "n/a"}. Used to avoid printing empty strings.
+     *
+     * @param value the value to sanitize
+     * @return the value or {@code "n/a"}
+     */
     private String safeText(String value) {
         return value == null || value.isBlank() ? "n/a" : value;
     }

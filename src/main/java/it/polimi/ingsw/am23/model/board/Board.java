@@ -19,6 +19,9 @@ import java.util.Objects;
  * during the placing phase) and the {@link TurnOrderTile} that drives the
  * next round's turn order. Also provides lookup helpers and the conversion
  * to a serializable {@link BoardState}.
+ *
+ * @param offerTiles    ordered list of offer tiles, left to right
+ * @param turnOrderTile the turn order tile for the next round
  */
 public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
 
@@ -34,6 +37,8 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
+     * Returns the turn order tile that this board uses.
+     *
      * @return the turn order tile of this board
      */
     @Override
@@ -70,8 +75,10 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
-     * @return the first offer tile (leftmost) currently occupied, or
-     * {@code null} when every tile is free
+     * Returns the leftmost offer tile that is currently occupied by a player,
+     * or {@code null} if no tile is taken.
+     *
+     * @return the first occupied offer tile, or {@code null} when every tile is free
      */
     public OfferTile getFirstOccupiedOfferTile() {
         for (OfferTile tile : offerTiles) {
@@ -99,6 +106,8 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
+     * Returns the offer tiles that no player has claimed yet.
+     *
      * @return the list of offer tiles that are currently free
      */
     public List<OfferTile> getFreeOfferTiles() {
@@ -112,6 +121,8 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
+     * Returns the turn order slots that no player has claimed yet.
+     *
      * @return the list of turn order slots that are currently free
      */
     public List<TurnOrderSlot> getFreeTurnOrderSlots() {
@@ -145,6 +156,8 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
+     * Builds a snapshot list of every offer tile, in board order.
+     *
      * @return the per-tile serializable snapshot of all offer tiles
      */
     public List<OfferTileState> buildOfferTileState() {
@@ -165,6 +178,8 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
+     * Builds a snapshot list of every slot on the turn order tile, in slot order.
+     *
      * @return the per-slot serializable snapshot of the turn order tile
      */
     public List<TurnOrderSlotState> buildTurnOrderSlotsState() {
@@ -183,6 +198,9 @@ public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
     }
 
     /**
+     * Returns the offer tiles of this board as an unmodifiable list, in the
+     * same order they appear on the board.
+     *
      * @return an unmodifiable copy of the offer tiles in board order
      */
     @Override

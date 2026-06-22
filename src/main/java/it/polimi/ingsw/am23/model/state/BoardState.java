@@ -8,6 +8,13 @@ import java.util.Objects;
  * Immutable snapshot of the central board, suitable for sending across the
  * network. Includes the card market rows, the building rows, the offer tiles
  * and the turn order slots.
+ *
+ * @param topRow          state of the cards in the top row of the market
+ * @param bottomRow       state of the cards in the bottom row of the market
+ * @param topBuildings    state of the buildings in the top row
+ * @param bottomBuildings state of the buildings in the bottom row
+ * @param offerTiles      state of all offer tiles
+ * @param turnOrderSlots  state of all turn order slots
  */
 public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List<CardState> topBuildings,
                          List<CardState> bottomBuildings, List<OfferTileState> offerTiles,
@@ -37,6 +44,8 @@ public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List
     }
 
     /**
+     * Returns the cards visible in the top market row.
+     *
      * @return the cards currently visible in the top market row
      */
     @Override
@@ -45,6 +54,8 @@ public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List
     }
 
     /**
+     * Returns the cards visible in the bottom market row.
+     *
      * @return the cards currently visible in the bottom market row
      */
     @Override
@@ -53,6 +64,8 @@ public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List
     }
 
     /**
+     * Returns the buildings visible in the top building row.
+     *
      * @return the buildings currently visible in the top building row
      */
     @Override
@@ -61,6 +74,8 @@ public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List
     }
 
     /**
+     * Returns the buildings visible in the bottom building row.
+     *
      * @return the buildings currently visible in the bottom building row
      */
     @Override
@@ -69,6 +84,8 @@ public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List
     }
 
     /**
+     * Returns the snapshot of every offer tile on the board, in board order.
+     *
      * @return the snapshot of every offer tile on the board
      */
     @Override
@@ -77,6 +94,8 @@ public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List
     }
 
     /**
+     * Returns the snapshot of every turn order slot, in slot order.
+     *
      * @return the snapshot of every turn order slot
      */
     @Override

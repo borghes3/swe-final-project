@@ -8,18 +8,15 @@ import java.io.Serializable;
  * Minimal serializable descriptor of a connected player, used during the
  * lobby and setup phases before the full {@link
  * Player} model is instantiated.
+ *
+ * @param id       unique identifier of the player
+ * @param nickname display nickname of the player
  */
 public record PlayerConnectionInfo(String id, String nickname) implements Serializable {
-    /**
-     * Builds a new connection info entry.
-     *
-     * @param id       unique identifier of the player
-     * @param nickname display nickname of the player
-     */
-    public PlayerConnectionInfo {
-    }
 
     /**
+     * Returns the unique id of this player.
+     *
      * @return the unique identifier of the player
      */
     @Override
@@ -28,6 +25,8 @@ public record PlayerConnectionInfo(String id, String nickname) implements Serial
     }
 
     /**
+     * Returns the nickname shown for this player.
+     *
      * @return the display nickname of the player
      */
     @Override

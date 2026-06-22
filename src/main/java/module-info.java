@@ -16,7 +16,6 @@ module it.polimi.ingsw.am23 {
     opens it.polimi.ingsw.am23.model.cards to com.google.gson;
 
 
-    opens it.polimi.ingsw.am23 to javafx.fxml;
     exports it.polimi.ingsw.am23.network;
     exports it.polimi.ingsw.am23.network.rmi.client;
     exports it.polimi.ingsw.am23.network.rmi.server;

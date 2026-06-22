@@ -18,12 +18,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
@@ -37,11 +31,6 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.13.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>21</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -66,12 +55,23 @@
             <artifactId>consoleui</artifactId>
             <version>0.0.13</version>
             <scope>compile</scope>
+            <exclusions>
+                <!--
+                  jline 2.14.6 already bundles a copy of org.fusesource.jansi, so the
+                  separate jansi jar would create a split package between the two
+                  automatic modules ("jline" and "jansi") and break Javadoc/JPMS.
+                -->
+                <exclusion>
+                    <groupId>org.fusesource.jansi</groupId>
+                    <artifactId>jansi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- PostgreSQL JDBC driver for the persistent match leaderboard. -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
+            <version>42.7.7</version>
         </dependency>
     </dependencies>
     <build>

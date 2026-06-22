@@ -8,19 +8,16 @@ import java.io.Serializable;
  * DTO that identifies the card a player wants to take during a normal draw
  * action. Carries the row, the index within the row and whether the card
  * is a tribe card or a building.
+ *
+ * @param row        row the card belongs to
+ * @param boardIndex 0-based index within the row
+ * @param isBuilding {@code true} if the selection points to a building, {@code false} for a tribe card
  */
 public record SelectedSingleCard(RowType row, int boardIndex, boolean isBuilding) implements Serializable {
-    /**
-     * Builds a new draw selection.
-     *
-     * @param row        row the card belongs to
-     * @param boardIndex 0-based index within the row
-     * @param isBuilding {@code true} if the selection points to a building, {@code false} for a tribe card
-     */
-    public SelectedSingleCard {
-    }
 
     /**
+     * Returns the row of the selected card.
+     *
      * @return the row the selected card belongs to
      */
     @Override
@@ -29,6 +26,8 @@ public record SelectedSingleCard(RowType row, int boardIndex, boolean isBuilding
     }
 
     /**
+     * Returns the index of the selected card inside its row.
+     *
      * @return the 0-based index of the selected card within its row
      */
     @Override
@@ -37,6 +36,9 @@ public record SelectedSingleCard(RowType row, int boardIndex, boolean isBuilding
     }
 
     /**
+     * Returns whether the selection refers to a building rather than a tribe
+     * card.
+     *
      * @return {@code true} if the selection points to a building card
      */
     @Override

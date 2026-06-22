@@ -8,19 +8,16 @@ import java.util.List;
  * Outcome of an era progression performed by {@link
  * CardMarket#handleEraProgression}. Carries the new top buildings and the
  * buildings discarded as part of the progression.
+ *
+ * @param newTopBuildings    the new top row buildings after the progression
+ * @param discardedBuildings the buildings discarded by the progression
  */
 public record EraProgressionResult(List<BuildingCard> newTopBuildings, List<BuildingCard> discardedBuildings) {
 
     /**
-     * Builds a new era progression result.
+     * Returns the buildings that now sit in the top building row after the era
+     * progression has been applied.
      *
-     * @param newTopBuildings    the new top row buildings after the progression
-     * @param discardedBuildings the buildings discarded by the progression
-     */
-    public EraProgressionResult {
-    }
-
-    /**
      * @return the buildings now visible in the top building row
      */
     @Override
@@ -29,6 +26,9 @@ public record EraProgressionResult(List<BuildingCard> newTopBuildings, List<Buil
     }
 
     /**
+     * Returns the buildings removed from play by the era progression. This is
+     * only populated when moving away from Era 3.
+     *
      * @return the buildings discarded by the progression (only at Era 3)
      */
     @Override

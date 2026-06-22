@@ -8,6 +8,8 @@ import java.util.List;
  * The turn order tile: an ordered list of {@link TurnOrderSlot} on which
  * players are placed to determine the round's turn order. Provides
  * convenience lookups for the first free or occupied slot.
+ *
+ * @param slots ordered list of slots; the order defines the turn order
  */
 public record TurnOrderTile(List<TurnOrderSlot> slots) {
     /**
