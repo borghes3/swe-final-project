@@ -179,6 +179,7 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
+        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
         ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.BOTTOM, 0, false));
         assertFalse(result.isSuccess());
@@ -204,6 +205,7 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
+        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
         ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0 , false));
 
@@ -229,6 +231,7 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
+        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
         ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, false));
 
@@ -254,8 +257,11 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
+        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
         ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, true));
+
+        System.out.println(result.getError());
 
         assertTrue(result.isSuccess());
         assertEquals(2, p1.getFood());
@@ -280,6 +286,7 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
+        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
         ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, false));
 
@@ -304,6 +311,7 @@ class GameTest {
                 Era.ERA_1,
                 1
         );
+        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
         ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, false));
 

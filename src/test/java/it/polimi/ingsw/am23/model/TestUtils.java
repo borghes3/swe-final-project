@@ -12,6 +12,7 @@ import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
 import it.polimi.ingsw.am23.model.effects.BuildingEffect;
 import it.polimi.ingsw.am23.model.enums.Era;
+import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.payloads.*;
 import it.polimi.ingsw.am23.model.player.Player;
 import it.polimi.ingsw.am23.model.player.Totem;
@@ -54,6 +55,18 @@ public final class TestUtils {
         BuildingDeck buildingDeck = new BuildingDeck(Map.of());
 
         return new Game(players, board, tribeDeck, buildingDeck, new EventResolver(), cardMarket, currentEra, currentRound);
+    }
+
+    // Test helper: forces the Game phase via reflection so tests can wire up
+    // an already-running game without simulating the full setup/placing flow.
+    public static void setPhase(Game game, GamePhase phase) {
+        try {
+            java.lang.reflect.Field f = Game.class.getDeclaredField("phase");
+            f.setAccessible(true);
+            f.set(game, phase);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Observer di test che conta le notifiche ricevute dal Game.
