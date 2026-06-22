@@ -13,23 +13,46 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * RMI adapter exposing the controller as a {@link VirtualServerRmi}.
+ * Every remote call is delegated to the wrapped controller on a cached
+ * thread pool so the RMI transport thread stays responsive.
+ * <p>
+ * Both the RMI registry and the exported remote object are bound to
+ * {@link #PORT}, so opening that single TCP port on the server firewall
+ * is enough to accept inbound RMI traffic.
+ */
 public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
 
     private final VirtualServer serverController;
-    private static final int PORT = 1234;
+
+    /** TCP port used for both the registry and the exported remote object. */
+    public static final int PORT = 1234;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
+    /**
+     * Builds the adapter and exports it on the well-known port.
+     *
+     * @param serverController controller the calls are delegated to
+     * @throws RemoteException if the export fails
+     */
     public RmiServer(VirtualServer serverController) throws RemoteException {
         super(PORT);
         this.serverController = serverController;
     }
 
+    /**
+     * Boots the RMI server, creating a registry and binding the adapter.
+     *
+     * @param serverController controller the calls are delegated to
+     * @throws RemoteException if the registry creation or the bind fails
+     */
     public static void startRmiServer(VirtualServer serverController) throws RemoteException {
         final String serverName = "ServerName";
         VirtualServerRmi server = new RmiServer(serverController);
         Registry registry = LocateRegistry.createRegistry(PORT);
         registry.rebind(serverName, server);
-        System.out.println("RMI Server avviato su porta " + PORT);
+        System.out.println("RMI Server started on port " + PORT);
     }
 
     @Override

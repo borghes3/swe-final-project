@@ -15,6 +15,13 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * Client-side socket transport.
+ * Implements {@link VirtualServer} by serializing each request into a
+ * typed {@link Message} and shipping it over an {@link ObjectOutputStream}.
+ * Incoming server callbacks are dispatched to the local {@link VirtualView}
+ * by a dedicated reader thread.
+ */
 public final class SocketClient implements VirtualServer {
 
     private final Socket socket;  // to communicate with the server
@@ -25,13 +32,20 @@ public final class SocketClient implements VirtualServer {
     private SocketClient(Socket socket, VirtualView view) throws IOException {
         this.socket = socket;
         this.view   = view;
-        // possibile deadlock
+        // output stream first to avoid the classic ObjectStream init deadlock
         this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in  = new ObjectInputStream(socket.getInputStream());
     }
 
-    // to create a connection to the socket (different from connect() method)
-    // in RMI they are one nested into the other
+    /**
+     * Establishes the TCP connection to the server and starts the reader
+     * thread.
+     *
+     * @param host server host name or IP
+     * @param view local view to dispatch callbacks to
+     * @return the resulting {@link VirtualServer} stub
+     * @throws IOException on connection failure
+     */
     public static VirtualServer connectToServer(String host, VirtualView view) throws IOException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(host, 1235), 2000);
@@ -42,10 +56,10 @@ public final class SocketClient implements VirtualServer {
 
     // callback from server to client
 
-    // listen for messages (from server) on a different thread
+    // Listens for messages (from server) on a dedicated daemon thread.
     private void startListening() {
-        Thread thread = new Thread(this::readLoop, "socket-reader");  // socket-reader is the name of the thread, useful for debugging
-        thread.setDaemon(true);  // the thread will be destroyed when the program exits (the client doesn't freeze when it disconnects)
+        Thread thread = new Thread(this::readLoop, "socket-reader");
+        thread.setDaemon(true);
         thread.start();
     }
 
@@ -56,10 +70,10 @@ public final class SocketClient implements VirtualServer {
                 dispatch(message);
             }
         }catch (java.io.EOFException | SocketException e) {
-            System.err.println("<SocketClient>: server caduto – " + e.getMessage());
+            System.err.println("<SocketClient>: server lost – " + e.getMessage());
             notifyCrash();
         }catch (IOException e) {
-            System.err.println("<SocketClient>: connessione chiusa – " + e.getMessage());
+            System.err.println("<SocketClient>: connection closed – " + e.getMessage());
             notifyCrash();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -98,9 +112,6 @@ public final class SocketClient implements VirtualServer {
 
         } else if (message instanceof OnGameStartedMessage m) {
             view.onGameStarted(m.getPayload());
-
-        //} else if (message instanceof OnGameStartedMessage m) {
-         //   view.onGameStarted(m.getPayload());
 
         }
         else if (message instanceof OnTotemPlacedMessage m) {
@@ -143,7 +154,7 @@ public final class SocketClient implements VirtualServer {
             view.onActionError(m.getActionType(), m.getMessage());
 
         } else {
-            System.err.println("SocketClient: messaggio sconosciuto – " + message.getClass().getName());
+            System.err.println("SocketClient: unknown message – " + message.getClass().getName());
         }
     }
 
@@ -162,7 +173,7 @@ public final class SocketClient implements VirtualServer {
             out.flush();
             out.reset();
         } catch (IOException e) {
-            throw new Exception("Impossibile inviare il messaggio al server: " + e.getMessage(), e);
+            throw new Exception("Failed to send message to server: " + e.getMessage(), e);
         }
     }
 
@@ -225,7 +236,12 @@ public final class SocketClient implements VirtualServer {
         send(new RequestLeaderboardMessage(playerId, playerCount));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>No-op on the socket transport: the reader loop already detects
+     * connection drops, so no application-level ping is needed.</p>
+     */
     @Override
     public void ping() throws Exception{}
-    // socket rileva il crash dalla readLoop, non serve il ping
 }
+

@@ -15,34 +15,48 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
 
+/**
+ * Per-client connection handler on the server side.
+ * Implements {@link VirtualView} to ship server callbacks to the client
+ * and {@link Runnable} to consume requests off the client socket on a
+ * dedicated thread.
+ */
 public final class Connector implements VirtualView, Runnable {
 
     private final Socket clientSocket;  // to communicate with the client
     private final VirtualServer serverController;
-    private final ObjectOutputStream out;
-    private final ObjectInputStream in;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
 
+    /**
+     * Builds a new connector for the supplied client socket.
+     *
+     * @param clientSocket     accepted client socket
+     * @param serverController controller the calls are delegated to
+     * @throws IOException if the streams cannot be opened
+     */
     public Connector(Socket clientSocket, VirtualServer serverController) throws IOException {
         this.clientSocket = clientSocket;
         this.serverController = serverController;
-        this.out = new ObjectOutputStream(clientSocket.getOutputStream());
-        this.in  = new ObjectInputStream(clientSocket.getInputStream());
+//        this.out = new ObjectOutputStream(clientSocket.getOutputStream());
+//        this.in  = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    // from client to controller
     @Override
     public void run() {
         try {
+            this.out = new ObjectOutputStream(clientSocket.getOutputStream());
+            this.in = new ObjectInputStream(clientSocket.getInputStream());
             while (!clientSocket.isClosed()) {
                 Message message = (Message) in.readObject();
                 dispatch(message);
             }
         } catch (IOException e) { // communication error
-            System.err.println("<Connector>: connessione chiusa –> " + e.getMessage());
-        } catch (ClassNotFoundException e) {  //
-            System.err.println("<Connector>: classe sconosciuta –> " + e.getMessage());
-        } catch (Exception e) { // communication error
-            System.err.println("<Connector>: errore –> " + e.getMessage()); // errore non gestito da dispatch
+            System.err.println("<Connector>: connection closed –> " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("<Connector>: unknown class –> " + e.getMessage());
+        } catch (Exception e) { // any other error not handled by dispatch
+            System.err.println("<Connector>: error –> " + e.getMessage());
             e.printStackTrace();
         } finally {
             close();
@@ -51,22 +65,22 @@ public final class Connector implements VirtualView, Runnable {
 
     private void dispatch(Message message) throws Exception {
         if (message instanceof ConnectMessage m) {
-            try{
+            try {
                 serverController.connect(m.getPlayerName(), this);
-            } catch (Exception e){
+            } catch (Exception e) {
                 onConnectError(e.getMessage());
             }
 
         } else if (message instanceof RefreshLobbyListMessage m) {
-            try{
+            try {
                 serverController.requestLobbyList(m.getPlayerId());
-            } catch (IllegalArgumentException | IllegalStateException e){
+            } catch (IllegalArgumentException | IllegalStateException e) {
                 onActionError(ActionType.GENERIC, e.getMessage());
             }
         } else if (message instanceof CreateLobbyMessage m) {
             try {
                 serverController.createLobby(m.getPlayerId(), m.getLobbyName(), m.getMaxPlayers());
-            }catch (IllegalArgumentException | IllegalStateException e){
+            } catch (IllegalArgumentException | IllegalStateException e) {
                 onActionError(ActionType.GENERIC, e.getMessage());
             }
         } else if (message instanceof JoinLobbyMessage m) {
@@ -74,7 +88,7 @@ public final class Connector implements VirtualView, Runnable {
                 serverController.joinLobby(m.getPlayerId(), m.getLobbyId());
             } catch (IllegalArgumentException e) {
                 onJoinError(e.getMessage());  // "Lobby not found: YYYY"
-            } catch (IllegalStateException e){
+            } catch (IllegalStateException e) {
                 onActionError(ActionType.GENERIC, e.getMessage());
             }
 
@@ -96,27 +110,28 @@ public final class Connector implements VirtualView, Runnable {
             } else if (message instanceof PlaceTotemMessage m) {
                 try {
                     serverController.placeTotem(m.getPlayerId(), m.getOfferTileChar());
-                } catch (IllegalArgumentException | IllegalStateException e){
+                } catch (IllegalArgumentException | IllegalStateException e) {
                     onActionError(ActionType.GENERIC, e.getMessage());
                 }
 
             } else if (message instanceof TakeCardMessage m) {
                 try {
                     serverController.takeSingleCard(m.getPlayerId(), m.getSelectedCard());
-                } catch (IllegalArgumentException | IllegalStateException | IndexOutOfBoundsException e){
+                } catch (IllegalArgumentException | IllegalStateException | IndexOutOfBoundsException e) {
                     onActionError(ActionType.GENERIC, e.getMessage());
                 }
             } else if (message instanceof TakeExtraCardMessage m) {
                 try {
                     serverController.takeExtraCard(m.getPlayerId(), m.getSelectedCardExtraDraw());
-                } catch (IllegalArgumentException | IllegalStateException e){
+                } catch (IllegalArgumentException | IllegalStateException e) {
                     onActionError(ActionType.GENERIC, e.getMessage());
                 }
 
             } else if (message instanceof DisconnectMessage m) {
                 try {
                     serverController.disconnect(m.getPlayerId());
-                } catch (Exception ignored){}
+                } catch (Exception ignored) {
+                }
             } else if (message instanceof SkipTurnMessage m) {
                 try {
                     serverController.skipTurn(m.getPlayerId());
@@ -129,9 +144,8 @@ public final class Connector implements VirtualView, Runnable {
                 } catch (IllegalArgumentException | IllegalStateException e) {
                     onActionError(ActionType.GENERIC, e.getMessage());
                 }
-            }
-            else {
-                System.err.println("<Controller>: messaggio sconosciuto –>" + message.getClass().getName());
+            } else {
+                System.err.println("<Controller>: unknown message –>" + message.getClass().getName());
             }
         }
     }
@@ -139,7 +153,8 @@ public final class Connector implements VirtualView, Runnable {
     private void close() {
         try {
             clientSocket.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
     // from controller to client
@@ -150,7 +165,7 @@ public final class Connector implements VirtualView, Runnable {
             out.flush();
             out.reset();
         } catch (IOException e) {
-            throw new IOException("Impossibile inviare il messaggio al client: " + e.getMessage(), e);
+            throw new IOException("Failed to send message to client: " + e.getMessage(), e);
         }
     }
 
@@ -260,5 +275,6 @@ public final class Connector implements VirtualView, Runnable {
     }
 
     @Override
-    public void onServerCrashed() {}
+    public void onServerCrashed() {
+    }
 }

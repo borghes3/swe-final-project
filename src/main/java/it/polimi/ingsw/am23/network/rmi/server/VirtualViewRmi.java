@@ -10,6 +10,11 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 
+/**
+ * RMI-flavored {@link VirtualView}.
+ * Every method redeclares its parent to throw {@link RemoteException}, as
+ * required by the {@link Remote} contract.
+ */
 public interface VirtualViewRmi extends VirtualView, Remote {
 
     @Override

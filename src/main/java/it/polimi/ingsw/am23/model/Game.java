@@ -25,9 +25,16 @@ import it.polimi.ingsw.am23.model.state.ScoreEntry;
 
 import java.util.*;
 
+/**
+ * Reference implementation of {@link GameModel}.
+ * Aggregates the board, the decks, the players and the current match
+ * state, and drives the lifecycle through the placing, drawing, event and
+ * end-of-game phases. Mutations are reported to subscribed {@link
+ * ModelObserver} instances via typed payloads.
+ */
 public class Game implements GameModel {
 
-    // Attributi
+    // Attributes
     private final List<Player> players;
     private final Board board;
     private final TribeDeck tribeDeck;
@@ -36,7 +43,7 @@ public class Game implements GameModel {
     private final CardMarket cardMarket;
     private final List<ModelObserver> observers = new ArrayList<>();
 
-    // Stato partita
+    // Match state
     private GameState gameState;
     private Era currentEra;
     private int currentRound;
@@ -45,10 +52,8 @@ public class Game implements GameModel {
     private final CardDrawState drawState;
     private boolean skipAllowed = false;  // for the GUI to show the 'skip' button
 
-    // TODO : fare moduli per conteggio pescaggio carte
-
-    // per CardsTakenPayload — si popolano durante takeSingleCard
-    // vengono svuotati quando il turno del giocatore finisce (setNextPhase)
+    // Per-turn buffers used by CardsTakenPayload, populated during takeSingleCard
+    // and cleared when the player's turn ends (setNextPhase)
     private final List<String> pendingTakenCardIds = new ArrayList<>();
     private final List<String> pendingTakenBuildingIds = new ArrayList<>();
     private int pendingFoodSpentOnBuildings = 0;
@@ -59,6 +64,18 @@ public class Game implements GameModel {
 
     private String currentPlayerId = null;
 
+    /**
+     * Builds a new game instance.
+     *
+     * @param players       players in the match
+     * @param board         central board
+     * @param tribeDeck     tribe deck used to refill the market
+     * @param buildingDeck  building deck used at era progression
+     * @param eventResolver resolver applied during the event phase
+     * @param cardMarket    card market exposed to players
+     * @param currentEra    starting era
+     * @param currentRound  starting round number
+     */
     public Game(List<Player> players, Board board, TribeDeck tribeDeck, BuildingDeck buildingDeck, EventResolver eventResolver, CardMarket cardMarket, Era currentEra, int currentRound) {
         this.players = players;
         this.board = board;
@@ -74,7 +91,11 @@ public class Game implements GameModel {
     }
 
 
-    // Setup completato, comunico al controller setup terminato
+    /**
+     * {@inheritDoc}
+     * <p>Marks the setup as completed, moves to the placing phase and
+     * notifies observers.</p>
+     */
     public void startGame() {
         phase = GamePhase.PLACING_TOTEMS;
         currentPlayerId = getNextPlacingPlayerId();
@@ -82,6 +103,13 @@ public class Game implements GameModel {
         notifyGameStarted();
     }
 
+    /**
+     * Looks up a player by id.
+     *
+     * @param playerId id of the player to retrieve
+     * @return the matching player
+     * @throws PlayerNotFoundException if no player matches the id
+     */
     public Player findPlayer(String playerId) {
         return players.stream()
                 .filter(p -> Objects.equals(p.getId(), playerId))
@@ -92,6 +120,8 @@ public class Game implements GameModel {
     // ------------------------------------------
     // PLACING PHASE
     // ------------------------------------------
+
+    /** {@inheritDoc} */
     @Override
     public ActionResult placeTotem(String playerId, char offerTileChar) {
         Player p = findPlayer(playerId);
@@ -138,6 +168,7 @@ public class Game implements GameModel {
     // DRAWING PHASE
     // ------------------------------------------
 
+    /** {@inheritDoc} */
     @Override
     public ActionResult takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) {
         Player p = findPlayer(playerId);
@@ -146,7 +177,7 @@ public class Game implements GameModel {
         if (!Objects.equals(p.getId(), tile.getOccupiedByPlayerId()))
             return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PLAYER, "It's not your turn.");
 
-        // Inizializzazione turno se è la prima carta
+        // Initialize the turn on the first card
         if (!drawState.isDrawingStarted()) {
             int foodReward = tile.getAction().getFoodReward();
             p.applyFoodDelta(foodReward);
@@ -155,14 +186,14 @@ public class Game implements GameModel {
             currentPlayerId = playerId;
         }
 
-        // Verifico che il player possa ancora pescare da questa riga
+        // Verify the player can still draw from the requested row
         if (!drawState.canDraw(selectedSingleCard)) {
             return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, "You already picked the maximum number of cards from the " + selectedSingleCard.getRow() + " row.");
         }
 
         int foodDiscount = p.getTribe().getBuildingDiscount();
 
-        // Pesco la carta
+        // Draw the card
         if (selectedSingleCard.isBuilding()) {
             BuildingCard c = cardMarket.getBuilding(selectedSingleCard.getRow(), selectedSingleCard.getBoardIndex());
             int cost = c.getFoodCost() - foodDiscount;
@@ -193,18 +224,19 @@ public class Game implements GameModel {
         if (drawState.hasFinishedDrawing()) {
             setNextPhase(playerId);
         } else {
-            // turno non finito — manda un payload intermedio per aggiornare la view
+            // Turn not finished yet: send an intermediate payload to refresh the view
             notifyCardsTakenIntermediate(playerId);
         }
 
         return ActionResult.success(ActionType.TAKE_CARD, "Card taken successfully.");
     }
 
+    /** {@inheritDoc} */
     @Override
     public ActionResult skipTurn(String playerId) {
         Player p = findPlayer(playerId);
 
-        // extra draw skipping logic
+        // Extra draw skipping logic
         if (phase == GamePhase.EXTRA_DRAW) {
             if (!Objects.equals(p.getId(), pendingExtraDrawPlayerId)) {
                 return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PLAYER, "You cannot skip, it's not your turn for the extra draw");
@@ -213,7 +245,7 @@ public class Game implements GameModel {
                 return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.CANNOT_SKIP, "You must take a character card, you cannot skip.");
             }
 
-            // Chiudiamo l'extra draw e passiamo agli eventi
+            // Close the extra draw and move on to events
             pendingExtraDrawPlayerId = null;
             phase = GamePhase.RESOLVING_EVENTS;
             gameState = buildGameState();
@@ -221,7 +253,7 @@ public class Game implements GameModel {
             return ActionResult.success(ActionType.SKIP_TURN, "Extra draw skipped successfully.");
         }
 
-        // normal draw skipping logic
+        // Normal draw skipping logic
         if (phase != GamePhase.RESOLVING_OFFERS) {
             return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PHASE, "You can only skip during the drawing phase.");
         }
@@ -236,7 +268,7 @@ public class Game implements GameModel {
         }
 
         if (!drawState.isDrawingStarted()) {
-            // only for offer tile with food reward
+            // Only applies to offer tiles that grant a food reward
             p.applyFoodDelta(tile.getAction().getFoodReward());
         }
 
@@ -266,7 +298,7 @@ public class Game implements GameModel {
     }
 
     private boolean calculateSkipAllowed() {
-        // if not in resolving offer -> false
+        // Not in resolving-offer / extra-draw: not allowed
         if (!(phase == GamePhase.RESOLVING_OFFERS || phase == GamePhase.EXTRA_DRAW)) {
             return false;
         }
@@ -285,12 +317,12 @@ public class Game implements GameModel {
             if (tile == null) {
                 return false;
             }
-            // first card already drawn (in case of multiple draw offer) -> check remaining draws
+            // First card already drawn (multi-draw offer): check remaining draws
             if (drawState.isDrawingStarted()) {
                 topRowAllowed = drawState.canDrawFromRow(RowType.TOP);
                 bottomRowAllowed = drawState.canDrawFromRow(RowType.BOTTOM);
             } else {
-                // first card not drawn
+                // First card not yet drawn
                 topRowAllowed = tile.getAction().getUpperDrawRowCount() > 0;
                 bottomRowAllowed = tile.getAction().getBottomDrawCount() > 0;
             }
@@ -309,37 +341,37 @@ public class Game implements GameModel {
                     .anyMatch(card -> !(card instanceof EventCard) && card.canBeTaken());
         }
 
-        // skip allowed only if no character cards available to draw
+        // Skip allowed only if no character cards are available to draw
         return !topHasCharacters && !bottomHasCharacters;
     }
 
-    // Dopo aver finito di pescare, ritorno al turn order tile
+    // After the player has finished drawing, move back to the turn order tile
     private void returnToTurnOrder(String playerId) {
-        // Rimuovo il player dal Offer Tile in cui si trova
+        // Remove the player from the offer tile they were on
         OfferTile offerTile = board.getOfferTileByPlayerId(playerId);
         offerTile.clear();
-        // Recupero primo slot libero e posiziono il player
+        // Fetch the first free slot and place the player on it
         TurnOrderTile turnTile = board.getTurnOrderTile();
         TurnOrderSlot slot = turnTile.getFirstFreeSlot();
         slot.placeTotem(playerId);
         pendingTurnOrderSlotIndex = turnTile.getSlotIndex(slot);
 
-        // Gestione delta cibo del turn order slot
-        if (slot.givesFood()) {                                     // Delta positivo
+        // Apply the turn order slot food delta
+        if (slot.givesFood()) {                                     // positive delta
             int delta = slot.getFoodDelta();
             findPlayer(playerId).applyFoodDelta(delta);
             pendingFoodDeltaFromSlot = delta;
             for (BuildingCard building : findPlayer(playerId).getTribe().getBuildings()) {
                 building.getEffect().modifyTurnOrderFood(this, findPlayer(playerId), delta);
             }
-        } else if (slot.getFoodDelta() != 0) {                      // Delta negativo
+        } else if (slot.getFoodDelta() != 0) {                      // negative delta
             int delta = slot.getFoodDelta();
             if (findPlayer(playerId).canAfford(delta)) {
                 findPlayer(playerId).applyFoodDelta(delta);
                 pendingFoodDeltaFromSlot = delta;
             } else {
                 findPlayer(playerId).spendPrestigePoints(delta * 2);
-                pendingFoodDeltaFromSlot = 0; // ha pagato in PP, non in cibo
+                pendingFoodDeltaFromSlot = 0; // paid in PP, not in food
             }
         }
     }
@@ -364,6 +396,8 @@ public class Game implements GameModel {
     // ------------------------------------------
     // RESOLVING EVENTS PHASE
     // ------------------------------------------
+
+    /** {@inheritDoc} */
     @Override
     public ActionResult resolveEvents() {
         List<EventCard> events = cardMarket.getBottomRowEvents();
@@ -399,12 +433,12 @@ public class Game implements GameModel {
     }
 
     private void resolveAndNotifySingleEvent(EventCard event) {
-        // Snapshot food e PP prima della risoluzione
+        // Snapshot food and PP before resolution to compute the delta
         Map<String, int[]> before = snapshotPlayerStats();
 
         eventResolver.resolveSingleEvent(event, this);
 
-        // Calcola delta
+        // Compute deltas
         List<PlayerDelta> deltas = computePlayerDeltas(before);
 
         notifyEventResolved(event.getId(), deltas);
@@ -432,7 +466,8 @@ public class Game implements GameModel {
 
 
     // ------------------------------------------
-    // CLEANUP PHASE (END OF ROUND) + ERA PROGRESSION: Preparo la board al prossimo round e gestisco cambio era
+    // CLEANUP PHASE (END OF ROUND) + ERA PROGRESSION
+    // Prepares the board for the next round and handles era progression
     // ------------------------------------------
     private void cleanUp() {
         List<String> discardedCardIds = cardMarket.clearBottomRow();
@@ -453,8 +488,10 @@ public class Game implements GameModel {
     }
 
     // ------------------------------------------
-    // ENDGAME PHASE: Calcolo punteggi
+    // ENDGAME PHASE: compute scores
     // ------------------------------------------
+
+    /** {@inheritDoc} */
     @Override
     public ActionResult calculateScores() {
         ScoreCalculator scoreCalculator = new ScoreCalculator(this);
@@ -465,9 +502,12 @@ public class Game implements GameModel {
     }
 
     // ------------------------------------------
-    // EXTRA DRAW: Alla fine del DRAWING PHASE, il player salvato in pendingExtraDrawPlayerId può pescare
+    // EXTRA DRAW: at the end of the DRAWING PHASE,
+    // the player saved in pendingExtraDrawPlayerId can draw an extra card.
+    // Invoked by the controller when the owning player holds the extra-draw building effect.
     // ------------------------------------------
-    // Chiamata dal controller quando il player ha il building con l'effetto extra card
+
+    /** {@inheritDoc} */
     @Override
     public ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) {
         Player p = findPlayer(playerId);
@@ -556,6 +596,12 @@ public class Game implements GameModel {
         return ActionResult.success(ActionType.TAKE_CARD, "Extra card taken successfully");
     }
 
+    /**
+     * Schedules an extra draw for the supplied player. Invoked by the
+     * extra draw building effect when the building is bought.
+     *
+     * @param playerId id of the player entitled to the extra draw
+     */
     public void setPendingExtraDrawPlayerId(String playerId) {
         this.pendingExtraDrawPlayerId = playerId;
     }
@@ -615,19 +661,21 @@ public class Game implements GameModel {
 
 
     // ------------------------------------------
-    // OBSERVERS e NOTIFICHE
+    // OBSERVERS AND NOTIFICATIONS
     // ------------------------------------------
+
+    /** {@inheritDoc} */
     @Override
     public void addObserver(ModelObserver o) {
         observers.add(o);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void removeObserver(ModelObserver o) {
         observers.remove(o);
     }
 
-    // NOTIFICHE
 
     private void notifyGameStarted() {
         GameStartedPayload payload = new GameStartedPayload(buildGameState());
@@ -645,19 +693,19 @@ public class Game implements GameModel {
     }
 
     private void notifyEndOfPlacingPhase() {
-        // L'ordine dei player sul tracciato offerte = le offer tile occupate in ordine
+        // Player order on the offer track equals the occupied offer tiles in order
         List<String> playerOrder = board.getOfferTiles().stream()
                 .filter(t -> !t.isFree())
                 .map(OfferTile::getOccupiedByPlayerId)
                 .toList();
-        // il primo che deve pescare è il primo sulla offer track
+        // The first player to draw is the first one on the offer track
         String firstPlayerId = playerOrder.isEmpty() ? null : playerOrder.get(0);
         EndOfPlacingPhasePayload payload = new EndOfPlacingPhasePayload(playerOrder, firstPlayerId, calculateSkipAllowed());
         observers.forEach(o -> o.onEndOfPlacingPhase(payload));
     }
 
     private void notifyCardsTaken(String playerId) {
-        // calcola la fase e il prossimo giocatore dopo questo turno
+        // Compute the phase and the next player after this turn
         GamePhase newPhase;
         String nextPlayerId;
 
@@ -717,10 +765,10 @@ public class Game implements GameModel {
                 List.copyOf(pendingTakenBuildingIds),
                 pendingFoodSpentOnBuildings,
                 pendingFoodGainedFromOfferTile,
-                -1, // slot index non ancora noto
-                0,  // food delta slot non ancora noto
+                -1, // slot index not known yet
+                0,  // slot food delta not known yet
                 GamePhase.RESOLVING_OFFERS,
-                playerId, // stesso giocatore — turno non finito
+                playerId, // same player: turn not finished
                 takenCards,
                 takenBuildings,
                 p.getFood(),
@@ -796,7 +844,7 @@ public class Game implements GameModel {
                         r.player.getState().getNickname(),
                         r.PP,
                         r.foodPoints,
-                        Map.of("food", r.foodPoints) // breakdown minimo — estendibile
+                        Map.of("food", r.foodPoints) // minimal breakdown, can be extended
                 ))
                 .toList();
         ScoreBoardPayload payload = new ScoreBoardPayload(scores);
@@ -805,24 +853,30 @@ public class Game implements GameModel {
 
 
     // GETTERS
+
+    /** @return the players in the match in their declaration order */
     public List<Player> getPlayers() {
         return players;
     }
 
+    /** @return the central board */
     public Board getBoard() {
         return board;
     }
 
+    /** {@inheritDoc} */
     @Override
     public GameState getGameState() {
         return gameState;
     }
 
+    /** {@inheritDoc} */
     @Override
     public GamePhase getGamePhase() {
         return phase;
     }
 
+    /** @return the era currently being played */
     public Era getCurrentEra() {
         return currentEra;
     }

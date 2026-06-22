@@ -22,10 +22,12 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Controller MVC
- * Gestisce lobby, partita e bootstrap modello
+ * MVC controller that bridges the network layer and the model.
+ * Manages the lobby lifecycle, the match lifecycle and the persistence of
+ * leaderboard data. Implements {@link VirtualServer} to expose the actions
+ * the clients can invoke and {@link ModelObserver} to forward model
+ * notifications to every interested {@link VirtualView}.
  */
-
 public final class GameController implements VirtualServer, ModelObserver {
 
     private static final int DEFAULT_LOBBY_MAX_PLAYERS = 5;
@@ -45,11 +47,17 @@ public final class GameController implements VirtualServer, ModelObserver {
     private static final int LEADERBOARD_TEASER_LIMIT = 10;
     private static final int LEADERBOARD_FULL_LIMIT   = 100;
 
+    /**
+     * Builds a new controller, initializing the leaderboard repository
+     * from the persistence configuration loaded from classpath.
+     */
     public GameController() {
         this.leaderboard = new LeaderboardRepository(DatabaseConfig.load());
         this.leaderboard.init();
     }
 
+    /** {@inheritDoc} */
+    @Override
     public synchronized void connect(String playerName, VirtualView client) throws Exception {
         Objects.requireNonNull(playerName, "playerName cannot be null");
         Objects.requireNonNull(client, "client cannot be null");
@@ -75,6 +83,8 @@ public final class GameController implements VirtualServer, ModelObserver {
         client.onConnected(playerId, currentLobbyStates());
     }
 
+    /** {@inheritDoc} */
+    @Override
     public synchronized void createLobby(String playerId, String lobbyName, int maxPlayers) throws Exception {
         PlayerConnectionInfo owner = requireConnectedPlayer(playerId);
         String normalizedLobbyName = lobbyName == null ? "" : lobbyName.trim();
@@ -95,6 +105,8 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
+    /** {@inheritDoc} */
+    @Override
     public synchronized void joinLobby(String playerId, String lobbyId) throws Exception {
         PlayerConnectionInfo player = requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);
@@ -121,6 +133,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
+    /** {@inheritDoc} */
     @Override
     public synchronized void requestLobbyList(String playerId) throws Exception {
         requireConnectedPlayer(playerId);
@@ -130,6 +143,8 @@ public final class GameController implements VirtualServer, ModelObserver {
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
     public synchronized void leaveLobby(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);
@@ -158,6 +173,8 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
+    /** {@inheritDoc} */
+    @Override
     public synchronized void startGame(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
         LobbyRoom lobby = requireLobby(lobbyId);
@@ -466,7 +483,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         for (Map.Entry<String, VirtualView> entry : clientsByPlayerId.entrySet()) {
             String playerId = entry.getKey();
 
-           // chi è in lobby non riceve notifiche sulla lista delle lobbies
+           // players already inside a lobby do not receive lobby-list notifications
             if (lobbyByPlayerId.containsKey(playerId)) {
                 continue;
             }

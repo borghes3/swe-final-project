@@ -11,6 +11,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JDBC-backed repository that persists the per-match scores and serves the
+ * leaderboard queries. The repository fails open: if any error occurs the
+ * persistence is silently disabled and the game keeps running without
+ * leaderboard support.
+ */
 public final class LeaderboardRepository {
 
     private static final String LOG_PREFIX = "[Leaderboard]";
@@ -49,6 +55,12 @@ public final class LeaderboardRepository {
     private final DatabaseConfig config;
     private volatile boolean available;
 
+    /**
+     * Builds a new repository bound to the supplied configuration.
+     * Persistence is disabled immediately if the configuration is invalid.
+     *
+     * @param config the JDBC configuration
+     */
     public LeaderboardRepository(DatabaseConfig config) {
         this.config = config;
         this.available = config.isValid();
@@ -57,12 +69,15 @@ public final class LeaderboardRepository {
         }
     }
 
+    /** @return {@code true} if persistence is currently available */
     public boolean isAvailable() {
         return available;
     }
 
     /**
-     * Connection and error handling
+     * Loads the JDBC driver, opens a connection and creates the schema if
+     * missing. On any error the repository is marked as unavailable so
+     * later calls become no-ops.
      */
     public synchronized void init() {
         if (!available) return;
@@ -92,12 +107,12 @@ public final class LeaderboardRepository {
     }
 
     /**
-     * Saves game result for a single player
+     * Persists the result of a single player in a match.
      *
-     * @param nickname
-     * @param score
-     * @param playerCount
-     * @param matchDate
+     * @param nickname    display nickname of the player
+     * @param score       prestige points achieved
+     * @param playerCount number of players in the match
+     * @param matchDate   end-of-match timestamp
      */
     public synchronized void saveResult(String nickname, int score, int playerCount, LocalDateTime matchDate) {
         if (!available) return;
@@ -114,10 +129,13 @@ public final class LeaderboardRepository {
     }
 
     /**
-     * Position of a game-score based on the number of players
+     * Computes the global 1-based position the supplied score would have
+     * in the leaderboard restricted to matches with the same number of
+     * players.
      *
-     * @param score
-     * @param playerCount
+     * @param score       score to rank
+     * @param playerCount player count slice to query
+     * @return the 1-based position, or {@code -1} if persistence is unavailable
      */
     public synchronized int positionOf(int score, int playerCount) {
         if (!available) return -1;
@@ -137,10 +155,13 @@ public final class LeaderboardRepository {
     }
 
     /**
-     * Top {@code limit} matches for the given player count, descending order.
+     * Returns the top {@code limit} entries for the supplied player count
+     * slice, ordered by descending score (and ascending match date as tie
+     * breaker).
      *
-     * @param playerCount
-     * @param limit
+     * @param playerCount player count slice to query
+     * @param limit       maximum number of entries to return
+     * @return the matching entries; empty list if persistence is unavailable
      */
     public synchronized List<RankingEntry> topForPlayerCount(int playerCount, int limit) {
         if (!available) return List.of();

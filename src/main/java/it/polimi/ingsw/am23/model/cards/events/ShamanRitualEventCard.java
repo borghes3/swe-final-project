@@ -10,25 +10,45 @@ import it.polimi.ingsw.am23.model.player.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Event card implementing the Shaman Ritual scoring rule.
+ * Players are ranked by the total number of Shaman stars owned (including
+ * the bonus stars contributed by building effects); the player with the
+ * highest total scores {@code winPoints}, while the player with the lowest
+ * total loses {@code losePoints} unless a building effect cancels the loss.
+ */
 public class ShamanRitualEventCard extends EventCard {
 
     private final int winPoints;
     private final int losePoints;
 
+    /**
+     * Builds a new Shaman Ritual event card.
+     *
+     * @param id         unique identifier of the card
+     * @param era        era the card belongs to
+     * @param points     printed victory points
+     * @param isFinal    whether the card is resolved only at end of match
+     * @param winPoints  prestige points awarded to the winner
+     * @param losePoints prestige points subtracted from the loser
+     */
     public ShamanRitualEventCard(String id, Era era, int points, boolean isFinal, int winPoints, int losePoints) {
         super(id, era, points, isFinal);
         this.winPoints = winPoints;
         this.losePoints = losePoints;
     }
 
+    /** @return the prestige points awarded to the winner */
     public int getWinPoints() {
         return winPoints;
     }
 
+    /** @return the prestige points subtracted from the loser */
     public int getLosePoints() {
         return losePoints;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void resolve(Game game) {
         List<Player> players = game.getPlayers();
@@ -91,6 +111,10 @@ public class ShamanRitualEventCard extends EventCard {
         }
     }
 
+    /**
+     * Intermediate per-player result built during resolution to compute the
+     * winner and the loser.
+     */
     private static class ShamanResult {
         private final Player player;
         private final int totalStars;

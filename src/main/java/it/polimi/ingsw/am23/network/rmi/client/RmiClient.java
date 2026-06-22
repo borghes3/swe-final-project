@@ -21,16 +21,47 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * RMI implementation of the {@link VirtualViewRmi} remote view.
+ * Wraps a local {@link VirtualView} and dispatches every server callback
+ * onto a single-threaded executor to keep the RMI thread non blocking.
+ * <p>
+ * The client object is exported on the fixed {@link #CALLBACK_PORT} so the
+ * port the server uses to deliver callbacks is predictable and can be
+ * opened on firewalls / NATs without having to guess a random port.
+ */
 public final class RmiClient extends UnicastRemoteObject implements VirtualViewRmi {
+
+    /** TCP port used for the callbacks the server delivers to the client. */
+    public static final int CALLBACK_PORT = 1236;
 
     private final VirtualView view;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Builds a new RMI client wrapping the supplied local view and
+     * exports the callback object on {@link #CALLBACK_PORT}.
+     *
+     * @param view local view receiving the dispatched callbacks
+     * @throws RemoteException if the underlying {@link UnicastRemoteObject}
+     *                         export fails
+     */
     public RmiClient(VirtualView view) throws RemoteException {
-        super();
+        super(CALLBACK_PORT);
         this.view = Objects.requireNonNull(view, "view cannot be null");
     }
 
+    /**
+     * Connects to the RMI server, registering this client as the player's
+     * remote view.
+     *
+     * @param host       host of the RMI registry
+     * @param playerName desired display nickname
+     * @param view       local view to wrap
+     * @return the remote server stub
+     * @throws RemoteException   on transport failure
+     * @throws NotBoundException if the server binding cannot be located
+     */
     public static VirtualServerRmi connect(String host, String playerName, VirtualView view)
             throws RemoteException, NotBoundException {
 

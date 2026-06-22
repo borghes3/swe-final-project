@@ -6,6 +6,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Schedules a periodic ping toward the supplied RMI server to detect
+ * connection drops. On failure, the supplied callback is invoked and the
+ * service stops.
+ */
 public class HeartbeatService {
 
     private final VirtualServer server;
@@ -17,11 +22,18 @@ public class HeartbeatService {
     });
     private volatile boolean stopped = false;
 
+    /**
+     * Builds a new heartbeat service.
+     *
+     * @param server         remote server to ping
+     * @param onDisconnected callback invoked on a failed ping
+     */
     public HeartbeatService(VirtualServer server, Runnable onDisconnected){
         this.server = server;
         this.onDisconnected = onDisconnected;
     }
 
+    /** Starts pinging the server at a fixed cadence of 2 seconds. */
     public void start(){
         scheduler.scheduleAtFixedRate(() -> {
             if(stopped) return;
@@ -35,6 +47,7 @@ public class HeartbeatService {
         }, 2, 2, TimeUnit.SECONDS);
     }
 
+    /** Stops the heartbeat scheduler. */
     public void stop() {
         stopped = true;
         scheduler.shutdown();

@@ -11,16 +11,31 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Computes the end-of-game scores for every player in the {@link Game}.
+ * Aggregates per-category points (builders, inventors, artists, buildings
+ * including their effects) on top of the prestige points accumulated
+ * during the match.
+ */
 public class ScoreCalculator {
 
     private final Game game;
     private final List<ScoreResult> scoreboard = new ArrayList<>();
 
+    /**
+     * Builds a new score calculator bound to the supplied game.
+     *
+     * @param game game whose players will be scored
+     */
     public ScoreCalculator(Game game) {
         this.game = game;
     }
 
-    // Calcolo punteggio
+    /**
+     * Computes and orders the final scoreboard for the bound game.
+     *
+     * @return the scoreboard, sorted by prestige points (and food points as tie breaker)
+     */
     public List<ScoreResult> calculateFinalScores() {
         for (Player player : game.getPlayers()) {
             int foodPoints = player.getFood();
@@ -33,16 +48,22 @@ public class ScoreCalculator {
             int totalPoints = prePoints + postPoints;
             scoreboard.add(new ScoreResult(player, foodPoints, totalPoints));
         }
-        // Ordino scoreboard
+        // Sort by prestige points, then by food points as tie breaker
         scoreboard.sort(
                 Comparator
-                        .comparingInt((ScoreResult s) -> s.PP)                          // sort prima per PP
-                        .thenComparingInt(s -> s.foodPoints).reversed()      // poi per foodPoints
+                        .comparingInt((ScoreResult s) -> s.PP)
+                        .thenComparingInt(s -> s.foodPoints).reversed()
         );
         return scoreboard;
     }
 
-    // Print vincitore(i)
+    /**
+     * Returns the winner(s) of the match. When multiple players share the
+     * top prestige and food points, all of them are returned.
+     *
+     * @return the list of winners (always non empty after {@link #calculateFinalScores()})
+     * @throws IllegalStateException if scores have not been computed yet
+     */
     public List<Player> getWinner() {
         if (scoreboard.isEmpty()) {
             throw new IllegalStateException("Scores have not been calculated yet");
@@ -51,7 +72,7 @@ public class ScoreCalculator {
         ScoreResult firstWinner = scoreboard.get(0);
         winners.add(firstWinner.player);
 
-        // Verifico equivalenze di punti / cibo
+        // Collect all players tied with the top score
         for (int i = 1; i < scoreboard.size(); i++) {
             ScoreResult current = scoreboard.get(i);
             if (current.PP == firstWinner.PP && current.foodPoints == firstWinner.foodPoints) {
@@ -62,8 +83,6 @@ public class ScoreCalculator {
         }
         return winners;
     }
-
-    //Metodi dedicati al calcolo dei punteggi per le singole carte che conseguono al punteggio finale
 
     private int calculateBuildersPoints(Player p) {
         List<CharacterCard> builders = p.getTribe().getCharacters().stream().filter(c -> c.getCharacterType() == CharacterType.BUILDER).toList();
