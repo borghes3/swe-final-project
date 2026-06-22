@@ -14,7 +14,15 @@ public final class CreateLobbyMessage extends Message {
         this.maxPlayers = maxPlayers;
     }
 
-    public String getPlayerId() { return playerId; }
-    public String getLobbyName() { return lobbyName; }
-    public int getMaxPlayers() { return maxPlayers; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public String getLobbyName() {
+        return lobbyName;
+    }
+
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
 }

@@ -16,55 +16,81 @@ import java.rmi.RemoteException;
  */
 public interface VirtualServerRmi extends VirtualServer, Remote {
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void connect(String playerName, VirtualView client) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void createLobby(String playerId, String lobbyName, int maxPlayers) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void joinLobby(String playerId, String lobbyId) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void requestLobbyList(String playerId) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void leaveLobby(String playerId, String lobbyId) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void startGame(String playerId, String lobbyId) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void placeTotem(String playerId, char offerTileChar) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void skipTurn(String playerId) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void disconnect(String playerId) throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void ping() throws RemoteException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void requestLeaderboard(String playerId, int playerCount) throws RemoteException;
 }

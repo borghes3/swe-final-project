@@ -11,4 +11,5 @@ import java.io.Serializable;
  * @param foodPoints     points coming from the leftover food reserve
  * @param prestigePoints total prestige points scored
  */
-public record ScoreEntry(String playerId, int foodPoints, int prestigePoints) implements Serializable {}
+public record ScoreEntry(String playerId, int foodPoints, int prestigePoints) implements Serializable {
+}

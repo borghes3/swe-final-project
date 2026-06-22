@@ -32,19 +32,25 @@ public class BuildingCard extends Card {
         this.effect = Objects.requireNonNull(effect, "effect cannot be null");
     }
 
-    /** @return the food cost required to purchase the card */
+    /**
+     * @return the food cost required to purchase the card
+     */
     public int getFoodCost() {
         return foodCost;
     }
 
-    /** @return the persistent effect granted by the building */
+    /**
+     * @return the persistent effect granted by the building
+     */
     public BuildingEffect getEffect() {
         return effect;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean canBeTaken(){
+    public boolean canBeTaken() {
         return true;
     }
 
@@ -60,9 +66,11 @@ public class BuildingCard extends Card {
         player.getTribe().addBuilding(this);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new BuildingCardState(
                 getId(),
                 getEra(),

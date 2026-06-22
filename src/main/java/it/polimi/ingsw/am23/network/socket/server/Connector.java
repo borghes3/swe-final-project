@@ -31,13 +31,12 @@ public final class Connector implements VirtualView, Runnable {
 
     private final Socket clientSocket;  // to communicate with the client
     private final VirtualServer serverController;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
     private final ExecutorService sendExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "connector-sender");
         t.setDaemon(true);
         return t;
     });
+    private ObjectOutputStream out;
     private volatile boolean sendingEnabled = true;
 
     /**
@@ -58,7 +57,7 @@ public final class Connector implements VirtualView, Runnable {
     public void run() {
         try {
             this.out = new ObjectOutputStream(clientSocket.getOutputStream());
-            this.in = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
             while (!clientSocket.isClosed()) {
                 Message message = (Message) in.readObject();
                 dispatch(message);
@@ -193,44 +192,45 @@ public final class Connector implements VirtualView, Runnable {
                     System.err.println("<Connector>: send failed, closing connection –> " + e.getMessage());
                     try {
                         clientSocket.close();
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         });
     }
 
     @Override
-    public void onConnected(String playerId, List<LobbyState> lobbies) throws IOException {
+    public void onConnected(String playerId, List<LobbyState> lobbies) {
         send(new OnConnectedMessage(playerId, lobbies));
     }
 
     @Override
-    public void onConnectError(String reason) throws IOException {
+    public void onConnectError(String reason) {
         send(new OnConnectErrorMessage(reason));
     }
 
     @Override
-    public void onLobbyListUpdated(List<LobbyState> lobbies) throws IOException {
+    public void onLobbyListUpdated(List<LobbyState> lobbies) {
         send(new OnLobbyListUpdatedMessage(lobbies));
     }
 
     @Override
-    public void onLobbyCreated(LobbyState lobby) throws IOException {
+    public void onLobbyCreated(LobbyState lobby) {
         send(new OnLobbyCreatedMessage(lobby));
     }
 
     @Override
-    public void onLobbyUpdate(LobbyState lobby) throws IOException {
+    public void onLobbyUpdate(LobbyState lobby) {
         send(new OnLobbyUpdateMessage(lobby));
     }
 
     @Override
-    public void onJoinError(String reason) throws IOException {
+    public void onJoinError(String reason) {
         send(new OnJoinErrorMessage(reason));
     }
 
     @Override
-    public void onLobbyClosed() throws IOException {
+    public void onLobbyClosed() {
         send(new OnLobbyClosedMessage());
     }
 
@@ -290,17 +290,17 @@ public final class Connector implements VirtualView, Runnable {
     }
 
     @Override
-    public void onMatchRankingsAvailable(MatchRankingsPayload payload) throws IOException {
+    public void onMatchRankingsAvailable(MatchRankingsPayload payload) {
         send(new OnMatchRankingsAvailableMessage(payload));
     }
 
     @Override
-    public void onLeaderboardAvailable(LeaderboardPayload payload) throws IOException {
+    public void onLeaderboardAvailable(LeaderboardPayload payload) {
         send(new OnLeaderboardAvailableMessage(payload));
     }
 
     @Override
-    public void onActionError(ActionType actionType, String message) throws IOException {
+    public void onActionError(ActionType actionType, String message) {
         send(new OnActionErrorMessage(actionType, message));
     }
 

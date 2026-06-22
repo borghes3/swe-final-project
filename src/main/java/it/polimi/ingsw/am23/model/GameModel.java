@@ -13,7 +13,9 @@ import it.polimi.ingsw.am23.model.state.GameState;
  */
 public interface GameModel {
 
-    /** Transitions from setup to the first placing phase. */
+    /**
+     * Transitions from setup to the first placing phase.
+     */
     void startGame();
 
     /**
@@ -68,10 +70,14 @@ public interface GameModel {
      */
     ActionResult calculateScores();
 
-    /** @return the latest snapshot of the game state */
+    /**
+     * @return the latest snapshot of the game state
+     */
     GameState getGameState();
 
-    /** @return the current game phase */
+    /**
+     * @return the current game phase
+     */
     GamePhase getGamePhase();
 
     /**

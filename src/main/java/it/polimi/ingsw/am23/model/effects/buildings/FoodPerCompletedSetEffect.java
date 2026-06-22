@@ -14,14 +14,18 @@ public class FoodPerCompletedSetEffect implements BuildingEffect {
 
     private int lastKnownSetCount = 0;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void onBuildingAdded(Game game, Player player){
+    public void onBuildingAdded(Game game, Player player) {
         // Stores the set count at purchase time to detect future increments
         lastKnownSetCount = player.getTribe().countCompletedSets();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onCardTaken(Game game, Player player, Card card) {
         int currentSets = player.getTribe().countCompletedSets();

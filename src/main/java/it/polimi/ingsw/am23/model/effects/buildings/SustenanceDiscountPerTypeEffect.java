@@ -10,7 +10,7 @@ import it.polimi.ingsw.am23.model.player.Player;
  * Sustenance event by a configurable amount per character of the supplied
  * type owned by the player.
  */
-public class SustenanceDiscountPerTypeEffect implements BuildingEffect{
+public class SustenanceDiscountPerTypeEffect implements BuildingEffect {
 
     private final CharacterType characterType;
     private final int discount;
@@ -21,15 +21,17 @@ public class SustenanceDiscountPerTypeEffect implements BuildingEffect{
      * @param characterType character archetype to count
      * @param discount      cost reduction per character of the supplied type
      */
-    public SustenanceDiscountPerTypeEffect(CharacterType characterType, int discount){
+    public SustenanceDiscountPerTypeEffect(CharacterType characterType, int discount) {
         this.characterType = characterType;
         this.discount = discount;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int modifySustenanceCost(Game game, Player player, int currentCost){
+    public int modifySustenanceCost(Game game, Player player, int currentCost) {
         int count = player.getTribe().count(characterType);
-        return currentCost - (count*discount);
+        return currentCost - (count * discount);
     }
 }

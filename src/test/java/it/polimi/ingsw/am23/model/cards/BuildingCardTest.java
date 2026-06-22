@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BuildingCardTest {
 
@@ -27,7 +28,7 @@ class BuildingCardTest {
         Game game = TestUtils.game(
                 List.of(p),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null)),
                 List.of(),
                 List.of(),
                 List.of(),

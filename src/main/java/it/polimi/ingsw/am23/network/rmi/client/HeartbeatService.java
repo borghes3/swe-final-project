@@ -28,18 +28,20 @@ public class HeartbeatService {
      * @param server         remote server to ping
      * @param onDisconnected callback invoked on a failed ping
      */
-    public HeartbeatService(VirtualServer server, Runnable onDisconnected){
+    public HeartbeatService(VirtualServer server, Runnable onDisconnected) {
         this.server = server;
         this.onDisconnected = onDisconnected;
     }
 
-    /** Starts pinging the server at a fixed cadence of 2 seconds. */
-    public void start(){
+    /**
+     * Starts pinging the server at a fixed cadence of 2 seconds.
+     */
+    public void start() {
         scheduler.scheduleAtFixedRate(() -> {
-            if(stopped) return;
-            try{
+            if (stopped) return;
+            try {
                 server.ping();
-            } catch (Exception e){
+            } catch (Exception e) {
                 stopped = true;
                 scheduler.shutdown();
                 onDisconnected.run();
@@ -47,7 +49,9 @@ public class HeartbeatService {
         }, 2, 2, TimeUnit.SECONDS);
     }
 
-    /** Stops the heartbeat scheduler. */
+    /**
+     * Stops the heartbeat scheduler.
+     */
     public void stop() {
         stopped = true;
         scheduler.shutdown();

@@ -11,5 +11,7 @@ public final class OnLobbyCreatedMessage extends Message {
         this.lobby = lobby;
     }
 
-    public LobbyState getLobby() { return lobby; }
+    public LobbyState getLobby() {
+        return lobby;
+    }
 }

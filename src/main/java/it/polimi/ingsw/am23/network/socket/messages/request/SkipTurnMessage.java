@@ -10,5 +10,7 @@ public final class SkipTurnMessage extends Message {
         this.playerId = playerId;
     }
 
-    public String getPlayerId() { return playerId; }
+    public String getPlayerId() {
+        return playerId;
+    }
 }

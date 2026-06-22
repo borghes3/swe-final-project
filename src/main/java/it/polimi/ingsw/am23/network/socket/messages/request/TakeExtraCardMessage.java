@@ -13,6 +13,11 @@ public final class TakeExtraCardMessage extends Message {
         this.selectedCardExtraDraw = selectedCardExtraDraw;
     }
 
-    public String getPlayerId() { return playerId; }
-    public SelectedCardExtraDraw getSelectedCardExtraDraw() { return selectedCardExtraDraw; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public SelectedCardExtraDraw getSelectedCardExtraDraw() {
+        return selectedCardExtraDraw;
+    }
 }

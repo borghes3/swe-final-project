@@ -34,19 +34,21 @@ public class HuntingEventCard extends EventCard {
         this.pointsPerHunter = pointsPerHunter;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void resolve(Game game){
+    public void resolve(Game game) {
         List<Player> players = game.getPlayers();
 
-        for(Player player : players){
+        for (Player player : players) {
             int baseFood = calculateBaseFood(player);
             int basePoints = calculateBasePoints(player);
             player.applyFoodDelta(baseFood);
             player.addPrestigePoints(basePoints);
 
             HuntingEffectData data = new HuntingEffectData();
-            for(BuildingCard building : player.getTribe().getBuildings()){
+            for (BuildingCard building : player.getTribe().getBuildings()) {
                 building.getEffect().applyHunting(game, player, data);
             }
             player.applyFoodDelta(data.getExtraFood());
@@ -55,11 +57,11 @@ public class HuntingEventCard extends EventCard {
 
     }
 
-    private int calculateBaseFood(Player player){
+    private int calculateBaseFood(Player player) {
         return player.getTribe().count(CharacterType.HUNTER);
     }
 
-    private int calculateBasePoints(Player player){
-        return  player.getTribe().count(CharacterType.HUNTER)*pointsPerHunter;
+    private int calculateBasePoints(Player player) {
+        return player.getTribe().count(CharacterType.HUNTER) * pointsPerHunter;
     }
 }

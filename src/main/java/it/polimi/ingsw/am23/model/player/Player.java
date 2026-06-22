@@ -15,10 +15,10 @@ public class Player {
 
     private final String id;
     private final String nickname;
-    private int food;
-    private int prestigePoints;
     private final Tribe tribe;
     private final Totem totem;
+    private int food;
+    private int prestigePoints;
 
     /**
      * Builds a new player.
@@ -44,22 +44,30 @@ public class Player {
         this.totem = totem;
     }
 
-    /** @return the unique identifier of this player */
+    /**
+     * @return the unique identifier of this player
+     */
     public String getId() {
         return id;
     }
 
-    /** @return the player's current food reserve */
+    /**
+     * @return the player's current food reserve
+     */
     public int getFood() {
         return food;
     }
 
-    /** @return the player's current prestige points */
+    /**
+     * @return the player's current prestige points
+     */
     public int getPrestigePoints() {
         return prestigePoints;
     }
 
-    /** @return the tribe owned by this player */
+    /**
+     * @return the tribe owned by this player
+     */
     public Tribe getTribe() {
         return tribe;
     }
@@ -112,14 +120,16 @@ public class Player {
         prestigePoints -= Math.abs(amount);
     }
 
-    /** @return the serializable snapshot of this player */
+    /**
+     * @return the serializable snapshot of this player
+     */
     public PlayerState getState() {
         return new PlayerState(
                 id,
                 nickname,
                 food,
                 prestigePoints,
-                totem != null ? totem.getColor() : null,
+                totem != null ? totem.color() : null,
                 tribe.getCharacters().stream().map(CharacterCard::toState).toList(),
                 tribe.getBuildings().stream().map(BuildingCard::toState).toList()
         );

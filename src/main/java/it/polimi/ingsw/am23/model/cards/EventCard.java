@@ -62,9 +62,11 @@ public abstract class EventCard extends Card {
      */
     public abstract void resolve(Game game);
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new EventCardState(
                 getId(),
                 getEra(),

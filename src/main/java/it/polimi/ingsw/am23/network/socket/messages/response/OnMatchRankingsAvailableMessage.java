@@ -11,5 +11,7 @@ public final class OnMatchRankingsAvailableMessage extends Message {
         this.payload = payload;
     }
 
-    public MatchRankingsPayload getPayload() { return payload; }
+    public MatchRankingsPayload getPayload() {
+        return payload;
+    }
 }

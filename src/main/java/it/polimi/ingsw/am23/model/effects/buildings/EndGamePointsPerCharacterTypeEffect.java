@@ -9,7 +9,7 @@ import it.polimi.ingsw.am23.model.player.Player;
  * End-of-game building effect that grants a configurable amount of
  * prestige points per character of a target type owned by the player.
  */
-public class EndGamePointsPerCharacterTypeEffect implements BuildingEffect{
+public class EndGamePointsPerCharacterTypeEffect implements BuildingEffect {
     private final CharacterType characterType;
     private final int pointsPerCharacter;
 
@@ -19,14 +19,16 @@ public class EndGamePointsPerCharacterTypeEffect implements BuildingEffect{
      * @param characterType      character archetype to count
      * @param pointsPerCharacter prestige points awarded per character
      */
-    public EndGamePointsPerCharacterTypeEffect(CharacterType characterType, int pointsPerCharacter){
+    public EndGamePointsPerCharacterTypeEffect(CharacterType characterType, int pointsPerCharacter) {
         this.characterType = characterType;
         this.pointsPerCharacter = pointsPerCharacter;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int getEndGamePoints(Game game, Player player){
-        return player.getTribe().count(characterType)*pointsPerCharacter;
+    public int getEndGamePoints(Game game, Player player) {
+        return player.getTribe().count(characterType) * pointsPerCharacter;
     }
 }

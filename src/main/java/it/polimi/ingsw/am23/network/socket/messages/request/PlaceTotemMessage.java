@@ -12,6 +12,11 @@ public final class PlaceTotemMessage extends Message {
         this.offerTileChar = offerTileChar;
     }
 
-    public String getPlayerId() { return playerId; }
-    public char getOfferTileChar() { return offerTileChar; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public char getOfferTileChar() {
+        return offerTileChar;
+    }
 }

@@ -16,7 +16,9 @@ public class CardDrawState {
     private int lowerMaxCount;
     private boolean drawingStarted;
 
-    /** Builds a new, idle draw state. */
+    /**
+     * Builds a new, idle draw state.
+     */
     public CardDrawState() {
         this.upperPickedCount = 0;
         this.lowerPickedCount = 0;
@@ -48,7 +50,7 @@ public class CardDrawState {
      * @return {@code true} if the row still has remaining draws
      */
     public boolean canDraw(SelectedSingleCard card) {
-        return switch (card.getRow()) {
+        return switch (card.row()) {
             case TOP -> upperPickedCount < upperMaxCount;
             case BOTTOM -> lowerPickedCount < lowerMaxCount;
         };
@@ -60,19 +62,23 @@ public class CardDrawState {
      * @param card the card just drawn
      */
     public void incrementDrawCount(SelectedSingleCard card) {
-        if (card.getRow() == RowType.TOP) {
+        if (card.row() == RowType.TOP) {
             upperPickedCount++;
         } else {
             lowerPickedCount++;
         }
     }
 
-    /** @return {@code true} if the player has exhausted both rows' allowances */
+    /**
+     * @return {@code true} if the player has exhausted both rows' allowances
+     */
     public boolean hasFinishedDrawing() {
         return upperPickedCount == upperMaxCount && lowerPickedCount == lowerMaxCount;
     }
 
-    /** Resets the state at the end of a turn. */
+    /**
+     * Resets the state at the end of a turn.
+     */
     public void reset() {
         this.upperPickedCount = 0;
         this.lowerPickedCount = 0;
@@ -81,7 +87,9 @@ public class CardDrawState {
         this.drawingStarted = false;
     }
 
-    /** @return {@code true} if a draw turn is currently in progress */
+    /**
+     * @return {@code true} if a draw turn is currently in progress
+     */
     public boolean isDrawingStarted() {
         return drawingStarted;
     }

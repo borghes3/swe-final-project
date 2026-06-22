@@ -13,6 +13,11 @@ public final class OnActionErrorMessage extends Message {
         this.message = message;
     }
 
-    public ActionType getActionType() { return actionType; }
-    public String getMessage() { return message; }
+    public ActionType getActionType() {
+        return actionType;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

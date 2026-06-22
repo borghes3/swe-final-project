@@ -14,14 +14,18 @@ public class FoodPerInventorPairEffect implements BuildingEffect {
 
     private int lastKnownPairs = 0;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onBuildingAdded(Game game, Player player) {
         // Stores the pair count at purchase time to detect future increments
         lastKnownPairs = player.getTribe().countInventorPairsByIcon();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onCardTaken(Game game, Player player, Card card) {
         int currentPairs = player.getTribe().countInventorPairsByIcon();

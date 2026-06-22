@@ -25,7 +25,9 @@ public class Tribe {
     private final EnumMap<InventionIcon, Integer> inventorIconCounts;
     private int totalShamanStars;
 
-    /** Builds an empty tribe. */
+    /**
+     * Builds an empty tribe.
+     */
     public Tribe() {
         this.characters = new ArrayList<>();
         this.buildings = new ArrayList<>();
@@ -62,12 +64,16 @@ public class Tribe {
         this.buildings.add(Objects.requireNonNull(building, "building cannot be null"));
     }
 
-    /** @return an unmodifiable copy of the character cards collected so far */
+    /**
+     * @return an unmodifiable copy of the character cards collected so far
+     */
     public List<CharacterCard> getCharacters() {
         return List.copyOf(this.characters);
     }
 
-    /** @return an unmodifiable copy of the building cards collected so far */
+    /**
+     * @return an unmodifiable copy of the building cards collected so far
+     */
     public List<BuildingCard> getBuildings() {
         return List.copyOf(this.buildings);
     }
@@ -81,7 +87,9 @@ public class Tribe {
         return this.characterCounts.getOrDefault(type, 0);
     }
 
-    /** @return the total number of shaman stars accumulated by this tribe */
+    /**
+     * @return the total number of shaman stars accumulated by this tribe
+     */
     public int totalShamanStars() {
         return this.totalShamanStars;
     }
@@ -118,17 +126,23 @@ public class Tribe {
         return pairs;
     }
 
-    /** @return {@code true} if the tribe owns at least one building */
+    /**
+     * @return {@code true} if the tribe owns at least one building
+     */
     public boolean hasBuildings() {
         return !buildings.isEmpty();
     }
 
-    /** @return the number of distinct invention icons present in the tribe */
+    /**
+     * @return the number of distinct invention icons present in the tribe
+     */
     public int getDistinctInventionIcons() {
         return inventorIconCounts.size();
     }
 
-    /** @return the cumulative food discount granted by the owned characters when buying buildings */
+    /**
+     * @return the cumulative food discount granted by the owned characters when buying buildings
+     */
     public int getBuildingDiscount() {
         return characters.stream()
                 .mapToInt(CharacterCard::getDiscount)

@@ -13,6 +13,11 @@ public final class TakeCardMessage extends Message {
         this.selectedCard = selectedCard;
     }
 
-    public String getPlayerId() { return playerId; }
-    public SelectedSingleCard getSelectedCard() { return selectedCard; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public SelectedSingleCard getSelectedCard() {
+        return selectedCard;
+    }
 }

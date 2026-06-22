@@ -10,15 +10,17 @@ import it.polimi.ingsw.am23.model.player.Player;
  * the sum of the printed points of every character card owned by the
  * player. This stacks on top of the normal character point scoring.
  */
-public class DoubleBuilderEndGameEffect implements BuildingEffect{
+public class DoubleBuilderEndGameEffect implements BuildingEffect {
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int getEndGamePoints(Game game, Player player){
+    public int getEndGamePoints(Game game, Player player) {
         int bonus = 0;
 
-        for(CharacterCard card : player.getTribe().getCharacters()){
-                bonus += card.getPoints();
+        for (CharacterCard card : player.getTribe().getCharacters()) {
+            bonus += card.getPoints();
         }
         return bonus;
     }

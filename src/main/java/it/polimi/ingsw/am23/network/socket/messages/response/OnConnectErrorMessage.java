@@ -10,5 +10,7 @@ public final class OnConnectErrorMessage extends Message {
         this.reason = reason;
     }
 
-    public String getReason() { return reason; }
+    public String getReason() {
+        return reason;
+    }
 }

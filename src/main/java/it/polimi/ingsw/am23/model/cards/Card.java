@@ -31,17 +31,23 @@ public abstract class Card {
         this.points = points;
     }
 
-    /** @return the unique identifier of this card */
+    /**
+     * @return the unique identifier of this card
+     */
     public String getId() {
         return id;
     }
 
-    /** @return the era the card belongs to */
+    /**
+     * @return the era the card belongs to
+     */
     public Era getEra() {
         return era;
     }
 
-    /** @return the printed victory points of the card */
+    /**
+     * @return the printed victory points of the card
+     */
     public int getPoints() {
         return points;
     }

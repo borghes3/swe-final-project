@@ -51,37 +51,51 @@ public final class CharacterCardState extends CardState {
         this.inventionIcon = inventionIcon;
     }
 
-    /** @return the type of character represented by this card */
+    /**
+     * @return the type of character represented by this card
+     */
     public CharacterType getCharacterType() {
         return characterType;
     }
 
-    /** @return the minimum number of players for which the card is in play */
+    /**
+     * @return the minimum number of players for which the card is in play
+     */
     public int getMinPlayers() {
         return minPlayers;
     }
 
-    /** @return whether the card displays the food symbol, or {@code null} if not applicable */
+    /**
+     * @return whether the card displays the food symbol, or {@code null} if not applicable
+     */
     public Boolean getHasFoodSymbol() {
         return hasFoodSymbol;
     }
 
-    /** @return the number of stars on the card, or {@code null} if not applicable */
+    /**
+     * @return the number of stars on the card, or {@code null} if not applicable
+     */
     public Integer getStars() {
         return stars;
     }
 
-    /** @return the discount granted by the card, or {@code null} if not applicable */
+    /**
+     * @return the discount granted by the card, or {@code null} if not applicable
+     */
     public Integer getDiscount() {
         return discount;
     }
 
-    /** @return the invention icon on the card, or {@code null} if not applicable */
+    /**
+     * @return the invention icon on the card, or {@code null} if not applicable
+     */
     public InventionIcon getInventionIcon() {
         return inventionIcon;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CardKind getCardKind() {
         return CardKind.CHARACTER;

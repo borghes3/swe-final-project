@@ -7,7 +7,8 @@ import it.polimi.ingsw.am23.controller.GameController;
  */
 public final class SocketServerLauncher {
 
-    private SocketServerLauncher() {}
+    private SocketServerLauncher() {
+    }
 
     /**
      * Boots the socket server with a fresh {@link GameController}.

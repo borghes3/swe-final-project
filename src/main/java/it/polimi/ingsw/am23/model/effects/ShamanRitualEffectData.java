@@ -11,7 +11,9 @@ public class ShamanRitualEffectData {
     private boolean ignoreLoss;
     private boolean doubleWin;
 
-    /** @return the bonus stars accumulated so far */
+    /**
+     * @return the bonus stars accumulated so far
+     */
     public int getBonusStars() {
         return bonusStars;
     }
@@ -25,7 +27,9 @@ public class ShamanRitualEffectData {
         this.bonusStars = bonusStars;
     }
 
-    /** @return {@code true} if the player should not lose points when last */
+    /**
+     * @return {@code true} if the player should not lose points when last
+     */
     public boolean ignoreLoss() {
         return ignoreLoss;
     }
@@ -39,7 +43,9 @@ public class ShamanRitualEffectData {
         this.ignoreLoss = ignoreLoss;
     }
 
-    /** @return {@code true} if the player should score double when winning */
+    /**
+     * @return {@code true} if the player should score double when winning
+     */
     public boolean doubleWin() {
         return doubleWin;
     }

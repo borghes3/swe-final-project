@@ -8,7 +8,7 @@ import it.polimi.ingsw.am23.model.player.Player;
  * End-of-game building effect that awards a fixed amount of prestige
  * points regardless of the player's tribe composition.
  */
-public class FlatEndGamePointsEffect implements BuildingEffect{
+public class FlatEndGamePointsEffect implements BuildingEffect {
     private final int points;
 
     /**
@@ -20,9 +20,11 @@ public class FlatEndGamePointsEffect implements BuildingEffect{
         this.points = points;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int getEndGamePoints(Game game, Player player){
+    public int getEndGamePoints(Game game, Player player) {
         return points;
     }
 }

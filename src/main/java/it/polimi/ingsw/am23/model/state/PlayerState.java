@@ -8,15 +8,8 @@ import java.util.Objects;
  * Immutable snapshot of a player, including their resources, totem color
  * and the cards they currently own.
  */
-public final class PlayerState implements Serializable {
-    private final String playerId;
-    private final String nickname;
-    private final int food;
-    private final int prestigePoints;
-    private final String totemColor;
-    private final List<CardState> characters;
-    private final List<CardState> buildings;
-
+public record PlayerState(String playerId, String nickname, int food, int prestigePoints, String totemColor,
+                          List<CardState> characters, List<CardState> buildings) implements Serializable {
     /**
      * Builds a new player snapshot.
      *
@@ -44,38 +37,59 @@ public final class PlayerState implements Serializable {
         this.buildings = List.copyOf(Objects.requireNonNull(buildings, "buildings is null"));
     }
 
-    /** @return the unique identifier of the player */
-    public String getPlayerId() {
+    /**
+     * @return the unique identifier of the player
+     */
+    @Override
+    public String playerId() {
         return playerId;
     }
 
-    /** @return the display nickname of the player */
-    public String getNickname() {
+    /**
+     * @return the display nickname of the player
+     */
+    @Override
+    public String nickname() {
         return nickname;
     }
 
-    /** @return the player's current food reserve */
-    public int getFood() {
+    /**
+     * @return the player's current food reserve
+     */
+    @Override
+    public int food() {
         return food;
     }
 
-    /** @return the player's current prestige points */
-    public int getPrestigePoints() {
+    /**
+     * @return the player's current prestige points
+     */
+    @Override
+    public int prestigePoints() {
         return prestigePoints;
     }
 
-    /** @return the color of the player's totem */
-    public String getTotemColor() {
+    /**
+     * @return the color of the player's totem
+     */
+    @Override
+    public String totemColor() {
         return totemColor;
     }
 
-    /** @return snapshot of the character cards owned by the player */
-    public List<CardState> getCharacters() {
+    /**
+     * @return snapshot of the character cards owned by the player
+     */
+    @Override
+    public List<CardState> characters() {
         return characters;
     }
 
-    /** @return snapshot of the building cards owned by the player */
-    public List<CardState> getBuildings() {
+    /**
+     * @return snapshot of the building cards owned by the player
+     */
+    @Override
+    public List<CardState> buildings() {
         return buildings;
     }
 }

@@ -19,6 +19,6 @@ public class GathererCard extends CharacterCard {
      * @param minPlayers minimum number of players for which the card is in play
      */
     public GathererCard(String id, Era era, int points, int minPlayers) {
-        super(id, era, points, CharacterType.GATHERER,  minPlayers);
+        super(id, era, points, CharacterType.GATHERER, minPlayers);
     }
 }

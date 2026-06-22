@@ -12,22 +12,24 @@ import it.polimi.ingsw.am23.model.player.Player;
  */
 public class CavePaintingsFoodPerArtistEffect implements BuildingEffect {
 
-    private int foodPerArtist;
+    private final int foodPerArtist;
 
     /**
      * Builds a new effect.
      *
      * @param foodPerArtist food granted per Artist owned
      */
-    public CavePaintingsFoodPerArtistEffect(int foodPerArtist){
+    public CavePaintingsFoodPerArtistEffect(int foodPerArtist) {
         this.foodPerArtist = foodPerArtist;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void applyCavePaintings(Game game, Player player, CavePaintingsEffectData data){
+    public void applyCavePaintings(Game game, Player player, CavePaintingsEffectData data) {
         int count = player.getTribe().count(CharacterType.ARTIST);
-        data.addExtraFood(foodPerArtist*count);
+        data.addExtraFood(foodPerArtist * count);
     }
 
 }

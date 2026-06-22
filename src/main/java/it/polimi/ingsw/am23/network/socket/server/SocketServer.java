@@ -37,7 +37,9 @@ public final class SocketServer implements Runnable {
         System.out.println("Socket Server started on port " + PORT);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {

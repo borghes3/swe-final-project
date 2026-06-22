@@ -8,11 +8,13 @@ import it.polimi.ingsw.am23.model.player.Player;
  * Building effect that schedules an extra draw turn for the owning player
  * once the building is purchased.
  */
-public class ExtraDrawEffect implements BuildingEffect{
+public class ExtraDrawEffect implements BuildingEffect {
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void onBuildingAdded(Game game, Player player){
+    public void onBuildingAdded(Game game, Player player) {
         game.setPendingExtraDrawPlayerId(player.getId());
     }
 }

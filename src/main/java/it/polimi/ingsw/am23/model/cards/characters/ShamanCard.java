@@ -14,7 +14,7 @@ import it.polimi.ingsw.am23.model.state.CharacterCardState;
  * Each Shaman contributes a number of stars to the player's track, used to
  * compute Shaman ritual scoring.
  */
-public class ShamanCard extends CharacterCard{
+public class ShamanCard extends CharacterCard {
 
     private final int stars;
 
@@ -27,12 +27,14 @@ public class ShamanCard extends CharacterCard{
      * @param stars      number of stars contributed to the Shaman track
      * @param minPlayers minimum number of players for which the card is in play
      */
-    public ShamanCard(String id, Era era, int points, int stars, int  minPlayers) {
-        super(id, era, points, CharacterType.SHAMAN,  minPlayers);
+    public ShamanCard(String id, Era era, int points, int stars, int minPlayers) {
+        super(id, era, points, CharacterType.SHAMAN, minPlayers);
         this.stars = stars;
     }
 
-    /** @return the number of stars contributed to the Shaman track */
+    /**
+     * @return the number of stars contributed to the Shaman track
+     */
     public int getStars() {
         return stars;
     }
@@ -42,13 +44,15 @@ public class ShamanCard extends CharacterCard{
      * <p>Adds the card's stars to the player's Shaman track.</p>
      */
     @Override
-    public void onAddedToTribe(Game game, Player player){
+    public void onAddedToTribe(Game game, Player player) {
         player.getTribe().addShamanStars(getStars());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new CharacterCardState(
                 getId(),
                 getEra(),

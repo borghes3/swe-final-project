@@ -158,16 +158,6 @@ public class Setup {
     }
 
     /**
-     * Result of the initial card draw used to populate the card market.
-     *
-     * @param upperRow cards placed on the top row
-     * @param lowerRow cards placed on the bottom row
-     * @param tribeDeck the tribe deck after the draws
-     */
-    private record DrawResult(List<Card> upperRow, List<Card> lowerRow, TribeDeck tribeDeck) {
-    }
-
-    /**
      * Performs the initial card draw populating both market rows. Events
      * drawn while filling the bottom row are diverted to the top row, as
      * per the game rules.
@@ -195,15 +185,6 @@ public class Setup {
         }
 
         return new DrawResult(upperRow, lowerRow, tribeDeck);
-    }
-
-    /**
-     * Result of the initial building draw.
-     *
-     * @param era1Buildings buildings revealed at setup for Era 1
-     * @param buildingDeck  the deck holding Era 2 and Era 3 buildings
-     */
-    private record BuildingDrawResult(List<BuildingCard> era1Buildings, BuildingDeck buildingDeck) {
     }
 
     /**
@@ -253,8 +234,8 @@ public class Setup {
         List<Player> players = new ArrayList<>();
         TotemColors[] colors = TotemColors.values();
         for (int i = 0; i < numberOfPlayers; i++) {
-            String pId = playersInfo.get(i).getId();
-            String pNickname = playersInfo.get(i).getNickname();
+            String pId = playersInfo.get(i).id();
+            String pNickname = playersInfo.get(i).nickname();
 
             Totem t = new Totem(pId, colors[i].getColor());
             players.add(new Player(pId, pNickname, 0, 0, t));
@@ -295,6 +276,25 @@ public class Setup {
                     .orElseThrow(() -> new PlayerNotFoundException("Player not found in Turn Order Slot, food can not be dealt!"));
             player.applyFoodDelta(foodByIndex[i]);
         }
+    }
+
+    /**
+     * Result of the initial card draw used to populate the card market.
+     *
+     * @param upperRow  cards placed on the top row
+     * @param lowerRow  cards placed on the bottom row
+     * @param tribeDeck the tribe deck after the draws
+     */
+    private record DrawResult(List<Card> upperRow, List<Card> lowerRow, TribeDeck tribeDeck) {
+    }
+
+    /**
+     * Result of the initial building draw.
+     *
+     * @param era1Buildings buildings revealed at setup for Era 1
+     * @param buildingDeck  the deck holding Era 2 and Era 3 buildings
+     */
+    private record BuildingDrawResult(List<BuildingCard> era1Buildings, BuildingDeck buildingDeck) {
     }
 
 }

@@ -38,7 +38,9 @@ public class SustenanceEventCard extends EventCard {
         return 1;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void resolve(Game game) {
         List<Player> players = game.getPlayers();

@@ -9,14 +9,9 @@ import java.util.Objects;
  * network. Includes the card market rows, the building rows, the offer tiles
  * and the turn order slots.
  */
-public final class BoardState implements Serializable {
-    private final List<CardState> topRow;
-    private final List<CardState> bottomRow;
-    private final List<CardState> topBuildings;
-    private final List<CardState> bottomBuildings;
-    private final List<OfferTileState> offerTiles;
-    private final List<TurnOrderSlotState> turnOrderSlots;
-
+public record BoardState(List<CardState> topRow, List<CardState> bottomRow, List<CardState> topBuildings,
+                         List<CardState> bottomBuildings, List<OfferTileState> offerTiles,
+                         List<TurnOrderSlotState> turnOrderSlots) implements Serializable {
     /**
      * Builds a new immutable snapshot of the board.
      *
@@ -41,33 +36,51 @@ public final class BoardState implements Serializable {
         this.turnOrderSlots = List.copyOf(Objects.requireNonNull(turnOrderSlots, "turnOrderSlots is null"));
     }
 
-    /** @return the cards currently visible in the top market row */
-    public List<CardState> getTopRow() {
+    /**
+     * @return the cards currently visible in the top market row
+     */
+    @Override
+    public List<CardState> topRow() {
         return topRow;
     }
 
-    /** @return the cards currently visible in the bottom market row */
-    public List<CardState> getBottomRow() {
+    /**
+     * @return the cards currently visible in the bottom market row
+     */
+    @Override
+    public List<CardState> bottomRow() {
         return bottomRow;
     }
 
-    /** @return the buildings currently visible in the top building row */
-    public List<CardState> getTopBuildings() {
+    /**
+     * @return the buildings currently visible in the top building row
+     */
+    @Override
+    public List<CardState> topBuildings() {
         return topBuildings;
     }
 
-    /** @return the buildings currently visible in the bottom building row */
-    public List<CardState> getBottomBuildings() {
+    /**
+     * @return the buildings currently visible in the bottom building row
+     */
+    @Override
+    public List<CardState> bottomBuildings() {
         return bottomBuildings;
     }
 
-    /** @return the snapshot of every offer tile on the board */
-    public List<OfferTileState> getOfferTiles() {
+    /**
+     * @return the snapshot of every offer tile on the board
+     */
+    @Override
+    public List<OfferTileState> offerTiles() {
         return offerTiles;
     }
 
-    /** @return the snapshot of every turn order slot */
-    public List<TurnOrderSlotState> getTurnOrderSlots() {
+    /**
+     * @return the snapshot of every turn order slot
+     */
+    @Override
+    public List<TurnOrderSlotState> turnOrderSlots() {
         return turnOrderSlots;
     }
 }

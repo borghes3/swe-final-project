@@ -8,7 +8,9 @@ public class CavePaintingsEffectData {
 
     private int extraFood;
 
-    /** @return the extra food accumulated so far */
+    /**
+     * @return the extra food accumulated so far
+     */
     public int getExtraFood() {
         return extraFood;
     }

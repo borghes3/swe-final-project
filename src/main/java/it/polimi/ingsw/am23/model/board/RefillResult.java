@@ -13,16 +13,23 @@ import java.util.List;
  */
 public class RefillResult {
 
+    private final List<Card> addedCards = new ArrayList<>();
     private boolean eraAdvanced;
     private Era newEra;
 
-    private final List<Card> addedCards = new ArrayList<>();
+    /**
+     * @return {@code true} if the refill triggered an era advance
+     */
+    public boolean isEraAdvanced() {
+        return eraAdvanced;
+    }
 
-    /** @return {@code true} if the refill triggered an era advance */
-    public boolean isEraAdvanced() { return eraAdvanced; }
-
-    /** @return the era to transition into, or {@code null} when no advance was triggered */
-    public Era getNewEra() { return newEra; }
+    /**
+     * @return the era to transition into, or {@code null} when no advance was triggered
+     */
+    public Era getNewEra() {
+        return newEra;
+    }
 
     /**
      * Registers that a card belonging to a later era surfaced during the
@@ -47,7 +54,9 @@ public class RefillResult {
         addedCards.add(card);
     }
 
-    /** @return the cards added during the refill, in draw order */
+    /**
+     * @return the cards added during the refill, in draw order
+     */
     public List<Card> getAddedCards() {
         return List.copyOf(addedCards);
     }

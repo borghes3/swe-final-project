@@ -1,12 +1,7 @@
 package it.polimi.ingsw.am23.model.effects.buildings;
 
 import it.polimi.ingsw.am23.model.TestUtils;
-import it.polimi.ingsw.am23.model.cards.characters.ArtistCard;
-import it.polimi.ingsw.am23.model.cards.characters.BuilderCard;
-import it.polimi.ingsw.am23.model.cards.characters.GathererCard;
-import it.polimi.ingsw.am23.model.cards.characters.HunterCard;
-import it.polimi.ingsw.am23.model.cards.characters.InventorCard;
-import it.polimi.ingsw.am23.model.cards.characters.ShamanCard;
+import it.polimi.ingsw.am23.model.cards.characters.*;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.InventionIcon;
 import it.polimi.ingsw.am23.model.player.Player;

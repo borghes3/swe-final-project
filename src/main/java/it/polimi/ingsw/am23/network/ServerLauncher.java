@@ -17,7 +17,7 @@ public class ServerLauncher {
      * @param args command line arguments (currently unused)
      * @throws Exception if either transport fails to start
      */
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         GameController controller = new GameController();
         RmiServer.startRmiServer(controller);
         SocketServer.startSocketServer(controller);

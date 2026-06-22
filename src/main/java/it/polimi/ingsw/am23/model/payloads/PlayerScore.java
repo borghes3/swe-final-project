@@ -12,4 +12,6 @@ import java.util.Map;
  * @param foodPoints          points coming from the leftover food reserve
  * @param breakdown           optional category to points map for detailed reporting
  */
-public record PlayerScore(String playerId, String nickname, int totalPrestigePoints, int foodPoints, Map<String, Integer> breakdown) implements Serializable {}
+public record PlayerScore(String playerId, String nickname, int totalPrestigePoints, int foodPoints,
+                          Map<String, Integer> breakdown) implements Serializable {
+}

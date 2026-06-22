@@ -11,5 +11,7 @@ public class OnTotemPlacedMessage extends Message {
         this.payload = payload;
     }
 
-    public TotemPlacedPayload getPayload() { return payload; }
+    public TotemPlacedPayload getPayload() {
+        return payload;
+    }
 }

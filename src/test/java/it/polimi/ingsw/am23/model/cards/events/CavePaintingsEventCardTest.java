@@ -27,7 +27,7 @@ class CavePaintingsEventCardTest {
         Game game = TestUtils.game(
                 List.of(p1),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null)),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -51,7 +51,7 @@ class CavePaintingsEventCardTest {
         Game game = TestUtils.game(
                 List.of(p1),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null)),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -62,5 +62,5 @@ class CavePaintingsEventCardTest {
         new CavePaintingsEventCard("c", Era.ERA_1, 0, false, 2, 3, 2).resolve(game);
 
         assertEquals(7, p1.getPrestigePoints());
-        }
     }
+}

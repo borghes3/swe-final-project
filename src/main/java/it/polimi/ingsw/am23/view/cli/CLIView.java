@@ -4,6 +4,7 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt;
 import de.codeshelf.consoleui.prompt.InputResult;
 import de.codeshelf.consoleui.prompt.ListResult;
 import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
+import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.enums.RowType;
@@ -13,7 +14,6 @@ import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
-import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -23,11 +23,17 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Command line view for the Mesos client. It talks to the server through a
+ * {@link VirtualServer}, keeps a local copy of the game state, reads commands
+ * from the user and prints what is going on. Every server callback updates the
+ * cached state and triggers a re-render of the current screen.
+ */
 public final class CLIView implements VirtualView {
 
     private static final String TITLE_MARKER = "◆";
@@ -54,10 +60,24 @@ public final class CLIView implements VirtualView {
     private volatile GameState currentGameState;
     private volatile CardState currentPeekedCard;
 
+    /**
+     * Creates a new CLI view bound to the given line reader.
+     *
+     * @param lineReader the JLine reader used to read user input; cannot be null
+     */
     public CLIView(LineReader lineReader) {
         this.lineReader = Objects.requireNonNull(lineReader, "lineReader cannot be null");
     }
 
+    /**
+     * Entry point of the CLI client. Builds the terminal, asks the user for the
+     * host, the connection type and a nickname, then connects to the server and
+     * starts the main command loop. The user is asked again for the nickname
+     * until the server accepts it.
+     *
+     * @param args ignored
+     * @throws Exception if the terminal cannot be created
+     */
     public static void main(String[] args) throws Exception {
         try (Terminal terminal = TerminalBuilder.builder()
                 .name("Mesos CLI Client")
@@ -67,8 +87,8 @@ public final class CLIView implements VirtualView {
 
             LineReader reader = LineReaderBuilder.builder()
                     .completer(new StringsCompleter(
-                                "refresh", "create", "join", "leave",
-                                "start", "place", "take", "extra", "skip", "state", "peek", "quit", "exit"
+                            "refresh", "create", "join", "leave",
+                            "start", "place", "take", "extra", "skip", "state", "peek", "quit", "exit"
                     ))
                     .option(LineReader.Option.AUTO_LIST, true)
                     .option(LineReader.Option.LIST_PACKED, true)
@@ -118,10 +138,10 @@ public final class CLIView implements VirtualView {
                     }
                 }
 
-                try{
+                try {
                     view.connect(host, nick, connection);
                     connected = true;
-                }catch (IllegalStateException e){
+                } catch (IllegalStateException e) {
                     System.out.println(ERROR_MARKER + " " + e.getMessage());
                     System.out.println(WARNING_MARKER + " Choose a different nickname.");
                 }
@@ -133,6 +153,18 @@ public final class CLIView implements VirtualView {
         }
     }
 
+    /**
+     * Opens a connection to the server and waits until the handshake is done.
+     * On success the lobby list is requested right away so the user can see
+     * what is available. If the server rejects the nickname an
+     * {@link IllegalStateException} is thrown with the reason, so the caller
+     * can ask the user to pick another one.
+     *
+     * @param host           the server host name or address
+     * @param nickname       the nickname requested by the user
+     * @param connectionType either {@code "RMI"} or {@code "SOCKET"}
+     * @throws Exception if the network setup fails or the server refuses the connection
+     */
     public void connect(String host, String nickname, String connectionType) throws Exception {
         this.playerName = Objects.requireNonNull(nickname, "nickname cannot be null").trim();
         this.connectError = null;
@@ -145,6 +177,13 @@ public final class CLIView implements VirtualView {
         }
     }
 
+    /**
+     * Blocks until the server has answered the connection request, either by
+     * accepting the nickname or by reporting an error. If the server reported
+     * an error, it is re-thrown as an {@link IllegalStateException}.
+     *
+     * @throws InterruptedException if the thread is interrupted while waiting
+     */
     private void awaitConnected() throws InterruptedException {
         connectedLatch.await();
         if (connectError != null) {
@@ -152,6 +191,12 @@ public final class CLIView implements VirtualView {
         }
     }
 
+    /**
+     * Main loop. Draws the current screen, then keeps reading commands from
+     * the line reader until the user quits or the input stream is closed. Any
+     * exception thrown by a command is caught and shown on the screen so the
+     * loop never dies because of a bad input.
+     */
     public void run() {
         renderCurrentScreen(null);
 
@@ -256,46 +301,45 @@ public final class CLIView implements VirtualView {
             return;
         }
 
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
-        List<OfferTileState> updatedTiles = board.getOfferTiles().stream()
-                .map(tile -> tile.getTileId() == payload.offerTileChar()
+        List<OfferTileState> updatedTiles = board.offerTiles().stream()
+                .map(tile -> tile.tileId() == payload.offerTileChar()
                         ? new OfferTileState(
-                        tile.getPositionIndex(),
-                        tile.getTileId(),
+                        tile.positionIndex(),
+                        tile.tileId(),
                         payload.playerId(),
-                        tile.getMinPlayers(),
-                        tile.getTopDrawCount(),
-                        tile.getBottomDrawCount(),
-                        tile.getFoodReward()
+                        tile.minPlayers(),
+                        tile.topDrawCount(),
+                        tile.bottomDrawCount(),
+                        tile.foodReward()
                 )
                         : tile)
                 .toList();
 
-        List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
-                .map(s -> Objects.equals(s.getOccupiedByPlayerId(), payload.playerId())
-                        ? new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null)
+        List<TurnOrderSlotState> updatedSlots = board.turnOrderSlots().stream()
+                .map(s -> Objects.equals(s.occupiedByPlayerId(), payload.playerId())
+                        ? new TurnOrderSlotState(s.positionIndex(), s.foodDelta(), null)
                         : s)
                 .toList();
 
         BoardState newBoard = rebuildBoard(
-                board,
-                board.getTopRow(),
-                board.getBottomRow(),
-                board.getTopBuildings(),
-                board.getBottomBuildings(),
+                board.topRow(),
+                board.bottomRow(),
+                board.topBuildings(),
+                board.bottomBuildings(),
                 updatedTiles,
                 updatedSlots
         );
 
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(),
-                currentGameState.getCurrentRound(),
-                currentGameState.getPhase(),
+                currentGameState.currentEra(),
+                currentGameState.currentRound(),
+                currentGameState.phase(),
                 payload.nextPlayerId(),
-                currentGameState.getPlayers(),
+                currentGameState.players(),
                 newBoard,
-                currentGameState.getSkipAllowed()
+                currentGameState.skipAllowed()
         );
 
         renderCurrentScreen(
@@ -310,18 +354,18 @@ public final class CLIView implements VirtualView {
     public synchronized void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) {
         // Tutti i totem sono stati piazzati. Aggiorna l'ordine di turno.
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
-        List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
-                .map(s -> new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null))
+        BoardState board = currentGameState.board();
+        List<TurnOrderSlotState> updatedSlots = board.turnOrderSlots().stream()
+                .map(s -> new TurnOrderSlotState(s.positionIndex(), s.foodDelta(), null))
                 .toList();
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
+                currentGameState.currentEra(), currentGameState.currentRound(),
                 GamePhase.RESOLVING_OFFERS,
                 payload.firstPlayerId(),
-                currentGameState.getPlayers(),
-                rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
-                        board.getTopBuildings(), board.getBottomBuildings(),
-                        board.getOfferTiles(), updatedSlots),
+                currentGameState.players(),
+                rebuildBoard(board.topRow(), board.bottomRow(),
+                        board.topBuildings(), board.bottomBuildings(),
+                        board.offerTiles(), updatedSlots),
                 payload.skipAllowed()
         );
         renderCurrentScreen(INFO_MARKER + " Placing Phase Completed.");
@@ -330,38 +374,38 @@ public final class CLIView implements VirtualView {
     @Override
     public synchronized void onCardsTaken(CardsTakenPayload payload) {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
-        List<CardState> newTopRow = removeCardsById(board.getTopRow(), payload.takenCardIds(), payload.takenBuildingIds());
-        List<CardState> newBottomRow = removeCardsById(board.getBottomRow(), payload.takenCardIds(), payload.takenBuildingIds());
-        List<CardState> newTopBuildings = removeCardsById(board.getTopBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
-        List<CardState> newBottomBuildings = removeCardsById(board.getBottomBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newTopRow = removeCardsById(board.topRow(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newBottomRow = removeCardsById(board.bottomRow(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newTopBuildings = removeCardsById(board.topBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newBottomBuildings = removeCardsById(board.bottomBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
 
         boolean turnFinished = !(payload.newPhase() == GamePhase.RESOLVING_OFFERS
                 && payload.playerId().equals(payload.nextPlayerId()));
 
-        List<OfferTileState> clearedTiles = board.getOfferTiles().stream()
-                .map(t -> turnFinished && Objects.equals(t.getOccupiedByPlayerId(), payload.playerId())
-                        ? new OfferTileState(t.getPositionIndex(), t.getTileId(), null,
-                        t.getMinPlayers(), t.getTopDrawCount(), t.getBottomDrawCount(), t.getFoodReward())
+        List<OfferTileState> clearedTiles = board.offerTiles().stream()
+                .map(t -> turnFinished && Objects.equals(t.occupiedByPlayerId(), payload.playerId())
+                        ? new OfferTileState(t.positionIndex(), t.tileId(), null,
+                        t.minPlayers(), t.topDrawCount(), t.bottomDrawCount(), t.foodReward())
                         : t)
                 .toList();
 
         List<TurnOrderSlotState> updatedSlots = turnFinished
-                ? updateTurnOrderSlot(board.getTurnOrderSlots(), payload.turnOrderSlotIndex(), payload.playerId())
-                : board.getTurnOrderSlots();
+                ? updateTurnOrderSlot(board.turnOrderSlots(), payload.turnOrderSlotIndex(), payload.playerId())
+                : board.turnOrderSlots();
 
-        BoardState newBoard = rebuildBoard(board, newTopRow, newBottomRow,
+        BoardState newBoard = rebuildBoard(newTopRow, newBottomRow,
                 newTopBuildings, newBottomBuildings, clearedTiles, updatedSlots);
 
-        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
-                .map(p -> p.getPlayerId().equals(payload.playerId())
+        List<PlayerState> updatedPlayers = currentGameState.players().stream()
+                .map(p -> p.playerId().equals(payload.playerId())
                         ? applyCardDeltaToPlayer(p, payload)
                         : p)
                 .toList();
 
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
+                currentGameState.currentEra(), currentGameState.currentRound(),
                 payload.newPhase(),
                 payload.nextPlayerId(),
                 updatedPlayers,
@@ -384,33 +428,32 @@ public final class CLIView implements VirtualView {
             return;
         }
 
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
         List<String> cardId = List.of(payload.cardId());
 
-        List<CardState> newTopRow = removeCardsById(board.getTopRow(), cardId, List.of());
-        List<CardState> newBottomRow = removeCardsById(board.getBottomRow(), cardId, List.of());
-        List<CardState> newTopBuildings = removeCardsById(board.getTopBuildings(), List.of(), cardId);
-        List<CardState> newBottomBuildings = removeCardsById(board.getBottomBuildings(), List.of(), cardId);
+        List<CardState> newTopRow = removeCardsById(board.topRow(), cardId, List.of());
+        List<CardState> newBottomRow = removeCardsById(board.bottomRow(), cardId, List.of());
+        List<CardState> newTopBuildings = removeCardsById(board.topBuildings(), List.of(), cardId);
+        List<CardState> newBottomBuildings = removeCardsById(board.bottomBuildings(), List.of(), cardId);
 
         BoardState newBoard = rebuildBoard(
-                board,
                 newTopRow,
                 newBottomRow,
                 newTopBuildings,
                 newBottomBuildings,
-                board.getOfferTiles(),
-                board.getTurnOrderSlots()
+                board.offerTiles(),
+                board.turnOrderSlots()
         );
 
-        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
-                .map(p -> p.getPlayerId().equals(payload.playerId())
+        List<PlayerState> updatedPlayers = currentGameState.players().stream()
+                .map(p -> p.playerId().equals(payload.playerId())
                         ? applyExtraCardDeltaToPlayer(p, payload)
                         : p)
                 .toList();
 
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(),
-                currentGameState.getCurrentRound(),
+                currentGameState.currentEra(),
+                currentGameState.currentRound(),
                 payload.newPhase(),
                 null,
                 updatedPlayers,
@@ -425,7 +468,7 @@ public final class CLIView implements VirtualView {
     public synchronized void onEventResolved(EventResolvedPayload payload) {
         // Aggiorna food e PP di ogni giocatore secondo i delta.
         if (currentGameState == null) return;
-        List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.getPlayers(), payload.playerDeltas());
+        List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.players(), payload.playerDeltas());
         currentGameState = rebuildWithPlayers(currentGameState, updatedPlayers);
         renderCurrentScreen(INFO_MARKER + " Event resolved: " + payload.eventCardId());
     }
@@ -433,38 +476,38 @@ public final class CLIView implements VirtualView {
     @Override
     public synchronized void onMarketRefreshed(MarketRefresherPayload payload) {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
         // scarta dalla fila inferiore
-        List<CardState> newBottomRow = board.getBottomRow().stream()
+        List<CardState> newBottomRow = board.bottomRow().stream()
                 .filter(c -> !payload.discardedCardIds().contains(c.getCardId()))
                 .toList();
 
         // sposta dalla fila superiore alla inferiore
-        List<CardState> movedCards = board.getTopRow().stream()
+        List<CardState> movedCards = board.topRow().stream()
                 .filter(c -> payload.movedBottomCardIds().contains(c.getCardId()))
                 .toList();
         List<CardState> mergedBottom = new ArrayList<>(newBottomRow);
         mergedBottom.addAll(movedCards);
 
         // nuova fila superiore = rimaste + nuove carte complete dal payload
-        List<CardState> remainingTop = board.getTopRow().stream()
+        List<CardState> remainingTop = board.topRow().stream()
                 .filter(c -> !payload.movedBottomCardIds().contains(c.getCardId()))
                 .toList();
         List<CardState> newUpperRow = new ArrayList<>(remainingTop);
         newUpperRow.addAll(payload.newUpperRowCards()); // aggiunge le nuove carte
 
-        BoardState newBoard = rebuildBoard(board, newUpperRow, mergedBottom,
-                board.getTopBuildings(), board.getBottomBuildings(),
+        BoardState newBoard = rebuildBoard(newUpperRow, mergedBottom,
+                board.topBuildings(), board.bottomBuildings(),
                 payload.offerTiles(),
                 payload.turnOrderSlots());
 
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(),
+                currentGameState.currentEra(),
                 payload.newRound(),
                 payload.newPhase(),
                 payload.nextPlayerId(),
-                currentGameState.getPlayers(),
+                currentGameState.players(),
                 newBoard,
                 payload.skipAllowed()
         );
@@ -474,27 +517,27 @@ public final class CLIView implements VirtualView {
     @Override
     public synchronized void onEraProgression(EraProgressionPayload payload) {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
         // i vecchi topBuildings scendono in bottom (eccetto quelli scartati)
-        List<CardState> newBottomBuildings = board.getTopBuildings().stream()
+        List<CardState> newBottomBuildings = board.topBuildings().stream()
                 .filter(c -> !payload.discardedBuildingIds().contains(c.getCardId()))
                 .toList();
 
         // i nuovi edifici dell'era sostituiscono completamente la top
         List<CardState> newTopBuildings = new ArrayList<>(payload.newBuildingCards());
 
-        BoardState newBoard = rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
+        BoardState newBoard = rebuildBoard(board.topRow(), board.bottomRow(),
                 newTopBuildings, newBottomBuildings,
-                board.getOfferTiles(), board.getTurnOrderSlots());
+                board.offerTiles(), board.turnOrderSlots());
         currentGameState = new GameState(
                 payload.newEra(),
-                currentGameState.getCurrentRound(),
-                currentGameState.getPhase(),
-                currentGameState.getCurrentPlayerId(),
-                currentGameState.getPlayers(),
+                currentGameState.currentRound(),
+                currentGameState.phase(),
+                currentGameState.currentPlayerId(),
+                currentGameState.players(),
                 newBoard,
-                currentGameState.getSkipAllowed()
+                currentGameState.skipAllowed()
         );
         renderCurrentScreen(TITLE_MARKER + " New era: " + payload.newEra());
     }
@@ -569,7 +612,7 @@ public final class CLIView implements VirtualView {
 
     // applicazione delta
     private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
-        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
+        List<CardState> newCharacters = new ArrayList<>(p.characters());
         Set<String> existingCharacterIds = newCharacters.stream()
                 .map(CardState::getCardId)
                 .collect(java.util.stream.Collectors.toSet());
@@ -580,7 +623,7 @@ public final class CLIView implements VirtualView {
             }
         }
 
-        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+        List<CardState> newBuildings = new ArrayList<>(p.buildings());
         Set<String> existingBuildingIds = newBuildings.stream()
                 .map(CardState::getCardId)
                 .collect(java.util.stream.Collectors.toSet());
@@ -592,18 +635,19 @@ public final class CLIView implements VirtualView {
         }
 
         return new PlayerState(
-                p.getPlayerId(),
-                p.getNickname(),
+                p.playerId(),
+                p.nickname(),
                 payload.absoluteFood(),
-                p.getPrestigePoints(),
-                p.getTotemColor(),
+                p.prestigePoints(),
+                p.totemColor(),
                 newCharacters,
                 newBuildings
         );
     }
+
     private PlayerState applyExtraCardDeltaToPlayer(PlayerState p, ExtraCardTakenPayload payload) {
-        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
-        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+        List<CardState> newCharacters = new ArrayList<>(p.characters());
+        List<CardState> newBuildings = new ArrayList<>(p.buildings());
 
         if (payload.building()) {
             boolean alreadyPresent = newBuildings.stream()
@@ -622,11 +666,11 @@ public final class CLIView implements VirtualView {
         }
 
         return new PlayerState(
-                p.getPlayerId(),
-                p.getNickname(),
+                p.playerId(),
+                p.nickname(),
                 payload.absoluteFood(),
-                p.getPrestigePoints(),
-                p.getTotemColor(),
+                p.prestigePoints(),
+                p.totemColor(),
                 newCharacters,
                 newBuildings
         );
@@ -636,12 +680,12 @@ public final class CLIView implements VirtualView {
         Map<String, PlayerDelta> deltaMap = new HashMap<>();
         for (PlayerDelta d : deltas) deltaMap.put(d.playerId(), d);
         return players.stream().map(p -> {
-            PlayerDelta d = deltaMap.get(p.getPlayerId());
+            PlayerDelta d = deltaMap.get(p.playerId());
             if (d == null) return p;
-            return new PlayerState(p.getPlayerId(), p.getNickname(),
+            return new PlayerState(p.playerId(), p.nickname(),
                     d.absoluteFood(),
                     d.absolutePrestige(),
-                    p.getTotemColor(), p.getCharacters(), p.getBuildings());
+                    p.totemColor(), p.characters(), p.buildings());
         }).toList();
     }
 
@@ -652,28 +696,28 @@ public final class CLIView implements VirtualView {
     }
 
     private List<TurnOrderSlotState> updateTurnOrderSlot(List<TurnOrderSlotState> slots, int slotIndex, String playerId) {
-        return slots.stream().map(s -> s.getPositionIndex() == slotIndex
-                ? new TurnOrderSlotState(slotIndex, s.getFoodDelta(), playerId)
+        return slots.stream().map(s -> s.positionIndex() == slotIndex
+                ? new TurnOrderSlotState(slotIndex, s.foodDelta(), playerId)
                 : s).toList();
     }
 
-    private BoardState rebuildBoard(BoardState original,
-                                    List<CardState> topRow, List<CardState> bottomRow,
-                                    List<CardState> topBuildings, List<CardState> bottomBuildings,
-                                    List<OfferTileState> offerTiles, List<TurnOrderSlotState> turnOrderSlots) {
+    private BoardState rebuildBoard(
+            List<CardState> topRow, List<CardState> bottomRow,
+            List<CardState> topBuildings, List<CardState> bottomBuildings,
+            List<OfferTileState> offerTiles, List<TurnOrderSlotState> turnOrderSlots) {
         return new BoardState(topRow, bottomRow, topBuildings, bottomBuildings, offerTiles, turnOrderSlots);
     }
 
     private GameState rebuildWithPlayers(GameState gs, List<PlayerState> newPlayers) {
-        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
-                gs.getCurrentPlayerId(), newPlayers, gs.getBoard(), gs.getSkipAllowed());
+        return new GameState(gs.currentEra(), gs.currentRound(), gs.phase(),
+                gs.currentPlayerId(), newPlayers, gs.board(), gs.skipAllowed());
     }
 
     private String nickOf(String pid) {
         if (pid == null || currentGameState == null) return safeText(pid);
-        return currentGameState.getPlayers().stream()
-                .filter(p -> Objects.equals(p.getPlayerId(), pid))
-                .map(p -> p.getNickname())
+        return currentGameState.players().stream()
+                .filter(p -> Objects.equals(p.playerId(), pid))
+                .map(PlayerState::nickname)
                 .findFirst()
                 .orElse(safeText(pid));
     }
@@ -750,28 +794,27 @@ public final class CLIView implements VirtualView {
             }
             case "place" -> {
                 ensureConnected();
-                 if (tokens.length < 2) {
+                if (tokens.length < 2) {
                     printWarning("Use: place <tile-letter>");
-                 } else if (currentGameState == null) {
-                     printWarning("No game state available.");
+                } else if (currentGameState == null) {
+                    printWarning("No game state available.");
                 } else {
-                     char tile = Character.toUpperCase(tokens[1].charAt(0));
-                     boolean exists = currentGameState.getBoard().getOfferTiles().stream()
-                             .anyMatch(t -> Character.toUpperCase(t.getTileId()) == tile);
-                     if (!exists) {
-                         printWarning("No offer tile '" + tile + "' available in this game.");
-                     } else {
-                         server.placeTotem(playerId, tile);
-                     }
-                 }
+                    char tile = Character.toUpperCase(tokens[1].charAt(0));
+                    boolean exists = currentGameState.board().offerTiles().stream()
+                            .anyMatch(t -> Character.toUpperCase(t.tileId()) == tile);
+                    if (!exists) {
+                        printWarning("No offer tile '" + tile + "' available in this game.");
+                    } else {
+                        server.placeTotem(playerId, tile);
+                    }
+                }
                 yield false;
             }
             case "take" -> {
                 ensureConnected();
                 if (tokens.length < 4) {
                     printWarning("Use: take <top|bottom> <index> <card|building>");
-                }
-                else if (currentGameState == null) {
+                } else if (currentGameState == null) {
                     printWarning("No game state available.");
 
                 } else {
@@ -791,11 +834,11 @@ public final class CLIView implements VirtualView {
 
                     boolean isBuilding = tokens[3].equalsIgnoreCase("building");
 
-                    BoardState board = currentGameState.getBoard();
+                    BoardState board = currentGameState.board();
                     boolean top = rowStr.equals("top");
                     int available = top
-                            ? (isBuilding ? board.getTopBuildings().size() : board.getTopRow().size())
-                            : (isBuilding ? board.getBottomBuildings().size() : board.getBottomRow().size());
+                            ? (isBuilding ? board.topBuildings().size() : board.topRow().size())
+                            : (isBuilding ? board.bottomBuildings().size() : board.bottomRow().size());
 
                     if (boardIndex < 0 || boardIndex >= available) {
                         printWarning("Invalid index " + boardIndex + ": "
@@ -827,8 +870,8 @@ public final class CLIView implements VirtualView {
                         yield false;
                     }
                     boolean isBuilding = tokens.length >= 3 && tokens[2].equalsIgnoreCase("building");
-                    BoardState board = currentGameState.getBoard();
-                    int available = isBuilding ? board.getTopBuildings().size() : board.getTopRow().size();
+                    BoardState board = currentGameState.board();
+                    int available = isBuilding ? board.topBuildings().size() : board.topRow().size();
                     if (index < 0 || index >= available) {
                         printWarning("Invalid index " + index + ": "
                                 + (available == 0 ? "nothing to draw there." : "choose 0-" + (available - 1) + "."));
@@ -892,13 +935,13 @@ public final class CLIView implements VirtualView {
     }
 
     private boolean containsPlayer(LobbyState lobby, String playerId) {
-        return lobby.getPlayers().stream().anyMatch(player -> Objects.equals(player.getId(), playerId));
+        return lobby.getPlayers().stream().anyMatch(player -> Objects.equals(player.id(), playerId));
     }
 
     private void renderGameView(GameState gameState, String message) {
         clearScreen();
-        boardRenderer.render(gameState, message, playerId);
-        tribeRenderer.render(gameState.getPlayers(), playerId);
+        boardRenderer.render(gameState, message);
+        tribeRenderer.render(gameState.players(), playerId);
         if (currentPeekedCard != null) {
             renderCardDetails(currentPeekedCard);
         }
@@ -965,7 +1008,7 @@ public final class CLIView implements VirtualView {
         String group;
         group = ((ListResult) groupResult.get("group")).getSelectedId();
 
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
         List<? extends CardState> cards;
         if (board == null) {
             printMuted("Board unavailable.");
@@ -973,10 +1016,10 @@ public final class CLIView implements VirtualView {
         }
 
         switch (group) {
-            case "TOP_CARDS" -> cards = board.getTopRow();
-            case "BOTTOM_CARDS" -> cards = board.getBottomRow();
-            case "TOP_BUILDINGS" -> cards = board.getTopBuildings();
-            case "BOTTOM_BUILDINGS" -> cards = board.getBottomBuildings();
+            case "TOP_CARDS" -> cards = board.topRow();
+            case "BOTTOM_CARDS" -> cards = board.bottomRow();
+            case "TOP_BUILDINGS" -> cards = board.topBuildings();
+            case "BOTTOM_BUILDINGS" -> cards = board.bottomBuildings();
             default -> {
                 printMuted("Invalid selection.");
                 return;
@@ -1005,7 +1048,7 @@ public final class CLIView implements VirtualView {
     }
 
     private CardState findCardById(String cardId) {
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
         if (board == null || cardId == null || cardId.isBlank()) {
             return null;
         }
@@ -1021,10 +1064,10 @@ public final class CLIView implements VirtualView {
 
     private List<CardState> getAllBoardCards(BoardState board) {
         List<CardState> cards = new ArrayList<>();
-        cards.addAll(board.getTopRow());
-        cards.addAll(board.getBottomRow());
-        cards.addAll(board.getTopBuildings());
-        cards.addAll(board.getBottomBuildings());
+        cards.addAll(board.topRow());
+        cards.addAll(board.bottomRow());
+        cards.addAll(board.topBuildings());
+        cards.addAll(board.bottomBuildings());
         return cards;
     }
 
@@ -1050,7 +1093,7 @@ public final class CLIView implements VirtualView {
         List<String> lines = new ArrayList<>();
         lines.add(centerText("CARD DETAILS", 24));
         lines.add("");
-        lines.addAll(centerAsciiArt(36));
+        lines.addAll(centerAsciiArt());
         lines.add("");
         lines.add("Id: " + safeText(card.getCardId()));
         lines.add("Kind: " + safeText(String.valueOf(card.getCardKind())));
@@ -1069,12 +1112,12 @@ public final class CLIView implements VirtualView {
         return lines;
     }
 
-    private List<String> centerAsciiArt(int width) {
+    private List<String> centerAsciiArt() {
         return List.of(
-                centerText(" /\\", width),
-                centerText(" /  \\", width),
-                centerText("| [] |", width),
-                centerText("|____|", width)
+                centerText(" /\\", 36),
+                centerText(" /  \\", 36),
+                centerText("| [] |", 36),
+                centerText("|____|", 36)
         );
     }
 
@@ -1126,8 +1169,8 @@ public final class CLIView implements VirtualView {
     }
 
     private void clearScreen() {
-            System.out.print("\u001B[H\u001B[2J\u001B[3J");
-            System.out.flush();
+        System.out.print("\u001B[H\u001B[2J\u001B[3J");
+        System.out.flush();
     }
 
     private void printWarning(String message) {

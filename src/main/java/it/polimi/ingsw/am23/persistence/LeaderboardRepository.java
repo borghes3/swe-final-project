@@ -1,12 +1,6 @@
 package it.polimi.ingsw.am23.persistence;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +63,9 @@ public final class LeaderboardRepository {
         }
     }
 
-    /** @return {@code true} if persistence is currently available */
+    /**
+     * @return {@code true} if persistence is currently available
+     */
     public boolean isAvailable() {
         return available;
     }

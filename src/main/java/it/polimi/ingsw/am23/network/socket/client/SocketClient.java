@@ -31,10 +31,10 @@ public final class SocketClient implements VirtualServer {
 
     private SocketClient(Socket socket, VirtualView view) throws IOException {
         this.socket = socket;
-        this.view   = view;
+        this.view = view;
         // output stream first to avoid the classic ObjectStream init deadlock
         this.out = new ObjectOutputStream(socket.getOutputStream());
-        this.in  = new ObjectInputStream(socket.getInputStream());
+        this.in = new ObjectInputStream(socket.getInputStream());
     }
 
     /**
@@ -69,10 +69,10 @@ public final class SocketClient implements VirtualServer {
                 Message message = (Message) in.readObject();
                 dispatch(message);
             }
-        }catch (java.io.EOFException | SocketException e) {
+        } catch (java.io.EOFException | SocketException e) {
             System.err.println("<SocketClient>: server lost – " + e.getMessage());
             notifyCrash();
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("<SocketClient>: connection closed – " + e.getMessage());
             notifyCrash();
         } catch (Exception e) {
@@ -82,10 +82,11 @@ public final class SocketClient implements VirtualServer {
         }
     }
 
-    private void notifyCrash(){
-        try{
+    private void notifyCrash() {
+        try {
             view.onServerCrashed();
-        } catch(Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void dispatch(Message message) throws Exception {
@@ -113,8 +114,7 @@ public final class SocketClient implements VirtualServer {
         } else if (message instanceof OnGameStartedMessage m) {
             view.onGameStarted(m.getPayload());
 
-        }
-        else if (message instanceof OnTotemPlacedMessage m) {
+        } else if (message instanceof OnTotemPlacedMessage m) {
             view.onTotemPlaced(m.getPayload());
 
         } else if (message instanceof OnEndOfPlacingPhaseMessage m) {
@@ -161,7 +161,8 @@ public final class SocketClient implements VirtualServer {
     private void close() {
         try {
             socket.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
 
@@ -216,6 +217,7 @@ public final class SocketClient implements VirtualServer {
     public void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws Exception {
         send(new TakeExtraCardMessage(playerId, selectedCardExtraDraw));
     }
+
     @Override
     public void skipTurn(String playerId) throws Exception {
         send(new SkipTurnMessage(playerId));
@@ -242,6 +244,7 @@ public final class SocketClient implements VirtualServer {
      * connection drops, so no application-level ping is needed.</p>
      */
     @Override
-    public void ping() throws Exception{}
+    public void ping() {
+    }
 }
 

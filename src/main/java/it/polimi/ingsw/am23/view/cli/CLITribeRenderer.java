@@ -5,7 +5,10 @@ import it.polimi.ingsw.am23.model.state.CardState;
 import it.polimi.ingsw.am23.model.state.CharacterCardState;
 import it.polimi.ingsw.am23.model.state.PlayerState;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am23.view.cli.CLIColors.*;
@@ -20,20 +23,20 @@ public class CLITribeRenderer {
         System.out.println(paint(DIM, rule(TERM_W)));
 
         for (PlayerState p : players) {     // determinare se è you
-            boolean isLocal = Objects.equals(p.getPlayerId(), localId);
+            boolean isLocal = Objects.equals(p.playerId(), localId);
             printPlayerTribe(p, isLocal);
         }
     }
 
     private void printPlayerTribe(PlayerState p, boolean isLocal) {
-        String nameColor = totemColor(p.getTotemColor());
+        String nameColor = totemColor(p.totemColor());
         String tag = isLocal ? " (you)" : "";
 
-        int totChars = p.getCharacters().size();
+        int totChars = p.characters().size();
         System.out.println(
-                paintBold(nameColor, p.getNickname() + tag)
-                        + "    " + p.getFood() + " food"
-                        + "  "  + p.getPrestigePoints() + " PP"
+                paintBold(nameColor, p.nickname() + tag)
+                        + "    " + p.food() + " food"
+                        + "  " + p.prestigePoints() + " PP"
                         + "  " + " TOT: " + totChars);
 
 
@@ -41,52 +44,52 @@ public class CLITribeRenderer {
         int totalStars = 0, totalDiscount = 0;
         Set<String> iconSet = new LinkedHashSet<>();
 
-        for (CardState c : p.getCharacters()) {
+        for (CardState c : p.characters()) {
             if (!(c instanceof CharacterCardState cc)) continue;
             switch (cc.getCharacterType()) {
-                case INVENTOR  -> {
+                case INVENTOR -> {
                     countInv++;
                     InventionIcon icon = cc.getInventionIcon();
                     if (icon != null) iconSet.add(icon.toString());
                 }
-                case SHAMAN    -> {
+                case SHAMAN -> {
                     countSha++;
                     if (cc.getStars() != null) totalStars += cc.getStars();
                 }
-                case BUILDER   -> {
+                case BUILDER -> {
                     countBld++;
                     if (cc.getDiscount() != null) totalDiscount += cc.getDiscount();
                 }
-                case HUNTER    -> countHnt++;
-                case GATHERER  -> countGth++;
-                case ARTIST    -> countArt++;
+                case HUNTER -> countHnt++;
+                case GATHERER -> countGth++;
+                case ARTIST -> countArt++;
             }
         }
 
 
         System.out.println(
-                  "  INV " + countInv
-                + "  SHA " + countSha
-                + "  BLD " + countBld
-                + "  HNT " + countHnt
-                + "  GTH " + countGth
-                + "  ART " + countArt
+                "  INV " + countInv
+                        + "  SHA " + countSha
+                        + "  BLD " + countBld
+                        + "  HNT " + countHnt
+                        + "  GTH " + countGth
+                        + "  ART " + countArt
         );
 
         System.out.println(
-                  "  SHA stars: " + totalStars
-                + "  INV icons: " + iconSet.size()
-                + "  BLD disc: " + "-" + totalDiscount + "f"
+                "  SHA stars: " + totalStars
+                        + "  INV icons: " + iconSet.size()
+                        + "  BLD disc: " + "-" + totalDiscount + "f"
         );
 
 
-        if (p.getBuildings().isEmpty()) {
+        if (p.buildings().isEmpty()) {
             System.out.println("  BUILDINGS (0)");
         } else {
-            String ids = p.getBuildings().stream()
+            String ids = p.buildings().stream()
                     .map(CardState::getCardId)
                     .collect(Collectors.joining("  "));
-            System.out.println("  BUILDINGS (" + p.getBuildings().size() + "):  " + ids);
+            System.out.println("  BUILDINGS (" + p.buildings().size() + "):  " + ids);
         }
 
         System.out.println(paint(DIM, rule(TERM_W)));

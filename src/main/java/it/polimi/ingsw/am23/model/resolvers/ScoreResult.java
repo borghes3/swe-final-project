@@ -8,11 +8,17 @@ import it.polimi.ingsw.am23.model.player.Player;
  * with the food-derived points and the cumulative prestige points.
  */
 public class ScoreResult {
-    /** Player the score refers to. */
+    /**
+     * Player the score refers to.
+     */
     public Player player;
-    /** Points coming from the leftover food reserve. */
+    /**
+     * Points coming from the leftover food reserve.
+     */
     public int foodPoints;
-    /** Total prestige points. */
+    /**
+     * Total prestige points.
+     */
     public int PP;
 
     /**

@@ -5,15 +5,25 @@ package it.polimi.ingsw.am23.model.enums;
  * color via {@link #getColor()} for use by the GUI renderer.
  */
 public enum TotemColors {
-    /** Red totem. */
+    /**
+     * Red totem.
+     */
     RED,
-    /** Yellow totem. */
+    /**
+     * Yellow totem.
+     */
     YELLOW,
-    /** Blue totem. */
+    /**
+     * Blue totem.
+     */
     BLUE,
-    /** Black totem. */
+    /**
+     * Black totem.
+     */
     BLACK,
-    /** White totem. */
+    /**
+     * White totem.
+     */
     WHITE;
 
     /**

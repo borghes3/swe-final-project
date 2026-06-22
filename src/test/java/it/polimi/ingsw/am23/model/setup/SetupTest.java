@@ -65,7 +65,7 @@ class SetupTest {
         assertEquals(GamePhase.SETUP, game.getGamePhase());
         assertEquals(List.of('A', 'B'), game.getBoard().getFreeOfferTiles().stream().map(OfferTile::getId).toList());
         assertEquals(List.of(2, 3), game.getPlayers().stream().map(Player::getFood).sorted().toList());
-        assertEquals(2, game.getBoard().getTurnOrderTile().getSlotsCount());
+        assertEquals(2, game.getBoard().turnOrderTile().getSlotsCount());
     }
 
     @Test

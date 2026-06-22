@@ -75,7 +75,7 @@ public final class TurnOrderNodeFactory {
         double markerSize = Math.max(10, Math.min(14, width * 0.18));
 
         for (TurnOrderSlotState slot : slots) {
-            String playerId = slot.getOccupiedByPlayerId();
+            String playerId = slot.occupiedByPlayerId();
             if (playerId == null) {
                 continue;
             }
@@ -88,7 +88,7 @@ public final class TurnOrderNodeFactory {
 
             double[] coordinates = slotCoordinates(
                     playerCount,
-                    slot.getPositionIndex(),
+                    slot.positionIndex(),
                     width,
                     height,
                     markerSize

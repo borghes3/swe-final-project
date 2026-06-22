@@ -32,7 +32,9 @@ import java.util.concurrent.Executors;
  */
 public final class RmiClient extends UnicastRemoteObject implements VirtualViewRmi {
 
-    /** TCP port used for the callbacks the server delivers to the client. */
+    /**
+     * TCP port used for the callbacks the server delivers to the client.
+     */
     public static final int CALLBACK_PORT = 1236;
 
     private final VirtualView view;

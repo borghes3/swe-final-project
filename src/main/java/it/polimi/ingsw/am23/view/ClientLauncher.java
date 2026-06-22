@@ -5,7 +5,7 @@ import it.polimi.ingsw.am23.view.gui.JavaFXView;
 
 import java.util.Scanner;
 
-public class ClientLauncher{
+public class ClientLauncher {
 
     public static void main(String[] args) {
         System.out.println("Scegli UI:");
@@ -13,7 +13,7 @@ public class ClientLauncher{
         System.out.println("2. GUI");
 
         Scanner scanner = new Scanner(System.in);
-        int choice = 0;
+        int choice;
 
         while (true) {
             System.out.print("Inserisci 1 o 2: ");

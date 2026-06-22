@@ -12,6 +12,11 @@ public final class RequestLeaderboardMessage extends Message {
         this.playerCount = playerCount;
     }
 
-    public String getPlayerId() { return playerId; }
-    public int getPlayerCount() { return playerCount; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public int getPlayerCount() {
+        return playerCount;
+    }
 }

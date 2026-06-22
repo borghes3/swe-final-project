@@ -34,17 +34,23 @@ public abstract class CharacterCard extends Card {
         this.minPlayers = minPlayers;
     }
 
-    /** @return the archetype represented by this card */
+    /**
+     * @return the archetype represented by this card
+     */
     public CharacterType getCharacterType() {
         return characterType;
     }
 
-    /** @return the minimum number of players for which the card is in play */
+    /**
+     * @return the minimum number of players for which the card is in play
+     */
     public int getMinPlayers() {
         return minPlayers;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canBeTaken() {
         return true;
@@ -74,9 +80,11 @@ public abstract class CharacterCard extends Card {
     protected void onAddedToTribe(Game game, Player player) {
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new CharacterCardState(
                 getId(),
                 getEra(),
@@ -95,7 +103,7 @@ public abstract class CharacterCard extends Card {
      *
      * @return the food discount, defaulting to 0
      */
-    public int getDiscount(){
+    public int getDiscount() {
         return 0;
     }
 }

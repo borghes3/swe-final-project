@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am23.network.socket.messages.response;
 
 import it.polimi.ingsw.am23.model.payloads.EndOfPlacingPhasePayload;
-import it.polimi.ingsw.am23.model.state.GameState;
 import it.polimi.ingsw.am23.network.socket.messages.Message;
 
 public final class OnEndOfPlacingPhaseMessage extends Message {
@@ -12,5 +11,7 @@ public final class OnEndOfPlacingPhaseMessage extends Message {
         this.payload = payload;
     }
 
-    public EndOfPlacingPhasePayload getPayload() { return payload; }
+    public EndOfPlacingPhasePayload getPayload() {
+        return payload;
+    }
 }

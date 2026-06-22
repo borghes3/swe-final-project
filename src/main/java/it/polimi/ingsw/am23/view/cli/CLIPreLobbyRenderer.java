@@ -12,7 +12,6 @@ import static it.polimi.ingsw.am23.view.cli.CLIColors.*;
 final class CLIPreLobbyRenderer {
 
     private static final String TITLE_MARKER = "◆";
-    private static final String CURRENT_MARKER = "»";
 
     void render(String playerName, String playerId, List<LobbyState> lobbies, String statusMessage, String currentLobbyId) {
         printBanner(playerName, playerId, statusMessage);
@@ -49,18 +48,18 @@ final class CLIPreLobbyRenderer {
     }
 
     private void printLobby(LobbyState lobby, boolean current) {
-        String nameColor  = current ? BR_CYAN : BR_WHITE;  // cyan se current, altrimenti white
+        String nameColor = current ? BR_CYAN : BR_WHITE;  // cyan se current, altrimenti white
 
         String occupancy = lobby.isFull() ? paint(BR_RED, "FULL") : lobby.getCurrentPlayers() + "/" + lobby.getMaxPlayers();
         String owner = lobby.getPlayers().stream()
-                .filter(p -> Objects.equals(p.getId(), lobby.getOwnerPlayerId()))
-                .map(PlayerConnectionInfo::getNickname)
+                .filter(p -> Objects.equals(p.id(), lobby.getOwnerPlayerId()))
+                .map(PlayerConnectionInfo::nickname)
                 .findFirst()
                 .orElse(safe(lobby.getOwnerPlayerId()));
         String title = paint(nameColor, lobby.getLobbyName()) + "  " + paint(nameColor, "[" + lobby.getLobbyId() + "]");
         String players = lobby.getPlayers().isEmpty()
                 ? "empty"
-                : lobby.getPlayers().stream().map(PlayerConnectionInfo::getNickname).collect(Collectors.joining(", "));
+                : lobby.getPlayers().stream().map(PlayerConnectionInfo::nickname).collect(Collectors.joining(", "));
 
         System.out.println("  " + title + "   " + occupancy + "   owner: " + (current ? paint(nameColor, owner) : owner));
         System.out.println("    " + paint(DIM, "players: " + players));
@@ -69,7 +68,7 @@ final class CLIPreLobbyRenderer {
     private void printCommands() {
         System.out.println();
         System.out.println(paint(DIM, rule(80)));
-        System.out.println(paint(DIM,"  refresh  |"
+        System.out.println(paint(DIM, "  refresh  |"
                 + "  create <name>  |"
                 + "  join  <code>  |"
                 + "  start  |"

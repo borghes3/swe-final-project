@@ -13,5 +13,7 @@ public final class OnLobbyListUpdatedMessage extends Message {
         this.lobbies = lobbies;
     }
 
-    public List<LobbyState> getLobbies() { return lobbies; }
+    public List<LobbyState> getLobbies() {
+        return lobbies;
+    }
 }

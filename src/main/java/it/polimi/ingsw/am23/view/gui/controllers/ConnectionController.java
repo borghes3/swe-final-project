@@ -1,24 +1,34 @@
 package it.polimi.ingsw.am23.view.gui.controllers;
 
 import it.polimi.ingsw.am23.view.gui.JavaFXView;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
 public class ConnectionController {
 
-    @FXML private TextField hostField;
-    @FXML private TextField nicknameField;
-    @FXML private ChoiceBox<String> connectionTypeChoice;
-    @FXML private Button connectButton;
-    @FXML private Label errorLabel;
+    @FXML
+    private TextField hostField;
+    @FXML
+    private TextField nicknameField;
+    @FXML
+    private ChoiceBox<String> connectionTypeChoice;
+    @FXML
+    private Button connectButton;
+    @FXML
+    private Label errorLabel;
 
     private JavaFXView view;
 
-    public void setView(JavaFXView view){ this.view = view; }
+    public void setView(JavaFXView view) {
+        this.view = view;
+    }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         hostField.setText("localhost");
         connectionTypeChoice.getItems().addAll("RMI", "SOCKET");
         connectionTypeChoice.setValue("RMI");
@@ -26,17 +36,17 @@ public class ConnectionController {
     }
 
     @FXML
-    private void onConnectClicked(){
+    private void onConnectClicked() {
         String host = hostField.getText().trim();
         String nickname = nicknameField.getText().trim();
         String connectionType = connectionTypeChoice.getValue();
 
-        if(nickname.isEmpty()){
+        if (nickname.isEmpty()) {
             errorLabel.setText("Insert Nickname");
             return;
         }
 
-        if(host.isEmpty()){
+        if (host.isEmpty()) {
             host = "localhost";
         }
 
@@ -52,7 +62,7 @@ public class ConnectionController {
             try {
                 view.connect(finalHost, finalNickname, finalConnectionType);
             } catch (Exception e) {
-                Platform.runLater(()-> {
+                Platform.runLater(() -> {
                     errorLabel.setText("Error : " + e.getMessage());
                     connectButton.setDisable(false);
                 });
@@ -60,7 +70,7 @@ public class ConnectionController {
         }).start();
     }
 
-    public void showError(String message){
+    public void showError(String message) {
         Platform.runLater(() -> {
             errorLabel.setText(message);
             connectButton.setDisable(false);

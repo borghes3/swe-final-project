@@ -11,5 +11,7 @@ public final class OnLeaderboardAvailableMessage extends Message {
         this.payload = payload;
     }
 
-    public LeaderboardPayload getPayload() { return payload; }
+    public LeaderboardPayload getPayload() {
+        return payload;
+    }
 }

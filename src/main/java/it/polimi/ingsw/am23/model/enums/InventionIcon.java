@@ -5,24 +5,44 @@ package it.polimi.ingsw.am23.model.enums;
  * matches for inventor related effects.
  */
 public enum InventionIcon {
-    /** Boat icon. */
+    /**
+     * Boat icon.
+     */
     BOAT,
-    /** Arrow icon. */
+    /**
+     * Arrow icon.
+     */
     ARROW,
-    /** Hook icon. */
+    /**
+     * Hook icon.
+     */
     HOOK,
-    /** Necklace icon. */
+    /**
+     * Necklace icon.
+     */
     NECK,
-    /** Bowl icon. */
+    /**
+     * Bowl icon.
+     */
     BOWL,
-    /** Rope icon. */
+    /**
+     * Rope icon.
+     */
     ROPE,
-    /** Statue icon. */
+    /**
+     * Statue icon.
+     */
     STATUE,
-    /** Flute icon. */
+    /**
+     * Flute icon.
+     */
     FLUTE,
-    /** Patch icon. */
+    /**
+     * Patch icon.
+     */
     PATCH,
-    /** Bread icon. */
+    /**
+     * Bread icon.
+     */
     BREAD
 }

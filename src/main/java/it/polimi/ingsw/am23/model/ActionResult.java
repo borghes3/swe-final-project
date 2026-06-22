@@ -47,22 +47,30 @@ public final class ActionResult {
         return new ActionResult(actionType, false, error, message);
     }
 
-    /** @return the action that produced this result */
+    /**
+     * @return the action that produced this result
+     */
     public ActionType getActionType() {
         return actionType;
     }
 
-    /** @return {@code true} if the action succeeded */
+    /**
+     * @return {@code true} if the action succeeded
+     */
     public boolean isSuccess() {
         return success;
     }
 
-    /** @return the error code; always {@link ErrorCode#NONE} on success */
+    /**
+     * @return the error code; always {@link ErrorCode#NONE} on success
+     */
     public ErrorCode getError() {
         return error;
     }
 
-    /** @return the human readable message */
+    /**
+     * @return the human readable message
+     */
     public String getMessage() {
         return message;
     }

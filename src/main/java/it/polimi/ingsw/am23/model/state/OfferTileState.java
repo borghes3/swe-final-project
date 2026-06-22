@@ -6,15 +6,8 @@ import java.io.Serializable;
  * Immutable snapshot of an offer tile. Carries the tile identifier, the
  * player currently occupying it (if any) and the draw/reward configuration.
  */
-public final class OfferTileState implements Serializable {
-    private final int positionIndex;
-    private final char tileId;
-    private final String occupiedByPlayerId;
-    private final int minPlayers;
-    private final int topDrawCount;
-    private final int bottomDrawCount;
-    private final int foodReward;
-
+public record OfferTileState(int positionIndex, char tileId, String occupiedByPlayerId, int minPlayers,
+                             int topDrawCount, int bottomDrawCount, int foodReward) implements Serializable {
     /**
      * Builds a new offer tile snapshot.
      *
@@ -26,54 +19,62 @@ public final class OfferTileState implements Serializable {
      * @param bottomDrawCount    number of cards drawable from the bottom row
      * @param foodReward         food reward granted upon resolution
      */
-    public OfferTileState(int positionIndex,
-                          char tileId,
-                          String occupiedByPlayerId,
-                          int minPlayers,
-                          int topDrawCount,
-                          int bottomDrawCount,
-                          int foodReward) {
-        this.positionIndex = positionIndex;
-        this.tileId = tileId;
-        this.occupiedByPlayerId = occupiedByPlayerId;
-        this.minPlayers = minPlayers;
-        this.topDrawCount = topDrawCount;
-        this.bottomDrawCount = bottomDrawCount;
-        this.foodReward = foodReward;
+    public OfferTileState {
     }
 
-    /** @return the 0-based position of the tile on the board */
-    public int getPositionIndex() {
+    /**
+     * @return the 0-based position of the tile on the board
+     */
+    @Override
+    public int positionIndex() {
         return positionIndex;
     }
 
-    /** @return the letter identifying the tile */
-    public char getTileId() {
+    /**
+     * @return the letter identifying the tile
+     */
+    @Override
+    public char tileId() {
         return tileId;
     }
 
-    /** @return id of the player currently placed on the tile, or {@code null} */
-    public String getOccupiedByPlayerId() {
+    /**
+     * @return id of the player currently placed on the tile, or {@code null}
+     */
+    @Override
+    public String occupiedByPlayerId() {
         return occupiedByPlayerId;
     }
 
-    /** @return the minimum number of players for which this tile is in play */
-    public int getMinPlayers() {
+    /**
+     * @return the minimum number of players for which this tile is in play
+     */
+    @Override
+    public int minPlayers() {
         return minPlayers;
     }
 
-    /** @return the number of cards drawable from the top row */
-    public int getTopDrawCount() {
+    /**
+     * @return the number of cards drawable from the top row
+     */
+    @Override
+    public int topDrawCount() {
         return topDrawCount;
     }
 
-    /** @return the number of cards drawable from the bottom row */
-    public int getBottomDrawCount() {
+    /**
+     * @return the number of cards drawable from the bottom row
+     */
+    @Override
+    public int bottomDrawCount() {
         return bottomDrawCount;
     }
 
-    /** @return the food reward granted upon resolution */
-    public int getFoodReward() {
+    /**
+     * @return the food reward granted upon resolution
+     */
+    @Override
+    public int foodReward() {
         return foodReward;
     }
 }

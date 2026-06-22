@@ -30,38 +30,38 @@ final class CLIBoardRenderer {
         if (type == null) return BR_WHITE;
         return switch (type.toUpperCase()) {
             case "BUILDING" -> BR_WHITE;
-            case "EVENT"    -> BR_RED;
-            default         -> BR_CYAN;
+            case "EVENT" -> BR_RED;
+            default -> BR_CYAN;
         };
     }
 
     // ENTRY POINT
-    void render(GameState gameState, String statusMessage, String localPlayerId) {
+    void render(GameState gameState, String statusMessage) {
         if (gameState == null) {
-            System.out.println(paint(BR_RED,"Game state unavailable."));
+            System.out.println(paint(BR_RED, "Game state unavailable."));
             return;
         }
 
-        Map<String, PlayerState> byId = gameState.getPlayers().stream()
-                .filter(p -> p.getPlayerId() != null)
+        Map<String, PlayerState> byId = gameState.players().stream()
+                .filter(p -> p.playerId() != null)
                 .collect(Collectors.toMap(
-                        PlayerState::getPlayerId, p -> p,
+                        PlayerState::playerId, p -> p,
                         (a, b) -> a, LinkedHashMap::new));
 
-        BoardState board = gameState.getBoard();
+        BoardState board = gameState.board();
 
-        printHeader(gameState, byId);
-        printMainArea(board, byId, localPlayerId, gameState.getPlayers().size());
+        printHeader(gameState);
+        printMainArea(board, byId, gameState.players().size());
         printStatus(statusMessage);
         printCommands();
     }
 
     // HEADER
     // Phase | Era | Round
-    private void printHeader(GameState gs, Map<String, PlayerState> byId) {
-        String phase = paintBold(BR_WHITE, gs.getPhase().name().replace('_', ' '));
-        String era   = paintBold(BR_WHITE,  "Era " + eraLabel(gs.getCurrentEra()));
-        String round = paintBold(BR_WHITE,   "Round " + gs.getCurrentRound());
+    private void printHeader(GameState gs) {
+        String phase = paintBold(BR_WHITE, gs.phase().name().replace('_', ' '));
+        String era = paintBold(BR_WHITE, "Era " + eraLabel(gs.currentEra()));
+        String round = paintBold(BR_WHITE, "Round " + gs.currentRound());
         System.out.println();
         System.out.println(phase + "  " + paint(DIM, "|") + "  " + era
                 + "  " + paint(DIM, "|") + "  " + round);
@@ -70,21 +70,21 @@ final class CLIBoardRenderer {
     }
 
     // MAIN AREA
-    private void printMainArea(BoardState board, Map<String, PlayerState> byId, String localId, int numPlayers) {
+    private void printMainArea(BoardState board, Map<String, PlayerState> byId, int numPlayers) {
         if (board == null) {
             System.out.println(paint(DIM, "  [board unavailable]"));
             return;
         }
 
         // sx e dx
-        String[] toLines = buildTurnOrderLines(board.getTurnOrderSlots(), byId, numPlayers);
-        String[] otLines = buildOfferTrackLines(board.getOfferTiles(), byId);
+        String[] toLines = buildTurnOrderLines(board.turnOrderSlots(), byId, numPlayers);
+        String[] otLines = buildOfferTrackLines(board.offerTiles(), byId);
 
         int cardsWidth = TERMINAL_W - TO_W - GAP - 1;
-        int indent     = TO_W + GAP + 1;
+        int indent = TO_W + GAP + 1;
 
         // Top Row (characters, buildings)
-        printCardBand("top", board.getTopRow(), board.getTopBuildings(), indent, cardsWidth);
+        printCardBand("top", board.topRow(), board.topBuildings(), indent, cardsWidth);
 
         // Offer Track (turn-order, track)
         System.out.println();
@@ -97,7 +97,7 @@ final class CLIBoardRenderer {
         System.out.println();
 
         // Bottom Row (characters, buildings)
-        printCardBand("bottom", board.getBottomRow(), board.getBottomBuildings(), indent, cardsWidth);
+        printCardBand("bottom", board.bottomRow(), board.bottomBuildings(), indent, cardsWidth);
     }
 
     // CARD BAND
@@ -146,10 +146,10 @@ final class CLIBoardRenderer {
 
     // Card box
     private String[] buildCardLines(CardState card, boolean isBuilding) {
-        String type  = isBuilding ? "BUILDING" : resolveCharType(card);
+        String type = isBuilding ? "BUILDING" : resolveCharType(card);
         String color = cardColor(type);
-        String info  = essentialInfo(card, isBuilding);
-        String name  = resolveDisplayName(card);
+        String info = essentialInfo(card, isBuilding);
+        String name = resolveDisplayName(card);
 
         String[] out = new String[5];
         //  +------------+
@@ -162,7 +162,7 @@ final class CLIBoardRenderer {
         out[1] = paint(color, "|") + padVis(paint(color, truncate(name, CARD_INNER)), CARD_INNER) + paint(color, "|");
 
         String typeLine = paint(color, type.toUpperCase());
-        String infoStr  = info.isEmpty() ? "" : paint(DIM, info);
+        String infoStr = info.isEmpty() ? "" : paint(DIM, info);
         out[2] = paint(color, "|") + padVis(typeLine, CARD_INNER) + paint(color, "|");
         out[3] = paint(color, "|") + padVis(infoStr, CARD_INNER) + paint(color, "|");
         out[4] = paint(color, "+" + "-".repeat(CARD_INNER) + "+");
@@ -179,10 +179,10 @@ final class CLIBoardRenderer {
 
         return switch (cc.getCharacterType()) {
             case INVENTOR -> cc.getInventionIcon() != null ? cc.getInventionIcon().toString() : "";
-            case SHAMAN   -> cc.getStars() != null ? cc.getStars()    + "*"  : "";
-            case BUILDER  -> cc.getDiscount() != null ? "-" + cc.getDiscount() + "f" : "";
-            case HUNTER   -> Boolean.TRUE.equals(cc.getHasFoodSymbol()) ? "[o-]" : "";
-            default       -> "";
+            case SHAMAN -> cc.getStars() != null ? cc.getStars() + "*" : "";
+            case BUILDER -> cc.getDiscount() != null ? "-" + cc.getDiscount() + "f" : "";
+            case HUNTER -> Boolean.TRUE.equals(cc.getHasFoodSymbol()) ? "[o-]" : "";
+            default -> "";
         };
     }
 
@@ -190,7 +190,7 @@ final class CLIBoardRenderer {
     // TURN ORDER TILE
     private String[] buildTurnOrderLines(List<TurnOrderSlotState> slots, Map<String, PlayerState> byId, int numPlayers) {
         List<TurnOrderSlotState> ordered = new ArrayList<>(slots);
-        ordered.sort(Comparator.comparingInt(TurnOrderSlotState::getPositionIndex));
+        ordered.sort(Comparator.comparingInt(TurnOrderSlotState::positionIndex));
 
         // as many slots as the players
         while (ordered.size() > numPlayers)
@@ -203,18 +203,18 @@ final class CLIBoardRenderer {
         String[] out = new String[height];
 
         out[0] = paint(DIM, "+" + "-".repeat(TO_INNER) + "+");
-        out[1] = paint(DIM, "|") + centerVis(paint(DIM, "ORDER"), TO_INNER) + paint(DIM, "|");
+        out[1] = paint(DIM, "|") + centerVis(paint(DIM, "ORDER")) + paint(DIM, "|");
 
         for (int i = 0; i < numPlayers; i++) {
             TurnOrderSlotState s = ordered.get(i);
-            String pid = s.getOccupiedByPlayerId();
+            String pid = s.occupiedByPlayerId();
             String cell;
             if (pid == null) {
                 cell = paint(DIM, (i + 1) + " ---");
             } else {
 
                 String nick = truncate(nickOf(pid, byId), TO_INNER - 2);
-                String tc = totemColor(byId.containsKey(pid) ? byId.get(pid).getTotemColor() : null);
+                String tc = totemColor(byId.containsKey(pid) ? byId.get(pid).totemColor() : null);
                 cell = paint(DIM, (i + 1) + " ") + paint(tc, nick);
             }
             out[2 + i] = paint(DIM, "|") + padVis(cell, TO_INNER) + paint(DIM, "|");
@@ -227,8 +227,8 @@ final class CLIBoardRenderer {
     // OFFER TRACK
     private String[] buildOfferTrackLines(List<OfferTileState> tiles, Map<String, PlayerState> byId) {
         List<OfferTileState> sorted = new ArrayList<>(tiles);
-        sorted.sort(Comparator.comparing(OfferTileState::getTileId));
-        if (sorted.isEmpty()) return new String[]{ paint(DIM, "[offer track empty]") };
+        sorted.sort(Comparator.comparing(OfferTileState::tileId));
+        if (sorted.isEmpty()) return new String[]{paint(DIM, "[offer track empty]")};
 
         List<String[]> tileBoxes = new ArrayList<>();
         for (OfferTileState t : sorted) {
@@ -251,31 +251,31 @@ final class CLIBoardRenderer {
 
         List<String> content = new ArrayList<>();
 
-        content.add(padVis(paintBold(BR_WHITE, "   " + t.getTileId()), TILE_INNER));
+        content.add(padVis(paintBold(BR_WHITE, "   " + t.tileId()), TILE_INNER));
 
         content.add(" ".repeat(TILE_INNER));
 
-        if (t.getFoodReward() > 0)
-            content.add(padVis(paint(BR_WHITE, "+" + t.getFoodReward() + "f"), TILE_INNER));
+        if (t.foodReward() > 0)
+            content.add(padVis(paint(BR_WHITE, "+" + t.foodReward() + "f"), TILE_INNER));
 
-        if (t.getTopDrawCount() > 0 && t.getBottomDrawCount() > 0) {
-            content.add(padVis(paint(BR_WHITE, "^" + t.getTopDrawCount() + " v" + t.getBottomDrawCount()), TILE_INNER));
-        } else if (t.getTopDrawCount() > 0) {
-            content.add(padVis(paint(BR_WHITE, "^" + t.getTopDrawCount()), TILE_INNER));
-        } else if (t.getBottomDrawCount() > 0) {
-            content.add(padVis(paint(BR_WHITE, "v" + t.getBottomDrawCount()), TILE_INNER));
+        if (t.topDrawCount() > 0 && t.bottomDrawCount() > 0) {
+            content.add(padVis(paint(BR_WHITE, "^" + t.topDrawCount() + " v" + t.bottomDrawCount()), TILE_INNER));
+        } else if (t.topDrawCount() > 0) {
+            content.add(padVis(paint(BR_WHITE, "^" + t.topDrawCount()), TILE_INNER));
+        } else if (t.bottomDrawCount() > 0) {
+            content.add(padVis(paint(BR_WHITE, "v" + t.bottomDrawCount()), TILE_INNER));
         }
 
         content.add(" ".repeat(TILE_INNER));
 
         // occupant player
-        String pid = t.getOccupiedByPlayerId();
+        String pid = t.occupiedByPlayerId();
         String occ;
         if (pid == null) {
             occ = paint(DIM, "---");
         } else {
             String nick = truncate(nickOf(pid, byId), TILE_INNER - 1);
-            String tc   = totemColor(byId.containsKey(pid) ? byId.get(pid).getTotemColor() : null);
+            String tc = totemColor(byId.containsKey(pid) ? byId.get(pid).totemColor() : null);
             occ = paint(tc, nick);
         }
         content.add(padVis(occ, TILE_INNER));
@@ -314,12 +314,10 @@ final class CLIBoardRenderer {
     private String resolveDisplayName(CardState card) {
         if (card instanceof EventCardState) {
             String id = card.getCardId();
-            if (id != null) {
-                if (id.startsWith("ECP")) return "CAVE PAINT";
-                if (id.startsWith("EHU")) return "HUNT";
-                if (id.startsWith("ESH")) return "SHAMANIC";
-                if (id.startsWith("ESU")) return "SUSTENANCE";
-            }
+            if (id.startsWith("ECP")) return "CAVE PAINT";
+            if (id.startsWith("EHU")) return "HUNT";
+            if (id.startsWith("ESH")) return "SHAMANIC";
+            if (id.startsWith("ESU")) return "SUSTENANCE";
             return "EVENT";
         }
         return card.getCardId();
@@ -327,8 +325,8 @@ final class CLIBoardRenderer {
 
     private String resolveCharType(CardState card) {
         if (card instanceof CharacterCardState cc) return cc.getCharacterType().toString().toUpperCase();
-        if (card instanceof EventCardState)        return "EVENT";
-        if (card instanceof BuildingCardState)     return "BUILDING";
+        if (card instanceof EventCardState) return "EVENT";
+        if (card instanceof BuildingCardState) return "BUILDING";
         return "UNKNOWN";
     }
 
@@ -338,8 +336,8 @@ final class CLIBoardRenderer {
         return text + " ".repeat(pad);
     }
 
-    private String centerVis(String text, int width) {
-        int pad  = Math.max(0, width - visLen(text));
+    private String centerVis(String text) {
+        int pad = Math.max(0, CLIBoardRenderer.TO_INNER - visLen(text));
         int left = pad / 2;
         return " ".repeat(left) + text + " ".repeat(pad - left);
     }
@@ -357,15 +355,15 @@ final class CLIBoardRenderer {
     private String nickOf(String pid, Map<String, PlayerState> byId) {
         if (pid == null) return "free";
         PlayerState p = byId.get(pid);
-        return p != null ? p.getNickname() : pid;
+        return p != null ? p.nickname() : pid;
     }
 
     private String eraLabel(Object era) {
         if (era == null) return "?";
         String s = era.toString().toUpperCase();
         if (s.contains("3") || s.contains("III")) return "III";
-        if (s.contains("2") || s.contains("II"))  return "II";
-        if (s.contains("1") || s.contains("I"))   return "I";
+        if (s.contains("2") || s.contains("II")) return "II";
+        if (s.contains("1") || s.contains("I")) return "I";
         return s;
     }
 }

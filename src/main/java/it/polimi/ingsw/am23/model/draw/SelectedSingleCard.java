@@ -9,12 +9,7 @@ import java.io.Serializable;
  * action. Carries the row, the index within the row and whether the card
  * is a tribe card or a building.
  */
-public class SelectedSingleCard implements Serializable {
-    private final RowType row;
-    private final int boardIndex;
-    private final boolean isBuilding;
-
-
+public record SelectedSingleCard(RowType row, int boardIndex, boolean isBuilding) implements Serializable {
     /**
      * Builds a new draw selection.
      *
@@ -22,18 +17,30 @@ public class SelectedSingleCard implements Serializable {
      * @param boardIndex 0-based index within the row
      * @param isBuilding {@code true} if the selection points to a building, {@code false} for a tribe card
      */
-    public SelectedSingleCard(RowType row, int boardIndex, boolean isBuilding) {
-        this.row = row;
-        this.boardIndex = boardIndex;
-        this.isBuilding = isBuilding;
+    public SelectedSingleCard {
     }
 
-    /** @return the row the selected card belongs to */
-    public RowType getRow() { return row; }
+    /**
+     * @return the row the selected card belongs to
+     */
+    @Override
+    public RowType row() {
+        return row;
+    }
 
-    /** @return the 0-based index of the selected card within its row */
-    public int getBoardIndex() { return boardIndex; }
+    /**
+     * @return the 0-based index of the selected card within its row
+     */
+    @Override
+    public int boardIndex() {
+        return boardIndex;
+    }
 
-    /** @return {@code true} if the selection points to a building card */
-    public boolean isBuilding() { return isBuilding; }
+    /**
+     * @return {@code true} if the selection points to a building card
+     */
+    @Override
+    public boolean isBuilding() {
+        return isBuilding;
+    }
 }

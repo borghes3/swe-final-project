@@ -11,5 +11,7 @@ public final class OnGameStartedMessage extends Message {
         this.payload = payload;
     }
 
-    public GameStartedPayload getPayload() { return payload; }
+    public GameStartedPayload getPayload() {
+        return payload;
+    }
 }

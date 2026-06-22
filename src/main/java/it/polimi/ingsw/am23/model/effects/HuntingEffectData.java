@@ -9,7 +9,9 @@ public class HuntingEffectData {
     private int extraFood;
     private int extraPoints;
 
-    /** @return the extra food accumulated so far */
+    /**
+     * @return the extra food accumulated so far
+     */
     public int getExtraFood() {
         return extraFood;
     }
@@ -23,7 +25,9 @@ public class HuntingEffectData {
         this.extraFood += extraFood;
     }
 
-    /** @return the extra prestige points accumulated so far */
+    /**
+     * @return the extra prestige points accumulated so far
+     */
     public int getExtraPoints() {
         return extraPoints;
     }

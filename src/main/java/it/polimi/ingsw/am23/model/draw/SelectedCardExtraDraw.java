@@ -22,17 +22,23 @@ public class SelectedCardExtraDraw implements Serializable {
         this.buildingIndex = buildingIndex;
     }
 
-    /** @return the index of the building to take */
+    /**
+     * @return the index of the building to take
+     */
     public int getBuildingIndex() {
         return buildingIndex;
     }
 
-    /** @return the index of the tribe card to take */
+    /**
+     * @return the index of the tribe card to take
+     */
     public int getCardIndex() {
         return cardIndex;
     }
 
-    /** @return {@code true} if the selection points to a tribe card */
+    /**
+     * @return {@code true} if the selection points to a tribe card
+     */
     public boolean isTribeCard() {
         return cardIndex != null;
     }

@@ -13,14 +13,17 @@ import java.util.Optional;
 
 public class LobbyController {
 
-    @FXML private ListView<String> lobbyListView;
-    @FXML private Button joinLobbyButton;
-    @FXML private Label errorLabel;
+    @FXML
+    private ListView<String> lobbyListView;
+    @FXML
+    private Button joinLobbyButton;
+    @FXML
+    private Label errorLabel;
 
     private JavaFXView view;
     private List<LobbyState> lobbies = new ArrayList<>();
 
-    public void setView(JavaFXView view){
+    public void setView(JavaFXView view) {
         this.view = view;
     }
 
@@ -30,20 +33,20 @@ public class LobbyController {
         for (LobbyState lobby : lobbies) {
             lobbyListView.getItems().add(
                     "[" + lobby.getLobbyId() + "] " +
-                    lobby.getLobbyName() + " | " +
-                    lobby.getCurrentPlayers() + "/" +
-                    lobby.getMaxPlayers()
+                            lobby.getLobbyName() + " | " +
+                            lobby.getCurrentPlayers() + "/" +
+                            lobby.getMaxPlayers()
             );
         }
     }
 
-    public void showError(String reason){
+    public void showError(String reason) {
         errorLabel.setText(reason);
         errorLabel.setVisible(true);
     }
 
     @FXML
-    private void onCreateLobbyClicked(){
+    private void onCreateLobbyClicked() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("New Lobby");
         dialog.setHeaderText(null);
@@ -85,16 +88,16 @@ public class LobbyController {
     }
 
     @FXML
-    private void onJoinLobbyClicked(){
+    private void onJoinLobbyClicked() {
         int index = lobbyListView.getSelectionModel().getSelectedIndex();
-        if(index >= 0){
+        if (index >= 0) {
             String lobbyId = lobbies.get(index).getLobbyId();
             view.joinLobby(lobbyId);
         }
     }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         joinLobbyButton.setDisable(true);
         lobbyListView.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newVal) -> joinLobbyButton.setDisable(newVal == null)

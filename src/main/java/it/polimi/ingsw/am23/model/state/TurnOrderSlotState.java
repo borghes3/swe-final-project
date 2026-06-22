@@ -6,11 +6,7 @@ import java.io.Serializable;
  * Immutable snapshot of a single turn order slot, including the resource
  * delta granted by the slot and the player currently occupying it.
  */
-public final class TurnOrderSlotState implements Serializable {
-    private final int positionIndex;
-    private final int foodDelta;
-    private final String occupiedByPlayerId;
-
+public record TurnOrderSlotState(int positionIndex, int foodDelta, String occupiedByPlayerId) implements Serializable {
     /**
      * Builds a new turn order slot snapshot.
      *
@@ -18,24 +14,30 @@ public final class TurnOrderSlotState implements Serializable {
      * @param foodDelta          food delta granted (positive) or charged (negative) by the slot
      * @param occupiedByPlayerId id of the player on the slot, or {@code null}
      */
-    public TurnOrderSlotState(int positionIndex, int foodDelta, String occupiedByPlayerId) {
-        this.positionIndex = positionIndex;
-        this.foodDelta = foodDelta;
-        this.occupiedByPlayerId = occupiedByPlayerId;
+    public TurnOrderSlotState {
     }
 
-    /** @return the 0-based position of the slot on the turn order tile */
-    public int getPositionIndex() {
+    /**
+     * @return the 0-based position of the slot on the turn order tile
+     */
+    @Override
+    public int positionIndex() {
         return positionIndex;
     }
 
-    /** @return the food delta granted (positive) or charged (negative) by the slot */
-    public int getFoodDelta() {
+    /**
+     * @return the food delta granted (positive) or charged (negative) by the slot
+     */
+    @Override
+    public int foodDelta() {
         return foodDelta;
     }
 
-    /** @return id of the player currently on the slot, or {@code null} */
-    public String getOccupiedByPlayerId() {
+    /**
+     * @return id of the player currently on the slot, or {@code null}
+     */
+    @Override
+    public String occupiedByPlayerId() {
         return occupiedByPlayerId;
     }
 }

@@ -26,7 +26,7 @@ class HuntingEventCardTest {
         Game game = TestUtils.game(
                 List.of(p1),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null)),
                 List.of(),
                 List.of(),
                 List.of(),

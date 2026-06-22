@@ -5,8 +5,12 @@ package it.polimi.ingsw.am23.model.enums;
  * it.polimi.ingsw.am23.model.board.CardMarket}.
  */
 public enum RowType {
-    /** Top row of the card market. */
+    /**
+     * Top row of the card market.
+     */
     TOP,
-    /** Bottom row of the card market. */
+    /**
+     * Bottom row of the card market.
+     */
     BOTTOM
 }

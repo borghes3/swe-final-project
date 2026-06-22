@@ -5,10 +5,16 @@ package it.polimi.ingsw.am23.model.enums;
  * composition and the available buildings.
  */
 public enum Era {
-    /** First era of the match. */
+    /**
+     * First era of the match.
+     */
     ERA_1,
-    /** Second era of the match. */
+    /**
+     * Second era of the match.
+     */
     ERA_2,
-    /** Third and last era of the match. */
+    /**
+     * Third and last era of the match.
+     */
     ERA_3
 }

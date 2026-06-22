@@ -3,7 +3,8 @@ package it.polimi.ingsw.am23.model.board;
 import it.polimi.ingsw.am23.model.enums.Era;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RefillResultTest {
 

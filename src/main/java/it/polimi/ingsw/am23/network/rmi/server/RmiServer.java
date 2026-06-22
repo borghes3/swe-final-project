@@ -24,10 +24,11 @@ import java.util.concurrent.Executors;
  */
 public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
 
-    private final VirtualServer serverController;
-
-    /** TCP port used for both the registry and the exported remote object. */
+    /**
+     * TCP port used for both the registry and the exported remote object.
+     */
     public static final int PORT = 1234;
+    private final VirtualServer serverController;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     /**
@@ -63,7 +64,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             } catch (Exception e) {
                 try {
                     client.onConnectError(e.getMessage());
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
     }
@@ -73,7 +75,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.createLobby(playerId, lobbyName, maxPlayers);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -82,7 +85,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.joinLobby(playerId, lobbyId);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -91,7 +95,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.requestLobbyList(playerId);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -100,7 +105,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.leaveLobby(playerId, lobbyId);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -109,7 +115,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.startGame(playerId, lobbyId);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -118,7 +125,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.placeTotem(playerId, offerTileChar);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -127,7 +135,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.takeSingleCard(playerId, selectedSingleCard);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -136,7 +145,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.takeExtraCard(playerId, selectedCardExtraDraw);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -145,7 +155,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.skipTurn(playerId);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -154,7 +165,8 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.disconnect(playerId);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -163,10 +175,12 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         executor.submit(() -> {
             try {
                 serverController.requestLeaderboard(playerId, playerCount);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         });
     }
 
     @Override
-    public void ping() throws RemoteException {}
+    public void ping() throws RemoteException {
+    }
 }

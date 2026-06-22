@@ -13,7 +13,7 @@ import it.polimi.ingsw.am23.model.state.CharacterCardState;
  * When a Hunter card sporting the food symbol is collected, the player gains
  * one food per Hunter already present in their tribe.
  */
-public class HunterCard extends CharacterCard{
+public class HunterCard extends CharacterCard {
 
     private final boolean hasFoodSymbol;
 
@@ -27,7 +27,7 @@ public class HunterCard extends CharacterCard{
      * @param minPlayers    minimum number of players for which the card is in play
      */
     public HunterCard(String id, Era era, int points, boolean hasFoodSymbol, int minPlayers) {
-        super(id, era, points, CharacterType.HUNTER,  minPlayers);
+        super(id, era, points, CharacterType.HUNTER, minPlayers);
         this.hasFoodSymbol = hasFoodSymbol;
     }
 
@@ -37,16 +37,18 @@ public class HunterCard extends CharacterCard{
      * already present in the player's tribe.</p>
      */
     @Override
-    public void onAddedToTribe(Game game, Player player){
-        if(hasFoodSymbol){
+    public void onAddedToTribe(Game game, Player player) {
+        if (hasFoodSymbol) {
             int huntersInTribe = player.getTribe().count(CharacterType.HUNTER);
             player.applyFoodDelta(huntersInTribe);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new CharacterCardState(
                 getId(),
                 getEra(),

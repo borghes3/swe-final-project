@@ -20,6 +20,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScoreCalculatorTest {
 
+    private static void addScoringSet(Game game, Player player) {
+        player.getTribe().addCharacter(new BuilderCard("b1", Era.ERA_1, 3, 0, 2));
+        new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 2).onTaken(game, player);
+        new InventorCard("i2", Era.ERA_1, 0, InventionIcon.ARROW, 2).onTaken(game, player);
+        player.getTribe().addCharacter(new ArtistCard("a1", Era.ERA_1, 0, 2));
+        player.getTribe().addCharacter(new ArtistCard("a2", Era.ERA_1, 0, 2));
+        player.getTribe().addBuilding(TestUtils.building("bd1", Era.ERA_1, 2, 0, new FlatEndGamePointsEffect(3)));
+    }
+
+    private static Game minimalGame(List<Player> players) {
+        return TestUtils.game(
+                players,
+                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0, null)),
+                List.of(),
+                List.of(),
+                List.of(),
+                Era.ERA_1,
+                1
+        );
+    }
+
     @Test
     void calculateFinalScoresSortsByPrestigeThenFoodOnTie() {
         // Input  : p1(food=1,PP=4)+scoringSet, p2(food=5,PP=10), p3(food=3,PP=4)+scoringSet.
@@ -61,27 +83,5 @@ class ScoreCalculatorTest {
         assertEquals(2, winners.size());
         assertTrue(winners.stream().anyMatch(p -> p.getId().equals("p1")));
         assertTrue(winners.stream().anyMatch(p -> p.getId().equals("p2")));
-    }
-
-    private static void addScoringSet(Game game, Player player) {
-        player.getTribe().addCharacter(new BuilderCard("b1", Era.ERA_1, 3, 0, 2));
-        new InventorCard("i1", Era.ERA_1, 0, InventionIcon.BOAT, 2).onTaken(game, player);
-        new InventorCard("i2", Era.ERA_1, 0, InventionIcon.ARROW, 2).onTaken(game, player);
-        player.getTribe().addCharacter(new ArtistCard("a1", Era.ERA_1, 0, 2));
-        player.getTribe().addCharacter(new ArtistCard("a2", Era.ERA_1, 0, 2));
-        player.getTribe().addBuilding(TestUtils.building("bd1", Era.ERA_1, 2, 0, new FlatEndGamePointsEffect(3)));
-    }
-
-    private static Game minimalGame(List<Player> players) {
-        return TestUtils.game(
-                players,
-                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null)),
-                List.of(),
-                List.of(),
-                List.of(),
-                Era.ERA_1,
-                1
-        );
     }
 }

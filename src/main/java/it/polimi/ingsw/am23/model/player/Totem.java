@@ -7,10 +7,7 @@ import java.util.Objects;
  * tile to claim an action. Carries the owning player's id and the hex
  * color used by the renderer.
  */
-public class Totem {
-    private final String ownerId;
-    private final String color;
-
+public record Totem(String ownerId, String color) {
     /**
      * Builds a new totem.
      *
@@ -22,13 +19,11 @@ public class Totem {
         this.color = color;
     }
 
-    /** @return id of the player that owns this totem */
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    /** @return the hex color string of this totem */
-    public String getColor() {
+    /**
+     * @return the hex color string of this totem
+     */
+    @Override
+    public String color() {
         return color;
     }
 }

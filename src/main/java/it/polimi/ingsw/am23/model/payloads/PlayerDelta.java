@@ -12,4 +12,6 @@ import java.io.Serializable;
  * @param absoluteFood     player's food reserve after the event
  * @param absolutePrestige player's prestige points after the event
  */
-public record PlayerDelta(String playerId, int foodDelta, int prestigeDelta, int absoluteFood, int absolutePrestige) implements Serializable {}
+public record PlayerDelta(String playerId, int foodDelta, int prestigeDelta, int absoluteFood,
+                          int absolutePrestige) implements Serializable {
+}

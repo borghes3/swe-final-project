@@ -18,6 +18,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EventResolverTest {
 
+    private static Game minimalGame(List<Player> players) {
+        return TestUtils.game(
+                players,
+                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
+                List.of(new TurnOrderSlot(0, 0, null)),
+                List.of(),
+                List.of(),
+                List.of(),
+                Era.ERA_1,
+                1
+        );
+    }
+
     @Test
     void resolveEventsExecutesSustenanceAfterAllOtherEventsAndOrdersByEra() {
         // Input  : events = [n3(ERA_3), s(SustenanceERA_1), n1(ERA_1), n2(ERA_2)]; resolve them.
@@ -35,19 +48,6 @@ class EventResolverTest {
         resolver.resolveEvents(List.of(normalEra3, sustenance, normalEra1, normalEra2), game);
 
         assertEquals(List.of("N1", "N2", "N3", "S"), executionOrder);
-    }
-
-    private static Game minimalGame(List<Player> players) {
-        return TestUtils.game(
-                players,
-                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null)),
-                List.of(),
-                List.of(),
-                List.of(),
-                Era.ERA_1,
-                1
-        );
     }
 
     private static class TrackingEvent extends EventCard {

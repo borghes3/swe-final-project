@@ -41,7 +41,9 @@ public class CavePaintingsEventCard extends EventCard {
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void resolve(Game game) {
         List<Player> players = game.getPlayers();

@@ -38,17 +38,9 @@ public class ShamanRitualEventCard extends EventCard {
         this.losePoints = losePoints;
     }
 
-    /** @return the prestige points awarded to the winner */
-    public int getWinPoints() {
-        return winPoints;
-    }
-
-    /** @return the prestige points subtracted from the loser */
-    public int getLosePoints() {
-        return losePoints;
-    }
-
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void resolve(Game game) {
         List<Player> players = game.getPlayers();
@@ -144,12 +136,12 @@ public class ShamanRitualEventCard extends EventCard {
             return winner;
         }
 
-        public boolean isLast() {
-            return last;
-        }
-
         public void setWinner(boolean winner) {
             this.winner = winner;
+        }
+
+        public boolean isLast() {
+            return last;
         }
 
         public void setLast(boolean last) {

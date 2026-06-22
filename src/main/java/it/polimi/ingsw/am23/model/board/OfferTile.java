@@ -10,9 +10,9 @@ import java.util.Objects;
  */
 public class OfferTile {
     private final char id;
-    private String occupiedByPlayerId;
     private final int minPlayers;
     private final OfferAction action;
+    private String occupiedByPlayerId;
 
     /**
      * Builds a new offer tile.
@@ -29,28 +29,38 @@ public class OfferTile {
         this.action = Objects.requireNonNull(action);
     }
 
-    /** @return the letter identifying this tile */
+    /**
+     * @return the letter identifying this tile
+     */
     public char getId() {
         return id;
     }
 
-    /** @return the id of the player currently on the tile, or {@code null} */
+    /**
+     * @return the id of the player currently on the tile, or {@code null}
+     */
     public String getOccupiedByPlayerId() {
         return occupiedByPlayerId;
     }
 
-    /** @return the minimum number of players for which this tile is in play */
+    /**
+     * @return the minimum number of players for which this tile is in play
+     */
     public int getMinPlayers() {
         return minPlayers;
     }
 
-    /** @return the action descriptor of this tile */
+    /**
+     * @return the action descriptor of this tile
+     */
     public OfferAction getAction() {
         return action;
     }
 
-    /** @return {@code true} if no player is on this tile */
-    public boolean isFree(){
+    /**
+     * @return {@code true} if no player is on this tile
+     */
+    public boolean isFree() {
         return occupiedByPlayerId == null;
     }
 
@@ -59,12 +69,14 @@ public class OfferTile {
      *
      * @param playerId id of the player to place
      */
-    public void placeTotem(String playerId){
+    public void placeTotem(String playerId) {
         occupiedByPlayerId = playerId;
     }
 
-    /** Removes the totem currently on the tile, if any. */
-    public void clear(){
+    /**
+     * Removes the totem currently on the tile, if any.
+     */
+    public void clear() {
         occupiedByPlayerId = null;
     }
 

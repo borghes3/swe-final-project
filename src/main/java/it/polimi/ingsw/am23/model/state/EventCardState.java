@@ -19,7 +19,9 @@ public final class EventCardState extends CardState {
         super(cardId, era, printedPoints);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CardKind getCardKind() {
         return CardKind.EVENT;

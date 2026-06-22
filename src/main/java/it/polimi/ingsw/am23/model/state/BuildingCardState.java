@@ -26,17 +26,23 @@ public final class BuildingCardState extends CardState {
         this.effectId = effectId;
     }
 
-    /** @return the food cost required to purchase the building */
+    /**
+     * @return the food cost required to purchase the building
+     */
     public int getFoodCost() {
         return foodCost;
     }
 
-    /** @return the identifier of the effect attached to the building */
+    /**
+     * @return the identifier of the effect attached to the building
+     */
     public String getEffectId() {
         return effectId;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CardKind getCardKind() {
         return CardKind.BUILDING;

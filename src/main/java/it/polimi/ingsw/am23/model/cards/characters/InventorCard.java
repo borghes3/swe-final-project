@@ -15,7 +15,7 @@ import java.util.Objects;
  * Concrete {@link CharacterCard} representing the Inventor archetype.
  * Each Inventor exposes an icon that contributes to inventor-pair scoring.
  */
-public class InventorCard extends CharacterCard{
+public class InventorCard extends CharacterCard {
 
     private final InventionIcon icon;
 
@@ -28,12 +28,14 @@ public class InventorCard extends CharacterCard{
      * @param icon       invention icon depicted on the card
      * @param minPlayers minimum number of players for which the card is in play
      */
-    public InventorCard(String id, Era era, int points, InventionIcon icon, int minPlayers){
+    public InventorCard(String id, Era era, int points, InventionIcon icon, int minPlayers) {
         super(id, era, points, CharacterType.INVENTOR, minPlayers);
         this.icon = Objects.requireNonNull(icon, "icon cannot be null");
     }
 
-    /** @return the invention icon depicted on the card */
+    /**
+     * @return the invention icon depicted on the card
+     */
     public InventionIcon getIcon() {
         return icon;
     }
@@ -44,13 +46,15 @@ public class InventorCard extends CharacterCard{
      * inventor-pair effects.</p>
      */
     @Override
-    public void onAddedToTribe(Game game, Player player){
+    public void onAddedToTribe(Game game, Player player) {
         player.getTribe().incrementInventorIconCount(getIcon());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new CharacterCardState(
                 getId(),
                 getEra(),

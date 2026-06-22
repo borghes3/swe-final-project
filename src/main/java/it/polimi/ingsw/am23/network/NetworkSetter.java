@@ -31,7 +31,8 @@ public class NetworkSetter {
                 heartbeatService = new HeartbeatService(server, () -> {
                     try {
                         view.onServerCrashed();
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 });
                 heartbeatService.start();
                 yield server;
@@ -48,8 +49,8 @@ public class NetworkSetter {
     /**
      * Stops the heartbeat thread, if any was started.
      */
-    public static void stopHeartbeat(){
-        if(heartbeatService != null){
+    public static void stopHeartbeat() {
+        if (heartbeatService != null) {
             heartbeatService.stop();
             heartbeatService = null;
         }

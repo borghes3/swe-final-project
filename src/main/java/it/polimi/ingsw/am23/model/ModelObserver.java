@@ -73,7 +73,9 @@ public interface ModelObserver {
      */
     void onEraProgression(EraProgressionPayload payload);
 
-    /** Notified when the match terminates. */
+    /**
+     * Notified when the match terminates.
+     */
     void onGameOver();
 
     /**

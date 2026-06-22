@@ -21,9 +21,11 @@ public class FoodFromTurnOrderBonusEffect implements BuildingEffect {
         this.foodBonus = foodBonus;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int modifyTurnOrderFood(Game game, Player player, int currentFood){
+    public int modifyTurnOrderFood(Game game, Player player, int currentFood) {
         return currentFood + foodBonus;
     }
 

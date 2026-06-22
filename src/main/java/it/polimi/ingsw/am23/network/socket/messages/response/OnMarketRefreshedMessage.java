@@ -11,5 +11,7 @@ public class OnMarketRefreshedMessage extends Message {
         this.payload = payload;
     }
 
-    public MarketRefresherPayload getPayload() { return payload; }
+    public MarketRefresherPayload getPayload() {
+        return payload;
+    }
 }

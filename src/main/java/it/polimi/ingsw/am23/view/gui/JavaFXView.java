@@ -5,6 +5,7 @@ import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
 import it.polimi.ingsw.am23.model.enums.ActionType;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
 import it.polimi.ingsw.am23.model.payloads.*;
+import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
 import it.polimi.ingsw.am23.model.state.*;
 import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
@@ -14,15 +15,16 @@ import it.polimi.ingsw.am23.view.gui.controllers.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
-import javafx.scene.Parent;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavaFXView extends Application implements VirtualView {
+    private final List<EventResolvedPayload> pendingEventPayloads = new ArrayList<>();
     private volatile VirtualServer server;
     private volatile String playerId;
     private volatile String playerName;
@@ -31,18 +33,17 @@ public class JavaFXView extends Application implements VirtualView {
     private volatile boolean leftVoluntarily = false;
     private volatile GameState currentGameState;
     private volatile boolean returningToLobby = false;
-
     private Stage primaryStage;
     private ConnectionController connectionController;
     private LobbyController lobbyController;
     private WaitingRoomController waitingRoomController;
     private GameScreenController gameScreenController;
     private ScoreboardController scoreboardController;
-    private LeaderboardController leaderboardController;
-
     private volatile int lastMatchPlayerCount = -1;
 
-    private final List<EventResolvedPayload> pendingEventPayloads = new ArrayList<>();
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -54,16 +55,13 @@ public class JavaFXView extends Application implements VirtualView {
         // disconnessine alla chiusura della finestra
         primaryStage.setOnCloseRequest(e -> {
             NetworkSetter.stopHeartbeat();
-            if(server != null && playerId != null){
-                try{
+            if (server != null && playerId != null) {
+                try {
                     server.disconnect(playerId);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
-    }
-
-    public static void main(String[] args){
-        launch(args);
     }
 
     // CONNECTION
@@ -78,7 +76,7 @@ public class JavaFXView extends Application implements VirtualView {
         primaryStage.setScene(new Scene(root, 400, 500));
     }
 
-    public void connect(String host, String nickname, String connectionType) throws Exception{
+    public void connect(String host, String nickname, String connectionType) throws Exception {
         this.playerName = nickname;
         this.server = NetworkSetter.connect(host, nickname, this, connectionType);
     }
@@ -96,18 +94,18 @@ public class JavaFXView extends Application implements VirtualView {
         primaryStage.setScene(new Scene(root, 400, 500));
     }
 
-    public void joinLobby(String lobbyId){
-        try{
+    public void joinLobby(String lobbyId) {
+        try {
             server.joinLobby(playerId, lobbyId);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void createLobby(String name, int maxPlayers){
+    public void createLobby(String name, int maxPlayers) {
         try {
             server.createLobby(playerId, name, maxPlayers);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -122,29 +120,29 @@ public class JavaFXView extends Application implements VirtualView {
         waitingRoomController = loader.getController();
         waitingRoomController.setView(this);
         waitingRoomController.setOwner(owner);
-        waitingRoomController.setLobbyInfo(lobby.getLobbyId(),lobby.getLobbyName(), lobby.getMaxPlayers());
-        waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(player -> player.getNickname()).collect(java.util.stream.Collectors.toList()));
+        waitingRoomController.setLobbyInfo(lobby.getLobbyId(), lobby.getLobbyName(), lobby.getMaxPlayers());
+        waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(PlayerConnectionInfo::nickname).collect(java.util.stream.Collectors.toList()));
         primaryStage.setScene(new Scene(root, 400, 500));
     }
 
-    public void leaveLobby(){
-        try{
+    public void leaveLobby() {
+        try {
             leftVoluntarily = true;
             server.leaveLobby(playerId, currentLobbyId);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void goToLobby(){
-        Platform.runLater(()-> {
-            try{
+    public void goToLobby() {
+        Platform.runLater(() -> {
+            try {
                 scoreboardController = null;
                 gameScreenController = null;
                 currentGameState = null;
                 returningToLobby = true;
                 server.requestLobbyList(playerId);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -152,7 +150,7 @@ public class JavaFXView extends Application implements VirtualView {
 
     // GAME
 
-    private void showGameScreen(GameState gameState) throws Exception{
+    private void showGameScreen(GameState gameState) throws Exception {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/gameScreen.fxml")
         );
@@ -160,7 +158,7 @@ public class JavaFXView extends Application implements VirtualView {
         gameScreenController = loader.getController();
         gameScreenController.setView(this);
         gameScreenController.setMyPlayerId(playerId);
-        gameScreenController.setPrimaryStage(primaryStage);
+        gameScreenController.setPrimaryStage();
         gameScreenController.updateGameState(gameState);
         primaryStage.setScene(new Scene(root, 1100, 800));
     }
@@ -174,9 +172,9 @@ public class JavaFXView extends Application implements VirtualView {
     }
 
     public void placeTotem(char tileId) {
-        try{
+        try {
             server.placeTotem(playerId, tileId);
-        } catch (Exception e){
+        } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
@@ -190,10 +188,10 @@ public class JavaFXView extends Application implements VirtualView {
         }
     }
 
-    public void takeSingleCard(SelectedSingleCard card){
-        try{
+    public void takeSingleCard(SelectedSingleCard card) {
+        try {
             server.takeSingleCard(playerId, card);
-        } catch (Exception e){
+        } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
@@ -207,13 +205,13 @@ public class JavaFXView extends Application implements VirtualView {
         }
     }
 
-    public void takeExtraCard(int index, boolean isTribeCard){
-        try{
+    public void takeExtraCard(int index, boolean isTribeCard) {
+        try {
             SelectedCardExtraDraw selected = isTribeCard
                     ? new SelectedCardExtraDraw(index, null)
                     : new SelectedCardExtraDraw(null, index);
             server.takeExtraCard(playerId, selected);
-        } catch (Exception e){
+        } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
@@ -247,23 +245,25 @@ public class JavaFXView extends Application implements VirtualView {
     // -----------------
 
     @Override
-    public void onConnected(String playerId, List<LobbyState> lobbies) throws Exception {
+    public void onConnected(String playerId, List<LobbyState> lobbies) {
         this.playerId = playerId;
-        try{ server.requestLobbyList(playerId);
-        } catch (Exception ignored) {}
+        try {
+            server.requestLobbyList(playerId);
+        } catch (Exception ignored) {
+        }
 
         Platform.runLater(() -> {
             try {
                 showLobbyScreen(lobbies);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
     @Override
-    public void onConnectError(String reason) throws Exception {
-        Platform.runLater(()->{
+    public void onConnectError(String reason) {
+        Platform.runLater(() -> {
             if (connectionController != null) {
                 connectionController.showError(reason);
             }
@@ -271,46 +271,46 @@ public class JavaFXView extends Application implements VirtualView {
     }
 
     @Override
-    public void onLobbyListUpdated(List<LobbyState> lobbies) throws Exception {
-        Platform.runLater(()-> {
-            if(returningToLobby){
+    public void onLobbyListUpdated(List<LobbyState> lobbies) {
+        Platform.runLater(() -> {
+            if (returningToLobby) {
                 returningToLobby = false;
-                try{
+                try {
                     showLobbyScreen(lobbies);
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else if(lobbyController != null) {
+            } else if (lobbyController != null) {
                 lobbyController.updateLobbies(lobbies);
             }
         });
     }
 
     @Override
-    public void onLobbyCreated(LobbyState lobby) throws Exception {
+    public void onLobbyCreated(LobbyState lobby) {
         this.currentLobbyId = lobby.getLobbyId();
         this.owner = true;
-        Platform.runLater(()-> {
-            try{
+        Platform.runLater(() -> {
+            try {
                 showWaitingRoomScreen(lobby);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
     @Override
-    public void onLobbyUpdate(LobbyState lobby) throws Exception {
-        Platform.runLater(()-> {
-            try{
+    public void onLobbyUpdate(LobbyState lobby) {
+        Platform.runLater(() -> {
+            try {
                 // se già in waiting room aggiorna lista players
-                if(waitingRoomController != null){
+                if (waitingRoomController != null) {
                     waitingRoomController.updatePlayerList(
                             lobby.getPlayers().stream()
-                                    .map(player -> player.getNickname())
+                                    .map(PlayerConnectionInfo::nickname)
                                     .collect(java.util.stream.Collectors.toList())
                     );
-                }else{ // chi fa join entra nella waiting room
+                } else { // chi fa join entra nella waiting room
                     this.currentLobbyId = lobby.getLobbyId();
                     this.owner = false;
                     showWaitingRoomScreen(lobby);
@@ -322,26 +322,26 @@ public class JavaFXView extends Application implements VirtualView {
     }
 
     @Override
-    public void onJoinError(String reason) throws Exception {
+    public void onJoinError(String reason) {
         Platform.runLater(() -> {
-            if(lobbyController != null){
+            if (lobbyController != null) {
                 lobbyController.showError(reason);
             }
         });
     }
 
     @Override
-    public void onLobbyClosed() throws Exception {
-        Platform.runLater(()->{
+    public void onLobbyClosed() {
+        Platform.runLater(() -> {
             try {
                 waitingRoomController = null;
                 showLobbyScreen(java.util.List.of());
-                if (!leftVoluntarily){
+                if (!leftVoluntarily) {
                     lobbyController.showError("The lobby has been closed. Choose a new one.");
                 }
                 leftVoluntarily = false;
                 server.requestLobbyList(playerId);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -354,7 +354,9 @@ public class JavaFXView extends Application implements VirtualView {
             try {
                 waitingRoomController = null;
                 showGameScreen(currentGameState);
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -364,46 +366,45 @@ public class JavaFXView extends Application implements VirtualView {
             return;
         }
 
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
-        List<OfferTileState> updatedTiles = board.getOfferTiles().stream()
-                .map(t -> t.getTileId() == payload.offerTileChar()
+        List<OfferTileState> updatedTiles = board.offerTiles().stream()
+                .map(t -> t.tileId() == payload.offerTileChar()
                         ? new OfferTileState(
-                        t.getPositionIndex(),
-                        t.getTileId(),
+                        t.positionIndex(),
+                        t.tileId(),
                         payload.playerId(),
-                        t.getMinPlayers(),
-                        t.getTopDrawCount(),
-                        t.getBottomDrawCount(),
-                        t.getFoodReward()
+                        t.minPlayers(),
+                        t.topDrawCount(),
+                        t.bottomDrawCount(),
+                        t.foodReward()
                 )
                         : t)
                 .toList();
 
-        List<TurnOrderSlotState> updatedSlots = board.getTurnOrderSlots().stream()
-                .map(s -> Objects.equals(s.getOccupiedByPlayerId(), payload.playerId())
-                        ? new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null)
+        List<TurnOrderSlotState> updatedSlots = board.turnOrderSlots().stream()
+                .map(s -> Objects.equals(s.occupiedByPlayerId(), payload.playerId())
+                        ? new TurnOrderSlotState(s.positionIndex(), s.foodDelta(), null)
                         : s)
                 .toList();
 
         BoardState newBoard = rebuildBoard(
-                board,
-                board.getTopRow(),
-                board.getBottomRow(),
-                board.getTopBuildings(),
-                board.getBottomBuildings(),
+                board.topRow(),
+                board.bottomRow(),
+                board.topBuildings(),
+                board.bottomBuildings(),
                 updatedTiles,
                 updatedSlots
         );
 
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(),
-                currentGameState.getCurrentRound(),
-                currentGameState.getPhase(),
+                currentGameState.currentEra(),
+                currentGameState.currentRound(),
+                currentGameState.phase(),
                 payload.nextPlayerId(),
-                currentGameState.getPlayers(),
+                currentGameState.players(),
                 newBoard,
-                currentGameState.getSkipAllowed()
+                currentGameState.skipAllowed()
         );
 
         final GameState snap = currentGameState;
@@ -418,58 +419,60 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws Exception {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
-        List<TurnOrderSlotState> emptySlots = board.getTurnOrderSlots().stream()
-                .map(s -> new TurnOrderSlotState(s.getPositionIndex(), s.getFoodDelta(), null))
+        BoardState board = currentGameState.board();
+        List<TurnOrderSlotState> emptySlots = board.turnOrderSlots().stream()
+                .map(s -> new TurnOrderSlotState(s.positionIndex(), s.foodDelta(), null))
                 .toList();
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
+                currentGameState.currentEra(), currentGameState.currentRound(),
                 GamePhase.RESOLVING_OFFERS,
                 payload.firstPlayerId(),
-                currentGameState.getPlayers(),
-                rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
-                        board.getTopBuildings(), board.getBottomBuildings(),
-                        board.getOfferTiles(), emptySlots),
+                currentGameState.players(),
+                rebuildBoard(board.topRow(), board.bottomRow(),
+                        board.topBuildings(), board.bottomBuildings(),
+                        board.offerTiles(), emptySlots),
                 payload.skipAllowed()
         );
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+        Platform.runLater(() -> {
+            if (gameScreenController != null) gameScreenController.updateGameState(snap);
+        });
     }
 
     @Override
     public void onCardsTaken(CardsTakenPayload payload) throws Exception {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
-        List<CardState> newTopRow = removeCardsById(board.getTopRow(), payload.takenCardIds(), payload.takenBuildingIds());
-        List<CardState> newBottomRow = removeCardsById(board.getBottomRow(), payload.takenCardIds(), payload.takenBuildingIds());
-        List<CardState> newTopBuildings = removeCardsById(board.getTopBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
-        List<CardState> newBottomBuildings = removeCardsById(board.getBottomBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newTopRow = removeCardsById(board.topRow(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newBottomRow = removeCardsById(board.bottomRow(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newTopBuildings = removeCardsById(board.topBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
+        List<CardState> newBottomBuildings = removeCardsById(board.bottomBuildings(), payload.takenCardIds(), payload.takenBuildingIds());
 
         boolean turnFinished = !(payload.newPhase() == GamePhase.RESOLVING_OFFERS
                 && payload.playerId().equals(payload.nextPlayerId()));
 
-        List<OfferTileState> clearedTiles = board.getOfferTiles().stream()
-                .map(t -> turnFinished && Objects.equals(t.getOccupiedByPlayerId(), payload.playerId())
-                        ? new OfferTileState(t.getPositionIndex(), t.getTileId(), null,
-                        t.getMinPlayers(), t.getTopDrawCount(), t.getBottomDrawCount(), t.getFoodReward())
+        List<OfferTileState> clearedTiles = board.offerTiles().stream()
+                .map(t -> turnFinished && Objects.equals(t.occupiedByPlayerId(), payload.playerId())
+                        ? new OfferTileState(t.positionIndex(), t.tileId(), null,
+                        t.minPlayers(), t.topDrawCount(), t.bottomDrawCount(), t.foodReward())
                         : t)
                 .toList();
 
         List<TurnOrderSlotState> updatedSlots = turnFinished
-                ? updateTurnOrderSlot(board.getTurnOrderSlots(), payload.turnOrderSlotIndex(), payload.playerId())
-                : board.getTurnOrderSlots();
+                ? updateTurnOrderSlot(board.turnOrderSlots(), payload.turnOrderSlotIndex(), payload.playerId())
+                : board.turnOrderSlots();
 
-        BoardState newBoard = rebuildBoard(board, newTopRow, newBottomRow,
+        BoardState newBoard = rebuildBoard(newTopRow, newBottomRow,
                 newTopBuildings, newBottomBuildings, clearedTiles, updatedSlots);
 
-        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
-                .map(p -> p.getPlayerId().equals(payload.playerId()) ? applyCardDeltaToPlayer(p, payload) : p)
+        List<PlayerState> updatedPlayers = currentGameState.players().stream()
+                .map(p -> p.playerId().equals(payload.playerId()) ? applyCardDeltaToPlayer(p, payload) : p)
                 .toList();
 
         // aggiorna fase e currentPlayer dai nuovi campi del payload
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(), currentGameState.getCurrentRound(),
+                currentGameState.currentEra(), currentGameState.currentRound(),
                 payload.newPhase(),
                 payload.nextPlayerId(),
                 updatedPlayers,
@@ -477,7 +480,9 @@ public class JavaFXView extends Application implements VirtualView {
                 payload.skipAllowed()
         );
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+        Platform.runLater(() -> {
+            if (gameScreenController != null) gameScreenController.updateGameState(snap);
+        });
     }
 
     @Override
@@ -500,28 +505,27 @@ public class JavaFXView extends Application implements VirtualView {
             return;
         }
 
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
         List<String> id = List.of(payload.cardId());
 
         BoardState newBoard = rebuildBoard(
-                board,
-                removeCardsById(board.getTopRow(), id, List.of()),
-                removeCardsById(board.getBottomRow(), id, List.of()),
-                removeCardsById(board.getTopBuildings(), List.of(), id),
-                removeCardsById(board.getBottomBuildings(), List.of(), id),
-                board.getOfferTiles(),
-                board.getTurnOrderSlots()
+                removeCardsById(board.topRow(), id, List.of()),
+                removeCardsById(board.bottomRow(), id, List.of()),
+                removeCardsById(board.topBuildings(), List.of(), id),
+                removeCardsById(board.bottomBuildings(), List.of(), id),
+                board.offerTiles(),
+                board.turnOrderSlots()
         );
 
-        List<PlayerState> updatedPlayers = currentGameState.getPlayers().stream()
-                .map(p -> p.getPlayerId().equals(payload.playerId())
+        List<PlayerState> updatedPlayers = currentGameState.players().stream()
+                .map(p -> p.playerId().equals(payload.playerId())
                         ? applyExtraCardDeltaToPlayer(p, payload)
                         : p)
                 .toList();
 
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(),
-                currentGameState.getCurrentRound(),
+                currentGameState.currentEra(),
+                currentGameState.currentRound(),
                 payload.newPhase(),
                 null,
                 updatedPlayers,
@@ -540,43 +544,44 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onEventResolved(EventResolvedPayload payload) throws Exception {
         if (currentGameState == null) return;
-        List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.getPlayers(), payload.playerDeltas());
+        List<PlayerState> updatedPlayers = applyPlayerDeltas(currentGameState.players(), payload.playerDeltas());
         currentGameState = rebuildWithPlayers(currentGameState, updatedPlayers);
         pendingEventPayloads.add(payload);
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+        Platform.runLater(() -> {
+            if (gameScreenController != null) gameScreenController.updateGameState(snap);
+        });
     }
 
     @Override
     public void onMarketRefreshed(MarketRefresherPayload payload) throws Exception {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
         List<CardState> newBottom = new ArrayList<>(
-                board.getBottomRow().stream()
+                board.bottomRow().stream()
                         .filter(c -> !payload.discardedCardIds().contains(c.getCardId()))
                         .toList());
-        board.getTopRow().stream()
+        board.topRow().stream()
                 .filter(c -> payload.movedBottomCardIds().contains(c.getCardId()))
                 .forEach(newBottom::add);
-        List<CardState> newTop = new ArrayList<>(board.getTopRow().stream()
+        List<CardState> newTop = new ArrayList<>(board.topRow().stream()
                 .filter(c -> !payload.movedBottomCardIds().contains(c.getCardId()))
                 .toList());
         newTop.addAll(payload.newUpperRowCards());
 
         // aggiorna anche fase e round
         currentGameState = new GameState(
-                currentGameState.getCurrentEra(),
+                currentGameState.currentEra(),
                 payload.newRound(),
                 payload.newPhase(),
                 payload.nextPlayerId(),
-                currentGameState.getPlayers(),
+                currentGameState.players(),
                 rebuildBoard(
-                        board,
                         newTop,
                         newBottom,
-                        board.getTopBuildings(),
-                        board.getBottomBuildings(),
+                        board.topBuildings(),
+                        board.bottomBuildings(),
                         payload.offerTiles(),
                         payload.turnOrderSlots()
                 ),
@@ -584,7 +589,7 @@ public class JavaFXView extends Application implements VirtualView {
         );
         final GameState snap = currentGameState;
         final List<EventResolvedPayload> events = List.copyOf(pendingEventPayloads);
-        final List<PlayerState> players = List.copyOf(snap.getPlayers());
+        final List<PlayerState> players = List.copyOf(snap.players());
         pendingEventPayloads.clear();
 
         Platform.runLater(() -> {
@@ -600,36 +605,40 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onEraProgression(EraProgressionPayload payload) throws Exception {
         if (currentGameState == null) return;
-        BoardState board = currentGameState.getBoard();
+        BoardState board = currentGameState.board();
 
         // i vecchi topBuildings scendono in bottom (eccetto quelli scartati)
-        List<CardState> newBottomBuildings = board.getTopBuildings().stream()
+        List<CardState> newBottomBuildings = board.topBuildings().stream()
                 .filter(c -> !payload.discardedBuildingIds().contains(c.getCardId()))
                 .toList();
 
         // i nuovi edifici dell'era sostituiscono completamente la top
         List<CardState> newTopBuildings = new ArrayList<>(payload.newBuildingCards());
 
-        BoardState newBoard = rebuildBoard(board, board.getTopRow(), board.getBottomRow(),
+        BoardState newBoard = rebuildBoard(board.topRow(), board.bottomRow(),
                 newTopBuildings, newBottomBuildings,
-                board.getOfferTiles(), board.getTurnOrderSlots());
+                board.offerTiles(), board.turnOrderSlots());
         currentGameState = new GameState(
                 payload.newEra(),
-                currentGameState.getCurrentRound(),
-                currentGameState.getPhase(),
-                currentGameState.getCurrentPlayerId(),
-                currentGameState.getPlayers(),
+                currentGameState.currentRound(),
+                currentGameState.phase(),
+                currentGameState.currentPlayerId(),
+                currentGameState.players(),
                 newBoard,
-                currentGameState.getSkipAllowed()
+                currentGameState.skipAllowed()
         );
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+        Platform.runLater(() -> {
+            if (gameScreenController != null) gameScreenController.updateGameState(snap);
+        });
     }
 
     @Override
     public void onGameOver() throws Exception {
         final GameState snap = currentGameState;
-        Platform.runLater(() -> { if (gameScreenController != null) gameScreenController.updateGameState(snap); });
+        Platform.runLater(() -> {
+            if (gameScreenController != null) gameScreenController.updateGameState(snap);
+        });
     }
 
     @Override
@@ -641,12 +650,14 @@ public class JavaFXView extends Application implements VirtualView {
             try {
                 gameScreenController = null;
                 showScoreboardFromPayload(payload);
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
     @Override
-    public void onMatchRankingsAvailable(MatchRankingsPayload payload) throws Exception {
+    public void onMatchRankingsAvailable(MatchRankingsPayload payload) {
         Platform.runLater(() -> {
             if (scoreboardController != null) {
                 scoreboardController.showMatchRankings(playerId, payload);
@@ -655,11 +666,13 @@ public class JavaFXView extends Application implements VirtualView {
     }
 
     @Override
-    public void onLeaderboardAvailable(LeaderboardPayload payload) throws Exception {
+    public void onLeaderboardAvailable(LeaderboardPayload payload) {
         Platform.runLater(() -> {
             try {
                 showLeaderboardFromPayload(payload);
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -671,10 +684,6 @@ public class JavaFXView extends Application implements VirtualView {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public int getLastMatchPlayerCount() {
-        return lastMatchPlayerCount;
     }
 
     private void showScoreboardFromPayload(ScoreBoardPayload payload) throws Exception {
@@ -689,7 +698,7 @@ public class JavaFXView extends Application implements VirtualView {
     private void showLeaderboardFromPayload(LeaderboardPayload payload) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/leaderboard.fxml"));
         Parent root = loader.load();
-        leaderboardController = loader.getController();
+        LeaderboardController leaderboardController = loader.getController();
         leaderboardController.setView(this);
         leaderboardController.showLeaderboard(payload, playerName);
         primaryStage.getScene().setRoot(root);
@@ -705,11 +714,11 @@ public class JavaFXView extends Application implements VirtualView {
 
 
     @Override
-    public void onActionError(ActionType actionType, String message) throws Exception {
-        Platform.runLater( () -> {
+    public void onActionError(ActionType actionType, String message) {
+        Platform.runLater(() -> {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                javafx.scene.control.Alert.AlertType.WARNING
-        );
+                    javafx.scene.control.Alert.AlertType.WARNING
+            );
             alert.setTitle("Invalid action.");
             alert.setHeaderText(null);
             alert.setContentText(message);
@@ -718,7 +727,7 @@ public class JavaFXView extends Application implements VirtualView {
     }
 
     @Override
-    public void onServerCrashed(){
+    public void onServerCrashed() {
         NetworkSetter.stopHeartbeat();
         Platform.runLater(() -> {
             server = null;
@@ -738,7 +747,7 @@ public class JavaFXView extends Application implements VirtualView {
             alert.setContentText("You will be returned to the connection screen.");
             alert.showAndWait();
 
-            try{
+            try {
                 showConnectionScreen();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -748,7 +757,7 @@ public class JavaFXView extends Application implements VirtualView {
 
     // -----------
     private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
-        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
+        List<CardState> newCharacters = new ArrayList<>(p.characters());
         Set<String> existingCharacterIds = newCharacters.stream()
                 .map(CardState::getCardId)
                 .collect(Collectors.toSet());
@@ -759,7 +768,7 @@ public class JavaFXView extends Application implements VirtualView {
             }
         }
 
-        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+        List<CardState> newBuildings = new ArrayList<>(p.buildings());
         Set<String> existingBuildingIds = newBuildings.stream()
                 .map(CardState::getCardId)
                 .collect(Collectors.toSet());
@@ -771,18 +780,19 @@ public class JavaFXView extends Application implements VirtualView {
         }
 
         return new PlayerState(
-                p.getPlayerId(),
-                p.getNickname(),
+                p.playerId(),
+                p.nickname(),
                 payload.absoluteFood(),
-                p.getPrestigePoints(),
-                p.getTotemColor(),
+                p.prestigePoints(),
+                p.totemColor(),
                 newCharacters,
                 newBuildings
         );
     }
+
     private PlayerState applyExtraCardDeltaToPlayer(PlayerState p, ExtraCardTakenPayload payload) {
-        List<CardState> newCharacters = new ArrayList<>(p.getCharacters());
-        List<CardState> newBuildings = new ArrayList<>(p.getBuildings());
+        List<CardState> newCharacters = new ArrayList<>(p.characters());
+        List<CardState> newBuildings = new ArrayList<>(p.buildings());
 
         if (payload.building()) {
             boolean alreadyPresent = newBuildings.stream()
@@ -801,11 +811,11 @@ public class JavaFXView extends Application implements VirtualView {
         }
 
         return new PlayerState(
-                p.getPlayerId(),
-                p.getNickname(),
+                p.playerId(),
+                p.nickname(),
                 payload.absoluteFood(),
-                p.getPrestigePoints(),
-                p.getTotemColor(),
+                p.prestigePoints(),
+                p.totemColor(),
                 newCharacters,
                 newBuildings
         );
@@ -815,12 +825,13 @@ public class JavaFXView extends Application implements VirtualView {
         Map<String, PlayerDelta> deltaMap = new HashMap<>();
         for (PlayerDelta d : deltas) deltaMap.put(d.playerId(), d);
         return players.stream().map(p -> {
-            PlayerDelta d = deltaMap.get(p.getPlayerId());
+            PlayerDelta d = deltaMap.get(p.playerId());
             if (d == null) return p;
-            return new PlayerState(p.getPlayerId(), p.getNickname(),
+            return new PlayerState(p.playerId(), p.nickname(),
                     d.absoluteFood(),
                     d.absolutePrestige(),
-                    p.getTotemColor(), p.getCharacters(), p.getBuildings());}).toList();
+                    p.totemColor(), p.characters(), p.buildings());
+        }).toList();
     }
 
     private List<CardState> removeCardsById(List<CardState> cards, List<String> cardIds, List<String> buildingIds) {
@@ -829,36 +840,20 @@ public class JavaFXView extends Application implements VirtualView {
         return cards.stream().filter(c -> !toRemove.contains(c.getCardId())).toList();
     }
 
-    private List<TurnOrderSlotState> buildTurnOrderSlots(List<String> playerOrder) {
-        List<TurnOrderSlotState> slots = new ArrayList<>();
-        for (int i = 0; i < playerOrder.size(); i++) slots.add(new TurnOrderSlotState(i, 0, playerOrder.get(i)));
-        return slots;
-    }
-
     private List<TurnOrderSlotState> updateTurnOrderSlot(List<TurnOrderSlotState> slots, int slotIndex, String playerId) {
-        return slots.stream().map(s -> s.getPositionIndex() == slotIndex
-                ? new TurnOrderSlotState(slotIndex, s.getFoodDelta(), playerId) : s).toList();
+        return slots.stream().map(s -> s.positionIndex() == slotIndex
+                ? new TurnOrderSlotState(slotIndex, s.foodDelta(), playerId) : s).toList();
     }
 
-    private BoardState rebuildBoard(BoardState original,
-                                    List<CardState> topRow, List<CardState> bottomRow,
+    private BoardState rebuildBoard(List<CardState> topRow, List<CardState> bottomRow,
                                     List<CardState> topBuildings, List<CardState> bottomBuildings,
                                     List<OfferTileState> offerTiles, List<TurnOrderSlotState> turnOrderSlots) {
         return new BoardState(topRow, bottomRow, topBuildings, bottomBuildings, offerTiles, turnOrderSlots);
     }
 
-    private GameState rebuildWithBoard(GameState gs, BoardState newBoard) {
-        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
-                gs.getCurrentPlayerId(), gs.getPlayers(), newBoard, gs.getSkipAllowed());
-    }
-
     private GameState rebuildWithPlayers(GameState gs, List<PlayerState> newPlayers) {
-        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
-                gs.getCurrentPlayerId(), newPlayers, gs.getBoard(), gs.getSkipAllowed());
+        return new GameState(gs.currentEra(), gs.currentRound(), gs.phase(),
+                gs.currentPlayerId(), newPlayers, gs.board(), gs.skipAllowed());
     }
 
-    private GameState rebuildWithBoardAndPlayers(GameState gs, BoardState newBoard, List<PlayerState> newPlayers) {
-        return new GameState(gs.getCurrentEra(), gs.getCurrentRound(), gs.getPhase(),
-                gs.getCurrentPlayerId(), newPlayers, newBoard, gs.getSkipAllowed());
-    }
 }

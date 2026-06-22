@@ -7,12 +7,12 @@ import it.polimi.ingsw.am23.model.board.OfferAction;
 import it.polimi.ingsw.am23.model.board.OfferTile;
 import it.polimi.ingsw.am23.model.cards.BuildingCard;
 import it.polimi.ingsw.am23.model.cards.Card;
+import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
+import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.deck.BuildingDeck;
 import it.polimi.ingsw.am23.model.deck.TribeDeck;
 import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
-import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
-import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
 import it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect;
 import it.polimi.ingsw.am23.model.enums.Era;
 import it.polimi.ingsw.am23.model.enums.GamePhase;
@@ -37,7 +37,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,"p1")),
+                List.of(new TurnOrderSlot(0, 0, "p1")),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -87,8 +87,8 @@ class GameTest {
                         new OfferTile('B', null, 2, new OfferAction(0, 1, 0))
                 ),
                 List.of(
-                        new TurnOrderSlot(0, 0,"p1"),
-                        new TurnOrderSlot(0, 0,"p2")
+                        new TurnOrderSlot(0, 0, "p1"),
+                        new TurnOrderSlot(0, 0, "p2")
                 ),
                 List.of(),
                 List.of(),
@@ -102,7 +102,7 @@ class GameTest {
         assertFalse(result.isSuccess());
         assertEquals(ErrorCode.WRONG_PLAYER, result.getError());
         assertTrue(game.getBoard().getOfferTile('A').isFree());
-        assertEquals("p1", game.getBoard().getTurnOrderTile().getSlot(0).getPlayerId());
+        assertEquals("p1", game.getBoard().turnOrderTile().getSlot(0).getPlayerId());
     }
 
     @Test
@@ -121,7 +121,7 @@ class GameTest {
                 ),
                 List.of(
                         new TurnOrderSlot(0, 0, "p1"),
-                        new TurnOrderSlot(0, 0,"p2")
+                        new TurnOrderSlot(0, 0, "p2")
                 ),
                 List.of(),
                 List.of(),
@@ -136,7 +136,7 @@ class GameTest {
 
         assertTrue(secondPlacement.isSuccess());
         assertEquals(GamePhase.RESOLVING_OFFERS, game.getGamePhase());
-        assertTrue(game.getBoard().getTurnOrderTile().isEmpty());
+        assertTrue(game.getBoard().turnOrderTile().isEmpty());
     }
 
     @Test
@@ -198,8 +198,8 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', "p1", 2, new OfferAction(1, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0, "p2")),
-            List.of(topEvent, TestUtils.artist("a1", Era.ERA_1)),
+                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, "p2")),
+                List.of(topEvent, TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(),
                 Era.ERA_1,
@@ -207,7 +207,7 @@ class GameTest {
         );
         TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);
 
-        ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0 , false));
+        ActionResult result = game.takeSingleCard("p1", new SelectedSingleCard(RowType.TOP, 0, false));
 
         assertFalse(result.isSuccess());
         assertEquals(ErrorCode.CARD_NOT_TAKABLE, result.getError());
@@ -238,7 +238,7 @@ class GameTest {
         assertTrue(result.isSuccess());
         assertEquals(3, p1.getFood());
         assertEquals(1, p1.getTribe().getCharacters().size());
-        assertEquals("p1", game.getBoard().getTurnOrderTile().getSlot(0).getPlayerId());
+        assertEquals("p1", game.getBoard().turnOrderTile().getSlot(0).getPlayerId());
     }
 
     @Test
@@ -266,7 +266,7 @@ class GameTest {
         assertTrue(result.isSuccess());
         assertEquals(2, p1.getFood());
         assertEquals(1, p1.getTribe().getBuildings().size());
-        assertEquals("p1", game.getBoard().getTurnOrderTile().getSlot(0).getPlayerId());
+        assertEquals("p1", game.getBoard().turnOrderTile().getSlot(0).getPlayerId());
     }
 
     @Test
@@ -333,7 +333,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),
                 List.of(TestUtils.artist("a1", Era.ERA_1)),
                 List.of(),
                 List.of(expensiveBuilding),
@@ -412,7 +412,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),
                 List.of(),
                 List.of(new SustenanceEventCard("s", Era.ERA_1, 0, false)),
                 List.of(),
@@ -436,44 +436,44 @@ class GameTest {
         assertEquals(1, observer.scoresCount);
     }
 
-        @Test
-        void resolveEventsAdvancesEraDuringCleanup() {
+    @Test
+    void resolveEventsAdvancesEraDuringCleanup() {
         // Input  : 2 players; BOTTOM has 1 ERA_1 event; tribe deck contains an ERA_2 artist + several ERA_1 fillers;
         //         resolveEvents() triggers cleanup which refills TOP and discovers an ERA_2 card → era progression.
         // Output : success; currentEra==ERA_2; phase==PLACING_TOTEMS; observer recorded 1 onEraProgression.
         Player p1 = TestUtils.player("p1", 3, 0);
-            Player p2 = TestUtils.player("p2", 3, 0);
+        Player p2 = TestUtils.player("p2", 3, 0);
 
         Board board = new Board(
-            List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
+                List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
                 new it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile(List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(1, 0, null)))
         );
 
         CardMarket cardMarket = new CardMarket(
-            List.of(),
-            List.of(new SustenanceEventCard("e1", Era.ERA_1, 0, false)),
-            List.of()
+                List.of(),
+                List.of(new SustenanceEventCard("e1", Era.ERA_1, 0, false)),
+                List.of()
         );
 
         Map<Era, List<BuildingCard>> buildingsByEra = new EnumMap<>(Era.class);
         buildingsByEra.put(Era.ERA_2, List.of(TestUtils.building("b2", Era.ERA_2, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))));
 
         Game game = new Game(
-            List.of(p1, p2),
-            board,
-            new TribeDeck(List.of(
-                TestUtils.artist("a2", Era.ERA_2),
-                TestUtils.artist("a3", Era.ERA_1),
-                TestUtils.artist("a4", Era.ERA_1),
-                TestUtils.artist("a5", Era.ERA_1),
-                TestUtils.artist("a6", Era.ERA_1),
-                TestUtils.artist("a7", Era.ERA_1)
-            )),
-            new BuildingDeck(buildingsByEra),
-            new EventResolver(),
-            cardMarket,
-            Era.ERA_1,
-            1
+                List.of(p1, p2),
+                board,
+                new TribeDeck(List.of(
+                        TestUtils.artist("a2", Era.ERA_2),
+                        TestUtils.artist("a3", Era.ERA_1),
+                        TestUtils.artist("a4", Era.ERA_1),
+                        TestUtils.artist("a5", Era.ERA_1),
+                        TestUtils.artist("a6", Era.ERA_1),
+                        TestUtils.artist("a7", Era.ERA_1)
+                )),
+                new BuildingDeck(buildingsByEra),
+                new EventResolver(),
+                cardMarket,
+                Era.ERA_1,
+                1
         );
 
         TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();
@@ -496,7 +496,7 @@ class GameTest {
         Game game = TestUtils.game(
                 List.of(p1, p2),
                 List.of(new OfferTile('A', null, 2, new OfferAction(0, 0, 0))),
-                List.of(new TurnOrderSlot(0, 0,null), new TurnOrderSlot(0, 0,null)),
+                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),
                 List.of(new SustenanceEventCard("s-top", Era.ERA_1, 0, true)),
                 List.of(new SustenanceEventCard("s-bottom", Era.ERA_1, 0, false)),
                 List.of(),
@@ -512,6 +512,7 @@ class GameTest {
         assertEquals(GamePhase.ENDED, game.getGamePhase());
         assertEquals(1, observer.gameOverCount);
     }
+
     @Test
     void autoResolveProcessesZeroDrawTilesAutomatically() {
         // Input  : offer 'A' = (0 draws, foodReward=3), offer 'B' = (1 TOP draw, no reward).
@@ -637,7 +638,7 @@ class GameTest {
 
         assertTrue(result.isSuccess());
         assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());
-        assertNull(game.getGameState().getCurrentPlayerId());
+        assertNull(game.getGameState().currentPlayerId());
     }
 
 }

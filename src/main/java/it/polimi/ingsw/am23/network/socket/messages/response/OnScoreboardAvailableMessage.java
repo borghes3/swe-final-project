@@ -11,5 +11,7 @@ public final class OnScoreboardAvailableMessage extends Message {
         this.payload = payload;
     }
 
-    public ScoreBoardPayload getPayload() { return payload; }
+    public ScoreBoardPayload getPayload() {
+        return payload;
+    }
 }

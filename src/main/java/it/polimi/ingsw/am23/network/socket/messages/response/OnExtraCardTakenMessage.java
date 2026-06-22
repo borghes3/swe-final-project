@@ -11,5 +11,7 @@ public class OnExtraCardTakenMessage extends Message {
         this.payload = payload;
     }
 
-    public ExtraCardTakenPayload getPayload() { return payload; }
+    public ExtraCardTakenPayload getPayload() {
+        return payload;
+    }
 }

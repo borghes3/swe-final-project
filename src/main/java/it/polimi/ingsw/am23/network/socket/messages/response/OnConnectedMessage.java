@@ -15,6 +15,11 @@ public final class OnConnectedMessage extends Message {
         this.lobbies = lobbies;
     }
 
-    public String getPlayerId() { return playerId; }
-    public List<LobbyState> getLobbies() { return lobbies; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public List<LobbyState> getLobbies() {
+        return lobbies;
+    }
 }

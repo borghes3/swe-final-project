@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BoardTest {
 
@@ -21,8 +22,8 @@ class BoardTest {
         //          findTurnOrderSlotOccupiedBy("p2")==s2, free offer tiles=1, free turn-order slots=1.
         OfferTile tileA = new OfferTile('A', "p1", 2, new OfferAction(1, 0, 0));
         OfferTile tileB = new OfferTile('B', null, 2, new OfferAction(0, 1, 0));
-        TurnOrderSlot s1 = new TurnOrderSlot(0, 0,null);
-        TurnOrderSlot s2 = new TurnOrderSlot(0, 0,"p2");
+        TurnOrderSlot s1 = new TurnOrderSlot(0, 0, null);
+        TurnOrderSlot s2 = new TurnOrderSlot(0, 0, "p2");
 
         Board board = new Board(List.of(tileA, tileB), new TurnOrderTile(List.of(s1, s2)));
 
@@ -41,13 +42,13 @@ class BoardTest {
         // Output : buildOfferTileState().size()==1, buildTurnOrderSlotsState().size()==1,
         //          getState(market).getTopRow().size()==1; findTurnOrderSlotOccupiedBy(null) throws NPE.
         OfferTile tileA = new OfferTile('A', "p1", 2, new OfferAction(1, 0, 1));
-        TurnOrderSlot slot = new TurnOrderSlot(2,0, "p1");
+        TurnOrderSlot slot = new TurnOrderSlot(2, 0, "p1");
         Board board = new Board(List.of(tileA), new TurnOrderTile(List.of(slot)));
         CardMarket market = new CardMarket(List.of(TestUtils.artist("a1", Era.ERA_1)), List.of(), List.of());
 
         assertEquals(1, board.buildOfferTileState().size());
         assertEquals(1, board.buildTurnOrderSlotsState().size());
-        assertEquals(1, board.getState(market).getTopRow().size());
+        assertEquals(1, board.getState(market).topRow().size());
         assertThrows(NullPointerException.class, () -> board.findTurnOrderSlotOccupiedBy(null));
     }
 }

@@ -51,42 +51,63 @@ public class LobbyState implements Serializable {
      * @param playerId id of the player to remove
      */
     public void removePlayer(String playerId) {
-        players.removeIf(p -> p.getId().equals(playerId));
+        players.removeIf(p -> p.id().equals(playerId));
     }
 
-    /** @return {@code true} if the lobby has reached its capacity */
+    /**
+     * @return {@code true} if the lobby has reached its capacity
+     */
     public boolean isFull() {
         return players.size() >= maxPlayers;
     }
 
-    /** @return the unique identifier of the lobby */
+    /**
+     * @return the unique identifier of the lobby
+     */
     public String getLobbyId() {
         return lobbyId;
     }
 
-    /** @return the human readable lobby name */
+    /**
+     * @return the human readable lobby name
+     */
     public String getLobbyName() {
         return lobbyName;
     }
 
-    /** @return the id of the player who owns the lobby */
+    /**
+     * @return the id of the player who owns the lobby
+     */
     public String getOwnerPlayerId() {
         return ownerPlayerId;
     }
 
-    /** @return an unmodifiable snapshot of the players currently in the lobby */
+    /**
+     * @return an unmodifiable snapshot of the players currently in the lobby
+     */
     public List<PlayerConnectionInfo> getPlayers() {
         return List.copyOf(players);
     }
 
-    /** @return the maximum number of players allowed in the lobby */
+    /**
+     * @return the maximum number of players allowed in the lobby
+     */
     public int getMaxPlayers() {
         return maxPlayers;
     }
 
-    /** @return the number of players currently in the lobby */
+    /**
+     * @return the number of players currently in the lobby
+     */
     public int getCurrentPlayers() {
         return players.size();
+    }
+
+    /**
+     * @return the current lifecycle phase
+     */
+    public LobbyPhase getLobbyPhase() {
+        return lobbyPhase;
     }
 
     /**
@@ -96,10 +117,5 @@ public class LobbyState implements Serializable {
      */
     public void setLobbyPhase(LobbyPhase lobbyPhase) {
         this.lobbyPhase = lobbyPhase;
-    }
-
-    /** @return the current lifecycle phase */
-    public LobbyPhase getLobbyPhase() {
-        return lobbyPhase;
     }
 }

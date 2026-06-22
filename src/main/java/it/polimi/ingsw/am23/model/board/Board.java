@@ -20,15 +20,12 @@ import java.util.Objects;
  * next round's turn order. Also provides lookup helpers and the conversion
  * to a serializable {@link BoardState}.
  */
-public class Board {
-
-    private final List<OfferTile> offerTiles;
-    private final TurnOrderTile turnOrderTile;
+public record Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
 
     /**
      * Builds a new board.
      *
-     * @param offerTiles   ordered list of offer tiles, left-to-right
+     * @param offerTiles    ordered list of offer tiles, left-to-right
      * @param turnOrderTile the turn order tile
      */
     public Board(List<OfferTile> offerTiles, TurnOrderTile turnOrderTile) {
@@ -36,8 +33,11 @@ public class Board {
         this.turnOrderTile = Objects.requireNonNull(turnOrderTile, "turnOrderTile cannot be null");
     }
 
-    /** @return the turn order tile of this board */
-    public TurnOrderTile getTurnOrderTile() {
+    /**
+     * @return the turn order tile of this board
+     */
+    @Override
+    public TurnOrderTile turnOrderTile() {
         return turnOrderTile;
     }
 
@@ -90,7 +90,7 @@ public class Board {
      */
     public TurnOrderSlot findTurnOrderSlotOccupiedBy(String playerId) {
         Objects.requireNonNull(playerId, "playerId cannot be null");
-        for (TurnOrderSlot slot : turnOrderTile.getSlots()) {
+        for (TurnOrderSlot slot : turnOrderTile.slots()) {
             if (playerId.equals(slot.getPlayerId())) {
                 return slot;
             }
@@ -98,7 +98,9 @@ public class Board {
         return null;
     }
 
-    /** @return the list of offer tiles that are currently free */
+    /**
+     * @return the list of offer tiles that are currently free
+     */
     public List<OfferTile> getFreeOfferTiles() {
         List<OfferTile> freeOfferTiles = new ArrayList<>();
         for (OfferTile tile : offerTiles) {
@@ -109,10 +111,12 @@ public class Board {
         return freeOfferTiles;
     }
 
-    /** @return the list of turn order slots that are currently free */
+    /**
+     * @return the list of turn order slots that are currently free
+     */
     public List<TurnOrderSlot> getFreeTurnOrderSlots() {
         List<TurnOrderSlot> freeTurnOrderSlots = new ArrayList<>();
-        for (TurnOrderSlot slot : turnOrderTile.getSlots()) {
+        for (TurnOrderSlot slot : turnOrderTile.slots()) {
             if (slot.isFree()) {
                 freeTurnOrderSlots.add(slot);
             }
@@ -140,7 +144,9 @@ public class Board {
         );
     }
 
-    /** @return the per-tile serializable snapshot of all offer tiles */
+    /**
+     * @return the per-tile serializable snapshot of all offer tiles
+     */
     public List<OfferTileState> buildOfferTileState() {
         List<OfferTileState> offerTileStates = new ArrayList<>();
         for (int i = 0; i < offerTiles.size(); i++) {
@@ -158,10 +164,12 @@ public class Board {
         return offerTileStates;
     }
 
-    /** @return the per-slot serializable snapshot of the turn order tile */
+    /**
+     * @return the per-slot serializable snapshot of the turn order tile
+     */
     public List<TurnOrderSlotState> buildTurnOrderSlotsState() {
         List<TurnOrderSlotState> states = new ArrayList<>();
-        List<TurnOrderSlot> slots = turnOrderTile.getSlots();
+        List<TurnOrderSlot> slots = turnOrderTile.slots();
 
         for (int i = 0; i < slots.size(); i++) {
             TurnOrderSlot slot = slots.get(i);
@@ -174,8 +182,11 @@ public class Board {
         return states;
     }
 
-    /** @return an unmodifiable copy of the offer tiles in board order */
-    public List<OfferTile> getOfferTiles(){
+    /**
+     * @return an unmodifiable copy of the offer tiles in board order
+     */
+    @Override
+    public List<OfferTile> offerTiles() {
         return List.copyOf(offerTiles);
     }
 

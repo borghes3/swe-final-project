@@ -38,6 +38,6 @@ class PlayerTest {
         Player player = new Player("id", "nick", 1, 1, new Totem("id", "red"));
         player.getTribe().addCharacter(new it.polimi.ingsw.am23.model.cards.characters.ArtistCard("a", it.polimi.ingsw.am23.model.enums.Era.ERA_1, 0, 2));
 
-        assertEquals(1, player.getState().getCharacters().size());
+        assertEquals(1, player.getState().characters().size());
     }
 }

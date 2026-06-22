@@ -11,21 +11,21 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ScoreboardController {
+    public Label titleLabel;
+    public Button menuButton;
     @FXML
     private VBox rootContainer;
-    @FXML
-    private Label titleLabel;
     @FXML
     private VBox rankingContainer;
     @FXML
     private Label positionLabel;
     @FXML
     private Button leaderboardButton;
-    @FXML
-    private Button menuButton;
 
     private JavaFXView view;
     private int matchPlayerCount = -1;

@@ -9,25 +9,27 @@ import java.util.List;
  * players are placed to determine the round's turn order. Provides
  * convenience lookups for the first free or occupied slot.
  */
-public class TurnOrderTile {
-    private final List<TurnOrderSlot> slots;
-
+public record TurnOrderTile(List<TurnOrderSlot> slots) {
     /**
      * Builds a new turn order tile.
      *
      * @param slots ordered list of slots; the order defines the turn order
      */
-    public TurnOrderTile(List<TurnOrderSlot> slots) {
-        this.slots = slots;
+    public TurnOrderTile {
     }
 
-    /** @return the total number of slots on the tile */
+    /**
+     * @return the total number of slots on the tile
+     */
     public int getSlotsCount() {
         return slots.size();
     }
 
-    /** @return the slots of this tile in declaration order */
-    public List<TurnOrderSlot> getSlots() {
+    /**
+     * @return the slots of this tile in declaration order
+     */
+    @Override
+    public List<TurnOrderSlot> slots() {
         return slots;
     }
 
@@ -82,7 +84,9 @@ public class TurnOrderTile {
         return null;
     }
 
-    /** @return {@code true} if no slot is currently occupied */
+    /**
+     * @return {@code true} if no slot is currently occupied
+     */
     public boolean isEmpty() {
         for (TurnOrderSlot slot : slots) {
             if (!slot.isFree()) {

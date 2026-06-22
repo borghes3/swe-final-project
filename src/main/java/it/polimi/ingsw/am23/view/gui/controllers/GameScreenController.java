@@ -1,89 +1,72 @@
 package it.polimi.ingsw.am23.view.gui.controllers;
 
 import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
-import it.polimi.ingsw.am23.model.enums.CardKind;
-import it.polimi.ingsw.am23.model.enums.CharacterType;
-import it.polimi.ingsw.am23.model.enums.GamePhase;
-import it.polimi.ingsw.am23.model.enums.RowType;
-import it.polimi.ingsw.am23.model.enums.TotemColors;
+import it.polimi.ingsw.am23.model.enums.*;
 import it.polimi.ingsw.am23.model.payloads.EventResolvedPayload;
 import it.polimi.ingsw.am23.model.payloads.PlayerDelta;
-import it.polimi.ingsw.am23.model.state.BoardState;
-import it.polimi.ingsw.am23.model.state.CardState;
-import it.polimi.ingsw.am23.model.state.CharacterCardState;
-import it.polimi.ingsw.am23.model.state.GameState;
-import it.polimi.ingsw.am23.model.state.OfferTileState;
-import it.polimi.ingsw.am23.model.state.PlayerState;
-import it.polimi.ingsw.am23.model.state.TurnOrderSlotState;
+import it.polimi.ingsw.am23.model.state.*;
 import it.polimi.ingsw.am23.view.gui.JavaFXView;
 import it.polimi.ingsw.am23.view.gui.components.*;
 import javafx.application.Platform;
-import javafx.stage.Window;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class GameScreenController {
 
-    @FXML private StackPane rootStack;
-    @FXML private ImageView backgroundImageView;
-
-    @FXML private Label eraLabel;
-    @FXML private Label roundLabel;
-    @FXML private Label phaseLabel;
-
-    @FXML private HBox topRowContainer;
-    @FXML private HBox bottomRowContainer;
-    @FXML private StackPane deckContainer;
-    @FXML private Label deckCountLabel;
-    @FXML private VBox turnOrderContainer;
-    @FXML private HBox offerTilesContainer;
-    @FXML private BorderPane rootPane;
-    @FXML private HBox boardTrackContainer;
-
-    @FXML private FlowPane playersContainer;
-    @FXML private StackPane summaryButton;
-
+    private static final double CARD_ASPECT = 1111.0 / 756.0;
+    private static final double TILE_ASPECT = 932.0 / 582.0;
+    public VBox boardRoot;
+    public Label deckCountLabel;
+    @FXML
+    private StackPane rootStack;
+    @FXML
+    private ImageView backgroundImageView;
+    @FXML
+    private Label eraLabel;
+    @FXML
+    private Label roundLabel;
+    @FXML
+    private Label phaseLabel;
+    @FXML
+    private HBox topRowContainer;
+    @FXML
+    private HBox bottomRowContainer;
+    @FXML
+    private StackPane deckContainer;
+    @FXML
+    private VBox turnOrderContainer;
+    @FXML
+    private HBox offerTilesContainer;
+    @FXML
+    private BorderPane rootPane;
+    @FXML
+    private HBox boardTrackContainer;
+    @FXML
+    private FlowPane playersContainer;
+    @FXML
+    private StackPane summaryButton;
     private JavaFXView view;
     private String myPlayerId;
     private GameState lastState;
     private boolean skipDialogShown = false;
-
-    private static final double CARD_ASPECT = 1111.0 / 756.0;
-    private static final double TILE_ASPECT = 932.0 / 582.0;
-
     private double cardW = 95;
     private double cardH = cardW * CARD_ASPECT;
     private double tileW = 98;
     private double tileH = tileW * TILE_ASPECT;
     private double playerPanelW = 210;
 
-    private Stage primaryStage;
-
-    public void setPrimaryStage(Stage stage) {
-        this.primaryStage = stage;
+    public void setPrimaryStage() {
     }
 
     @FXML
@@ -130,8 +113,8 @@ public class GameScreenController {
             updateResponsiveMetrics(newW.doubleValue());
 
             if (lastState != null) {
-                updateBoard(lastState.getBoard(), lastState.getPlayers(), lastState.getPhase());
-                updatePlayers(lastState.getPlayers());
+                updateBoard(lastState.board(), lastState.players(), lastState.phase());
+                updatePlayers(lastState.players());
             }
         });
 
@@ -139,8 +122,8 @@ public class GameScreenController {
             updateResponsiveMetrics(rootPane.getWidth());
 
             if (lastState != null) {
-                updateBoard(lastState.getBoard(), lastState.getPlayers(), lastState.getPhase());
-                updatePlayers(lastState.getPlayers());
+                updateBoard(lastState.board(), lastState.players(), lastState.phase());
+                updatePlayers(lastState.players());
             }
         });
     }
@@ -213,12 +196,12 @@ public class GameScreenController {
 
             updateTopBar(state);
             updateDeckBack(state);
-            updateBoard(state.getBoard(), state.getPlayers(), state.getPhase());
-            updatePlayers(state.getPlayers());
+            updateBoard(state.board(), state.players(), state.phase());
+            updatePlayers(state.players());
 
-            boolean isMyTurn = myPlayerId != null && myPlayerId.equals(state.getCurrentPlayerId());
-            boolean isDrawPhase = state.getPhase() == GamePhase.RESOLVING_OFFERS;
-            boolean shouldSkip = isMyTurn && isDrawPhase && state.getSkipAllowed();
+            boolean isMyTurn = myPlayerId != null && myPlayerId.equals(state.currentPlayerId());
+            boolean isDrawPhase = state.phase() == GamePhase.RESOLVING_OFFERS;
+            boolean shouldSkip = isMyTurn && isDrawPhase && state.skipAllowed();
 
             if (shouldSkip && !skipDialogShown) {
                 skipDialogShown = true;
@@ -234,7 +217,7 @@ public class GameScreenController {
     private void updateDeckBack(GameState state) {
         deckContainer.getChildren().clear();
 
-        int eraNumber = state.getCurrentEra().ordinal() + 1;
+        int eraNumber = state.currentEra().ordinal() + 1;
 
         double deckW = cardW;
         double deckH = cardH;
@@ -269,9 +252,9 @@ public class GameScreenController {
     // TOP BAR
 
     private void updateTopBar(GameState state) {
-        eraLabel.setText("Era " + toRoman(state.getCurrentEra().ordinal() + 1));
-        roundLabel.setText("Round " + state.getCurrentRound() + " / 10");
-        phaseLabel.setText("Phase: " + formatPhase(state.getPhase().name()));
+        eraLabel.setText("Era " + toRoman(state.currentEra().ordinal() + 1));
+        roundLabel.setText("Round " + state.currentRound() + " / 10");
+        phaseLabel.setText("Phase: " + formatPhase(state.phase().name()));
     }
 
     // BOARD
@@ -281,14 +264,14 @@ public class GameScreenController {
         Map<String, String> colors = new HashMap<>();
 
         for (PlayerState p : players) {
-            nicknames.put(p.getPlayerId(), p.getNickname());
-            colors.put(p.getPlayerId(), resolveTotemColor(p.getTotemColor()));
+            nicknames.put(p.playerId(), p.nickname());
+            colors.put(p.playerId(), resolveTotemColor(p.totemColor()));
         }
 
-        updateCardRow(topRowContainer, board.getTopRow(), board.getTopBuildings(), phase, true);
-        updateCardRow(bottomRowContainer, board.getBottomRow(), board.getBottomBuildings(), phase, false);
-        updateOfferTiles(board.getOfferTiles(), nicknames, colors, phase, board);
-        updateTurnOrder(board.getTurnOrderSlots(), nicknames, colors);
+        updateCardRow(topRowContainer, board.topRow(), board.topBuildings(), phase, true);
+        updateCardRow(bottomRowContainer, board.bottomRow(), board.bottomBuildings(), phase, false);
+        updateOfferTiles(board.offerTiles(), nicknames, colors, phase, board);
+        updateTurnOrder(board.turnOrderSlots(), nicknames, colors);
     }
 
     private void updateCardRow(HBox container,
@@ -324,7 +307,7 @@ public class GameScreenController {
         }
 
         tiles.stream()
-                .sorted(Comparator.comparingInt(OfferTileState::getPositionIndex))
+                .sorted(Comparator.comparingInt(OfferTileState::positionIndex))
                 .forEach(tile -> offerTilesContainer.getChildren().add(
                         buildOfferTile(tile, nicknames, colors, phase, board)
                 ));
@@ -340,7 +323,7 @@ public class GameScreenController {
         }
 
         List<TurnOrderSlotState> sortedSlots = slots.stream()
-                .sorted(Comparator.comparingInt(TurnOrderSlotState::getPositionIndex))
+                .sorted(Comparator.comparingInt(TurnOrderSlotState::positionIndex))
                 .toList();
 
         double width = Math.max(75, Math.min(100, tileW * 0.95));
@@ -398,8 +381,8 @@ public class GameScreenController {
     // EXTRA DRAW
 
     public void showExtraDrawDialog(GameState gameState) {
-        List<CardState> allTopRow = gameState.getBoard().getTopRow();
-        List<CardState> buildings = new ArrayList<>(gameState.getBoard().getTopBuildings());
+        List<CardState> allTopRow = gameState.board().topRow();
+        List<CardState> buildings = new ArrayList<>(gameState.board().topBuildings());
 
         boolean hasSelectableCards = allTopRow.stream().anyMatch(c -> c.getCardKind() != CardKind.EVENT);
         if (!hasSelectableCards && buildings.isEmpty()) {
@@ -463,7 +446,7 @@ public class GameScreenController {
 
         root.getChildren().addAll(title, cardsRow);
 
-        if (gameState.getSkipAllowed()) {
+        if (gameState.skipAllowed()) {
             javafx.scene.control.Button skipButton = new javafx.scene.control.Button("Skip turn");
             skipButton.setStyle(
                     "-fx-background-color: #5a2e10;" +
@@ -492,7 +475,7 @@ public class GameScreenController {
                                      Map<String, String> nicknames,
                                      Map<String, String> colors,
                                      GamePhase phase, BoardState currentBoard) {
-        String occupied = tile.getOccupiedByPlayerId();
+        String occupied = tile.occupiedByPlayerId();
 
         String borderColor = occupied != null
                 ? colors.getOrDefault(occupied, "#f5f0e8")
@@ -515,7 +498,7 @@ public class GameScreenController {
                 && myPlayerId.equals(occupied)
                 && phase == GamePhase.RESOLVING_OFFERS
                 && lastState != null
-                && myPlayerId.equals(lastState.getCurrentPlayerId());
+                && myPlayerId.equals(lastState.currentPlayerId());
 
         if (isMyActiveTile) {
             String myColor = colors.getOrDefault(myPlayerId, "#f5f0e8");
@@ -530,21 +513,21 @@ public class GameScreenController {
             box.getChildren().add(border);
         }
 
-        boolean alreadyPlaced = currentBoard.getOfferTiles().stream()
-                .anyMatch(t -> myPlayerId != null && myPlayerId.equals(t.getOccupiedByPlayerId()));
+        boolean alreadyPlaced = currentBoard.offerTiles().stream()
+                .anyMatch(t -> myPlayerId != null && myPlayerId.equals(t.occupiedByPlayerId()));
 
         boolean isMyPlacingTurn = lastState != null
                 && myPlayerId != null
-                && myPlayerId.equals(lastState.getCurrentPlayerId());
+                && myPlayerId.equals(lastState.currentPlayerId());
 
         boolean canPlace = isMyPlacingTurn
                 && phase == GamePhase.PLACING_TOTEMS
-                && tile.getOccupiedByPlayerId() == null
+                && tile.occupiedByPlayerId() == null
                 && !alreadyPlaced;
 
         if (canPlace) {
             box.setStyle(box.getStyle() + "-fx-cursor: hand;");
-            box.setOnMouseClicked(e -> view.placeTotem(tile.getTileId()));
+            box.setOnMouseClicked(e -> view.placeTotem(tile.tileId()));
             box.setOnMouseEntered(e -> box.setOpacity(0.75));
             box.setOnMouseExited(e -> box.setOpacity(1.0));
         }
@@ -599,12 +582,12 @@ public class GameScreenController {
 
         Map<String, String> nicknames = new HashMap<>();
         for (PlayerState p : players) {
-            nicknames.put(p.getPlayerId(), p.getNickname());
+            nicknames.put(p.playerId(), p.nickname());
         }
 
         Map<String, int[]> totalDeltas = new HashMap<>();
         for (PlayerState p : players) {
-            totalDeltas.put(p.getPlayerId(), new int[]{0, 0});
+            totalDeltas.put(p.playerId(), new int[]{0, 0});
         }
 
         for (EventResolvedPayload event : events) {
@@ -614,16 +597,16 @@ public class GameScreenController {
 
             for (PlayerState p : players) {
                 PlayerDelta delta = event.playerDeltas().stream()
-                        .filter(d -> d.playerId().equals(p.getPlayerId()))
+                        .filter(d -> d.playerId().equals(p.playerId()))
                         .findFirst()
                         .orElse(null);
 
-                String nick = nicknames.getOrDefault(p.getPlayerId(), p.getPlayerId());
+                String nick = nicknames.getOrDefault(p.playerId(), p.playerId());
 
                 root.getChildren().add(buildEventDeltaRow(nick, delta));
 
                 if (delta != null) {
-                    int[] acc = totalDeltas.get(p.getPlayerId());
+                    int[] acc = totalDeltas.get(p.playerId());
                     if (acc != null) {
                         acc[0] += delta.foodDelta();
                         acc[1] += delta.prestigeDelta();
@@ -643,8 +626,8 @@ public class GameScreenController {
             root.getChildren().add(summaryLabel);
 
             for (PlayerState p : players) {
-                int[] acc = totalDeltas.get(p.getPlayerId());
-                String nick = nicknames.getOrDefault(p.getPlayerId(), p.getPlayerId());
+                int[] acc = totalDeltas.get(p.playerId());
+                String nick = nicknames.getOrDefault(p.playerId(), p.playerId());
 
                 root.getChildren().add(buildEventSummaryRow(nick, acc[0], acc[1]));
             }
@@ -775,6 +758,7 @@ public class GameScreenController {
                 + " - Era " + toRoman(event.era().ordinal() + 1)
                 + " [" + event.eventCardId() + "]";
     }
+
     private HBox buildEventDeltaRow(String nickname, PlayerDelta delta) {
         int foodDelta = delta != null ? delta.foodDelta() : 0;
         int prestigeDelta = delta != null ? delta.prestigeDelta() : 0;
@@ -878,13 +862,13 @@ public class GameScreenController {
         playersContainer.getChildren().clear();
 
         for (PlayerState player : players) {
-            boolean isMe = player.getPlayerId().equals(myPlayerId);
+            boolean isMe = player.playerId().equals(myPlayerId);
             playersContainer.getChildren().add(buildPlayerPanel(player, isMe, playerPanelW));
         }
     }
 
     private VBox buildPlayerPanel(PlayerState player, boolean isMe, double width) {
-        String totemHex = resolveTotemColor(player.getTotemColor());
+        String totemHex = resolveTotemColor(player.totemColor());
 
         VBox card = new VBox(4);
         card.setPrefWidth(width);
@@ -899,7 +883,7 @@ public class GameScreenController {
         HBox nameRow = new HBox();
         nameRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label nameLabel = new Label(player.getNickname());
+        Label nameLabel = new Label(player.nickname());
         nameLabel.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 13px; -fx-font-weight: bold;");
         nameRow.getChildren().add(nameLabel);
 
@@ -919,12 +903,12 @@ public class GameScreenController {
         Region resSpacer = new Region();
         HBox.setHgrow(resSpacer, Priority.ALWAYS);
 
-        Label totLabel = new Label("TOT: " + player.getCharacters().size());
+        Label totLabel = new Label("TOT: " + player.characters().size());
         totLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
 
         resourcesRow.getChildren().addAll(
-                buildResource(IconNodeFactory.FOOD_ICON, String.valueOf(player.getFood())),
-                buildResource(IconNodeFactory.PRESTIGE_ICON, String.valueOf(player.getPrestigePoints())),
+                buildResource(IconNodeFactory.FOOD_ICON, String.valueOf(player.food())),
+                buildResource(IconNodeFactory.PRESTIGE_ICON, String.valueOf(player.prestigePoints())),
                 totLabel
         );
 
@@ -938,7 +922,7 @@ public class GameScreenController {
         div2.setPrefHeight(1);
         div2.setStyle("-fx-background-color: rgba(255,255,255,0.08);");
 
-        VBox buildingsSection = buildBuildingsSection(player.getBuildings());
+        VBox buildingsSection = buildBuildingsSection(player.buildings());
 
         card.getChildren().addAll(
                 nameRow,
@@ -966,7 +950,7 @@ public class GameScreenController {
         int totalDiscount = 0;
         Set<Object> inventionIcons = new HashSet<>();
 
-        for (CardState card : player.getCharacters()) {
+        for (CardState card : player.characters()) {
             if (card instanceof CharacterCardState c) {
                 counts.merge(c.getCharacterType(), 1L, Long::sum);
 
@@ -1014,9 +998,9 @@ public class GameScreenController {
             String extraText = (String) rows[i][2];
 
             if (extraText != null && !extraText.isEmpty()) {
-                    Label extraLabel = new Label(extraText);
-                    extraLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.6); -fx-font-size: 10px;");
-                    grid.add(extraLabel, col + 2, row);
+                Label extraLabel = new Label(extraText);
+                extraLabel.setStyle("-fx-text-fill: rgba(245,240,232,0.6); -fx-font-size: 10px;");
+                grid.add(extraLabel, col + 2, row);
             }
         }
 

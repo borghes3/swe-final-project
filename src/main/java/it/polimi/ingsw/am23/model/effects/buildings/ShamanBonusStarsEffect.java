@@ -9,7 +9,7 @@ import it.polimi.ingsw.am23.model.player.Player;
  * Shaman ritual building effect that contributes a configurable amount of
  * bonus stars to the owning player's total during the ritual ranking.
  */
-public class ShamanBonusStarsEffect implements BuildingEffect{
+public class ShamanBonusStarsEffect implements BuildingEffect {
 
     private final int bonusStars;
 
@@ -18,13 +18,15 @@ public class ShamanBonusStarsEffect implements BuildingEffect{
      *
      * @param bonusStars stars contributed to the ritual ranking
      */
-    public ShamanBonusStarsEffect(int bonusStars){
+    public ShamanBonusStarsEffect(int bonusStars) {
         this.bonusStars = bonusStars;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void applyShamanRitual(Game game, Player player, ShamanRitualEffectData data){
+    public void applyShamanRitual(Game game, Player player, ShamanRitualEffectData data) {
         data.setBonusStars(bonusStars);
     }
 }

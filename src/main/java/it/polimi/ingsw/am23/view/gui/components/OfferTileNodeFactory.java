@@ -26,7 +26,7 @@ public final class OfferTileNodeFactory {
         root.setAlignment(Pos.CENTER);
 
         try {
-            Image image = TileImageResolver.loadOfferTileImage(tile.getTileId());
+            Image image = TileImageResolver.loadOfferTileImage(tile.tileId());
 
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(width);
@@ -84,7 +84,7 @@ public final class OfferTileNodeFactory {
     }
 
     private static Label buildFallback(OfferTileState tile, String reason) {
-        Label label = new Label("Tile " + tile.getTileId() + "\n" + reason);
+        Label label = new Label("Tile " + tile.tileId() + "\n" + reason);
         label.setWrapText(true);
         label.setAlignment(Pos.CENTER);
         label.setStyle("-fx-text-fill: white; -fx-font-size: 8px; -fx-padding: 4;");

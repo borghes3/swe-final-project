@@ -12,5 +12,6 @@ import java.util.List;
  * @param era          era in which the event has been resolved
  * @param playerDeltas per player food and prestige deltas caused by the event
  */
-public record EventResolvedPayload(String eventCardId, Era era, List<PlayerDelta> playerDeltas) implements Serializable {
+public record EventResolvedPayload(String eventCardId, Era era,
+                                   List<PlayerDelta> playerDeltas) implements Serializable {
 }

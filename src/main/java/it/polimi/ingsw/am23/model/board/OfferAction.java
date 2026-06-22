@@ -24,17 +24,23 @@ public class OfferAction {
         this.foodReward = foodReward;
     }
 
-    /** @return the number of cards drawable from the top row */
+    /**
+     * @return the number of cards drawable from the top row
+     */
     public int getUpperDrawRowCount() {
         return topDrawCount;
     }
 
-    /** @return the number of cards drawable from the bottom row */
+    /**
+     * @return the number of cards drawable from the bottom row
+     */
     public int getBottomDrawCount() {
         return bottomDrawCount;
     }
 
-    /** @return the food reward granted upon resolution */
+    /**
+     * @return the food reward granted upon resolution
+     */
     public int getFoodReward() {
         return foodReward;
     }

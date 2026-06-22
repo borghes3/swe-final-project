@@ -7,7 +7,7 @@ module it.polimi.ingsw.am23 {
     requires java.sql;
     requires com.googlecode.lanterna;
 
-//    JSON PARSING
+    // JSON PARSING
     requires com.google.gson;
     requires java.logging;
     requires org.jline;
@@ -20,7 +20,6 @@ module it.polimi.ingsw.am23 {
     exports it.polimi.ingsw.am23.network;
     exports it.polimi.ingsw.am23.network.rmi.client;
     exports it.polimi.ingsw.am23.network.rmi.server;
-    exports it.polimi.ingsw.am23.trash;
     exports it.polimi.ingsw.am23.model;
     exports it.polimi.ingsw.am23.model.board;
     exports it.polimi.ingsw.am23.model.enums;
@@ -29,9 +28,11 @@ module it.polimi.ingsw.am23 {
     exports it.polimi.ingsw.am23.model.resolvers;
     exports it.polimi.ingsw.am23.model.cards;
     exports it.polimi.ingsw.am23.model.state;
+    exports it.polimi.ingsw.am23.model.effects;
+    exports it.polimi.ingsw.am23.model.cards.turnorder;
+    exports it.polimi.ingsw.am23.model.setup;
 
     opens it.polimi.ingsw.am23.model.state to javafx.fxml;
-    opens it.polimi.ingsw.am23.trash to javafx.fxml;
     exports it.polimi.ingsw.am23.model.draw;
     opens it.polimi.ingsw.am23.model.draw to com.google.gson;
     exports it.polimi.ingsw.am23.view.cli;

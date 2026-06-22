@@ -21,8 +21,8 @@ import java.util.Objects;
  */
 public class CardMarket {
     private final List<Card> topRow;
-    private List<Card> bottomRow;
     private final List<BuildingCard> topBuildings;
+    private List<Card> bottomRow;
     private List<BuildingCard> bottomBuildings;
 
     /**
@@ -126,7 +126,9 @@ public class CardMarket {
     }
 
 
-    /** @param row row to inspect; @return the current size of the tribe row */
+    /**
+     * @param row row to inspect; @return the current size of the tribe row
+     */
     public int getRowSize(RowType row) {
         return getRow(row).size();
     }
@@ -145,7 +147,9 @@ public class CardMarket {
     }
 
 
-    /** @return every event card currently sitting in the bottom row */
+    /**
+     * @return every event card currently sitting in the bottom row
+     */
     public List<EventCard> getBottomRowEvents() {
         List<EventCard> events = new ArrayList<>();
         for (Card card : bottomRow) {
@@ -255,22 +259,30 @@ public class CardMarket {
         return new EraProgressionResult(List.copyOf(topBuildings), List.copyOf(discarded));
     }
 
-    /** @return an unmodifiable copy of the top tribe row */
+    /**
+     * @return an unmodifiable copy of the top tribe row
+     */
     public List<Card> getTopRow() {
         return List.copyOf(topRow);
     }
 
-    /** @return an unmodifiable copy of the bottom tribe row */
+    /**
+     * @return an unmodifiable copy of the bottom tribe row
+     */
     public List<Card> getBottomRow() {
         return List.copyOf(bottomRow);
     }
 
-    /** @return an unmodifiable copy of the top building row */
+    /**
+     * @return an unmodifiable copy of the top building row
+     */
     public List<BuildingCard> getTopBuildings() {
         return List.copyOf(topBuildings);
     }
 
-    /** @return an unmodifiable copy of the bottom building row */
+    /**
+     * @return an unmodifiable copy of the bottom building row
+     */
     public List<BuildingCard> getBottomBuildings() {
         return List.copyOf(bottomBuildings);
     }

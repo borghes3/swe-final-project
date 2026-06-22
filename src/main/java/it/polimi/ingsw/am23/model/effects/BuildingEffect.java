@@ -20,7 +20,7 @@ public interface BuildingEffect {
      * @param currentFood food delta computed so far
      * @return the modified food delta
      */
-    default int modifyTurnOrderFood(Game game, Player player, int currentFood){
+    default int modifyTurnOrderFood(Game game, Player player, int currentFood) {
         return currentFood;
     }
 
@@ -32,7 +32,7 @@ public interface BuildingEffect {
      * @param player the player who took the card
      * @param card   the card that has just been taken
      */
-    default void onCardTaken(Game game, Player player, Card card){
+    default void onCardTaken(Game game, Player player, Card card) {
 
     }
 
@@ -45,7 +45,7 @@ public interface BuildingEffect {
      * @param currentCost cost computed so far
      * @return the modified cost
      */
-    default int modifySustenanceCost(Game game, Player player, int currentCost){
+    default int modifySustenanceCost(Game game, Player player, int currentCost) {
         return currentCost;
     }
 
@@ -57,7 +57,7 @@ public interface BuildingEffect {
      * @param player the affected player
      * @param data   accumulator of the bonuses produced by all effects
      */
-    default void applyHunting(Game game, Player player, HuntingEffectData data){
+    default void applyHunting(Game game, Player player, HuntingEffectData data) {
 
     }
 
@@ -69,7 +69,7 @@ public interface BuildingEffect {
      * @param player the affected player
      * @param data   accumulator of the bonuses produced by all effects
      */
-    default void applyCavePaintings(Game game, Player player, CavePaintingsEffectData data){
+    default void applyCavePaintings(Game game, Player player, CavePaintingsEffectData data) {
 
     }
 
@@ -81,18 +81,15 @@ public interface BuildingEffect {
      * @param player the affected player
      * @param data   accumulator of the bonuses produced by all effects
      */
-    default void applyShamanRitual(Game game, Player player, ShamanRitualEffectData data){
+    default void applyShamanRitual(Game game, Player player, ShamanRitualEffectData data) {
     }
 
     /**
      * Hook invoked after a player completes all their draw actions, used by
      * effects that trigger an additional draw.
      *
-     * @param game   current game instance
-     * @param player the affected player
      */
-    default void onAfterAllActions(Game game, Player player){
-
+    default void onAfterAllActions() {
     }
 
     /**
@@ -102,7 +99,7 @@ public interface BuildingEffect {
      * @param player the affected player
      * @return the end of game points contributed by this effect
      */
-    default int getEndGamePoints(Game game, Player player){
+    default int getEndGamePoints(Game game, Player player) {
         return 0;
     }
 
@@ -112,5 +109,6 @@ public interface BuildingEffect {
      * @param game   current game instance
      * @param player the player who just acquired the building
      */
-    default void onBuildingAdded(Game game, Player player){}
+    default void onBuildingAdded(Game game, Player player) {
+    }
 }

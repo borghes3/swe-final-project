@@ -14,8 +14,8 @@ class TurnOrderTileTest {
         // Input  : tile with slots [s1=occupied(p1), s2=free]; then placeTotem on s2.
         // Output : initially getFirstFreeSlot()==s2 and getFirstOccupiedSlot()==s1; tile not empty;
         //          after placing p2 in s2, getFirstFreeSlot() throws NoFreeSlotsException.
-        TurnOrderSlot s1 = new TurnOrderSlot(0, 0,"p1");
-        TurnOrderSlot s2 = new TurnOrderSlot(0, 0,null);
+        TurnOrderSlot s1 = new TurnOrderSlot(0, 0, "p1");
+        TurnOrderSlot s2 = new TurnOrderSlot(0, 0, null);
         TurnOrderTile tile = new TurnOrderTile(List.of(s1, s2));
 
         assertEquals(s2, tile.getFirstFreeSlot());
@@ -26,16 +26,16 @@ class TurnOrderTileTest {
         assertThrows(NoFreeSlotsException.class, tile::getFirstFreeSlot);
     }
 
-        @Test
-        void allFreeSlotsReturnsNullForOccupiedAndTrueForEmpty() {
-            // Input  : tile with two free slots [s1, s2].
-            // Output : getFirstFreeSlot()==s1 (first one), getFirstOccupiedSlot()==null, isEmpty()==true.
-            TurnOrderSlot s1 = new TurnOrderSlot(0, 0, null);
-            TurnOrderSlot s2 = new TurnOrderSlot(1, 0, null);
-            TurnOrderTile tile = new TurnOrderTile(List.of(s1, s2));
+    @Test
+    void allFreeSlotsReturnsNullForOccupiedAndTrueForEmpty() {
+        // Input  : tile with two free slots [s1, s2].
+        // Output : getFirstFreeSlot()==s1 (first one), getFirstOccupiedSlot()==null, isEmpty()==true.
+        TurnOrderSlot s1 = new TurnOrderSlot(0, 0, null);
+        TurnOrderSlot s2 = new TurnOrderSlot(1, 0, null);
+        TurnOrderTile tile = new TurnOrderTile(List.of(s1, s2));
 
-            assertEquals(s1, tile.getFirstFreeSlot());
-            assertNull(tile.getFirstOccupiedSlot());
-            assertTrue(tile.isEmpty());
-        }
+        assertEquals(s1, tile.getFirstFreeSlot());
+        assertNull(tile.getFirstOccupiedSlot());
+        assertTrue(tile.isEmpty());
+    }
 }

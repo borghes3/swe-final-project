@@ -15,12 +15,14 @@ import java.util.Objects;
 
 public class LeaderboardController {
 
-    @FXML private Label titleLabel;
-    @FXML private Label subtitleLabel;
-    @FXML private VBox entriesContainer;
-
-    private JavaFXView view;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    @FXML
+    private Label titleLabel;
+    @FXML
+    private Label subtitleLabel;
+    @FXML
+    private VBox entriesContainer;
+    private JavaFXView view;
 
     public void setView(JavaFXView view) {
         this.view = view;

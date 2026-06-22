@@ -10,5 +10,7 @@ public final class OnJoinErrorMessage extends Message {
         this.reason = reason;
     }
 
-    public String getReason() { return reason; }
+    public String getReason() {
+        return reason;
+    }
 }

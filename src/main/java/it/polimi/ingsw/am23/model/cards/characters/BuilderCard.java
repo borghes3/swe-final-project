@@ -11,7 +11,7 @@ import it.polimi.ingsw.am23.model.state.CharacterCardState;
  * Builders grant a food discount applied when the owning player purchases a
  * building card.
  */
-public class BuilderCard extends CharacterCard{
+public class BuilderCard extends CharacterCard {
 
     private final int discount;
 
@@ -29,15 +29,19 @@ public class BuilderCard extends CharacterCard{
         this.discount = discount;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getDiscount() {
         return discount;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public CardState toState(){
+    public CardState toState() {
         return new CharacterCardState(
                 getId(),
                 getEra(),

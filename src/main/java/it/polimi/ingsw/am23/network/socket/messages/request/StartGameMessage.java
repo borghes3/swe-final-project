@@ -12,6 +12,11 @@ public final class StartGameMessage extends Message {
         this.lobbyId = lobbyId;
     }
 
-    public String getPlayerId() { return playerId; }
-    public String getLobbyId() { return lobbyId; }
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public String getLobbyId() {
+        return lobbyId;
+    }
 }

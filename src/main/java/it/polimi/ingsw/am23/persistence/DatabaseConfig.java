@@ -31,7 +31,7 @@ public final class DatabaseConfig {
      * Loads the configuration applying the documented precedence rules.
      *
      * @return the resolved configuration; may be {@link #isValid() invalid}
-     *         if the URL is missing
+     * if the URL is missing
      */
     public static DatabaseConfig load() {
         Properties p = new Properties();
@@ -49,18 +49,37 @@ public final class DatabaseConfig {
         return new DatabaseConfig(url, user, password, driver);
     }
 
-    /** @return the JDBC connection URL */
-    public String url() { return url; }
-    /** @return the database user */
-    public String user() { return user; }
-    /** @return the database password */
-    public String password() { return password; }
-    /** @return the fully-qualified JDBC driver class name */
-    public String driverClass() { return driverClass; }
+    /**
+     * @return the JDBC connection URL
+     */
+    public String url() {
+        return url;
+    }
+
+    /**
+     * @return the database user
+     */
+    public String user() {
+        return user;
+    }
+
+    /**
+     * @return the database password
+     */
+    public String password() {
+        return password;
+    }
+
+    /**
+     * @return the fully-qualified JDBC driver class name
+     */
+    public String driverClass() {
+        return driverClass;
+    }
 
     /**
      * @return {@code true} if the configuration contains a non blank URL,
-     *         which is the minimum required to attempt a connection
+     * which is the minimum required to attempt a connection
      */
     public boolean isValid() {
         return url != null && !url.isBlank();

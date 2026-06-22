@@ -33,19 +33,17 @@ public final class GameController implements VirtualServer, ModelObserver {
     private static final int DEFAULT_LOBBY_MAX_PLAYERS = 5;
     private static final int LOBBY_CODE_LENGTH = 4;
     private static final String LOBBY_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
+    private static final int LEADERBOARD_TEASER_LIMIT = 10;
+    private static final int LEADERBOARD_FULL_LIMIT = 100;
     private final Map<String, VirtualView> clientsByPlayerId = new HashMap<>();
     private final Map<String, PlayerConnectionInfo> playersById = new HashMap<>();
     private final Map<String, String> lobbyByPlayerId = new HashMap<>();
     private final Map<String, LobbyRoom> lobbiesById = new LinkedHashMap<>();
     private final Map<String, Game> gamesByLobbyId = new HashMap<>();
     private final Random random = new Random();
-    private String activeLobbyId;
     private final Set<String> scoredLobbyIds = new HashSet<>();
     private final LeaderboardRepository leaderboard;
-
-    private static final int LEADERBOARD_TEASER_LIMIT = 10;
-    private static final int LEADERBOARD_FULL_LIMIT   = 100;
+    private String activeLobbyId;
 
     /**
      * Builds a new controller, initializing the leaderboard repository
@@ -56,7 +54,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         this.leaderboard.init();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void connect(String playerName, VirtualView client) throws Exception {
         Objects.requireNonNull(playerName, "playerName cannot be null");
@@ -69,7 +69,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         }
 
         boolean nicknameAlreadyUsed = playersById.values().stream()
-                .anyMatch(p -> p.getNickname().equalsIgnoreCase(normalizedName));
+                .anyMatch(p -> p.nickname().equalsIgnoreCase(normalizedName));
         if (nicknameAlreadyUsed) {
             client.onConnectError("Player name already in use.");
             return;
@@ -83,7 +83,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         client.onConnected(playerId, currentLobbyStates());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void createLobby(String playerId, String lobbyName, int maxPlayers) throws Exception {
         PlayerConnectionInfo owner = requireConnectedPlayer(playerId);
@@ -105,7 +107,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void joinLobby(String playerId, String lobbyId) throws Exception {
         PlayerConnectionInfo player = requireConnectedPlayer(playerId);
@@ -116,13 +120,13 @@ public final class GameController implements VirtualServer, ModelObserver {
             return;
         }
 
-        if(lobby.state.getLobbyPhase() != LobbyPhase.OPEN) {
+        if (lobby.state.getLobbyPhase() != LobbyPhase.OPEN) {
             clientsByPlayerId.get(playerId).onJoinError("Lobby is closed.");
             return;
         }
 
         boolean alreadyInside = lobby.state.getPlayers().stream()
-                .anyMatch(p -> p.getId().equals(playerId));
+                .anyMatch(p -> p.id().equals(playerId));
         if (alreadyInside) {
             return;
         }
@@ -133,7 +137,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void requestLobbyList(String playerId) throws Exception {
         requireConnectedPlayer(playerId);
@@ -143,7 +149,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void leaveLobby(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
@@ -153,7 +161,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         lobbyByPlayerId.remove(playerId);
 
         VirtualView leavingView = clientsByPlayerId.get(playerId);
-        if(leavingView != null)
+        if (leavingView != null)
             leavingView.onLobbyClosed();
 
         if (lobby.state.getOwnerPlayerId().equals(playerId) || lobby.state.getCurrentPlayers() == 0) {
@@ -173,7 +181,9 @@ public final class GameController implements VirtualServer, ModelObserver {
         broadcastLobbyList();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void startGame(String playerId, String lobbyId) throws Exception {
         requireConnectedPlayer(playerId);
@@ -273,7 +283,10 @@ public final class GameController implements VirtualServer, ModelObserver {
                 lobbyByPlayerId.remove(memberId);
                 VirtualView view = clientsByPlayerId.get(memberId);
                 if (view != null) {
-                    try { view.onLobbyClosed(); } catch (Exception ignored) {}
+                    try {
+                        view.onLobbyClosed();
+                    } catch (Exception ignored) {
+                    }
                 }
             }
             lobbiesById.remove(lobbyId);
@@ -343,7 +356,7 @@ public final class GameController implements VirtualServer, ModelObserver {
 
     @Override
     public synchronized void onGameOver() {
-        broadcastToLobby(activeLobbyId, view -> view.onGameOver());
+        broadcastToLobby(activeLobbyId, VirtualView::onGameOver);
     }
 
     @Override
@@ -392,7 +405,8 @@ public final class GameController implements VirtualServer, ModelObserver {
     }
 
     @Override
-    public synchronized void ping() {}
+    public synchronized void ping() {
+    }
 
     private ActionResult withActiveLobby(String lobbyId, GameAction action) throws Exception {
         String previousLobbyId = activeLobbyId;
@@ -483,7 +497,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         for (Map.Entry<String, VirtualView> entry : clientsByPlayerId.entrySet()) {
             String playerId = entry.getKey();
 
-           // players already inside a lobby do not receive lobby-list notifications
+            // players already inside a lobby do not receive lobby-list notifications
             if (lobbyByPlayerId.containsKey(playerId)) {
                 continue;
             }
@@ -507,7 +521,8 @@ public final class GameController implements VirtualServer, ModelObserver {
             if (view != null) {
                 try {
                     action.apply(view);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         }
     }
@@ -550,12 +565,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         throw new IllegalStateException("Unable to generate a unique lobby code.");
     }
 
-    private record LobbyRoom(LobbyState state) {
-        private List<String> memberIds() {
-            return state.getPlayers().stream().map(PlayerConnectionInfo::getId).toList();
-        }
-    }
-
     @FunctionalInterface
     private interface GameAction {
         ActionResult run() throws Exception;
@@ -564,5 +573,11 @@ public final class GameController implements VirtualServer, ModelObserver {
     @FunctionalInterface
     private interface RemoteViewAction {
         void apply(VirtualView view) throws Exception;
+    }
+
+    private record LobbyRoom(LobbyState state) {
+        private List<String> memberIds() {
+            return state.getPlayers().stream().map(PlayerConnectionInfo::id).toList();
+        }
     }
 }
