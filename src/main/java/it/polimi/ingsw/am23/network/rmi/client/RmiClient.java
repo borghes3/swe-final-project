@@ -26,45 +26,61 @@ import java.util.concurrent.Executors;
  * Wraps a local {@link VirtualView} and dispatches every server callback
  * onto a single-threaded executor to keep the RMI thread non blocking.
  * <p>
- * The client object is exported on the fixed {@link #CALLBACK_PORT} so the
- * port the server uses to deliver callbacks is predictable and can be
- * opened on firewalls / NATs without having to guess a random port.
+ * The client object is exported on the {@link #lastBoundCallbackPort} specified
+ * by the client with the --rmiCallback flag. If not specified, 0 is passed and RMI chooses
+ * a random port, otherwise it uses the specified port (for restricted NAT connections).
  */
 public final class RmiClient extends UnicastRemoteObject implements VirtualViewRmi {
 
     /**
-     * TCP port used for the callbacks the server delivers to the client.
+     * Local TCP port the callback object was bound to during the last
+     * successful {@link #connect} call. Captured from the custom
+     * {@link RMISocketFactory} so it reflects the real port even when the
+     * caller passed {@code 0} (which asks RMI for a free random port).
      */
-    public static final int CALLBACK_PORT = 1236;
+    private static volatile int lastBoundCallbackPort = -1;
 
     private final VirtualView view;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     /**
      * Builds a new RMI client wrapping the supplied local view and
-     * exports the callback object on {@link #CALLBACK_PORT}.
+     * exports the callback object on the requested port.
      *
-     * @param view local view receiving the dispatched callbacks
+     * @param view         local view receiving the dispatched callbacks
+     * @param callbackPort TCP port used by the server to deliver callbacks;
+     *                     {@code 0} lets RMI pick a free random port
      * @throws RemoteException if the underlying {@link UnicastRemoteObject}
      *                         export fails
      */
-    public RmiClient(VirtualView view) throws RemoteException {
-        super(CALLBACK_PORT);
+    public RmiClient(VirtualView view, int callbackPort) throws RemoteException {
+        super(callbackPort);
         this.view = Objects.requireNonNull(view, "view cannot be null");
+    }
+
+    /**
+     * @return the local TCP port the callback object was bound to during the
+     * last successful {@link #connect} call, or {@code -1} if the
+     * client never connected
+     */
+    public static int getLastBoundCallbackPort() {
+        return lastBoundCallbackPort;
     }
 
     /**
      * Connects to the RMI server, registering this client as the player's
      * remote view.
      *
-     * @param host       host of the RMI registry
-     * @param playerName desired display nickname
-     * @param view       local view to wrap
+     * @param host         host of the RMI registry
+     * @param playerName   desired display nickname
+     * @param view         local view to wrap
+     * @param callbackPort TCP port used by the server to deliver callbacks;
+     *                     {@code 0} lets RMI pick a free random port
      * @return the remote server stub
      * @throws RemoteException   on transport failure
      * @throws NotBoundException if the server binding cannot be located
      */
-    public static VirtualServerRmi connect(String host, String playerName, VirtualView view)
+    public static VirtualServerRmi connect(String host, String playerName, VirtualView view, int callbackPort)
             throws RemoteException, NotBoundException {
 
         try {
@@ -79,7 +95,9 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
 
                 @Override
                 public ServerSocket createServerSocket(int port) throws IOException {
-                    return new ServerSocket(port);
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    lastBoundCallbackPort = serverSocket.getLocalPort();
+                    return serverSocket;
                 }
             });
         } catch (IOException ignored) {
@@ -88,7 +106,7 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
         final String serverName = "ServerName";
         Registry registry = LocateRegistry.getRegistry(host, 1234);
         VirtualServerRmi server = (VirtualServerRmi) registry.lookup(serverName);
-        RmiClient client = new RmiClient(view);
+        RmiClient client = new RmiClient(view, callbackPort);
         server.connect(playerName, client);
         return server;
     }

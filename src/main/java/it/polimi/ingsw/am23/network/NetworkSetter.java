@@ -17,17 +17,20 @@ public class NetworkSetter {
     /**
      * Connects the client to the server using the requested transport.
      *
-     * @param host       host of the server
-     * @param playerName desired display nickname
-     * @param view       the local {@link VirtualView} the server will push to
-     * @param type       transport name ({@code "RMI"} or {@code "SOCKET"})
+     * @param host             host of the server
+     * @param playerName       desired display nickname
+     * @param view             the local {@link VirtualView} the server will push to
+     * @param type             transport name ({@code "RMI"} or {@code "SOCKET"})
+     * @param rmiCallbackPort  TCP port the RMI client exports its callback object on;
+     *                         {@code 0} lets RMI pick a free random port. Ignored
+     *                         when {@code type} is {@code "SOCKET"}
      * @return the remote {@link VirtualServer} stub
      * @throws Exception on transport failure or for unsupported transports
      */
-    public static VirtualServer connect(String host, String playerName, VirtualView view, String type) throws Exception {
+    public static VirtualServer connect(String host, String playerName, VirtualView view, String type, int rmiCallbackPort) throws Exception {
         return switch (type) {
             case "RMI" -> {
-                VirtualServerRmi server = RmiClient.connect(host, playerName, view);
+                VirtualServerRmi server = RmiClient.connect(host, playerName, view, rmiCallbackPort);
                 heartbeatService = new HeartbeatService(server, () -> {
                     try {
                         view.onServerCrashed();

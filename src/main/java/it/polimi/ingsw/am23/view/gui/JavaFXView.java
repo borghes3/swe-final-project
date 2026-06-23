@@ -11,6 +11,7 @@ import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
+import it.polimi.ingsw.am23.view.ClientArgs;
 import it.polimi.ingsw.am23.view.gui.controllers.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -40,9 +41,15 @@ public class JavaFXView extends Application implements VirtualView {
     private GameScreenController gameScreenController;
     private ScoreboardController scoreboardController;
     private volatile int lastMatchPlayerCount = -1;
+    private int rmiCallbackPort;
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void init() {
+        this.rmiCallbackPort = ClientArgs.parseRmiCallbackPort(getParameters().getRaw());
     }
 
     @Override
@@ -78,7 +85,7 @@ public class JavaFXView extends Application implements VirtualView {
 
     public void connect(String host, String nickname, String connectionType) throws Exception {
         this.playerName = nickname;
-        this.server = NetworkSetter.connect(host, nickname, this, connectionType);
+        this.server = NetworkSetter.connect(host, nickname, this, connectionType, rmiCallbackPort);
     }
 
     // LOBBY

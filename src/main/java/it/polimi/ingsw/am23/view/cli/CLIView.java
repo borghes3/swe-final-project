@@ -14,6 +14,8 @@ import it.polimi.ingsw.am23.network.LobbyState;
 import it.polimi.ingsw.am23.network.NetworkSetter;
 import it.polimi.ingsw.am23.network.VirtualServer;
 import it.polimi.ingsw.am23.network.VirtualView;
+import it.polimi.ingsw.am23.network.rmi.client.RmiClient;
+import it.polimi.ingsw.am23.view.ClientArgs;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -79,6 +81,14 @@ public final class CLIView implements VirtualView {
      * @throws Exception if the terminal cannot be created
      */
     public static void main(String[] args) throws Exception {
+        final int rmiCallbackPort;
+        try {
+            rmiCallbackPort = ClientArgs.parseRmiCallbackPort(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
+
         try (Terminal terminal = TerminalBuilder.builder()
                 .name("Mesos CLI Client")
                 .encoding(StandardCharsets.UTF_8)
@@ -139,12 +149,15 @@ public final class CLIView implements VirtualView {
                 }
 
                 try {
-                    view.connect(host, nick, connection);
+                    view.connect(host, nick, connection, rmiCallbackPort);
                     connected = true;
                 } catch (IllegalStateException e) {
                     System.out.println(ERROR_MARKER + " " + e.getMessage());
                     System.out.println(WARNING_MARKER + " Choose a different nickname.");
                 }
+            }
+            if ("RMI".equals(connection)) {
+                System.out.println(INFO_MARKER + " RMI callback port: " + RmiClient.getLastBoundCallbackPort());
             }
             view.run();
 
@@ -162,15 +175,17 @@ public final class CLIView implements VirtualView {
      *
      * @param host           the server host name or address
      * @param nickname       the nickname requested by the user
-     * @param connectionType either {@code "RMI"} or {@code "SOCKET"}
+     * @param connectionType   either {@code "RMI"} or {@code "SOCKET"}
+     * @param rmiCallbackPort  TCP port used for the RMI callback object;
+     *                         {@code 0} lets RMI pick a free random port. Ignored for SOCKET.
      * @throws Exception if the network setup fails or the server refuses the connection
      */
-    public void connect(String host, String nickname, String connectionType) throws Exception {
+    public void connect(String host, String nickname, String connectionType, int rmiCallbackPort) throws Exception {
         this.playerName = Objects.requireNonNull(nickname, "nickname cannot be null").trim();
         this.connectError = null;
         this.playerId = null;
         this.connectedLatch = new CountDownLatch(1);
-        this.server = NetworkSetter.connect(host, playerName, this, connectionType);
+        this.server = NetworkSetter.connect(host, playerName, this, connectionType, rmiCallbackPort);
         awaitConnected();
         if (playerId != null) {
             server.requestLobbyList(playerId);
