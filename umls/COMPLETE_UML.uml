@@ -1,0 +1,890 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>/Users/ale/IdeaProjects/IS26-AM23/src/main/java/it/polimi/ingsw/am23</OriginalElement>
+  <nodes>
+    <node x="986.4963926456691" y="-13.841221779228832">it.polimi.ingsw.am23.model.state.ScoreEntry</node>
+    <node x="7290.1892223588175" y="5608.030927467998">it.polimi.ingsw.am23.model.deck.BuildingDeck</node>
+    <node x="3517.4106073179537" y="6783.445352197227">it.polimi.ingsw.am23.model.resolvers.ScoreResult</node>
+    <node x="99.0155186628266" y="6702.8020198887825">it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyClosedMessage</node>
+    <node x="7399.344123896181" y="6150.913462472979">it.polimi.ingsw.am23.network.NetworkSetter</node>
+    <node x="127.1042419842239" y="6873.944553678062">it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyUpdateMessage</node>
+    <node x="3219.893564366895" y="6753.293903115672">it.polimi.ingsw.am23.exceptions.NoFreeSlotsException</node>
+    <node x="1585.358391262548" y="701.6936486290158">it.polimi.ingsw.am23.model.payloads.GameStartedPayload</node>
+    <node x="6296.633308029594" y="5750.353390855572">it.polimi.ingsw.am23.model.setup.Setup.DrawResult</node>
+    <node x="6581.6360406676295" y="6449.941538022103">it.polimi.ingsw.am23.jsonParsing.deserializers.CharactersDeserializer</node>
+    <node x="404.7163475733024" y="6699.379057339156">it.polimi.ingsw.am23.network.socket.messages.response.OnTotemPlacedMessage</node>
+    <node x="7101.034298593642" y="4534.991582451474">it.polimi.ingsw.am23.model.setup.Setup</node>
+    <node x="2136.225464397291" y="5416.455232003536">it.polimi.ingsw.am23.controller.GameController.LobbyRoom</node>
+    <node x="7120.768002136689" y="741.1162838517643">it.polimi.ingsw.am23.model.enums.InventionIcon</node>
+    <node x="6960.363649598692" y="2303.6551116715946">it.polimi.ingsw.am23.view.gui.components.IconImageResolver</node>
+    <node x="1054.0162915226342" y="6355.916674076496">it.polimi.ingsw.am23.model.effects.buildings.EndGamePointsPerCharacterTypeEffect</node>
+    <node x="6810.910017672607" y="767.3864002997276">it.polimi.ingsw.am23.model.enums.NotificationType</node>
+    <node x="4682.466746552312" y="6441.952071546194">it.polimi.ingsw.am23.jsonParsing.deserializers.BuildingsDeserializer</node>
+    <node x="552.1629539868292" y="6923.340764492698">it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyCreatedMessage</node>
+    <node x="6766.476215901438" y="5658.512475932029">it.polimi.ingsw.am23.model.effects.BuildingEffect</node>
+    <node x="6370.963050637155" y="2216.7913375297185">it.polimi.ingsw.am23.model.board.OfferTile</node>
+    <node x="1320.8021500121702" y="6529.025346870771">it.polimi.ingsw.am23.model.effects.buildings.FoodFromTurnOrderBonusEffect</node>
+    <node x="6679.138738936203" y="1257.7634405667732">it.polimi.ingsw.am23.model.enums.BuildingEffectName</node>
+    <node x="3933.179957216693" y="6424.54563493866">it.polimi.ingsw.am23.jsonParsing.deserializers.TurnOrderDeserializer</node>
+    <node x="6641.861889500869" y="4559.344652357491">it.polimi.ingsw.am23.model.payloads.MarketRefresherPayload</node>
+    <node x="6245.333258411626" y="3663.178710880635">it.polimi.ingsw.am23.view.ClientArgs</node>
+    <node x="6519.422419306624" y="762.692186806551">it.polimi.ingsw.am23.model.board.OfferAction</node>
+    <node x="813.2495461214824" y="6701.957913794187">it.polimi.ingsw.am23.network.socket.messages.request.LeaveLobbyMessage</node>
+    <node x="683.8958511696148" y="6558.430207120056">it.polimi.ingsw.am23.network.socket.messages.Message</node>
+    <node x="6143.607564367944" y="4401.770658783535">it.polimi.ingsw.am23.model.board.CardMarket</node>
+    <node x="1059.6093702658145" y="6981.0718634490895">it.polimi.ingsw.am23.network.socket.messages.response.OnConnectErrorMessage</node>
+    <node x="3032.0860304948255" y="6901.165105115417">it.polimi.ingsw.am23.exceptions.CardNotDrawableException</node>
+    <node x="1280.3215172842492" y="6807.854306805735">it.polimi.ingsw.am23.network.socket.messages.response.OnMarketRefreshedMessage</node>
+    <node x="6294.439391562911" y="1245.813117400227">it.polimi.ingsw.am23.model.draw.SelectedSingleCard</node>
+    <node x="3658.3448029592396" y="4879.324206758769">it.polimi.ingsw.am23.model.cards.characters.BuilderCard</node>
+    <node x="1504.3028576214351" y="229.03528184394253">it.polimi.ingsw.am23.model.enums.RowType</node>
+    <node x="5653.1746028515645" y="2262.817886601701">it.polimi.ingsw.am23.model.payloads.ExtraCardTakenPayload</node>
+    <node x="6230.887495791003" y="780.2246706254225">it.polimi.ingsw.am23.model.enums.TotemColors</node>
+    <node x="4064.572316904515" y="4861.817640330904">it.polimi.ingsw.am23.model.cards.characters.InventorCard</node>
+    <node x="5208.023799460432" y="4734.385832788546">it.polimi.ingsw.am23.model.payloads.EndOfPlacingPhasePayload</node>
+    <node x="794.3895916983278" y="5765.279661112435">it.polimi.ingsw.am23.model.state.EventCardState</node>
+    <node x="1589.6126499171553" y="503.6973362174921">it.polimi.ingsw.am23.view.ClientLauncher</node>
+    <node x="1225.6251887247918" y="621.7549467106602">it.polimi.ingsw.am23.model.payloads.ScoreBoardPayload</node>
+    <node x="6012.566142994636" y="1248.5525771503108">it.polimi.ingsw.am23.model.enums.ActionType</node>
+    <node x="5863.444950644881" y="754.4047207389613">it.polimi.ingsw.am23.model.payloads.TotemPlacedPayload</node>
+    <node x="6528.80717165766" y="5981.002292581606">it.polimi.ingsw.am23.view.cli.CLIPreLobbyRenderer</node>
+    <node x="5320.506202051565" y="3232.656722241974">it.polimi.ingsw.am23.controller.GameController</node>
+    <node x="5191.6521359112985" y="2307.265051886492">it.polimi.ingsw.am23.persistence.RankingEntry</node>
+    <node x="1625.2652649983831" y="6999.309185754289">it.polimi.ingsw.am23.network.socket.messages.request.RefreshLobbyListMessage</node>
+    <node x="1263.5281667084228" y="5329.883324823688">it.polimi.ingsw.am23.model.state.CardState</node>
+    <node x="2406.889133177797" y="6603.800740217309">it.polimi.ingsw.am23.model.effects.buildings.SustenanceDiscountPerTypeEffect</node>
+    <node x="1334.6511888428545" y="402.6752032679729">it.polimi.ingsw.am23.model.enums.Era</node>
+    <node x="2515.433805582038" y="5441.304062788244">it.polimi.ingsw.am23.controller.GameController.RemoteViewAction</node>
+    <node x="1204.9656399386859" y="196.60763456889688">it.polimi.ingsw.am23.model.enums.CardKind</node>
+    <node x="2800.6564734172466" y="6752.790721782148">it.polimi.ingsw.am23.model.state.TotemPositionState</node>
+    <node x="5684.676226834303" y="1221.2556415123101">it.polimi.ingsw.am23.model.state.TurnOrderSlotState</node>
+    <node x="2457.354201986285" y="6794.429935702544">it.polimi.ingsw.am23.exceptions.TileNotEmptyException</node>
+    <node x="5473.943904446848" y="721.347977222066">it.polimi.ingsw.am23.persistence.DatabaseConfig</node>
+    <node x="6187.503552763905" y="5973.730965806076">it.polimi.ingsw.am23.view.gui.controllers.WaitingRoomController</node>
+    <node x="906.9939483780454" y="256.18418387611">it.polimi.ingsw.am23.model.player.Totem</node>
+    <node x="5884.092138114803" y="5728.280642968866">it.polimi.ingsw.am23.view.gui.components.TotemNodeFactory</node>
+    <node x="2048.6124568695514" y="6942.379910991919">it.polimi.ingsw.am23.network.socket.messages.request.TakeExtraCardMessage</node>
+    <node x="5732.508794151366" y="6071.677700028265">it.polimi.ingsw.am23.view.gui.components.CardNodeFactory</node>
+    <node x="5468.124404790485" y="5757.2335667968555">it.polimi.ingsw.am23.view.gui.components.CardImageResolver</node>
+    <node x="2137.056551262312" y="6754.510178402735">it.polimi.ingsw.am23.exceptions.PlayerNotFoundException</node>
+    <node x="2431.3724538554698" y="7163.485016626575">it.polimi.ingsw.am23.network.socket.messages.response.OnExtraDrawRequestMessage</node>
+    <node x="1181.1557042977715" y="2136.39380489067">it.polimi.ingsw.am23.network.rmi.server.VirtualViewRmi</node>
+    <node x="4494.062200777784" y="3717.6519574576223">it.polimi.ingsw.am23.model.state.OfferTileState</node>
+    <node x="5957.255404504573" y="5287.111388768157">it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard</node>
+    <node x="1758.490428528555" y="6812.098321163125">it.polimi.ingsw.am23.exceptions.UnmatchedGameCriteriaException</node>
+    <node x="2665.002575191348" y="6925.178777252397">it.polimi.ingsw.am23.network.socket.messages.request.RequestLeaderboardMessage</node>
+    <node x="3385.242648783717" y="1258.3971786784948">it.polimi.ingsw.am23.model.GameModel</node>
+    <node x="1525.6092308537554" y="6679.573636896804">it.polimi.ingsw.am23.exceptions.OfferTileNotFoundException</node>
+    <node x="4761.348923768019" y="2275.3238702699637">it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi</node>
+    <node x="5043.692210388097" y="5865.457878626789">it.polimi.ingsw.am23.model.resolvers.EventResolver</node>
+    <node x="5821.459654759645" y="3585.615151944038">it.polimi.ingsw.am23.model.cards.CharacterCard</node>
+    <node x="4480.317707835684" y="4867.957950568042">it.polimi.ingsw.am23.model.cards.characters.ArtistCard</node>
+    <node x="4843.890158042743" y="6100.051731264381">it.polimi.ingsw.am23.view.gui.controllers.LeaderboardController</node>
+    <node x="7010.455089143116" y="1144.03009969249">it.polimi.ingsw.am23.model.cards.Card</node>
+    <node x="3316.038947492826" y="6603.605713370446">it.polimi.ingsw.am23.model.effects.buildings.ExtraDrawEffect</node>
+    <node x="4809.353002525613" y="5253.277396349469">it.polimi.ingsw.am23.model.player.Tribe</node>
+    <node x="3044.8871993302714" y="7157.739450668728">it.polimi.ingsw.am23.network.socket.messages.response.OnScoreboardAvailableMessage</node>
+    <node x="5371.996098376333" y="1253.9461366512223">it.polimi.ingsw.am23.model.enums.TotemAreaType</node>
+    <node x="2595.2036890081617" y="1086.7205167956051">it.polimi.ingsw.am23.network.VirtualView</node>
+    <node x="4307.703694815511" y="5442.365606729472">it.polimi.ingsw.am23.model.payloads.EraProgressionPayload</node>
+    <node x="6999.746373540477" y="3549.4542810354283">it.polimi.ingsw.am23.model.cards.EventCard</node>
+    <node x="4252.89424763024" y="1896.901690334717">it.polimi.ingsw.am23.model.Game</node>
+    <node x="7172.776598673432" y="5974.254095167974">it.polimi.ingsw.am23.model.setup.Setup.BuildingDrawResult</node>
+    <node x="4287.8434181111725" y="756.7164736186269">it.polimi.ingsw.am23.network.VirtualServer</node>
+    <node x="5150.620262982779" y="806.7772722041485">it.polimi.ingsw.am23.model.payloads.ExtraDrawRequestPayload</node>
+    <node x="4057.7501623727294" y="3746.1426959555492">it.polimi.ingsw.am23.model.effects.ShamanRitualEffectData</node>
+    <node x="3851.1458322832095" y="5423.872091650445">it.polimi.ingsw.am23.model.board.Board</node>
+    <node x="5075.7107542364765" y="1241.087675261459">it.polimi.ingsw.am23.model.deck.TribeDeck</node>
+    <node x="3374.384139155195" y="6931.3125557840685">it.polimi.ingsw.am23.network.socket.messages.request.DisconnectMessage</node>
+    <node x="6429.825524145329" y="5289.663877204647">it.polimi.ingsw.am23.model.cards.events.CavePaintingsEventCard</node>
+    <node x="3504.1709419518747" y="7129.1365693997095">it.polimi.ingsw.am23.network.socket.messages.request.StartGameMessage</node>
+    <node x="3752.4776716802394" y="2438.4050163635443">it.polimi.ingsw.am23.model.board.EraProgressionResult</node>
+    <node x="3185.657980075939" y="2429.2538222195362">it.polimi.ingsw.am23.network.socket.server.SocketServer</node>
+    <node x="3755.5055588441314" y="6611.04507015355">it.polimi.ingsw.am23.model.effects.buildings.FoodPerInventorPairEffect</node>
+    <node x="3671.878167448631" y="6907.240684489396">it.polimi.ingsw.am23.network.socket.messages.response.OnConnectedMessage</node>
+    <node x="4515.69746701514" y="5853.9288882087">it.polimi.ingsw.am23.view.gui.components.IconNodeFactory</node>
+    <node x="4862.372890362484" y="841.8141984506675">it.polimi.ingsw.am23.network.socket.server.SocketServerLauncher</node>
+    <node x="4150.764366601845" y="1349.5572325190813">it.polimi.ingsw.am23.model.enums.GamePhase</node>
+    <node x="3888.0233779512578" y="7129.150680442125">it.polimi.ingsw.am23.network.socket.messages.request.PlaceTotemMessage</node>
+    <node x="4844.355602454102" y="4796.023107390015">it.polimi.ingsw.am23.model.cards.characters.HunterCard</node>
+    <node x="4231.942297531342" y="6590.36598253609">it.polimi.ingsw.am23.model.effects.buildings.DoubleShamanWinEffect</node>
+    <node x="4089.7094962122324" y="6815.878725911479">it.polimi.ingsw.am23.network.socket.messages.request.CreateLobbyMessage</node>
+    <node x="5236.236975205471" y="5344.07465655676">it.polimi.ingsw.am23.model.cards.characters.ShamanCard</node>
+    <node x="3217.7479530660307" y="5253.600604481394">it.polimi.ingsw.am23.view.cli.CLIBoardRenderer</node>
+    <node x="2201.612348531049" y="6157.72480225258">it.polimi.ingsw.am23.model.state.CharacterCardState</node>
+    <node x="1147.824930187998" y="6684.567269483379">it.polimi.ingsw.am23.exceptions.TurnOrderSlotNotFoundException</node>
+    <node x="3119.4510720269786" y="4682.177398716748">it.polimi.ingsw.am23.network.LobbyState</node>
+    <node x="4341.831091245977" y="7085.821750425213">it.polimi.ingsw.am23.network.socket.messages.response.OnGameOverMessage</node>
+    <node x="1644.28469365655" y="2082.6238616056016">it.polimi.ingsw.am23.network.socket.server.Connector</node>
+    <node x="4016.1761131589565" y="867.8679674367922">it.polimi.ingsw.am23.model.ErrorCode</node>
+    <node x="5012.019012339932" y="6611.948235712053">it.polimi.ingsw.am23.model.effects.buildings.HuntingRewardPerHunterEffect</node>
+    <node x="5242.501223289069" y="6428.364547053478">it.polimi.ingsw.am23.model.effects.buildings.FoodPerCompletedSetEffect</node>
+    <node x="4354.7570347028795" y="6105.85261502723">it.polimi.ingsw.am23.model.draw.CardDrawState</node>
+    <node x="1060.3375839464895" y="460.57434477100355">it.polimi.ingsw.am23.network.ServerLauncher</node>
+    <node x="5680.718600178186" y="4681.003786732818">it.polimi.ingsw.am23.model.cards.events.ShamanRitualEventCard</node>
+    <node x="3558.0952457923804" y="6430.2918662682505">it.polimi.ingsw.am23.view.cli.CLITribeRenderer</node>
+    <node x="2783.4949010871724" y="4691.446044593149">it.polimi.ingsw.am23.model.player.Player</node>
+    <node x="4452.442803015134" y="6891.491536726205">it.polimi.ingsw.am23.network.socket.messages.response.OnCardsTakenMessage</node>
+    <node x="2541.125976613954" y="1743.192020541121">it.polimi.ingsw.am23.view.cli.CLIView</node>
+    <node x="3871.1853701934665" y="1310.8845281266968">it.polimi.ingsw.am23.view.gui.controllers.ConnectionController</node>
+    <node x="5626.079028917227" y="5345.3441961895915">it.polimi.ingsw.am23.model.cards.characters.GathererCard</node>
+    <node x="2859.4639528846083" y="6536.106688574191">it.polimi.ingsw.am23.jsonParsing.ResourceLoader</node>
+    <node x="4657.118428766417" y="7064.919580988905">it.polimi.ingsw.am23.network.socket.messages.response.OnGameStartedMessage</node>
+    <node x="3711.567796081879" y="857.2474530906791">it.polimi.ingsw.am23.model.effects.CavePaintingsEffectData</node>
+    <node x="5594.650669675279" y="6579.803655496199">it.polimi.ingsw.am23.model.effects.buildings.ShamanBonusStarsEffect</node>
+    <node x="3247.262976413487" y="868.4171996379371">it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo</node>
+    <node x="5835.615140512603" y="6358.441021154302">it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect</node>
+    <node x="3039.7631863387087" y="6152.753499832375">it.polimi.ingsw.am23.view.gui.controllers.ScoreboardController</node>
+    <node x="2334.5287118143474" y="4678.028474680866">it.polimi.ingsw.am23.model.payloads.CardsTakenPayload</node>
+    <node x="4854.445928820635" y="6881.6904697136915">it.polimi.ingsw.am23.network.socket.messages.response.OnLeaderboardAvailableMessage</node>
+    <node x="2620.2765750657277" y="799.1594087836685">it.polimi.ingsw.am23.model.enums.ActionError</node>
+    <node x="5067.73454728315" y="7060.110111207646">it.polimi.ingsw.am23.network.socket.messages.response.OnEraProgressionMessage</node>
+    <node x="6098.872469733488" y="6507.790268681604">it.polimi.ingsw.am23.model.effects.buildings.DoubleBuilderEndGameEffect</node>
+    <node x="2852.397096472487" y="5465.19291184306">it.polimi.ingsw.am23.controller.GameController.GameAction</node>
+    <node x="5340.9165964702415" y="6838.417607357531">it.polimi.ingsw.am23.network.socket.messages.response.OnActionErrorMessage</node>
+    <node x="2917.259285562461" y="3751.1887596795696">it.polimi.ingsw.am23.model.payloads.PlayerScore</node>
+    <node x="2817.6801306557045" y="5858.2146948270565">it.polimi.ingsw.am23.persistence.LeaderboardRepository</node>
+    <node x="5502.308193867955" y="7097.624528490751">it.polimi.ingsw.am23.network.socket.messages.response.OnEndOfPlacingPhaseMessage</node>
+    <node x="2655.819082576316" y="6211.656751055924">it.polimi.ingsw.am23.model.resolvers.ScoreCalculator</node>
+    <node x="6890.2451957606945" y="5230.574766852428">it.polimi.ingsw.am23.model.cards.events.HuntingEventCard</node>
+    <node x="5797.643050419068" y="6898.700288373084">it.polimi.ingsw.am23.network.socket.messages.request.ConnectMessage</node>
+    <node x="2227.8251273379474" y="3348.921143523387">it.polimi.ingsw.am23.view.gui.controllers.GameScreenController</node>
+    <node x="2331.952147251941" y="1191.580572476864">it.polimi.ingsw.am23.model.effects.HuntingEffectData</node>
+    <node x="2461.0019315149307" y="5790.790633725955">it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot</node>
+    <node x="2177.6504627095023" y="756.0876932466836">it.polimi.ingsw.am23.network.rmi.client.HeartbeatService</node>
+    <node x="6174.098311227516" y="6308.977919430385">it.polimi.ingsw.am23.model.effects.buildings.EndGamePointsPerCompleteSetEffect</node>
+    <node x="1957.2952527280704" y="1257.9739581897352">it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw</node>
+    <node x="1840.7260944639238" y="4783.517447911636">it.polimi.ingsw.am23.model.payloads.MatchRankingsPayload</node>
+    <node x="6820.476573904275" y="6249.760379004646">it.polimi.ingsw.am23.model.effects.buildings.CavePaintingsFoodPerArtistEffect</node>
+    <node x="950.3009848307536" y="4407.799550055287">it.polimi.ingsw.am23.network.rmi.client.RmiClient</node>
+    <node x="1897.5685649619559" y="5791.33460862451">it.polimi.ingsw.am23.model.ActionResult</node>
+    <node x="1732.8552756973936" y="898.425042734335">it.polimi.ingsw.am23.model.payloads.EventResolvedPayload</node>
+    <node x="1860.6136816518397" y="6595.595130484095">it.polimi.ingsw.am23.jsonParsing.deserializers.EventsDeserializer</node>
+    <node x="373.4047254547459" y="6407.029950543098">it.polimi.ingsw.am23.jsonParsing.deserializers.OfferTilesDeserializer</node>
+    <node x="7211.79258354817" y="6399.666687092642">it.polimi.ingsw.am23.model.effects.buildings.NoLossIfLastShamanEffect</node>
+    <node x="1409.777096890787" y="4619.929766360255">it.polimi.ingsw.am23.network.rmi.server.RmiServer</node>
+    <node x="1632.2833178362837" y="1323.7487993253544">it.polimi.ingsw.am23.network.LobbyPhase</node>
+    <node x="6004.308276195038" y="7072.569189721104">it.polimi.ingsw.am23.network.socket.messages.response.OnEventResolvedMessage</node>
+    <node x="2104.81128449262" y="2360.0142230003476">it.polimi.ingsw.am23.view.gui.components.TileImageResolver</node>
+    <node x="1615.0785413348744" y="6217.047636492368">it.polimi.ingsw.am23.model.state.BoardState</node>
+    <node x="6081.138915888966" y="6780.34863789234">it.polimi.ingsw.am23.network.socket.messages.request.JoinLobbyMessage</node>
+    <node x="6431.806735386364" y="6929.609546458053">it.polimi.ingsw.am23.network.socket.messages.request.SkipTurnMessage</node>
+    <node x="6413.987075493715" y="6701.628291253864">it.polimi.ingsw.am23.network.socket.messages.response.OnExtraCardTakenMessage</node>
+    <node x="780.1998237756966" y="524.6248347965112">it.polimi.ingsw.am23.network.rmi.server.RmiServerLauncher</node>
+    <node x="1282.1221370881387" y="850.8584785620226">it.polimi.ingsw.am23.model.payloads.LeaderboardPayload</node>
+    <node x="6702.384953277992" y="6881.646592079325">it.polimi.ingsw.am23.network.socket.messages.request.TakeCardMessage</node>
+    <node x="3477.922432897015" y="5904.872552781708">it.polimi.ingsw.am23.model.state.BuildingCardState</node>
+    <node x="4888.4615066239685" y="3535.557729975616">it.polimi.ingsw.am23.network.socket.client.SocketClient</node>
+    <node x="1921.0305458023056" y="3692.3564688851834">it.polimi.ingsw.am23.model.board.RefillResult</node>
+    <node x="6889.855480801959" y="6672.894445245814">it.polimi.ingsw.am23.network.socket.messages.response.OnMatchRankingsAvailableMessage</node>
+    <node x="1303.8586437767058" y="5882.825606261269">it.polimi.ingsw.am23.view.gui.components.OfferTileNodeFactory</node>
+    <node x="1289.5731190864299" y="1260.4526804081947">it.polimi.ingsw.am23.model.payloads.PlayerDelta</node>
+    <node x="957.490704409935" y="770.0910069222647">it.polimi.ingsw.am23.view.cli.CLIColors</node>
+    <node x="909.2286134054882" y="6540.560716514309">it.polimi.ingsw.am23.exceptions.IllegalActionException</node>
+    <node x="1444.5057073167177" y="3746.5227324116063">it.polimi.ingsw.am23.jsonParsing.Parser</node>
+    <node x="6596.74333910363" y="3580.617967315303">it.polimi.ingsw.am23.model.cards.BuildingCard</node>
+    <node x="731.1979167702827" y="6056.74261831618">it.polimi.ingsw.am23.view.gui.components.TurnOrderNodeFactory</node>
+    <node x="3382.6808871353537" y="3237.316424312551">it.polimi.ingsw.am23.view.gui.JavaFXView</node>
+    <node x="981.6082561822737" y="1281.3753984287127">it.polimi.ingsw.am23.model.enums.CharacterType</node>
+    <node x="7140.631641957983" y="6868.42277082981">it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyListUpdatedMessage</node>
+    <node x="1674.0512825425533" y="5362.538805725727">it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile</node>
+    <node x="-179.58295525247877" y="6826.600018156794">it.polimi.ingsw.am23.network.socket.messages.response.OnJoinErrorMessage</node>
+    <node x="5304.043123602269" y="6062.808358908948">it.polimi.ingsw.am23.model.cards.events.ShamanRitualEventCard.ShamanResult</node>
+    <node x="717.2144445191925" y="5185.089964990294">it.polimi.ingsw.am23.model.state.GameState</node>
+    <node x="4613.118876150816" y="1234.7483171088165">it.polimi.ingsw.am23.model.ModelObserver</node>
+    <node x="378.12113814529835" y="5828.719202903043">it.polimi.ingsw.am23.view.gui.controllers.LobbyController</node>
+    <node x="962.5808226192116" y="3613.2210092651444">it.polimi.ingsw.am23.model.state.PlayerState</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.ExtraDrawEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="5.2507174132188084E-5" y="-43.99971337044644" />
+      <point x="3454.039" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.setup.Setup.BuildingDrawResult" target="it.polimi.ingsw.am23.model.setup.Setup" relationship="INNER_CLASS">
+      <point x="4.0132656795321964E-4" y="-56.000095167973996" />
+      <point x="7366.277" y="5944.0" />
+      <point x="7272.689" y="5944.0" />
+      <point x="-62.34529859364193" y="140.00041754852646" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.controller.GameController.RemoteViewAction" target="it.polimi.ingsw.am23.controller.GameController" relationship="INNER_CLASS">
+      <point x="1.9441796212049667E-4" y="-31.500062788243667" />
+      <point x="2614.434" y="5193.0" />
+      <point x="3640.845" y="5193.0" />
+      <point x="3640.845" y="4593.816" />
+      <point x="5540.006" y="4593.816" />
+      <point x="-2.0205156488373177E-4" y="524.0002777580262" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.rmi.server.RmiServer" target="it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi" relationship="REALIZATION">
+      <point x="0.0" y="-224.0" />
+      <point x="1594.277096890787" y="4548.816424312551" />
+      <point x="4870.9615066239685" y="4548.816424312551" />
+      <point x="-74.88741714405023" y="175.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.controller.GameController" target="it.polimi.ingsw.am23.network.VirtualServer" relationship="REALIZATION">
+      <point x="-219.50020205156488" y="-238.59872224197397" />
+      <point x="4730.0" y="3518.058" />
+      <point x="4730.0" y="1879.402" />
+      <point x="4472.343" y="1879.402" />
+      <point x="-4.181111726211384E-4" y="163.49952638137302" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.DoubleShamanWinEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-2.9753134185739327E-4" y="-43.9999825360901" />
+      <point x="4453.942" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyUpdateMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-2.4198422389076768E-4" y="56.50044632193749" />
+      <point x="272.60400000000004" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.PlaceTotemMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-3.77951257632958E-4" y="80.50031955787472" />
+      <point x="4019.023" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnConnectErrorMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-3.7026581435384287E-4" y="56.50013655091061" />
+      <point x="1186.609" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.characters.GathererCard" target="it.polimi.ingsw.am23.model.cards.CharacterCard" relationship="GENERALIZATION">
+      <point x="-2.891722760978155E-5" y="-31.500196189591406" />
+      <point x="5753.579" y="5066.0" />
+      <point x="5183.0" y="5066.0" />
+      <point x="5183.0" y="4998.0" />
+      <point x="6096.219" y="4998.0" />
+      <point x="94.25934524035529" y="140.9998480559616" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnEndOfPlacingPhaseMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-1.938679552040412E-4" y="56.50047150924911" />
+      <point x="5714.808" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnScoreboardAvailableMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-1.993302712435252E-4" y="-56.50045066872826" />
+      <point x="3236.887" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.JoinLobbyMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="8.411103408434428E-5" y="-80.4996378923397" />
+      <point x="6212.139" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.TakeCardMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.672200793720549E-5" y="80.50040792067466" />
+      <point x="6873.885" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.FoodFromTurnOrderBonusEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="15.213849987829803" y="-44.000346870770954" />
+      <point x="1495.516" y="6135.253" />
+      <point x="3540.595" y="6135.253" />
+      <point x="3540.595" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnEraProgressionMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.5271684939507395E-4" y="56.499888792353886" />
+      <point x="5253.235" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.rmi.client.RmiClient" target="it.polimi.ingsw.am23.network.rmi.server.VirtualViewRmi" relationship="REALIZATION">
+      <point x="199.0" y="0.0" />
+      <point x="1380.1557042977715" y="4764.799550055287" />
+      <point x="0.0" y="283.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.state.BuildingCardState" target="it.polimi.ingsw.am23.model.state.CardState" relationship="GENERALIZATION">
+      <point x="-4.328970148890221E-4" y="92.50044721829181" />
+      <point x="3640.922" y="6119.0" />
+      <point x="1286.359" y="6119.0" />
+      <point x="-82.66916670842261" y="116.49967517631194" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.CharacterCard" target="it.polimi.ingsw.am23.model.cards.Card" relationship="GENERALIZATION">
+      <point x="3.452403552728356E-4" y="-141.0001519440384" />
+      <point x="6001.96" y="3546.0" />
+      <point x="6686.639" y="3546.0" />
+      <point x="6686.639" y="1387.263" />
+      <point x="-112.00008914311638" y="102.23290030750991" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.TakeExtraCardMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-4.568695514990395E-4" y="80.50008900808098" />
+      <point x="2249.112" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.controller.GameController" target="it.polimi.ingsw.am23.model.ModelObserver" relationship="REALIZATION">
+      <point x="49.145933859733304" y="-524.0" />
+      <point x="5589.1521359112985" y="1468.587675261459" />
+      <point x="197.5" y="82.33935815264249" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.LeaveLobbyMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.5387851758960096E-4" y="80.5000862058123" />
+      <point x="950.25" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.state.CharacterCardState" target="it.polimi.ingsw.am23.model.state.CardState" relationship="GENERALIZATION">
+      <point x="-3.485310489850235E-4" y="-188.49980225257968" />
+      <point x="2398.612" y="6119.0" />
+      <point x="1286.359" y="6119.0" />
+      <point x="-82.66916670842261" y="116.49967517631194" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.state.EventCardState" target="it.polimi.ingsw.am23.model.state.CardState" relationship="GENERALIZATION">
+      <point x="123.00040830167222" y="3.3888756479427684E-4" />
+      <point x="1246.028" y="5809.28" />
+      <point x="1246.028" y="6119.0" />
+      <point x="1286.359" y="6119.0" />
+      <point x="-82.66916670842261" y="116.49967517631194" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnActionErrorMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.0352975884161424E-4" y="-80.4996073575312" />
+      <point x="5500.417" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnJoinErrorMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-4.4747521201315976E-5" y="56.499981843206115" />
+      <point x="-65.58299999999997" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.ConnectMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-5.041906752012437E-5" y="-56.500288373084004" />
+      <point x="5901.143" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard" target="it.polimi.ingsw.am23.model.cards.EventCard" relationship="GENERALIZATION">
+      <point x="-4.045045725433738E-4" y="-68.50038876815688" />
+      <point x="6128.255" y="5239.0" />
+      <point x="6126.108" y="5239.0" />
+      <point x="6126.108" y="4080.115" />
+      <point x="7134.746" y="4080.115" />
+      <point x="-3.735404770850437E-4" y="116.99971896457191" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.view.gui.JavaFXView" target="it.polimi.ingsw.am23.network.VirtualView" relationship="REALIZATION">
+      <point x="1.1286464632576099E-4" y="-632.0004243125513" />
+      <point x="3672.181" y="3207.0" />
+      <point x="1626.785" y="3207.0" />
+      <point x="1626.785" y="1699.0" />
+      <point x="2794.204" y="1699.0" />
+      <point x="3.109918384325283E-4" y="283.50048320439487" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.events.CavePaintingsEventCard" target="it.polimi.ingsw.am23.model.cards.EventCard" relationship="GENERALIZATION">
+      <point x="4.758546710945666E-4" y="-43.99987720464742" />
+      <point x="6629.326" y="5239.0" />
+      <point x="6126.108" y="5239.0" />
+      <point x="6126.108" y="4080.115" />
+      <point x="7134.746" y="4080.115" />
+      <point x="-3.735404770850437E-4" y="116.99971896457191" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.EndGamePointsPerCharacterTypeEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-2.915226342565802E-4" y="-43.99967407649547" />
+      <point x="1266.016" y="6135.253" />
+      <point x="3540.595" y="6135.253" />
+      <point x="3540.595" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.DoubleBuilderEndGameEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-4.697334879892878E-4" y="43.99973131839579" />
+      <point x="6238.872" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.SustenanceDiscountPerTypeEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="195.99986682220333" y="17.806259782691086" />
+      <point x="3298.539" y="6665.607" />
+      <point x="3298.539" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.RefreshLobbyListMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-2.6499838304516743E-4" y="56.499814245711605" />
+      <point x="1756.765" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.events.ShamanRitualEventCard.ShamanResult" target="it.polimi.ingsw.am23.model.cards.events.ShamanRitualEventCard" relationship="INNER_CLASS">
+      <point x="-36.91871881178395" y="-152.5" />
+      <point x="5450.624404790485" y="5598.57465655676" />
+      <point x="5898.579028917227" y="5598.57465655676" />
+      <point x="18.86042873904171" y="80.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.rmi.server.VirtualViewRmi" target="it.polimi.ingsw.am23.network.VirtualView" relationship="INTERFACE_GENERALIZATION">
+      <point x="0.0" y="-283.5" />
+      <point x="1380.1557042977715" y="1461.9526804081947" />
+      <point x="-199.0" y="91.7321636125896" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.characters.ArtistCard" target="it.polimi.ingsw.am23.model.cards.CharacterCard" relationship="GENERALIZATION">
+      <point x="2.9216431630629813E-4" y="31.50004943195745" />
+      <point x="4597.318" y="4998.0" />
+      <point x="6096.219" y="4998.0" />
+      <point x="94.25934524035529" y="140.9998480559616" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.SkipTurnMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="2.6461363540875027E-4" y="56.50045354194663" />
+      <point x="6536.307" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.EventCard" target="it.polimi.ingsw.am23.model.cards.Card" relationship="GENERALIZATION">
+      <point x="-135.00037354047709" y="-2.810354280882166E-4" />
+      <point x="6956.243" y="3666.454" />
+      <point x="6956.243" y="3546.0" />
+      <point x="6686.639" y="3546.0" />
+      <point x="6686.639" y="1387.263" />
+      <point x="-112.00008914311638" y="102.23290030750991" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.FoodPerInventorPairEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="4.411558684296324E-4" y="-56.00007015355004" />
+      <point x="3901.006" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.view.cli.CLIView" target="it.polimi.ingsw.am23.network.VirtualView" relationship="REALIZATION">
+      <point x="2.338604599572136E-5" y="715.9999794588789" />
+      <point x="2830.626" y="3207.0" />
+      <point x="1626.785" y="3207.0" />
+      <point x="1626.785" y="1699.0" />
+      <point x="2794.204" y="1699.0" />
+      <point x="3.109918384325283E-4" y="283.50048320439487" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.characters.BuilderCard" target="it.polimi.ingsw.am23.model.cards.CharacterCard" relationship="GENERALIZATION">
+      <point x="1.9704076021298533E-4" y="68.99979324123069" />
+      <point x="3791.345" y="5066.0" />
+      <point x="5183.0" y="5066.0" />
+      <point x="5183.0" y="4998.0" />
+      <point x="6096.219" y="4998.0" />
+      <point x="94.25934524035529" y="140.9998480559616" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnConnectedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-1.674486306910694E-4" y="-80.4996844893958" />
+      <point x="3850.378" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.DisconnectMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-9.884139155195044" y="56.500444215931566" />
+      <point x="3476.5" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnGameStartedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="30.827571233582603" y="-56.49958098890511" />
+      <point x="4861.946" y="7029.2" />
+      <point x="4821.0" y="7029.2" />
+      <point x="4821.0" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.controller.GameController.GameAction" target="it.polimi.ingsw.am23.controller.GameController" relationship="INNER_CLASS">
+      <point x="-9.64724872574152E-5" y="-31.499911843059635" />
+      <point x="2932.897" y="5193.0" />
+      <point x="3640.845" y="5193.0" />
+      <point x="3640.845" y="4593.816" />
+      <point x="5540.006" y="4593.816" />
+      <point x="-2.0205156488373177E-4" y="524.0002777580262" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.rmi.client.VirtualServerRmi" target="it.polimi.ingsw.am23.network.VirtualServer" relationship="INTERFACE_GENERALIZATION">
+      <point x="0.0" y="-175.5" />
+      <point x="4945.848923768019" y="1810.692020541121" />
+      <point x="4487.343" y="1810.692020541121" />
+      <point x="14.999581888827379" y="163.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyListUpdatedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="3.5804201615974307E-4" y="56.500229170189414" />
+      <point x="7320.632" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.CreateLobbyMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-4.962122325196106E-4" y="-104.49972591147889" />
+      <point x="4240.209" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyCreatedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.601317084507173E-5" y="56.50023550730202" />
+      <point x="699.663" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnCardsTakenMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="167.0001969848663" y="4.632737955034827E-4" />
+      <point x="4821.0" y="6947.992" />
+      <point x="4821.0" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.StartGameMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="5.8048125083587365E-5" y="80.5004306002902" />
+      <point x="3636.171" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnExtraCardTakenMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="52.81992450628513" y="56.49970874613609" />
+      <point x="6658.307" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.characters.HunterCard" target="it.polimi.ingsw.am23.model.cards.CharacterCard" relationship="GENERALIZATION">
+      <point x="149.5003975458976" y="-1.0739001481852029E-4" />
+      <point x="5183.0" y="4852.023" />
+      <point x="5183.0" y="4998.0" />
+      <point x="6096.219" y="4998.0" />
+      <point x="94.25934524035529" y="140.9998480559616" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.HuntingRewardPerHunterEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-1.233993134519551E-5" y="43.99976428794707" />
+      <point x="5198.519" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.request.RequestLeaderboardMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.248086520419747E-4" y="80.5002227476034" />
+      <point x="2818.003" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.controller.GameController.LobbyRoom" target="it.polimi.ingsw.am23.controller.GameController" relationship="INNER_CLASS">
+      <point x="-4.6439729112535133E-4" y="-56.00023200353644" />
+      <point x="2240.225" y="5193.0" />
+      <point x="3640.845" y="5193.0" />
+      <point x="3640.845" y="4593.816" />
+      <point x="5540.006" y="4593.816" />
+      <point x="-2.0205156488373177E-4" y="524.0002777580262" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.Game" target="it.polimi.ingsw.am23.model.GameModel" relationship="REALIZATION">
+      <point x="-222.5" y="86.00332602882736" />
+      <point x="3595.242648783717" y="2567.9050163635443" />
+      <point x="0.0" y="152.0" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnExtraDrawRequestMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-4.538554699138331E-4" y="-56.500016626575416" />
+      <point x="2637.872" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.FoodPerCompletedSetEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-2.232890683444566E-4" y="56.000452946521364" />
+      <point x="5388.001" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.events.ShamanRitualEventCard" target="it.polimi.ingsw.am23.model.cards.EventCard" relationship="GENERALIZATION">
+      <point x="3.9982181442610454E-4" y="80.0002132671816" />
+      <point x="5879.719" y="5239.0" />
+      <point x="6126.108" y="5239.0" />
+      <point x="6126.108" y="4080.115" />
+      <point x="7134.746" y="4080.115" />
+      <point x="-3.735404770850437E-4" y="116.99971896457191" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnTotemPlacedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-43.5533475733024" y="56.49994266084377" />
+      <point x="534.663" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-139.00014051260314" y="-23.94102115430178" />
+      <point x="5765.0" y="6378.5" />
+      <point x="5765.0" y="6515.29" />
+      <point x="6056.151" y="6515.29" />
+      <point x="6056.151" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnMarketRefreshedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="4.8271575087710517E-4" y="56.49969319426509" />
+      <point x="1477.3220000000001" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.client.SocketClient" target="it.polimi.ingsw.am23.network.VirtualServer" relationship="REALIZATION">
+      <point x="-184.49950662396805" y="-106.05772997561598" />
+      <point x="4730.0" y="3689.5" />
+      <point x="4730.0" y="1879.402" />
+      <point x="4472.343" y="1879.402" />
+      <point x="-4.181111726211384E-4" y="163.49952638137302" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.server.Connector" target="it.polimi.ingsw.am23.network.VirtualView" relationship="REALIZATION">
+      <point x="3.0634345012003905E-4" y="-355.9998616056016" />
+      <point x="1843.285" y="1699.0" />
+      <point x="2794.204" y="1699.0" />
+      <point x="3.109918384325283E-4" y="283.50048320439487" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.events.HuntingEventCard" target="it.polimi.ingsw.am23.model.cards.EventCard" relationship="GENERALIZATION">
+      <point x="-170.00019576069462" y="2.3314757163461763E-4" />
+      <point x="6846.326" y="5298.575" />
+      <point x="6846.326" y="5239.0" />
+      <point x="6126.108" y="5239.0" />
+      <point x="6126.108" y="4080.115" />
+      <point x="7134.746" y="4080.115" />
+      <point x="-3.735404770850437E-4" y="116.99971896457191" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.BuildingCard" target="it.polimi.ingsw.am23.model.cards.Card" relationship="GENERALIZATION">
+      <point x="-3.3910362981259823E-4" y="-116.99996731530291" />
+      <point x="6767.743" y="3546.0" />
+      <point x="6686.639" y="3546.0" />
+      <point x="6686.639" y="1387.263" />
+      <point x="-112.00008914311638" y="102.23290030750991" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnLobbyClosedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-111.91151866282661" y="31.499980111217155" />
+      <point x="109.60399999999998" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.NoLossIfLastShamanEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-221.99958354817045" y="-11.224687092641943" />
+      <point x="6694.136" y="6432.442" />
+      <point x="6694.136" y="6291.478" />
+      <point x="5765.0" y="6291.478" />
+      <point x="5765.0" y="6515.29" />
+      <point x="6056.151" y="6515.29" />
+      <point x="6056.151" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnEventResolvedMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-2.7619503816822544E-4" y="56.4998102788968" />
+      <point x="6187.808" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnLeaderboardAvailableMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-198.99992882063543" y="-4.6971369192760903E-4" />
+      <point x="4821.0" y="6938.19" />
+      <point x="4821.0" y="6752.0" />
+      <point x="3499.911" y="6752.0" />
+      <point x="3499.911" y="6833.794" />
+      <point x="2988.503" y="6833.794" />
+      <point x="2988.503" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnMatchRankingsAvailableMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-4.808019593838253E-4" y="56.49955475418665" />
+      <point x="7104.355" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.CavePaintingsFoodPerArtistEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-226.49957390427517" y="-2.282379004645918" />
+      <point x="5765.0" y="6291.478" />
+      <point x="5765.0" y="6515.29" />
+      <point x="6056.151" y="6515.29" />
+      <point x="6056.151" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.EndGamePointsPerCompleteSetEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="-173.00031122751625" y="-12.036919430384842" />
+      <point x="5765.0" y="6340.941" />
+      <point x="5765.0" y="6515.29" />
+      <point x="6056.151" y="6515.29" />
+      <point x="6056.151" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.network.socket.messages.response.OnGameOverMessage" target="it.polimi.ingsw.am23.network.socket.messages.Message" relationship="GENERALIZATION">
+      <point x="-9.124597727350192E-5" y="31.50024957478672" />
+      <point x="4454.831" y="7316.0" />
+      <point x="1637.0" y="7316.0" />
+      <point x="1637.0" y="7136.0" />
+      <point x="81.51600000000002" y="7136.0" />
+      <point x="81.51600000000002" y="6589.93" />
+      <point x="-60.999851169614914" y="-2.0712005607492756E-4" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.characters.ShamanCard" target="it.polimi.ingsw.am23.model.cards.CharacterCard" relationship="GENERALIZATION">
+      <point x="-137.49997520547095" y="3.4344324012636207E-4" />
+      <point x="5183.0" y="5425.075" />
+      <point x="5183.0" y="4998.0" />
+      <point x="6096.219" y="4998.0" />
+      <point x="94.25934524035529" y="140.9998480559616" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.effects.buildings.ShamanBonusStarsEffect" target="it.polimi.ingsw.am23.model.effects.BuildingEffect" relationship="REALIZATION">
+      <point x="3.303247212897986E-4" y="44.00034450380099" />
+      <point x="5816.651" y="6729.0" />
+      <point x="4214.442" y="6729.0" />
+      <point x="4214.442" y="6567.0" />
+      <point x="4468.942" y="6567.0" />
+      <point x="4468.942" y="6385.308" />
+      <point x="4300.204" y="6385.308" />
+      <point x="4300.204" y="5710.781" />
+      <point x="-226.50021590143842" y="-75.23147593202884" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.cards.characters.InventorCard" target="it.polimi.ingsw.am23.model.cards.CharacterCard" relationship="GENERALIZATION">
+      <point x="-3.1690451487520477E-4" y="81.00035966909581" />
+      <point x="4235.072" y="5066.0" />
+      <point x="5183.0" y="5066.0" />
+      <point x="5183.0" y="4998.0" />
+      <point x="6096.219" y="4998.0" />
+      <point x="94.25934524035529" y="140.9998480559616" />
+    </edge>
+    <edge source="it.polimi.ingsw.am23.model.setup.Setup.DrawResult" target="it.polimi.ingsw.am23.model.setup.Setup" relationship="INNER_CLASS">
+      <point x="-3.080295946347178E-4" y="67.99960914442818" />
+      <point x="6470.633" y="5944.0" />
+      <point x="7272.689" y="5944.0" />
+      <point x="-62.34529859364193" y="140.00041754852646" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.45988050173347195" showDependencies="false" x="3207.3572887214323" y="5596.104856891742" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
