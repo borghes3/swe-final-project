@@ -137,29 +137,30 @@ Coverage reports are available in the coverage folder.
 ### Game Board
 
 <div align="center">
-  <img width="800" alt="Game board" src="https://github.com/user-attachments/assets/d58c21c7-664c-429a-ae3a-846807878443">
-  <img width="800" alt="Game board" src="https://github.com/user-attachments/assets/ce002c0d-f440-4a47-965e-bfb3a525a29c">
+  <img width="800" alt="GUI Game Board" src="https://github.com/user-attachments/assets/85c6272e-e70d-4e0c-92a3-5602c45cba76" />
+  <img width="800" alt="CLI Game Board" src="https://github.com/user-attachments/assets/1d36d191-eda7-4691-8756-bcf906d3c184" />
 </div>
 
 ### Lobby & Connection
 
 <div align="center">
-  <img width="260" alt="Connection" src="https://github.com/user-attachments/assets/6b655044-6d3b-48df-b2ae-468fbe6fcfe4">
-  <img width="260" alt="Connection" src="https://github.com/user-attachments/assets/6c4ece93-71bf-49c9-818b-da16c9e7dc4a">
-  <img width="260" alt="Lobby" src="https://github.com/user-attachments/assets/e3c6d462-c764-4f0c-b7c9-83ccc3a2f3f5">
+  <img width="260" alt="CLI Connection" src="https://github.com/user-attachments/assets/349fb434-6c01-4773-8723-70adfb0de27c" />
+  <img width="260" alt="GUI Connection" src="https://github.com/user-attachments/assets/c48a2e03-6759-4b74-a8d0-765a1d2edff9" />
+  <img width="260" alt="GUI Lobby" src="https://github.com/user-attachments/assets/69b73cea-5237-4e6e-a1e0-4858b22068b4" />
+
 </div>
 
 ### Events
 
 <div align="center">
-  <img width="340" alt="Events" src="https://github.com/user-attachments/assets/27ca1f89-5078-4892-946b-5fb50292fb62">
+  <img width="340" alt="GUI Events" src="https://github.com/user-attachments/assets/c70ef2cc-eecf-4d92-b090-f6cad3162feb" />
 </div>
 
 ### Scoreboard & Leaderboard
 
 <div align="center">
-  <img width="320" alt="Scoreboard" src="https://github.com/user-attachments/assets/f6306b89-7d86-416d-a352-4d92157d5c56">
-  <img width="320" alt="Leaderboard" src="https://github.com/user-attachments/assets/34709e7d-5885-448c-8fdb-b5cf8a9f2ab5">
+  <img width="320" alt="CLI Scoreboard" src="https://github.com/user-attachments/assets/e638638c-880d-4f52-8ad3-ca2ca1fa40ca" />
+  <img width="320" alt="GUI Leaderboard" src="https://github.com/user-attachments/assets/1257bb73-60d7-47b2-b2c2-d9cb468d55fb" />
 </div>
 
 <br><br>
