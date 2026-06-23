@@ -30,6 +30,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
+import static it.polimi.ingsw.am23.view.cli.CLIColors.BR_MAGENTA;
+import static it.polimi.ingsw.am23.view.cli.CLIColors.paint;
+
 /**
  * Command line view for the Mesos client. It talks to the server through a
  * {@link VirtualServer}, keeps a local copy of the game state, reads commands
@@ -58,6 +61,7 @@ public final class CLIView implements VirtualView {
     private volatile boolean owner;
     private volatile String connectError;
     private volatile List<LobbyState> lobbies = List.of();
+    private volatile boolean awaitingReturnToLobby = false;
 
     private volatile GameState currentGameState;
     private volatile CardState currentPeekedCard;
@@ -225,6 +229,25 @@ public final class CLIView implements VirtualView {
 
             String trimmed = line == null ? "" : line.trim();
             if (trimmed.isEmpty()) {
+                if (awaitingReturnToLobby) {
+                    awaitingReturnToLobby = false;
+
+                    currentGameState = null;
+                    currentPeekedCard = null;
+                    currentLobbyId = null;
+                    owner = false;
+
+                    if (server != null && playerId != null) {
+                        try {
+                            server.requestLobbyList(playerId);
+                        } catch (Exception e) {
+                            renderCurrentScreen(INFO_MARKER + " Error requesting lobby: " + e.getMessage());
+                        }
+                    }
+
+                    renderCurrentScreen(INFO_MARKER + " Returned to lobby.");
+                }
+
                 continue;
             }
 
@@ -257,6 +280,9 @@ public final class CLIView implements VirtualView {
     @Override
     public synchronized void onLobbyListUpdated(List<LobbyState> lobbies) {
         this.lobbies = List.copyOf(lobbies);
+        if (awaitingReturnToLobby) {
+            return; // keep the scoreboard on screen until the user presses ENTER
+        }
         renderCurrentScreen(INFO_MARKER + " Updated lobby list.");
     }
 
@@ -278,7 +304,7 @@ public final class CLIView implements VirtualView {
             this.lobbies = mergeLobbyIntoList(this.lobbies, lobby);
             renderCurrentScreen(WARNING_MARKER + " Game interrupted: a player left. Back to lobby.");
             return;
-        }
+        } // not required for the current functionality (GameController uses onLobbyClosed), but it has been left as fallback
         if (containsPlayer(lobby, playerId)) {
             this.currentLobbyId = lobby.getLobbyId();
             this.owner = Objects.equals(lobby.getOwnerPlayerId(), playerId);
@@ -562,12 +588,34 @@ public final class CLIView implements VirtualView {
 
     @Override
     public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
+        awaitingReturnToLobby = true;
+        System.out.println();
+        System.out.println(paint(BR_MAGENTA, INFO_MARKER + " Press ENTER to return to lobby."));
+
         // Print the final scoreboard, players sorted from highest to lowest score.
         System.out.println();
         System.out.println(TITLE_MARKER + " FINAL SCOREBOARD " + TITLE_MARKER);
-        payload.scores().stream()
-                .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints).reversed())
-                .forEach(s -> System.out.println("  " + s.nickname() + ": " + s.totalPrestigePoints() + " PP"));
+
+        List<PlayerScore> ranked = payload.scores().stream()
+                .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints)
+                        .thenComparingInt(PlayerScore::foodPoints)
+                        .reversed())
+                .toList();
+
+        int position = 1;
+        for (int i = 0; i < ranked.size(); i++) {
+            PlayerScore s = ranked.get(i);
+            if (i > 0) {
+                PlayerScore prev = ranked.get(i - 1);
+                boolean tie = s.totalPrestigePoints() == prev.totalPrestigePoints()
+                        && s.foodPoints() == prev.foodPoints();
+                if (!tie) {
+                    position = i + 1;
+                }
+            }
+            System.out.println("  " + position + "° " + s.nickname() + ": " + s.totalPrestigePoints() + " PP (food " + s.foodPoints() + ")");
+        }
+
         System.out.println();
     }
 

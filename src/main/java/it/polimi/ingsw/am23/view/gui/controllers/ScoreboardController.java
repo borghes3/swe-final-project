@@ -103,7 +103,7 @@ public class ScoreboardController {
             positionLabel.setText("Global position: n/a ( "
                     + payload.playerCount() + " -player games)");
         } else {
-            positionLabel.setText("You are #\" + pos + \" in the global leaderboard for "
+            positionLabel.setText("You are #" + pos + " in the global leaderboard for "
                     + payload.playerCount() + " -player games.");
         }
 

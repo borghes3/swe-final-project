@@ -3,16 +3,16 @@ package it.polimi.ingsw.am23.view.cli;
 import java.util.Map;
 
 public final class CLIColors {
-    static final String RESET = "\u001B[0m"; // cancella tutti gli effetti
-
-    // da ANSI Escape Codes
+    // from ANSI Escape Codes
+    static final String RESET = "\u001B[0m"; // cancel all effects
     static final String BOLD = "\u001B[1m";
-    static final String DIM = "\u001B[2m"; // testo meno visibile
+    static final String DIM = "\u001B[2m";
     // Bright
     static final String BR_RED = "\u001B[91m";
     static final String BR_GREEN = "\u001B[92m";
     static final String BR_YELLOW = "\u001B[93m";
     static final String BR_BLUE = "\u001B[94m";
+    static final String BR_MAGENTA = "\u001B[95m";
     static final String BR_CYAN = "\u001B[96m";
     static final String BR_WHITE = "\u001B[97m";
     public static final Map<String, String> TOTEM_COLORS = Map.of(
@@ -41,7 +41,7 @@ public final class CLIColors {
 
     static String rule(int width) {
         return "-".repeat(width);
-    } // crea ----
+    } // create ----
 
     static String blankWidth(int w) {
         return " ".repeat(w);

@@ -342,6 +342,9 @@ public class JavaFXView extends Application implements VirtualView {
         Platform.runLater(() -> {
             try {
                 waitingRoomController = null;
+                gameScreenController = null;
+                scoreboardController = null;
+                currentGameState = null;
                 showLobbyScreen(java.util.List.of());
                 if (!leftVoluntarily) {
                     lobbyController.showError("The lobby has been closed. Choose a new one.");

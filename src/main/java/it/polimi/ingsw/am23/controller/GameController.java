@@ -259,18 +259,35 @@ public final class GameController implements VirtualServer, ModelObserver {
 
         LobbyRoom lobby = requireLobby(lobbyId);
 
-        if (gamesByLobbyId.containsKey(lobbyId)) {
-            // player in a game, for simplicity we just remove the game and kick everyone out of the lobby
-            gamesByLobbyId.remove(lobbyId);
-            if (Objects.equals(activeLobbyId, lobbyId)) {
-                activeLobbyId = null;
-            }
-        }
+        Game game = gamesByLobbyId.get(lobbyId);
+        boolean gameInProgress = game != null && game.getGamePhase() != GamePhase.ENDED;
 
         lobby.state.removePlayer(playerId);
         lobbyByPlayerId.remove(playerId);
         clientsByPlayerId.remove(playerId);
         playersById.remove(playerId);
+
+        if (gameInProgress) {
+            // a player disconnected during the match: the match is cancelled for everyone,
+            // the lobby is removed, so the remaining players return to a clean lobby list
+            for (String memberId : lobby.memberIds()) {
+                VirtualView view = clientsByPlayerId.get(memberId);
+                if (view != null) {
+                    try { view.onLobbyClosed(); } catch (Exception ignored) {}
+                }
+            }
+            destroyLobby(lobbyId);
+            return;
+        }
+
+        if (game != null) {
+            // match ALREADY ENDED: the others are still watching the leaderboard,
+            // we don't interrupt them, we only clean up when the last player leaves
+            if (lobby.state.getCurrentPlayers() == 0) {
+                destroyLobby(lobbyId);
+            }
+            return;
+        }
 
         if (lobby.state.getCurrentPlayers() == 0) {
             lobbiesById.remove(lobbyId);
@@ -361,8 +378,38 @@ public final class GameController implements VirtualServer, ModelObserver {
 
     @Override
     public synchronized void onScoreboardAvailable(ScoreBoardPayload payload) {
-        broadcastToLobby(activeLobbyId, view -> view.onScoreboardAvailable(payload));
-        persistAndBroadcastRankings(activeLobbyId, payload);
+        String finishedLobbyId = activeLobbyId;
+        broadcastToLobby(finishedLobbyId, view -> view.onScoreboardAvailable(payload));
+        persistAndBroadcastRankings(finishedLobbyId, payload);
+        dismissFinishedLobby(finishedLobbyId);
+    }
+
+    private void dismissFinishedLobby(String lobbyId) {
+        if (lobbyId == null) return;
+        gamesByLobbyId.remove(lobbyId);
+        scoredLobbyIds.remove(lobbyId);
+        if (Objects.equals(activeLobbyId, lobbyId)) activeLobbyId = null;
+        LobbyRoom lobby = lobbiesById.remove(lobbyId);
+        Set<String> finishedMembers = new HashSet<>();
+        if (lobby != null) {
+            for (String memberId : lobby.memberIds()) {
+                lobbyByPlayerId.remove(memberId);
+                finishedMembers.add(memberId);
+            }
+        }
+        try {
+            broadcastLobbyListExcept(finishedMembers);
+        } catch (Exception ignored) {}
+    }
+
+    private void broadcastLobbyListExcept(Set<String> skipPlayerIds) throws Exception {
+        List<LobbyState> lobbyStates = currentLobbyStates();
+        for (Map.Entry<String, VirtualView> entry : clientsByPlayerId.entrySet()) {
+            String pid = entry.getKey();
+            if (lobbyByPlayerId.containsKey(pid)) continue;   // already in another lobby
+            if (skipPlayerIds.contains(pid)) continue;         // just left the finished match
+            entry.getValue().onLobbyListUpdated(lobbyStates);
+        }
     }
 
     private void persistAndBroadcastRankings(String lobbyId, ScoreBoardPayload payload) {
@@ -507,9 +554,36 @@ public final class GameController implements VirtualServer, ModelObserver {
     }
 
     private List<LobbyState> currentLobbyStates() {
+        // we only show lobbies that are still open: those that are in progress or already finished cannot be accessed
         return lobbiesById.values().stream()
+                .filter(lobby -> lobby.state.getLobbyPhase() == LobbyPhase.OPEN)
                 .map(lobby -> copyLobby(lobby.state))
                 .toList();
+    }
+
+    /**
+     * Permanently ends and removes a lobby (finished or cancelled match):
+     * deletes the match and the lobby, removes members from the membership map, and
+     * updates the lobby list for everyone, so the lobby is no longer visible.
+     */
+    private void destroyLobby(String lobbyId) {
+        if (lobbyId == null) {
+            return;
+        }
+        gamesByLobbyId.remove(lobbyId);
+        scoredLobbyIds.remove(lobbyId);
+        if (Objects.equals(activeLobbyId, lobbyId)) {
+            activeLobbyId = null;
+        }
+        LobbyRoom lobby = lobbiesById.remove(lobbyId);
+        if (lobby != null) {
+            for (String memberId : lobby.memberIds()) {
+                lobbyByPlayerId.remove(memberId);
+            }
+        }
+        try {
+            broadcastLobbyList();
+        } catch (Exception ignored) {}
     }
 
     private void broadcastToLobby(String lobbyId, RemoteViewAction action) {
@@ -547,6 +621,7 @@ public final class GameController implements VirtualServer, ModelObserver {
         for (PlayerConnectionInfo p : source.getPlayers()) {
             copy.addPlayer(p);
         }
+        copy.setLobbyPhase(source.getLobbyPhase());
         return copy;
     }
 
