@@ -1,52 +1,56 @@
 package it.polimi.ingsw.am23.network.rmi.client;
 
-import it.polimi.ingsw.am23.network.VirtualServer;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Schedules a periodic ping toward the supplied RMI server to detect
- * connection drops. On failure, the supplied callback is invoked and the
- * service stops.
+ * RMI-only heartbeat service.
+ * Periodically sends the connected player id to the server so the server
+ * can detect involuntary client disconnections.
  */
 public class HeartbeatService {
 
-    private final VirtualServer server;
-    private final Runnable onDisconnected;
+    private final VirtualServerRmi server;
+    private final String playerId;
+    private final Runnable onServerDisconnected;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-        Thread t = new Thread(r, "heartbeat");
+        Thread t = new Thread(r, "rmi-heartbeat");
         t.setDaemon(true);
         return t;
     });
     private volatile boolean stopped = false;
 
     /**
-     * Builds a new heartbeat service.
+     * Builds a heartbeat service for a connected RMI player.
      *
-     * @param server         remote server to ping
-     * @param onDisconnected callback invoked on a failed ping
+     * @param server               remote RMI server
+     * @param playerId             id of the connected player
+     * @param onServerDisconnected callback invoked if the server cannot be reached
      */
-    public HeartbeatService(VirtualServer server, Runnable onDisconnected) {
+    public HeartbeatService(VirtualServerRmi server, String playerId, Runnable onServerDisconnected) {
         this.server = server;
-        this.onDisconnected = onDisconnected;
+        this.playerId = playerId;
+        this.onServerDisconnected = onServerDisconnected;
     }
 
     /**
-     * Starts pinging the server at a fixed cadence of 2 seconds.
+     * Starts sending heartbeat pings at a fixed cadence.
      */
     public void start() {
         scheduler.scheduleAtFixedRate(() -> {
-            if (stopped) return;
+            if (stopped) {
+                return;
+            }
+
             try {
-                server.ping();
+                server.ping(playerId);
             } catch (Exception e) {
                 stopped = true;
-                scheduler.shutdown();
-                onDisconnected.run();
+                scheduler.shutdownNow();
+                onServerDisconnected.run();
             }
-        }, 2, 2, TimeUnit.SECONDS);
+        }, 0, 2, TimeUnit.SECONDS);
     }
 
     /**
@@ -54,6 +58,6 @@ public class HeartbeatService {
      */
     public void stop() {
         stopped = true;
-        scheduler.shutdown();
+        scheduler.shutdownNow();
     }
 }

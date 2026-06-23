@@ -128,7 +128,7 @@ public class JavaFXView extends Application implements VirtualView {
         waitingRoomController.setView(this);
         waitingRoomController.setOwner(owner);
         waitingRoomController.setLobbyInfo(lobby.getLobbyId(), lobby.getLobbyName(), lobby.getMaxPlayers());
-        waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(PlayerConnectionInfo::nickname).collect(java.util.stream.Collectors.toList()));
+        waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(PlayerConnectionInfo::nickname).collect(Collectors.toList()));
         primaryStage.setScene(new Scene(root, 400, 500));
     }
 
@@ -184,8 +184,8 @@ public class JavaFXView extends Application implements VirtualView {
         } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                        javafx.scene.control.Alert.AlertType.WARNING
+                Alert alert = new Alert(
+                        Alert.AlertType.WARNING
                 );
                 alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
@@ -201,8 +201,8 @@ public class JavaFXView extends Application implements VirtualView {
         } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                        javafx.scene.control.Alert.AlertType.WARNING
+                Alert alert = new Alert(
+                        Alert.AlertType.WARNING
                 );
                 alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
@@ -221,8 +221,8 @@ public class JavaFXView extends Application implements VirtualView {
         } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                        javafx.scene.control.Alert.AlertType.WARNING
+                Alert alert = new Alert(
+                        Alert.AlertType.WARNING
                 );
                 alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
@@ -238,8 +238,8 @@ public class JavaFXView extends Application implements VirtualView {
         } catch (Exception e) {
             String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             Platform.runLater(() -> {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                        javafx.scene.control.Alert.AlertType.WARNING
+                Alert alert = new Alert(
+                        Alert.AlertType.WARNING
                 );
                 alert.setTitle("Invalid action.");
                 alert.setHeaderText(null);
@@ -315,7 +315,7 @@ public class JavaFXView extends Application implements VirtualView {
                     waitingRoomController.updatePlayerList(
                             lobby.getPlayers().stream()
                                     .map(PlayerConnectionInfo::nickname)
-                                    .collect(java.util.stream.Collectors.toList())
+                                    .collect(Collectors.toList())
                     );
                 } else { // chi fa join entra nella waiting room
                     this.currentLobbyId = lobby.getLobbyId();
@@ -345,7 +345,7 @@ public class JavaFXView extends Application implements VirtualView {
                 gameScreenController = null;
                 scoreboardController = null;
                 currentGameState = null;
-                showLobbyScreen(java.util.List.of());
+                showLobbyScreen(List.of());
                 if (!leftVoluntarily) {
                     lobbyController.showError("The lobby has been closed. Choose a new one.");
                 }
@@ -701,7 +701,7 @@ public class JavaFXView extends Application implements VirtualView {
         Parent root = loader.load();
         scoreboardController = loader.getController();
         scoreboardController.setView(this);
-        scoreboardController.showScoreboard(payload);
+        scoreboardController.showScoreboard(payload, playerId);
         primaryStage.getScene().setRoot(root);
     }
 
@@ -726,8 +726,8 @@ public class JavaFXView extends Application implements VirtualView {
     @Override
     public void onActionError(ActionType actionType, String message) {
         Platform.runLater(() -> {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.WARNING
+            Alert alert = new Alert(
+                    Alert.AlertType.WARNING
             );
             alert.setTitle("Invalid action.");
             alert.setHeaderText(null);
@@ -749,7 +749,7 @@ public class JavaFXView extends Application implements VirtualView {
             gameScreenController = null;
             scoreboardController = null;
 
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+            Alert alert = new Alert(
                     Alert.AlertType.ERROR
             );
             alert.setTitle("Connection lost.");

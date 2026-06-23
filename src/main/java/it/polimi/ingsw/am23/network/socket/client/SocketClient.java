@@ -237,14 +237,5 @@ public final class SocketClient implements VirtualServer {
     public void requestLeaderboard(String playerId, int playerCount) throws Exception {
         send(new RequestLeaderboardMessage(playerId, playerCount));
     }
-
-    /**
-     * {@inheritDoc}
-     * <p>No-op on the socket transport: the reader loop already detects
-     * connection drops, so no application-level ping is needed.</p>
-     */
-    @Override
-    public void ping() {
-    }
 }
 

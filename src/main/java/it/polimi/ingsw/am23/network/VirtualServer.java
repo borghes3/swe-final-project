@@ -109,13 +109,6 @@ public interface VirtualServer {
     void disconnect(String playerId) throws Exception;
 
     /**
-     * Heartbeat ping used by the client to detect server availability.
-     *
-     * @throws Exception on transport failure
-     */
-    void ping() throws Exception;
-
-    /**
      * Requests the global leaderboard for a given player-count slice.
      *
      * @param playerId    id of the requesting player

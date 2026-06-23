@@ -259,19 +259,31 @@ public class GameScreenController {
 
     // BOARD
 
+    /**
+     * Updates all board-related components and prepares both CSS colors and
+     * logical totem colors for rendering.
+     *
+     * @param board current board state
+     * @param players current players
+     * @param phase current game phase
+     */
     private void updateBoard(BoardState board, List<PlayerState> players, GamePhase phase) {
         Map<String, String> nicknames = new HashMap<>();
-        Map<String, String> colors = new HashMap<>();
+        Map<String, String> cssColors = new HashMap<>();
+        Map<String, String> totemAssetColors = new HashMap<>();
 
         for (PlayerState p : players) {
+            String rawColor = p.totemColor();
+
             nicknames.put(p.playerId(), p.nickname());
-            colors.put(p.playerId(), resolveTotemColor(p.totemColor()));
+            cssColors.put(p.playerId(), resolveTotemColor(rawColor));
+            totemAssetColors.put(p.playerId(), resolveTotemAssetColor(rawColor));
         }
 
         updateCardRow(topRowContainer, board.topRow(), board.topBuildings(), phase, true);
         updateCardRow(bottomRowContainer, board.bottomRow(), board.bottomBuildings(), phase, false);
-        updateOfferTiles(board.offerTiles(), nicknames, colors, phase, board);
-        updateTurnOrder(board.turnOrderSlots(), nicknames, colors);
+        updateOfferTiles(board.offerTiles(), nicknames, cssColors, totemAssetColors, phase, board);
+        updateTurnOrder(board.turnOrderSlots(), nicknames, totemAssetColors);
     }
 
     private void updateCardRow(HBox container,
@@ -296,7 +308,8 @@ public class GameScreenController {
 
     private void updateOfferTiles(List<OfferTileState> tiles,
                                   Map<String, String> nicknames,
-                                  Map<String, String> colors,
+                                  Map<String, String> cssColors,
+                                  Map<String, String> totemAssetColors,
                                   GamePhase phase, BoardState board) {
         offerTilesContainer.getChildren().clear();
         offerTilesContainer.setAlignment(Pos.CENTER);
@@ -309,13 +322,13 @@ public class GameScreenController {
         tiles.stream()
                 .sorted(Comparator.comparingInt(OfferTileState::positionIndex))
                 .forEach(tile -> offerTilesContainer.getChildren().add(
-                        buildOfferTile(tile, nicknames, colors, phase, board)
+                        buildOfferTile(tile, nicknames, cssColors, totemAssetColors, phase, board)
                 ));
     }
 
     private void updateTurnOrder(List<TurnOrderSlotState> slots,
                                  Map<String, String> nicknames,
-                                 Map<String, String> colors) {
+                                 Map<String, String> totemAssetColors) {
         turnOrderContainer.getChildren().clear();
 
         if (slots == null || slots.isEmpty()) {
@@ -346,7 +359,7 @@ public class GameScreenController {
                 TurnOrderNodeFactory.createTurnOrderNode(
                         sortedSlots,
                         nicknames,
-                        colors,
+                        totemAssetColors,
                         width,
                         height
                 )
@@ -473,24 +486,30 @@ public class GameScreenController {
 
     private StackPane buildOfferTile(OfferTileState tile,
                                      Map<String, String> nicknames,
-                                     Map<String, String> colors,
+                                     Map<String, String> cssColors,
+                                     Map<String, String> totemAssetColors,
                                      GamePhase phase, BoardState currentBoard) {
         String occupied = tile.occupiedByPlayerId();
 
         String borderColor = occupied != null
-                ? colors.getOrDefault(occupied, "#f5f0e8")
+                ? cssColors.getOrDefault(occupied, "#f5f0e8")
                 : "#f5f0e840";
 
         String occupantName = occupied != null
                 ? nicknames.getOrDefault(occupied, "?")
                 : null;
 
+        String occupantTotemColor = occupied != null
+                ? totemAssetColors.getOrDefault(occupied, "WHITE")
+                : "WHITE";
+
         StackPane box = OfferTileNodeFactory.createOfferTileNode(
                 tile,
                 tileW,
                 tileH,
                 borderColor,
-                occupantName
+                occupantName,
+                occupantTotemColor
         );
 
         // evidenzia la tile del giocatore corrente in fase di pescaggio
@@ -501,7 +520,7 @@ public class GameScreenController {
                 && myPlayerId.equals(lastState.currentPlayerId());
 
         if (isMyActiveTile) {
-            String myColor = colors.getOrDefault(myPlayerId, "#f5f0e8");
+            String myColor = cssColors.getOrDefault(myPlayerId, "#f5f0e8");
             // crea un rettangolo overlay con bordo colorato
             javafx.scene.shape.Rectangle border = new javafx.scene.shape.Rectangle(tileW, tileH);
             border.setFill(javafx.scene.paint.Color.TRANSPARENT);
@@ -880,12 +899,17 @@ public class GameScreenController {
                         "-fx-border-radius: 12;" +
                         "-fx-border-width: 2;"
         );
-        HBox nameRow = new HBox();
+        HBox nameRow = new HBox(6);
         nameRow.setAlignment(Pos.CENTER_LEFT);
+
+        StackPane playerTotem = TotemNodeFactory.createVerticalTotem(
+                resolveTotemAssetColor(player.totemColor()),
+                22
+        );
 
         Label nameLabel = new Label(player.nickname());
         nameLabel.setStyle("-fx-text-fill: #f5f0e8; -fx-font-size: 13px; -fx-font-weight: bold;");
-        nameRow.getChildren().add(nameLabel);
+        nameRow.getChildren().addAll(playerTotem, nameLabel);
 
         if (isMe) {
             Region spacer = new Region();
@@ -1044,6 +1068,30 @@ public class GameScreenController {
     }
 
     // HELPERS
+
+    /**
+     * Converts the raw model color into the logical color used by totem assets.
+     * The model may expose either enum-like names or CSS hex values.
+     *
+     * @param totemColor raw model color
+     * @return logical totem asset color
+     */
+    private String resolveTotemAssetColor(String totemColor) {
+        if (totemColor == null || totemColor.isBlank()) {
+            return "WHITE";
+        }
+
+        String normalized = totemColor.trim().toUpperCase();
+
+        return switch (normalized) {
+            case "RED", "#EE2737" -> "RED";
+            case "YELLOW", "#F1C400" -> "YELLOW";
+            case "BLUE", "#008EAA" -> "BLUE";
+            case "BLACK", "PURPLE", "#41273B" -> "BLACK";
+            case "WHITE", "#FFFFFF" -> "WHITE";
+            default -> "WHITE";
+        };
+    }
 
     private String resolveTotemColor(String totemColor) {
         if (totemColor == null) {

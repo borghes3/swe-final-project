@@ -38,6 +38,8 @@ public final class Connector implements VirtualView, Runnable {
     });
     private ObjectOutputStream out;
     private volatile boolean sendingEnabled = true;
+    private String connectedPlayerId;
+    private boolean explicitDisconnect = false;
 
     /**
      * Builds a new connector for the supplied client socket.
@@ -70,6 +72,7 @@ public final class Connector implements VirtualView, Runnable {
             System.err.println("<Connector>: error –> " + e.getMessage());
             e.printStackTrace();
         } finally {
+            handleUnexpectedDisconnect();
             close();
         }
     }
@@ -139,6 +142,7 @@ public final class Connector implements VirtualView, Runnable {
                 }
 
             } else if (message instanceof DisconnectMessage m) {
+                explicitDisconnect = true;
                 try {
                     serverController.disconnect(m.getPlayerId());
                 } catch (Exception ignored) {
@@ -158,6 +162,24 @@ public final class Connector implements VirtualView, Runnable {
             } else {
                 System.err.println("<Controller>: unknown message –>" + message.getClass().getName());
             }
+        }
+    }
+
+    /**
+     * Converts an unexpected socket close into the same controller-level
+     * disconnect used by an explicit disconnect request.
+     */
+    private void handleUnexpectedDisconnect() {
+        if (explicitDisconnect || connectedPlayerId == null) {
+            return;
+        }
+
+        try {
+            System.err.println("[Socket] Player disconnected unexpectedly: " + connectedPlayerId);
+            serverController.disconnect(connectedPlayerId);
+        } catch (Exception e) {
+            System.err.println("[Socket] Error while disconnecting player "
+                    + connectedPlayerId + ": " + e.getMessage());
         }
     }
 
@@ -199,8 +221,17 @@ public final class Connector implements VirtualView, Runnable {
         });
     }
 
+    /**
+     * Sends the successful connection notification and stores the assigned
+     * player id so an unexpected socket close can be translated into a
+     * controller-level disconnect.
+     *
+     * @param playerId id assigned by the server
+     * @param lobbies current lobby snapshot
+     */
     @Override
     public void onConnected(String playerId, List<LobbyState> lobbies) {
+        this.connectedPlayerId = playerId;
         send(new OnConnectedMessage(playerId, lobbies));
     }
 

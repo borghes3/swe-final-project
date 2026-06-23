@@ -39,8 +39,11 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
      * caller passed {@code 0} (which asks RMI for a free random port).
      */
     private static volatile int lastBoundCallbackPort = -1;
+    private static volatile HeartbeatService activeHeartbeatService;
 
     private final VirtualView view;
+    private final VirtualServerRmi server;
+    private HeartbeatService heartbeatService;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     /**
@@ -48,14 +51,16 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
      * exports the callback object on the requested port.
      *
      * @param view         local view receiving the dispatched callbacks
+     * @param server       remote server used by the heartbeat service
      * @param callbackPort TCP port used by the server to deliver callbacks;
      *                     {@code 0} lets RMI pick a free random port
      * @throws RemoteException if the underlying {@link UnicastRemoteObject}
      *                         export fails
      */
-    public RmiClient(VirtualView view, int callbackPort) throws RemoteException {
+    public RmiClient(VirtualView view, VirtualServerRmi server, int callbackPort) throws RemoteException {
         super(callbackPort);
         this.view = Objects.requireNonNull(view, "view cannot be null");
+        this.server = Objects.requireNonNull(server, "server cannot be null");
     }
 
     /**
@@ -106,19 +111,63 @@ public final class RmiClient extends UnicastRemoteObject implements VirtualViewR
         final String serverName = "ServerName";
         Registry registry = LocateRegistry.getRegistry(host, 1234);
         VirtualServerRmi server = (VirtualServerRmi) registry.lookup(serverName);
-        RmiClient client = new RmiClient(view, callbackPort);
+        RmiClient client = new RmiClient(view, server, callbackPort);
         server.connect(playerName, client);
         return server;
     }
 
+    /**
+     * Receives the assigned player id, starts the RMI heartbeat and forwards
+     * the connection event to the local view.
+     *
+     * @param playerId id assigned by the server
+     * @param lobbies current lobby snapshot
+     * @throws RemoteException on RMI transport failure
+     */
     @Override
     public void onConnected(String playerId, List<LobbyState> lobbies) throws RemoteException {
+        startHeartbeat(playerId);
+
         executor.submit(() -> {
             try {
                 view.onConnected(playerId, lobbies);
             } catch (Exception ignored) {
             }
         });
+    }
+
+
+    /**
+     * Starts the heartbeat for this RMI client if it has not been started yet.
+     *
+     * @param playerId id assigned by the server to this client
+     */
+    private void startHeartbeat(String playerId) {
+        if (heartbeatService != null) {
+            return;
+        }
+
+        heartbeatService = new HeartbeatService(server, playerId, () -> {
+            try {
+                view.onServerCrashed();
+            } catch (Exception ignored) {
+            }
+        });
+
+        activeHeartbeatService = heartbeatService;
+        heartbeatService.start();
+    }
+
+    /**
+     * Stops the currently active RMI heartbeat, if any.
+     */
+    public static void stopHeartbeat() {
+        HeartbeatService service = activeHeartbeatService;
+
+        if (service != null) {
+            service.stop();
+            activeHeartbeatService = null;
+        }
     }
 
     @Override

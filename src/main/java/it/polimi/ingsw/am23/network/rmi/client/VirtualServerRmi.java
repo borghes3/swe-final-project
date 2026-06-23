@@ -83,10 +83,14 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
     void disconnect(String playerId) throws RemoteException;
 
     /**
-     * {@inheritDoc}
+     * Records that the supplied RMI player is still connected.
+     * The server uses this heartbeat to detect clients that crashed or
+     * became unreachable without sending an explicit disconnect request.
+     *
+     * @param playerId id of the player sending the heartbeat
+     * @throws RemoteException on RMI transport failure
      */
-    @Override
-    void ping() throws RemoteException;
+    void ping(String playerId) throws RemoteException;
 
     /**
      * {@inheritDoc}

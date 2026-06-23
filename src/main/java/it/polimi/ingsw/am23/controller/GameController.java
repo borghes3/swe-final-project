@@ -451,10 +451,6 @@ public final class GameController implements VirtualServer, ModelObserver {
         view.onLeaderboardAvailable(new LeaderboardPayload(playerCount, entries, leaderboard.isAvailable()));
     }
 
-    @Override
-    public synchronized void ping() {
-    }
-
     private ActionResult withActiveLobby(String lobbyId, GameAction action) throws Exception {
         String previousLobbyId = activeLobbyId;
         activeLobbyId = lobbyId;

@@ -10,8 +10,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RMI adapter exposing the controller as a {@link VirtualServerRmi}.
@@ -28,8 +32,17 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
      * TCP port used for both the registry and the exported remote object.
      */
     public static final int PORT = 1234;
+    private static final long CLIENT_TIMEOUT_MS = 7_000L;
+
     private final VirtualServer serverController;
     private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final Map<String, Long> lastPingByPlayerId = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService heartbeatMonitor =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "rmi-client-monitor");
+                t.setDaemon(true);
+                return t;
+            });
 
     /**
      * Builds the adapter and exports it on the well-known port.
@@ -40,6 +53,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     public RmiServer(VirtualServer serverController) throws RemoteException {
         super(PORT);
         this.serverController = serverController;
+        startClientMonitor();
     }
 
     /**
@@ -160,8 +174,16 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         });
     }
 
+    /**
+     * Disconnects a player and removes its RMI heartbeat state.
+     *
+     * @param playerId id of the player to disconnect
+     * @throws RemoteException on RMI transport failure
+     */
     @Override
     public void disconnect(String playerId) throws RemoteException {
+        lastPingByPlayerId.remove(playerId);
+
         executor.submit(() -> {
             try {
                 serverController.disconnect(playerId);
@@ -180,7 +202,50 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         });
     }
 
+    /**
+     * Records that the supplied RMI player is still reachable.
+     *
+     * @param playerId id of the player that sent the heartbeat
+     * @throws RemoteException on RMI transport failure
+     */
     @Override
-    public void ping() throws RemoteException {
+    public void ping(String playerId) throws RemoteException {
+        if (playerId != null && !playerId.isBlank()) {
+            lastPingByPlayerId.put(playerId, System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * Starts the periodic monitor that detects RMI clients whose heartbeat
+     * has not been received within the configured timeout.
+     */
+    private void startClientMonitor() {
+        heartbeatMonitor.scheduleAtFixedRate(this::disconnectTimedOutClients, 3, 3, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Disconnects every RMI player whose last heartbeat is older than the
+     * timeout threshold. The actual game consequences are delegated to the
+     * controller.
+     */
+    private void disconnectTimedOutClients() {
+        long deadline = System.currentTimeMillis() - CLIENT_TIMEOUT_MS;
+
+        for (Map.Entry<String, Long> entry : lastPingByPlayerId.entrySet()) {
+            String playerId = entry.getKey();
+            Long lastPing = entry.getValue();
+
+            if (lastPing < deadline && lastPingByPlayerId.remove(playerId, lastPing)) {
+                executor.submit(() -> {
+                    try {
+                        System.err.println("[RMI] Player disconnected unexpectedly: " + playerId);
+                        serverController.disconnect(playerId);
+                    } catch (Exception e) {
+                        System.err.println("[RMI] Error while disconnecting player "
+                                + playerId + ": " + e.getMessage());
+                    }
+                });
+            }
+        }
     }
 }

@@ -20,7 +20,7 @@ public final class TurnOrderNodeFactory {
 
     public static StackPane createTurnOrderNode(List<TurnOrderSlotState> slots,
                                                 Map<String, String> nicknames,
-                                                Map<String, String> colors,
+                                                Map<String, String> totemColors,
                                                 double width,
                                                 double height) {
         int playerCount = slots.size();
@@ -72,7 +72,8 @@ public final class TurnOrderNodeFactory {
         overlay.setMinSize(width, height);
         overlay.setMaxSize(width, height);
 
-        double markerSize = Math.max(10, Math.min(14, width * 0.18));
+        double markerHeight = Math.max(28, Math.min(46, height * 0.27));
+        double markerWidth = markerHeight * 138.0 / 256.0;
 
         for (TurnOrderSlotState slot : slots) {
             String playerId = slot.occupiedByPlayerId();
@@ -80,10 +81,9 @@ public final class TurnOrderNodeFactory {
                 continue;
             }
 
-            StackPane marker = buildPlayerMarker(
-                    nicknames.getOrDefault(playerId, "?"),
-                    colors.getOrDefault(playerId, "#ffffff"),
-                    markerSize
+            StackPane marker = TotemNodeFactory.createVerticalTotem(
+                    totemColors.getOrDefault(playerId, "WHITE"),
+                    markerHeight
             );
 
             double[] coordinates = slotCoordinates(
@@ -91,7 +91,8 @@ public final class TurnOrderNodeFactory {
                     slot.positionIndex(),
                     width,
                     height,
-                    markerSize
+                    markerWidth,
+                    markerHeight
             );
 
             marker.setLayoutX(coordinates[0]);
@@ -143,37 +144,38 @@ public final class TurnOrderNodeFactory {
                                             int positionIndex,
                                             double width,
                                             double height,
-                                            double markerSize) {
+                                            double markerWidth,
+                                            double markerHeight) {
         double[][] normalized = switch (playerCount) {
             case 2 -> new double[][]{
-                    {0.50, 0.30},
-                    {0.50, 0.48}
+                    {0.50, 0.24},
+                    {0.50, 0.40}
             };
             case 3 -> new double[][]{
-                    {0.50, 0.34},
-                    {0.50, 0.45},
-                    {0.50, 0.56}
+                    {0.50, 0.19},
+                    {0.50, 0.365},
+                    {0.50, 0.54}
             };
             case 4 -> new double[][]{
-                    {0.50, 0.31},
-                    {0.50, 0.41},
-                    {0.50, 0.51},
-                    {0.50, 0.61}
+                    {0.50, 0.14},
+                    {0.50, 0.32},
+                    {0.50, 0.50},
+                    {0.50, 0.68}
             };
             case 5 -> new double[][]{
-                    {0.50, 0.28},
-                    {0.50, 0.37},
-                    {0.50, 0.46},
-                    {0.50, 0.55},
-                    {0.50, 0.64}
+                    {0.50, 0.08},
+                    {0.50, 0.25},
+                    {0.50, 0.43},
+                    {0.50, 0.61},
+                    {0.50, 0.78}
             };
             default -> throw new IllegalArgumentException("Unsupported turn order slot count: " + playerCount);
         };
 
         int safeIndex = Math.max(0, Math.min(positionIndex, normalized.length - 1));
 
-        double x = normalized[safeIndex][0] * width - markerSize / 2.0;
-        double y = normalized[safeIndex][1] * height - markerSize / 2.0;
+        double x = normalized[safeIndex][0] * width - markerWidth / 2.0;
+        double y = normalized[safeIndex][1] * height - markerHeight / 2.0;
 
         return new double[]{x, y};
     }

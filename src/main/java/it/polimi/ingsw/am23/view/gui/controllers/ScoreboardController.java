@@ -38,7 +38,23 @@ public class ScoreboardController {
         return rootContainer;
     }
 
+    /**
+     * Renders the final match scoreboard.
+     *
+     * @param payload scoreboard payload received from the server
+     */
     public void showScoreboard(ScoreBoardPayload payload) {
+        showScoreboard(payload, null);
+    }
+
+    /**
+     * Renders the final match scoreboard, highlighting the local player's
+     * nickname without changing the rest of the ranking layout.
+     *
+     * @param payload scoreboard payload received from the server
+     * @param currentPlayerId id of the local player, or {@code null}
+     */
+    public void showScoreboard(ScoreBoardPayload payload, String currentPlayerId) {
         if (payload == null || payload.scores() == null) return;
 
         matchPlayerCount = payload.scores().size();
@@ -72,7 +88,8 @@ public class ScoreboardController {
             PlayerScore entry = sorted.get(i);
             int pos = positions.get(i);
             String nickname = entry.nickname() != null ? entry.nickname() : entry.playerId();
-            HBox row = buildRow(pos, nickname, entry.totalPrestigePoints(), entry.foodPoints());
+            boolean isCurrentPlayer = currentPlayerId != null && currentPlayerId.equals(entry.playerId());
+            HBox row = buildRow(pos, nickname, entry.totalPrestigePoints(), entry.foodPoints(), isCurrentPlayer);
             rankingContainer.getChildren().add(row);
         }
 
@@ -112,7 +129,7 @@ public class ScoreboardController {
         }
     }
 
-    private HBox buildRow(int position, String nickname, int pp, int food) {
+    private HBox buildRow(int position, String nickname, int pp, int food, boolean isCurrentPlayer) {
         HBox row = new HBox(16);
         row.setAlignment(javafx.geometry.Pos.CENTER);
         row.setPadding(new javafx.geometry.Insets(10, 20, 10, 20));
@@ -133,7 +150,13 @@ public class ScoreboardController {
         positionLabel.setStyle("-fx-font-size: 20; -fx-min-width: 40;");
 
         Label nameLabel = new Label(nickname);
-        nameLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: " + textColor + "; -fx-min-width: 120;");
+        String nameStyle = "-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: " + textColor + "; -fx-min-width: 120;";
+        if (isCurrentPlayer) {
+            nameStyle += "-fx-background-color: rgba(90,46,16,0.35);"
+                    + "-fx-background-radius: 6;"
+                    + "-fx-padding: 2 6 2 6;";
+        }
+        nameLabel.setStyle(nameStyle);
 
         Label ppLabel = new Label("⭐ " + pp + " PP");
         ppLabel.setStyle("-fx-font-size: 14; -fx-text-fill: " + textColor + "; -fx-min-width: 80;");
