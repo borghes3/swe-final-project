@@ -1,0 +1,276 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ScoreboardController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.view.gui.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: ScoreboardController (it.polimi.ingsw.am23.view.gui.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ScoreboardController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/44)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/69)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.view.gui.controllers;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.MatchRankingsPayload;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.PlayerScore;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.ScoreBoardPayload;
+&nbsp;import it.polimi.ingsw.am23.view.gui.JavaFXView;
+&nbsp;import javafx.fxml.FXML;
+&nbsp;import javafx.scene.Parent;
+&nbsp;import javafx.scene.control.Button;
+&nbsp;import javafx.scene.control.Label;
+&nbsp;import javafx.scene.layout.HBox;
+&nbsp;import javafx.scene.layout.VBox;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Comparator;
+&nbsp;import java.util.List;
+&nbsp;
+<b class="nc">&nbsp;public class ScoreboardController {</b>
+&nbsp;    public Label titleLabel;
+&nbsp;    public Button menuButton;
+&nbsp;    @FXML
+&nbsp;    private VBox rootContainer;
+&nbsp;    @FXML
+&nbsp;    private VBox rankingContainer;
+&nbsp;    @FXML
+&nbsp;    private Label positionLabel;
+&nbsp;    @FXML
+&nbsp;    private Button leaderboardButton;
+&nbsp;
+&nbsp;    private JavaFXView view;
+<b class="nc">&nbsp;    private int matchPlayerCount = -1;</b>
+&nbsp;
+&nbsp;    public void setView(JavaFXView view) {
+<b class="nc">&nbsp;        this.view = view;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Parent getRoot() {
+<b class="nc">&nbsp;        return rootContainer;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void showScoreboard(ScoreBoardPayload payload) {
+<b class="nc">&nbsp;        if (payload == null || payload.scores() == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        matchPlayerCount = payload.scores().size();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;PlayerScore&gt; sorted = payload.scores().stream()</b>
+<b class="nc">&nbsp;                .sorted(Comparator.comparingInt(PlayerScore::totalPrestigePoints)</b>
+<b class="nc">&nbsp;                        .thenComparingInt(PlayerScore::foodPoints)</b>
+<b class="nc">&nbsp;                        .reversed())</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;Integer&gt; positions = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; sorted.size(); i++) {</b>
+<b class="nc">&nbsp;            if (i == 0) {</b>
+<b class="nc">&nbsp;                positions.add(1);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                PlayerScore prev = sorted.get(i - 1);</b>
+<b class="nc">&nbsp;                PlayerScore curr = sorted.get(i);</b>
+<b class="nc">&nbsp;                if (curr.totalPrestigePoints() == prev.totalPrestigePoints()</b>
+<b class="nc">&nbsp;                        &amp;&amp; curr.foodPoints() == prev.foodPoints()) {</b>
+<b class="nc">&nbsp;                    positions.add(positions.get(i - 1));</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    positions.add(i + 1);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        rankingContainer.getChildren().clear();</b>
+<b class="nc">&nbsp;        rankingContainer.setSpacing(10);</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt; sorted.size(); i++) {</b>
+<b class="nc">&nbsp;            PlayerScore entry = sorted.get(i);</b>
+<b class="nc">&nbsp;            int pos = positions.get(i);</b>
+<b class="nc">&nbsp;            String nickname = entry.nickname() != null ? entry.nickname() : entry.playerId();</b>
+<b class="nc">&nbsp;            HBox row = buildRow(pos, nickname, entry.totalPrestigePoints(), entry.foodPoints());</b>
+<b class="nc">&nbsp;            rankingContainer.getChildren().add(row);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (positionLabel != null) {</b>
+<b class="nc">&nbsp;            positionLabel.setText(&quot;Global leaderboard incoming...&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (leaderboardButton != null) {</b>
+<b class="nc">&nbsp;            leaderboardButton.setDisable(true);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void showMatchRankings(String myPlayerId, MatchRankingsPayload payload) {
+<b class="nc">&nbsp;        if (payload == null || positionLabel == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (!payload.persistenceAvailable()) {</b>
+<b class="nc">&nbsp;            positionLabel.setText(&quot;Leaderboard unavailable (DB offline).&quot;);</b>
+<b class="nc">&nbsp;            if (leaderboardButton != null) {</b>
+<b class="nc">&nbsp;                leaderboardButton.setDisable(true);</b>
+&nbsp;            }
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Integer pos = payload.positionByPlayerId() != null</b>
+<b class="nc">&nbsp;                ? payload.positionByPlayerId().get(myPlayerId)</b>
+<b class="nc">&nbsp;                : null;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (pos == null || pos &lt;= 0) {</b>
+<b class="nc">&nbsp;            positionLabel.setText(&quot;Global position: n/a ( &quot;</b>
+<b class="nc">&nbsp;                    + payload.playerCount() + &quot; -player games)&quot;);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            positionLabel.setText(&quot;You are #\&quot; + pos + \&quot; in the global leaderboard for &quot;</b>
+<b class="nc">&nbsp;                    + payload.playerCount() + &quot; -player games.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (leaderboardButton != null) {</b>
+<b class="nc">&nbsp;            leaderboardButton.setDisable(false);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private HBox buildRow(int position, String nickname, int pp, int food) {
+<b class="nc">&nbsp;        HBox row = new HBox(16);</b>
+<b class="nc">&nbsp;        row.setAlignment(javafx.geometry.Pos.CENTER);</b>
+<b class="nc">&nbsp;        row.setPadding(new javafx.geometry.Insets(10, 20, 10, 20));</b>
+<b class="nc">&nbsp;        row.setPrefWidth(360);</b>
+&nbsp;
+<b class="nc">&nbsp;        String bgColor = position == 1 ? &quot;#FFD700&quot; : &quot;#E8E8E8&quot;;</b>
+<b class="nc">&nbsp;        String textColor = &quot;#1a1a1a&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;        row.setStyle(</b>
+&nbsp;                &quot;-fx-background-color: &quot; + bgColor + &quot;;&quot; +
+&nbsp;                        &quot;-fx-background-radius: 8;&quot; +
+&nbsp;                        &quot;-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 0, 2);&quot;
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        String medal = position == 1 ? &quot;🥇&quot; : position + &quot;°&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;        Label positionLabel = new Label(medal);</b>
+<b class="nc">&nbsp;        positionLabel.setStyle(&quot;-fx-font-size: 20; -fx-min-width: 40;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        Label nameLabel = new Label(nickname);</b>
+<b class="nc">&nbsp;        nameLabel.setStyle(&quot;-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: &quot; + textColor + &quot;; -fx-min-width: 120;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        Label ppLabel = new Label(&quot;⭐ &quot; + pp + &quot; PP&quot;);</b>
+<b class="nc">&nbsp;        ppLabel.setStyle(&quot;-fx-font-size: 14; -fx-text-fill: &quot; + textColor + &quot;; -fx-min-width: 80;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        Label foodLabel = new Label(&quot;🍖 &quot; + food);</b>
+<b class="nc">&nbsp;        foodLabel.setStyle(&quot;-fx-font-size: 14; -fx-text-fill: &quot; + textColor + &quot;;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        row.getChildren().addAll(positionLabel, nameLabel, ppLabel, foodLabel);</b>
+<b class="nc">&nbsp;        return row;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @FXML
+&nbsp;    private void onLeaderboardClicked() {
+<b class="nc">&nbsp;        if (view != null &amp;&amp; matchPlayerCount &gt; 0) {</b>
+<b class="nc">&nbsp;            view.requestLeaderboard(matchPlayerCount);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @FXML
+&nbsp;    private void onMenuClicked() {
+<b class="nc">&nbsp;        view.goToLobby();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

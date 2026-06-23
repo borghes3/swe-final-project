@@ -1,0 +1,132 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > HuntingRewardPerHunterEffectTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.effects.buildings</a>
+</div>
+
+<h1>Coverage Summary for Class: HuntingRewardPerHunterEffectTest (it.polimi.ingsw.am23.model.effects.buildings)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">HuntingRewardPerHunterEffectTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.effects.buildings;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.TestUtils;
+&nbsp;import it.polimi.ingsw.am23.model.cards.characters.HunterCard;
+&nbsp;import it.polimi.ingsw.am23.model.effects.HuntingEffectData;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;import org.junit.jupiter.api.Test;
+&nbsp;
+&nbsp;import static org.junit.jupiter.api.Assertions.assertEquals;
+&nbsp;
+<b class="fc">&nbsp;class HuntingRewardPerHunterEffectTest {</b>
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void applyHuntingAddsBonusFoodAndPointsPerHunter() {
+&nbsp;        // Input  : tribe with 2 hunters; call HuntingRewardPerHunterEffect.applyHunting(null, p, data).
+&nbsp;        // Output : data.getExtraFood()==2 and data.getExtraPoints()==2 (one extra of each per hunter pair / rule).
+<b class="fc">&nbsp;        Player p = TestUtils.player(&quot;p&quot;, 0, 0);</b>
+<b class="fc">&nbsp;        p.getTribe().addCharacter(new HunterCard(&quot;h1&quot;, Era.ERA_1, 0, false, 2));</b>
+<b class="fc">&nbsp;        p.getTribe().addCharacter(new HunterCard(&quot;h2&quot;, Era.ERA_1, 0, false, 2));</b>
+&nbsp;
+<b class="fc">&nbsp;        HuntingEffectData data = new HuntingEffectData();</b>
+<b class="fc">&nbsp;        new HuntingRewardPerHunterEffect().applyHunting(null, p, data);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(2, data.getExtraFood());</b>
+<b class="fc">&nbsp;        assertEquals(2, data.getExtraPoints());</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

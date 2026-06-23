@@ -1,0 +1,272 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > RunListener</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.runner.notification</a>
+</div>
+
+<h1>Coverage Summary for Class: RunListener (org.junit.runner.notification)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RunListener</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.junit.runner.notification;
+&nbsp;
+&nbsp;import java.lang.annotation.Documented;
+&nbsp;import java.lang.annotation.ElementType;
+&nbsp;import java.lang.annotation.Retention;
+&nbsp;import java.lang.annotation.RetentionPolicy;
+&nbsp;import java.lang.annotation.Target;
+&nbsp;
+&nbsp;import org.junit.runner.Description;
+&nbsp;import org.junit.runner.Result;
+&nbsp;
+&nbsp;/**
+&nbsp; * Register an instance of this class with {@link RunNotifier} to be notified
+&nbsp; * of events that occur during a test run. All of the methods in this class
+&nbsp; * are abstract and have no implementation; override one or more methods to
+&nbsp; * receive events.
+&nbsp; * &lt;p&gt;
+&nbsp; * For example, suppose you have a &lt;code&gt;Cowbell&lt;/code&gt;
+&nbsp; * class that you want to make a noise whenever a test fails. You could write:
+&nbsp; * &lt;pre&gt;
+&nbsp; * public class RingingListener extends RunListener {
+&nbsp; *    public void testFailure(Failure failure) {
+&nbsp; *       Cowbell.ring();
+&nbsp; *    }
+&nbsp; * }
+&nbsp; * &lt;/pre&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * To invoke your listener, you need to run your tests through &lt;code&gt;JUnitCore&lt;/code&gt;.
+&nbsp; * &lt;pre&gt;
+&nbsp; * public void main(String... args) {
+&nbsp; *    JUnitCore core= new JUnitCore();
+&nbsp; *    core.addListener(new RingingListener());
+&nbsp; *    core.run(MyTestClass.class);
+&nbsp; * }
+&nbsp; * &lt;/pre&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * If a listener throws an exception for a test event, the other listeners will
+&nbsp; * have their {@link RunListener#testFailure(Failure)} called with a {@code Description}
+&nbsp; * of {@link Description#TEST_MECHANISM} to indicate the failure.
+&nbsp; * &lt;p&gt;
+&nbsp; * By default, JUnit will synchronize calls to your listener. If your listener
+&nbsp; * is thread-safe and you want to allow JUnit to call your listener from
+&nbsp; * multiple threads when tests are run in parallel, you can annotate your
+&nbsp; * test class with {@link RunListener.ThreadSafe}.
+&nbsp; * &lt;p&gt;
+&nbsp; * Listener methods will be called from the same thread as is running
+&nbsp; * the test, unless otherwise indicated by the method Javadoc
+&nbsp; *
+&nbsp; * @see org.junit.runner.JUnitCore
+&nbsp; * @since 4.0
+&nbsp; */
+<b class="nc">&nbsp;public class RunListener {</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called before any tests have been run. This may be called on an
+&nbsp;     * arbitrary thread.
+&nbsp;     *
+&nbsp;     * @param description describes the tests to be run
+&nbsp;     */
+&nbsp;    public void testRunStarted(Description description) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when all tests have finished. This may be called on an
+&nbsp;     * arbitrary thread.
+&nbsp;     *
+&nbsp;     * @param result the summary of the test run, including all the tests that failed
+&nbsp;     */
+&nbsp;    public void testRunFinished(Result result) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when a test suite is about to be started. If this method is
+&nbsp;     * called for a given {@link Description}, then {@link #testSuiteFinished(Description)}
+&nbsp;     * will also be called for the same {@code Description}.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;Note that not all runners will call this method, so runners should
+&nbsp;     * be prepared to handle {@link #testStarted(Description)} calls for tests
+&nbsp;     * where there was no corresponding {@code testSuiteStarted()} call for
+&nbsp;     * the parent {@code Description}.
+&nbsp;     *
+&nbsp;     * @param description the description of the test suite that is about to be run
+&nbsp;     *                    (generally a class name)
+&nbsp;     * @since 4.13
+&nbsp;     */
+&nbsp;    public void testSuiteStarted(Description description) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when a test suite has finished, whether the test suite succeeds or fails.
+&nbsp;     * This method will not be called for a given {@link Description} unless
+&nbsp;     * {@link #testSuiteStarted(Description)} was called for the same @code Description}.
+&nbsp;     *
+&nbsp;     * @param description the description of the test suite that just ran
+&nbsp;     * @since 4.13
+&nbsp;     */
+&nbsp;    public void testSuiteFinished(Description description) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when an atomic test is about to be started.
+&nbsp;     *
+&nbsp;     * @param description the description of the test that is about to be run
+&nbsp;     * (generally a class and method name)
+&nbsp;     */
+&nbsp;    public void testStarted(Description description) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when an atomic test has finished, whether the test succeeds or fails.
+&nbsp;     *
+&nbsp;     * @param description the description of the test that just ran
+&nbsp;     */
+&nbsp;    public void testFinished(Description description) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when an atomic test fails, or when a listener throws an exception.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;In the case of a failure of an atomic test, this method will be called
+&nbsp;     * with the same {@code Description} passed to
+&nbsp;     * {@link #testStarted(Description)}, from the same thread that called
+&nbsp;     * {@link #testStarted(Description)}.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;In the case of a listener throwing an exception, this will be called with
+&nbsp;     * a {@code Description} of {@link Description#TEST_MECHANISM}, and may be called
+&nbsp;     * on an arbitrary thread.
+&nbsp;     *
+&nbsp;     * @param failure describes the test that failed and the exception that was thrown
+&nbsp;     */
+&nbsp;    public void testFailure(Failure failure) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when an atomic test flags that it assumes a condition that is
+&nbsp;     * false
+&nbsp;     *
+&nbsp;     * @param failure describes the test that failed and the
+&nbsp;     * {@link org.junit.AssumptionViolatedException} that was thrown
+&nbsp;     */
+&nbsp;    public void testAssumptionFailure(Failure failure) {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Called when a test will not be run, generally because a test method is annotated
+&nbsp;     * with {@link org.junit.Ignore}.
+&nbsp;     *
+&nbsp;     * @param description describes the test that will not be run
+&nbsp;     */
+&nbsp;    public void testIgnored(Description description) throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Indicates a {@code RunListener} that can have its methods called
+&nbsp;     * concurrently. This implies that the class is thread-safe (i.e. no set of
+&nbsp;     * listener calls can put the listener into an invalid state, even if those
+&nbsp;     * listener calls are being made by multiple threads without
+&nbsp;     * synchronization).
+&nbsp;     *
+&nbsp;     * @since 4.12
+&nbsp;     */
+&nbsp;    @Documented
+&nbsp;    @Target(ElementType.TYPE)
+&nbsp;    @Retention(RetentionPolicy.RUNTIME)
+&nbsp;    public @interface ThreadSafe {
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

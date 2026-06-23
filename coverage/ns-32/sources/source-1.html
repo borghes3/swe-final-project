@@ -1,0 +1,2951 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GridPane</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.layout</a>
+</div>
+
+<h1>Coverage Summary for Class: GridPane (javafx.scene.layout)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GridPane</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/115)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/714)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1007)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.layout;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.List;
+&nbsp;import javafx.beans.property.BooleanProperty;
+&nbsp;import javafx.beans.property.DoubleProperty;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;import javafx.collections.ListChangeListener.Change;
+&nbsp;import javafx.collections.ObservableList;
+&nbsp;import javafx.geometry.HPos;
+&nbsp;import javafx.geometry.Insets;
+&nbsp;import javafx.geometry.Orientation;
+&nbsp;import javafx.geometry.Pos;
+&nbsp;import javafx.geometry.VPos;
+&nbsp;import javafx.scene.Group;
+&nbsp;import javafx.scene.Node;
+&nbsp;import javafx.scene.paint.Color;
+&nbsp;import javafx.scene.shape.Line;
+&nbsp;import com.sun.javafx.collections.TrackableObservableList;
+&nbsp;import javafx.css.StyleableBooleanProperty;
+&nbsp;import javafx.css.StyleableDoubleProperty;
+&nbsp;import javafx.css.StyleableObjectProperty;
+&nbsp;import javafx.css.CssMetaData;
+&nbsp;import javafx.css.converter.BooleanConverter;
+&nbsp;import javafx.css.converter.EnumConverter;
+&nbsp;import javafx.css.converter.SizeConverter;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.BitSet;
+&nbsp;import java.util.Iterator;
+&nbsp;import java.util.Map.Entry;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.SortedMap;
+&nbsp;import java.util.TreeMap;
+&nbsp;import java.util.TreeSet;
+&nbsp;
+&nbsp;import javafx.beans.Observable;
+&nbsp;import javafx.css.Styleable;
+&nbsp;import javafx.css.StyleableProperty;
+&nbsp;import javafx.geometry.BoundingBox;
+&nbsp;import javafx.geometry.Bounds;
+&nbsp;import javafx.util.Callback;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * GridPane lays out its children within a flexible grid of rows and columns.
+&nbsp; * If a border and/or padding is set, then its content will be laid out within
+&nbsp; * those insets.
+&nbsp; * &lt;p&gt;
+&nbsp; * A child may be placed anywhere within the grid and may span multiple
+&nbsp; * rows/columns.  Children may freely overlap within rows/columns and their
+&nbsp; * stacking order will be defined by the order of the gridpane&#39;s children list
+&nbsp; * (0th node in back, last node in front).
+&nbsp; * &lt;p&gt;
+&nbsp; * GridPane may be styled with backgrounds and borders using CSS.  See
+&nbsp; * {@link javafx.scene.layout.Region Region} superclass for details.&lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;h2&gt;Grid Constraints&lt;/h2&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * A child&#39;s placement within the grid is defined by it&#39;s layout constraints:
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;table border=&quot;1&quot;&gt;
+&nbsp; * &lt;caption&gt;Grid Constraint Table&lt;/caption&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Constraint&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Type&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Description&lt;/th&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;columnIndex&lt;/th&gt;&lt;td&gt;integer&lt;/td&gt;&lt;td&gt;column where child&#39;s layout area starts.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;rowIndex&lt;/th&gt;&lt;td&gt;integer&lt;/td&gt;&lt;td&gt;row where child&#39;s layout area starts.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;columnSpan&lt;/th&gt;&lt;td&gt;integer&lt;/td&gt;&lt;td&gt;the number of columns the child&#39;s layout area spans horizontally.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;rowSpan&lt;/th&gt;&lt;td&gt;integer&lt;/td&gt;&lt;td&gt;the number of rows the child&#39;s layout area spans vertically.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;/table&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * If the row/column indices are not explicitly set, then the child will be placed
+&nbsp; * in the first row/column.  If row/column spans are not set, they will default to 1.
+&nbsp; * A child&#39;s placement constraints can be changed dynamically and the gridpane
+&nbsp; * will update accordingly.
+&nbsp; * &lt;p&gt;
+&nbsp; * The total number of rows/columns does not need to be specified up front as the
+&nbsp; * gridpane will automatically expand/contract the grid to accommodate the content.
+&nbsp; * &lt;p&gt;
+&nbsp; * To use the GridPane, an application needs to set the layout constraints on
+&nbsp; * the children and add those children to the gridpane instance.
+&nbsp; * Constraints are set on the children using static setter methods on the GridPane
+&nbsp; * class:
+&nbsp; * &lt;pre&gt;&lt;code&gt;     GridPane gridpane = new GridPane();
+&nbsp; *
+&nbsp; *     // Set one constraint at a time...
+&nbsp; *     // Places the button at the first row and second column
+&nbsp; *     Button button = new Button();
+&nbsp; *     &lt;b&gt;GridPane.setRowIndex(button, 0);
+&nbsp; *     GridPane.setColumnIndex(button, 1);&lt;/b&gt;
+&nbsp; *
+&nbsp; *     // or convenience methods set more than one constraint at once...
+&nbsp; *     Label label = new Label();
+&nbsp; *     &lt;b&gt;GridPane.setConstraints(label, 2, 0);&lt;/b&gt; // column=2 row=0
+&nbsp; *
+&nbsp; *     // don&#39;t forget to add children to gridpane
+&nbsp; *     &lt;b&gt;gridpane.getChildren().addAll(button, label);&lt;/b&gt;
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; *
+&nbsp; * Applications may also use convenience methods which combine the steps of
+&nbsp; * setting the constraints and adding the children:
+&nbsp; * &lt;pre&gt;&lt;code&gt;
+&nbsp; *     GridPane gridpane = new GridPane();
+&nbsp; *     &lt;b&gt;gridpane.add(new Button(), 1, 0);&lt;/b&gt; // column=1 row=0
+&nbsp; *     &lt;b&gt;gridpane.add(new Label(), 2, 0);&lt;/b&gt;  // column=2 row=0
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; *
+&nbsp; *
+&nbsp; * &lt;h2&gt;Row/Column Sizing&lt;/h2&gt;
+&nbsp; *
+&nbsp; * By default, rows and columns will be sized to fit their content;
+&nbsp; * a column will be wide enough to accommodate the widest child, a
+&nbsp; * row tall enough to fit the tallest child. However, if an application needs
+&nbsp; * to explicitly control the size of rows or columns, it may do so by adding
+&nbsp; * RowConstraints and ColumnConstraints objects to specify those metrics.
+&nbsp; * For example, to create a grid with two fixed-width columns:
+&nbsp; * &lt;pre&gt;&lt;code&gt;
+&nbsp; *     GridPane gridpane = new GridPane();
+&nbsp; *     &lt;b&gt;gridpane.getColumnConstraints().add(new ColumnConstraints(100));&lt;/b&gt; // column 0 is 100 wide
+&nbsp; *     &lt;b&gt;gridpane.getColumnConstraints().add(new ColumnConstraints(200));&lt;/b&gt; // column 1 is 200 wide
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; * By default the gridpane will resize rows/columns to their preferred sizes (either
+&nbsp; * computed from content or fixed), even if the gridpane is resized larger than
+&nbsp; * its preferred size.   If an application needs a particular row or column to
+&nbsp; * grow if there is extra space, it may set its grow priority on the RowConstraints
+&nbsp; * or ColumnConstraints object.  For example:
+&nbsp; * &lt;pre&gt;&lt;code&gt;
+&nbsp; *     GridPane gridpane = new GridPane();
+&nbsp; *     ColumnConstraints column1 = new ColumnConstraints(100,100,Double.MAX_VALUE);
+&nbsp; *     &lt;b&gt;column1.setHgrow(Priority.ALWAYS);&lt;/b&gt;
+&nbsp; *     ColumnConstraints column2 = new ColumnConstraints(100);
+&nbsp; *     gridpane.getColumnConstraints().addAll(column1, column2); // first column gets any extra width
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * Note: Nodes spanning multiple rows/columns will be also size to the preferred sizes.
+&nbsp; * The affected rows/columns are resized by the following priority: grow priorities, last row.
+&nbsp; * This is with respect to row/column constraints.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Percentage Sizing&lt;/h2&gt;
+&nbsp; *
+&nbsp; * Alternatively, RowConstraints and ColumnConstraints allow the size to be specified
+&nbsp; * as a percentage of gridpane&#39;s available space:
+&nbsp; * &lt;pre&gt;&lt;code&gt;
+&nbsp; *     GridPane gridpane = new GridPane();
+&nbsp; *     ColumnConstraints column1 = new ColumnConstraints();
+&nbsp; *     &lt;b&gt;column1.setPercentWidth(50);&lt;/b&gt;
+&nbsp; *     ColumnConstraints column2 = new ColumnConstraints();
+&nbsp; *     &lt;b&gt;column2.setPercentWidth(50);&lt;/b&gt;
+&nbsp; *     gridpane.getColumnConstraints().addAll(column1, column2); // each get 50% of width
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; * If a percentage value is set on a row/column, then that value takes precedent and the
+&nbsp; * row/column&#39;s min, pref, max, and grow constraints will be ignored.
+&nbsp; * &lt;p&gt;
+&nbsp; * Note that if the sum of the widthPercent (or heightPercent) values total greater than 100, the values will
+&nbsp; * be treated as weights.  e.g.  if 3 columns are each given a widthPercent of 50,
+&nbsp; * then each will be allocated 1/3 of the gridpane&#39;s available width (50/(50+50+50)).
+&nbsp; *
+&nbsp; * &lt;h2&gt;Mixing Size Types&lt;/h2&gt;
+&nbsp; *
+&nbsp; * An application may freely mix the size-types of rows/columns (computed from content, fixed,
+&nbsp; * or percentage).  The percentage rows/columns will always be allocated space first
+&nbsp; * based on their percentage of the gridpane&#39;s available space (size minus insets and gaps).
+&nbsp; * The remaining space will be allocated to rows/columns given their minimum, preferred,
+&nbsp; * and maximum sizes and grow priorities.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Resizable Range&lt;/h2&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * A gridpane&#39;s parent will resize the gridpane within the gridpane&#39;s resizable range
+&nbsp; * during layout.   By default the gridpane computes this range based on its content
+&nbsp; * and row/column constraints as outlined in the table below.
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;table border=&quot;1&quot;&gt;
+&nbsp; * &lt;caption&gt;GridPane Resize Table&lt;/caption&gt;
+&nbsp; * &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;th scope=&quot;col&quot;&gt;width&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;height&lt;/th&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;minimum&lt;/th&gt;
+&nbsp; * &lt;td&gt;left/right insets plus the sum of each column&#39;s min width.&lt;/td&gt;
+&nbsp; * &lt;td&gt;top/bottom insets plus the sum of each row&#39;s min height.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;preferred&lt;/th&gt;
+&nbsp; * &lt;td&gt;left/right insets plus the sum of each column&#39;s pref width.&lt;/td&gt;
+&nbsp; * &lt;td&gt;top/bottom insets plus the sum of each row&#39;s pref height.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;maximum&lt;/th&gt;
+&nbsp; * &lt;td&gt;Double.MAX_VALUE&lt;/td&gt;&lt;td&gt;Double.MAX_VALUE&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;/table&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * A gridpane&#39;s unbounded maximum width and height are an indication to the parent that
+&nbsp; * it may be resized beyond its preferred size to fill whatever space is assigned
+&nbsp; * to it.
+&nbsp; * &lt;p&gt;
+&nbsp; * GridPane provides properties for setting the size range directly.  These
+&nbsp; * properties default to the sentinel value USE_COMPUTED_SIZE, however the
+&nbsp; * application may set them to other values as needed:
+&nbsp; * &lt;pre&gt;&lt;code&gt;     &lt;b&gt;gridpane.setPrefSize(300, 300);&lt;/b&gt;
+&nbsp; *     // never size the gridpane larger than its preferred size:
+&nbsp; *     &lt;b&gt;gridpane.setMaxSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);&lt;/b&gt;
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; * Applications may restore the computed values by setting these properties back
+&nbsp; * to USE_COMPUTED_SIZE.
+&nbsp; * &lt;p&gt;
+&nbsp; * GridPane does not clip its content by default, so it is possible that children&#39;s
+&nbsp; * bounds may extend outside its own bounds if a child&#39;s min size prevents it from
+&nbsp; * being fit within it space.&lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;h2&gt;Optional Layout Constraints&lt;/h2&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;
+&nbsp; * An application may set additional constraints on children to customize how the
+&nbsp; * child is sized and positioned within the layout area established by it&#39;s row/column
+&nbsp; * indices/spans:
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;table border=&quot;1&quot;&gt;
+&nbsp; * &lt;caption&gt;GridPane Constraint Table&lt;/caption&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Constraint&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Type&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;Description&lt;/th&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;halignment&lt;/th&gt;&lt;td&gt;javafx.geometry.HPos&lt;/td&gt;&lt;td&gt;The horizontal alignment of the child within its layout area.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;valignment&lt;/th&gt;&lt;td&gt;javafx.geometry.VPos&lt;/td&gt;&lt;td&gt;The vertical alignment of the child within its layout area.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;hgrow&lt;/th&gt;&lt;td&gt;javafx.scene.layout.Priority&lt;/td&gt;&lt;td&gt;The horizontal grow priority of the child.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;vgrow&lt;/th&gt;&lt;td&gt;javafx.scene.layout.Priority&lt;/td&gt;&lt;td&gt;The vertical grow priority of the child.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;margin&lt;/th&gt;&lt;td&gt;javafx.geometry.Insets&lt;/td&gt;&lt;td&gt;Margin space around the outside of the child.&lt;/td&gt;&lt;/tr&gt;
+&nbsp; * &lt;/table&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * By default the alignment of a child within its layout area is defined by the
+&nbsp; * alignment set for the row and column.  If an individual alignment constraint is
+&nbsp; * set on a child, that alignment will override the row/column alignment only
+&nbsp; * for that child.  Alignment of other children in the same row or column will
+&nbsp; * not be affected.
+&nbsp; * &lt;p&gt;
+&nbsp; * Grow priorities, on the other hand, can only be applied to entire rows or columns.
+&nbsp; * Therefore, if a grow priority constraint is set on a single child, it will be
+&nbsp; * used to compute the default grow priority of the encompassing row/column.  If
+&nbsp; * a grow priority is set directly on a RowConstraint or ColumnConstraint object,
+&nbsp; * it will override the value computed from content.
+&nbsp; *
+&nbsp; *
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+<b class="nc">&nbsp;public class GridPane extends Pane {</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sentinel value which may be set on a child&#39;s row/column span constraint to
+&nbsp;     * indicate that it should span the remaining rows/columns.
+&nbsp;     */
+&nbsp;    public static final int REMAINING = Integer.MAX_VALUE;
+&nbsp;
+&nbsp;    /* ******************************************************************
+&nbsp;     *  BEGIN static methods
+&nbsp;     ********************************************************************/
+&nbsp;    private static final String MARGIN_CONSTRAINT = &quot;gridpane-margin&quot;;
+&nbsp;    private static final String HALIGNMENT_CONSTRAINT = &quot;gridpane-halignment&quot;;
+&nbsp;    private static final String VALIGNMENT_CONSTRAINT = &quot;gridpane-valignment&quot;;
+&nbsp;    private static final String HGROW_CONSTRAINT = &quot;gridpane-hgrow&quot;;
+&nbsp;    private static final String VGROW_CONSTRAINT = &quot;gridpane-vgrow&quot;;
+&nbsp;    private static final String ROW_INDEX_CONSTRAINT = &quot;gridpane-row&quot;;
+&nbsp;    private static final String COLUMN_INDEX_CONSTRAINT = &quot;gridpane-column&quot;;
+&nbsp;    private static final String ROW_SPAN_CONSTRAINT = &quot;gridpane-row-span&quot;;
+&nbsp;    private static final String COLUMN_SPAN_CONSTRAINT = &quot;gridpane-column-span&quot;;
+&nbsp;    private static final String FILL_WIDTH_CONSTRAINT = &quot;gridpane-fill-width&quot;;
+&nbsp;    private static final String FILL_HEIGHT_CONSTRAINT = &quot;gridpane-fill-height&quot;;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the row index for the child when contained by a gridpane
+&nbsp;     * so that it will be positioned starting in that row of the gridpane.
+&nbsp;     * If a gridpane child has no row index set, it will be positioned in the
+&nbsp;     * first row.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the row index of the child
+&nbsp;     */
+&nbsp;    public static void setRowIndex(Node child, Integer value) {
+<b class="nc">&nbsp;        if (value != null &amp;&amp; value &lt; 0) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;rowIndex must be greater or equal to 0, but was &quot;+value);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        setConstraint(child, ROW_INDEX_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s row index constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the row index for the child or null if no row index was set
+&nbsp;     */
+&nbsp;    public static Integer getRowIndex(Node child) {
+<b class="nc">&nbsp;        return (Integer)getConstraint(child, ROW_INDEX_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the column index for the child when contained by a gridpane
+&nbsp;     * so that it will be positioned starting in that column of the gridpane.
+&nbsp;     * If a gridpane child has no column index set, it will be positioned in
+&nbsp;     * the first column.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the column index of the child
+&nbsp;     */
+&nbsp;    public static void setColumnIndex(Node child, Integer value) {
+<b class="nc">&nbsp;        if (value != null &amp;&amp; value &lt; 0) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;columnIndex must be greater or equal to 0, but was &quot;+value);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        setConstraint(child, COLUMN_INDEX_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s column index constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the column index for the child or null if no column index was set
+&nbsp;     */
+&nbsp;    public static Integer getColumnIndex(Node child) {
+<b class="nc">&nbsp;        return (Integer)getConstraint(child, COLUMN_INDEX_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the row span for the child when contained by a gridpane
+&nbsp;     * so that it will span that number of rows vertically.  This may be
+&nbsp;     * set to REMAINING, which will cause the span to extend across all the remaining
+&nbsp;     * rows.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If a gridpane child has no row span set, it will default to spanning one row.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the row span of the child
+&nbsp;     */
+&nbsp;    public static void setRowSpan(Node child, Integer value) {
+<b class="nc">&nbsp;        if (value != null &amp;&amp; value &lt; 1) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;rowSpan must be greater or equal to 1, but was &quot;+value);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        setConstraint(child, ROW_SPAN_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s row-span constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the row span for the child or null if no row span was set
+&nbsp;     */
+&nbsp;    public static Integer getRowSpan(Node child) {
+<b class="nc">&nbsp;        return (Integer)getConstraint(child, ROW_SPAN_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the column span for the child when contained by a gridpane
+&nbsp;     * so that it will span that number of columns horizontally.   This may be
+&nbsp;     * set to REMAINING, which will cause the span to extend across all the remaining
+&nbsp;     * columns.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If a gridpane child has no column span set, it will default to spanning one column.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the column span of the child
+&nbsp;     */
+&nbsp;    public static void setColumnSpan(Node child, Integer value) {
+<b class="nc">&nbsp;        if (value != null &amp;&amp; value &lt; 1) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;columnSpan must be greater or equal to 1, but was &quot;+value);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        setConstraint(child, COLUMN_SPAN_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s column-span constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the column span for the child or null if no column span was set
+&nbsp;     */
+&nbsp;    public static Integer getColumnSpan(Node child) {
+<b class="nc">&nbsp;        return (Integer)getConstraint(child, COLUMN_SPAN_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the margin for the child when contained by a gridpane.
+&nbsp;     * If set, the gridpane will lay it out with the margin space around it.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the margin of space around the child
+&nbsp;     */
+&nbsp;    public static void setMargin(Node child, Insets value) {
+<b class="nc">&nbsp;        setConstraint(child, MARGIN_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s margin constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the margin for the child or null if no margin was set
+&nbsp;     */
+&nbsp;    public static Insets getMargin(Node child) {
+<b class="nc">&nbsp;        return (Insets)getConstraint(child, MARGIN_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getBaselineComplementForChild(Node child) {
+<b class="nc">&nbsp;        if (isNodePositionedByBaseline(child)) {</b>
+<b class="nc">&nbsp;            return rowMinBaselineComplement[getNodeRowIndex(child)];</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return -1;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private static final Callback&lt;Node, Insets&gt; marginAccessor = n -&gt; getMargin(n);</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the horizontal alignment for the child when contained by a gridpane.
+&nbsp;     * If set, will override the gridpane&#39;s default horizontal alignment.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the hozizontal alignment for the child
+&nbsp;     */
+&nbsp;    public static void setHalignment(Node child, HPos value) {
+<b class="nc">&nbsp;        setConstraint(child, HALIGNMENT_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s halignment constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the horizontal alignment for the child or null if no alignment was set
+&nbsp;     */
+&nbsp;    public static HPos getHalignment(Node child) {
+<b class="nc">&nbsp;        return (HPos)getConstraint(child, HALIGNMENT_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the vertical alignment for the child when contained by a gridpane.
+&nbsp;     * If set, will override the gridpane&#39;s default vertical alignment.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the vertical alignment for the child
+&nbsp;     */
+&nbsp;    public static void setValignment(Node child, VPos value) {
+<b class="nc">&nbsp;        setConstraint(child, VALIGNMENT_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s valignment constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the vertical alignment for the child or null if no alignment was set
+&nbsp;     */
+&nbsp;    public static VPos getValignment(Node child) {
+<b class="nc">&nbsp;        return (VPos)getConstraint(child, VALIGNMENT_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the horizontal grow priority for the child when contained by a gridpane.
+&nbsp;     * If set, the gridpane will use the priority to allocate the child additional
+&nbsp;     * horizontal space if the gridpane is resized larger than it&#39;s preferred width.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child of a gridpane
+&nbsp;     * @param value the horizontal grow priority for the child
+&nbsp;     */
+&nbsp;    public static void setHgrow(Node child, Priority value) {
+<b class="nc">&nbsp;        setConstraint(child, HGROW_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s hgrow constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the horizontal grow priority for the child or null if no priority was set
+&nbsp;     */
+&nbsp;    public static Priority getHgrow(Node child) {
+<b class="nc">&nbsp;        return (Priority)getConstraint(child, HGROW_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the vertical grow priority for the child when contained by a gridpane.
+&nbsp;     * If set, the gridpane will use the priority to allocate the child additional
+&nbsp;     * vertical space if the gridpane is resized larger than it&#39;s preferred height.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * @param child the child of a gridpane
+&nbsp;     * @param value the vertical grow priority for the child
+&nbsp;     */
+&nbsp;    public static void setVgrow(Node child, Priority value) {
+<b class="nc">&nbsp;        setConstraint(child, VGROW_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s vgrow constraint if set.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the vertical grow priority for the child or null if no priority was set
+&nbsp;     */
+&nbsp;    public static Priority getVgrow(Node child) {
+<b class="nc">&nbsp;        return (Priority)getConstraint(child, VGROW_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the horizontal fill policy for the child when contained by a gridpane.
+&nbsp;     * If set, the gridpane will use the policy to determine whether node
+&nbsp;     * should be expanded to fill the column or resized to its preferred width.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * If not value is specified for the node nor for the column, the default value is true.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the horizontal fill policy or null for unset
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static void setFillWidth(Node child, Boolean value) {
+<b class="nc">&nbsp;        setConstraint(child, FILL_WIDTH_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s horizontal fill policy if set
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the horizontal fill policy for the child or null if no policy was set
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static Boolean isFillWidth(Node child) {
+<b class="nc">&nbsp;        return (Boolean) getConstraint(child, FILL_WIDTH_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the vertical fill policy for the child when contained by a gridpane.
+&nbsp;     * If set, the gridpane will use the policy to determine whether node
+&nbsp;     * should be expanded to fill the row or resized to its preferred height.
+&nbsp;     * Setting the value to null will remove the constraint.
+&nbsp;     * If not value is specified for the node nor for the row, the default value is true.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param value the vertical fill policy or null for unset
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static void setFillHeight(Node child, Boolean value) {
+<b class="nc">&nbsp;        setConstraint(child, FILL_HEIGHT_CONSTRAINT, value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the child&#39;s vertical fill policy if set
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @return the vertical fill policy for the child or null if no policy was set
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static Boolean isFillHeight(Node child) {
+<b class="nc">&nbsp;        return (Boolean) getConstraint(child, FILL_HEIGHT_CONSTRAINT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the column,row indeces for the child when contained in a gridpane.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param columnIndex the column index position for the child
+&nbsp;     * @param rowIndex the row index position for the child
+&nbsp;     */
+&nbsp;    public static void setConstraints(Node child, int columnIndex, int rowIndex) {
+<b class="nc">&nbsp;        setRowIndex(child, rowIndex);</b>
+<b class="nc">&nbsp;        setColumnIndex(child, columnIndex);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the column, row, column-span, and row-span value for the child when
+&nbsp;     * contained in a gridpane.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param columnIndex the column index position for the child
+&nbsp;     * @param rowIndex the row index position for the child
+&nbsp;     * @param columnspan the number of columns the child should span
+&nbsp;     * @param rowspan the number of rows the child should span
+&nbsp;     */
+&nbsp;    public static void setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan) {
+<b class="nc">&nbsp;        setRowIndex(child, rowIndex);</b>
+<b class="nc">&nbsp;        setColumnIndex(child, columnIndex);</b>
+<b class="nc">&nbsp;        setRowSpan(child, rowspan);</b>
+<b class="nc">&nbsp;        setColumnSpan(child, columnspan);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the grid position, spans, and alignment for the child when contained in a gridpane.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param columnIndex the column index position for the child
+&nbsp;     * @param rowIndex the row index position for the child
+&nbsp;     * @param columnspan the number of columns the child should span
+&nbsp;     * @param rowspan the number of rows the child should span
+&nbsp;     * @param halignment the horizontal alignment of the child
+&nbsp;     * @param valignment the vertical alignment of the child
+&nbsp;     */
+&nbsp;    public static void setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan,
+&nbsp;            HPos halignment, VPos valignment) {
+<b class="nc">&nbsp;        setRowIndex(child, rowIndex);</b>
+<b class="nc">&nbsp;        setColumnIndex(child, columnIndex);</b>
+<b class="nc">&nbsp;        setRowSpan(child, rowspan);</b>
+<b class="nc">&nbsp;        setColumnSpan(child, columnspan);</b>
+<b class="nc">&nbsp;        setHalignment(child, halignment);</b>
+<b class="nc">&nbsp;        setValignment(child, valignment);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the grid position, spans, and alignment for the child when contained in a gridpane.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param columnIndex the column index position for the child
+&nbsp;     * @param rowIndex the row index position for the child
+&nbsp;     * @param columnspan the number of columns the child should span
+&nbsp;     * @param rowspan the number of rows the child should span
+&nbsp;     * @param halignment the horizontal alignment of the child
+&nbsp;     * @param valignment the vertical alignment of the child
+&nbsp;     * @param hgrow the horizontal grow priority of the child
+&nbsp;     * @param vgrow the vertical grow priority of the child
+&nbsp;     */
+&nbsp;    public static void setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan,
+&nbsp;            HPos halignment, VPos valignment, Priority hgrow, Priority vgrow) {
+<b class="nc">&nbsp;        setRowIndex(child, rowIndex);</b>
+<b class="nc">&nbsp;        setColumnIndex(child, columnIndex);</b>
+<b class="nc">&nbsp;        setRowSpan(child, rowspan);</b>
+<b class="nc">&nbsp;        setColumnSpan(child, columnspan);</b>
+<b class="nc">&nbsp;        setHalignment(child, halignment);</b>
+<b class="nc">&nbsp;        setValignment(child, valignment);</b>
+<b class="nc">&nbsp;        setHgrow(child, hgrow);</b>
+<b class="nc">&nbsp;        setVgrow(child, vgrow);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the grid position, spans, alignment, grow priorities, and margin for
+&nbsp;     * the child when contained in a gridpane.
+&nbsp;     * @param child the child node of a gridpane
+&nbsp;     * @param columnIndex the column index position for the child
+&nbsp;     * @param rowIndex the row index position for the child
+&nbsp;     * @param columnspan the number of columns the child should span
+&nbsp;     * @param rowspan the number of rows the child should span
+&nbsp;     * @param halignment the horizontal alignment of the child
+&nbsp;     * @param valignment the vertical alignment of the child
+&nbsp;     * @param hgrow the horizontal grow priority of the child
+&nbsp;     * @param vgrow the vertical grow priority of the child
+&nbsp;     * @param margin the margin of space around the child
+&nbsp;     */
+&nbsp;    public static void setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan,
+&nbsp;            HPos halignment, VPos valignment, Priority hgrow, Priority vgrow, Insets margin) {
+<b class="nc">&nbsp;        setRowIndex(child, rowIndex);</b>
+<b class="nc">&nbsp;        setColumnIndex(child, columnIndex);</b>
+<b class="nc">&nbsp;        setRowSpan(child, rowspan);</b>
+<b class="nc">&nbsp;        setColumnSpan(child, columnspan);</b>
+<b class="nc">&nbsp;        setHalignment(child, halignment);</b>
+<b class="nc">&nbsp;        setValignment(child, valignment);</b>
+<b class="nc">&nbsp;        setHgrow(child, hgrow);</b>
+<b class="nc">&nbsp;        setVgrow(child, vgrow);</b>
+<b class="nc">&nbsp;        setMargin(child, margin);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes all gridpane constraints from the child node.
+&nbsp;     * @param child the child node
+&nbsp;     */
+&nbsp;    public static void clearConstraints(Node child) {
+<b class="nc">&nbsp;        setRowIndex(child, null);</b>
+<b class="nc">&nbsp;        setColumnIndex(child, null);</b>
+<b class="nc">&nbsp;        setRowSpan(child, null);</b>
+<b class="nc">&nbsp;        setColumnSpan(child, null);</b>
+<b class="nc">&nbsp;        setHalignment(child, null);</b>
+<b class="nc">&nbsp;        setValignment(child, null);</b>
+<b class="nc">&nbsp;        setHgrow(child, null);</b>
+<b class="nc">&nbsp;        setVgrow(child, null);</b>
+<b class="nc">&nbsp;        setMargin(child, null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;    private static final Color GRID_LINE_COLOR = Color.rgb(30, 30, 30);</b>
+&nbsp;    private static final double GRID_LINE_DASH = 3;
+&nbsp;
+&nbsp;    static void createRow(int rowIndex, int columnIndex, Node... nodes) {
+<b class="nc">&nbsp;        for (int i = 0; i &lt; nodes.length; i++) {</b>
+<b class="nc">&nbsp;            setConstraints(nodes[i], columnIndex + i, rowIndex);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    static void createColumn(int columnIndex, int rowIndex, Node... nodes) {
+<b class="nc">&nbsp;        for (int i = 0; i &lt; nodes.length; i++) {</b>
+<b class="nc">&nbsp;            setConstraints(nodes[i], columnIndex, rowIndex + i);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    static int getNodeRowIndex(Node node) {
+<b class="nc">&nbsp;        Integer rowIndex = getRowIndex(node);</b>
+<b class="nc">&nbsp;        return rowIndex != null? rowIndex : 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static int getNodeRowSpan(Node node) {
+<b class="nc">&nbsp;        Integer rowspan = getRowSpan(node);</b>
+<b class="nc">&nbsp;        return rowspan != null? rowspan : 1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    static int getNodeRowEnd(Node node) {
+<b class="nc">&nbsp;        int rowSpan = getNodeRowSpan(node);</b>
+<b class="nc">&nbsp;        return rowSpan != REMAINING? getNodeRowIndex(node) + rowSpan - 1 : REMAINING;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    static int getNodeColumnIndex(Node node) {
+<b class="nc">&nbsp;        Integer columnIndex = getColumnIndex(node);</b>
+<b class="nc">&nbsp;        return columnIndex != null? columnIndex : 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static int getNodeColumnSpan(Node node) {
+<b class="nc">&nbsp;        Integer colspan = getColumnSpan(node);</b>
+<b class="nc">&nbsp;        return colspan != null? colspan : 1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    static int getNodeColumnEnd(Node node) {
+<b class="nc">&nbsp;        int columnSpan = getNodeColumnSpan(node);</b>
+<b class="nc">&nbsp;        return columnSpan != REMAINING? getNodeColumnIndex(node) + columnSpan - 1 : REMAINING;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Priority getNodeHgrow(Node node) {
+<b class="nc">&nbsp;        Priority hgrow = getHgrow(node);</b>
+<b class="nc">&nbsp;        return hgrow != null? hgrow : Priority.NEVER;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Priority getNodeVgrow(Node node) {
+<b class="nc">&nbsp;        Priority vgrow = getVgrow(node);</b>
+<b class="nc">&nbsp;        return vgrow != null? vgrow : Priority.NEVER;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Priority[] createPriorityArray(int length, Priority value) {
+<b class="nc">&nbsp;        Priority[] array = new Priority[length];</b>
+<b class="nc">&nbsp;        Arrays.fill(array, value);</b>
+<b class="nc">&nbsp;        return array;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /* ******************************************************************
+&nbsp;     *  END static methods
+&nbsp;     ********************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a GridPane layout with hgap/vgap = 0 and TOP_LEFT alignment.
+&nbsp;     */
+&nbsp;    public GridPane() {
+<b class="nc">&nbsp;        super();</b>
+<b class="nc">&nbsp;        getChildren().addListener((Observable o) -&gt; requestLayout());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a {@code GridPane} layout with the given {@link #hgapProperty() hgap} and {@link #vgapProperty() vgap}.
+&nbsp;     *
+&nbsp;     * @param hgap the size of the horizontal gaps between columns
+&nbsp;     * @param vgap the size of the vertical gaps between rows
+&nbsp;     *
+&nbsp;     * @since 21
+&nbsp;     */
+&nbsp;    public GridPane(double hgap, double vgap) {
+<b class="nc">&nbsp;        this();</b>
+<b class="nc">&nbsp;        setHgap(hgap);</b>
+<b class="nc">&nbsp;        setVgap(vgap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The width of the horizontal gaps between columns.
+&nbsp;     * @return the width of the horizontal gaps between columns
+&nbsp;     */
+&nbsp;    public final DoubleProperty hgapProperty() {
+<b class="nc">&nbsp;        if (hgap == null) {</b>
+<b class="nc">&nbsp;            hgap = new StyleableDoubleProperty(0) {</b>
+&nbsp;                @Override
+&nbsp;                public void invalidated() {
+&nbsp;                    requestLayout();
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;GridPane, Number&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.HGAP;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return GridPane.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;hgap&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return hgap;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private DoubleProperty hgap;
+<b class="nc">&nbsp;    public final void setHgap(double value) { hgapProperty().set(value); }</b>
+<b class="nc">&nbsp;    public final double getHgap() { return hgap == null ? 0 : hgap.get(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The height of the vertical gaps between rows.
+&nbsp;     * @return the height of the vertical gaps between rows
+&nbsp;     */
+&nbsp;    public final DoubleProperty vgapProperty() {
+<b class="nc">&nbsp;        if (vgap == null) {</b>
+<b class="nc">&nbsp;            vgap = new StyleableDoubleProperty(0) {</b>
+&nbsp;                @Override
+&nbsp;                public void invalidated() {
+&nbsp;                    requestLayout();
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;GridPane, Number&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.VGAP;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return GridPane.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;vgap&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return vgap;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private DoubleProperty vgap;
+<b class="nc">&nbsp;    public final void setVgap(double value) { vgapProperty().set(value); }</b>
+<b class="nc">&nbsp;    public final double getVgap() { return vgap == null ? 0 : vgap.get(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The alignment of the grid within the gridpane&#39;s width and height.
+&nbsp;     * @return the alignment of the grid within the gridpane&#39;s width and height
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;Pos&gt; alignmentProperty() {
+<b class="nc">&nbsp;        if (alignment == null) {</b>
+<b class="nc">&nbsp;            alignment = new StyleableObjectProperty&lt;Pos&gt;(Pos.TOP_LEFT) {</b>
+&nbsp;                @Override
+&nbsp;                public void invalidated() {
+&nbsp;                    requestLayout();
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;GridPane, Pos&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.ALIGNMENT;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return GridPane.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;alignment&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return alignment;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ObjectProperty&lt;Pos&gt; alignment;
+&nbsp;    public final void setAlignment(Pos value) {
+<b class="nc">&nbsp;        alignmentProperty().set(value);</b>
+&nbsp;    }
+&nbsp;    public final Pos getAlignment() {
+<b class="nc">&nbsp;        return alignment == null ? Pos.TOP_LEFT : alignment.get();</b>
+&nbsp;    }
+&nbsp;    private Pos getAlignmentInternal() {
+<b class="nc">&nbsp;        Pos localPos = getAlignment();</b>
+<b class="nc">&nbsp;        return localPos == null ? Pos.TOP_LEFT : localPos;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * For debug purposes only: controls whether lines are displayed to show the gridpane&#39;s rows and columns.
+&nbsp;     * Default is &lt;code&gt;false&lt;/code&gt;.
+&nbsp;     * @return true if lines are displayed to show the gridpane&#39;s rows and columns
+&nbsp;     */
+&nbsp;    public final BooleanProperty gridLinesVisibleProperty() {
+<b class="nc">&nbsp;        if (gridLinesVisible == null) {</b>
+<b class="nc">&nbsp;            gridLinesVisible = new StyleableBooleanProperty() {</b>
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    if (get()) {
+&nbsp;                        gridLines = new Group();
+&nbsp;                        gridLines.setManaged(false);
+&nbsp;                        getChildren().add(gridLines);
+&nbsp;                    } else {
+&nbsp;                        getChildren().remove(gridLines);
+&nbsp;                        gridLines = null;
+&nbsp;                    }
+&nbsp;                    requestLayout();
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;GridPane, Boolean&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.GRID_LINES_VISIBLE;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return GridPane.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;gridLinesVisible&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return gridLinesVisible;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private BooleanProperty gridLinesVisible;
+<b class="nc">&nbsp;    public final void setGridLinesVisible(boolean value) { gridLinesVisibleProperty().set(value); }</b>
+<b class="nc">&nbsp;    public final boolean isGridLinesVisible() { return gridLinesVisible == null ? false : gridLinesVisible.get(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * RowConstraints instances can be added to explicitly control individual row
+&nbsp;     * sizing and layout behavior.
+&nbsp;     * If not set, row sizing and layout behavior will be computed based on content.
+&nbsp;     *
+&nbsp;     */
+<b class="nc">&nbsp;    private final ObservableList&lt;RowConstraints&gt; rowConstraints = new TrackableObservableList&lt;&gt;() {</b>
+&nbsp;        @Override
+&nbsp;        protected void onChanged(Change&lt;RowConstraints&gt; c) {
+&nbsp;            while (c.next()) {
+&nbsp;                for (RowConstraints constraints : c.getRemoved()) {
+&nbsp;                    if (constraints != null &amp;&amp; !rowConstraints.contains(constraints)) {
+&nbsp;                        constraints.remove(GridPane.this);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;                for (RowConstraints constraints : c.getAddedSubList()) {
+&nbsp;                    if (constraints != null) {
+&nbsp;                        constraints.add(GridPane.this);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;            requestLayout();
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns list of row constraints. Row constraints can be added to
+&nbsp;     * explicitly control individual row sizing and layout behavior.
+&nbsp;     * If not set, row sizing and layout behavior is computed based on content.
+&nbsp;     *
+&nbsp;     * Index in the ObservableList denotes the row number, so the row constraint for the first row
+&nbsp;     * is at the position of 0.
+&nbsp;     * @return the list of row constraints
+&nbsp;     */
+<b class="nc">&nbsp;    public final ObservableList&lt;RowConstraints&gt; getRowConstraints() { return rowConstraints; }</b>
+&nbsp;    /**
+&nbsp;     * ColumnConstraints instances can be added to explicitly control individual column
+&nbsp;     * sizing and layout behavior.
+&nbsp;     * If not set, column sizing and layout behavior will be computed based on content.
+&nbsp;     */
+<b class="nc">&nbsp;    private final ObservableList&lt;ColumnConstraints&gt; columnConstraints = new TrackableObservableList&lt;&gt;() {</b>
+&nbsp;        @Override
+&nbsp;        protected void onChanged(Change&lt;ColumnConstraints&gt; c) {
+&nbsp;            while(c.next()) {
+&nbsp;                for (ColumnConstraints constraints : c.getRemoved()) {
+&nbsp;                    if (constraints != null &amp;&amp; !columnConstraints.contains(constraints)) {
+&nbsp;                        constraints.remove(GridPane.this);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;                for (ColumnConstraints constraints : c.getAddedSubList()) {
+&nbsp;                    if (constraints != null) {
+&nbsp;                        constraints.add(GridPane.this);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;            requestLayout();
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns list of column constraints. Column constraints can be added to
+&nbsp;     * explicitly control individual column sizing and layout behavior.
+&nbsp;     * If not set, column sizing and layout behavior is computed based on content.
+&nbsp;     *
+&nbsp;     * Index in the ObservableList denotes the column number, so the column constraint for the first column
+&nbsp;     * is at the position of 0.
+&nbsp;     * @return the list of column constraints
+&nbsp;     */
+<b class="nc">&nbsp;    public final ObservableList&lt;ColumnConstraints&gt; getColumnConstraints() { return columnConstraints; }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Adds a child to the gridpane at the specified [column, row] position.
+&nbsp;     * This convenience method will set the gridpane column and row constraints
+&nbsp;     * on the child.
+&nbsp;     * @param child the node being added to the gridpane
+&nbsp;     * @param columnIndex the column index position for the child within the gridpane, counting from 0
+&nbsp;     * @param rowIndex the row index position for the child within the gridpane, counting from 0
+&nbsp;     */
+&nbsp;    public void add(Node child, int columnIndex, int rowIndex) {
+<b class="nc">&nbsp;        setConstraints(child, columnIndex, rowIndex);</b>
+<b class="nc">&nbsp;        getChildren().add(child);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Adds a child to the gridpane at the specified [column, row] position and spans.
+&nbsp;     * This convenience method will set the gridpane column, row, and span constraints
+&nbsp;     * on the child.
+&nbsp;     * @param child the node being added to the gridpane
+&nbsp;     * @param columnIndex the column index position for the child within the gridpane, counting from 0
+&nbsp;     * @param rowIndex the row index position for the child within the gridpane, counting from 0
+&nbsp;     * @param colspan the number of columns the child&#39;s layout area should span
+&nbsp;     * @param rowspan the number of rows the child&#39;s layout area should span
+&nbsp;     */
+&nbsp;    public void add(Node child, int columnIndex, int rowIndex, int colspan, int rowspan) {
+<b class="nc">&nbsp;        setConstraints(child, columnIndex, rowIndex, colspan, rowspan);</b>
+<b class="nc">&nbsp;        getChildren().add(child);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Convenience method for placing the specified nodes sequentially in a given
+&nbsp;     * row of the gridpane.    If the row already contains nodes the specified nodes
+&nbsp;     * will be appended to the row.  For example, the first node will be positioned at [column,row],
+&nbsp;     * the second at [column+1,row], etc.   This method will set the appropriate gridpane
+&nbsp;     * row/column constraints on the nodes as well as add the nodes to the gridpane&#39;s
+&nbsp;     * children sequence.
+&nbsp;     *
+&nbsp;     * @param rowIndex the row index position for the children within the gridpane
+&nbsp;     * @param children the nodes to be added as a row in the gridpane
+&nbsp;     */
+&nbsp;    public void addRow(int rowIndex, Node... children) {
+<b class="nc">&nbsp;        int columnIndex = 0;</b>
+<b class="nc">&nbsp;        final List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;        for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            Node child = managed.get(i);</b>
+<b class="nc">&nbsp;            final int nodeRowIndex = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;            final int nodeRowEnd = getNodeRowEnd(child);</b>
+<b class="nc">&nbsp;            if (rowIndex &gt;= nodeRowIndex &amp;&amp;</b>
+&nbsp;                    (rowIndex &lt;= nodeRowEnd || nodeRowEnd == REMAINING)) {
+<b class="nc">&nbsp;                int index = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;                int end = getNodeColumnEnd(child);</b>
+<b class="nc">&nbsp;                columnIndex = Math.max(columnIndex, (end != REMAINING? end : index) + 1);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        createRow(rowIndex, columnIndex, children);</b>
+<b class="nc">&nbsp;        getChildren().addAll(children);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Convenience method for placing the specified nodes sequentially in a given
+&nbsp;     * column of the gridpane.    If the column already contains nodes the specified nodes
+&nbsp;     * will be appended to the column.  For example, the first node will be positioned at [column, row],
+&nbsp;     * the second at [column, row+1], etc.   This method will set the appropriate gridpane
+&nbsp;     * row/column constraints on the nodes as well as add the nodes to the gridpane&#39;s
+&nbsp;     * children sequence.
+&nbsp;     *
+&nbsp;     * @param columnIndex the column index position for the children within the gridpane
+&nbsp;     * @param children the nodes to be added as a column in the gridpane
+&nbsp;     */
+&nbsp;    public void addColumn(int columnIndex, Node... children)  {
+<b class="nc">&nbsp;        int rowIndex = 0;</b>
+<b class="nc">&nbsp;        final List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;        for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            Node child = managed.get(i);</b>
+<b class="nc">&nbsp;            final int nodeColumnIndex = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;            final int nodeColumnEnd = getNodeColumnEnd(child);</b>
+<b class="nc">&nbsp;            if (columnIndex &gt;= nodeColumnIndex</b>
+&nbsp;                    &amp;&amp; (columnIndex &lt;= nodeColumnEnd || nodeColumnEnd == REMAINING)) {
+<b class="nc">&nbsp;                int index = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;                int end = getNodeRowEnd(child);</b>
+<b class="nc">&nbsp;                rowIndex = Math.max(rowIndex, (end != REMAINING? end : index) + 1);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        createColumn(columnIndex, rowIndex, children);</b>
+<b class="nc">&nbsp;        getChildren().addAll(children);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Group gridLines;
+&nbsp;    private Orientation bias;
+&nbsp;
+&nbsp;    private double[] rowPercentHeight;
+<b class="nc">&nbsp;    private double rowPercentTotal = 0;</b>
+&nbsp;
+&nbsp;    private CompositeSize rowMinHeight;
+&nbsp;    private CompositeSize rowPrefHeight;
+&nbsp;    private CompositeSize  rowMaxHeight;
+&nbsp;    private List&lt;Node&gt;[] rowBaseline;
+&nbsp;    private double[] rowMinBaselineComplement;
+&nbsp;    private double[] rowPrefBaselineComplement;
+&nbsp;    private double[] rowMaxBaselineComplement;
+&nbsp;    private Priority[] rowGrow;
+&nbsp;
+&nbsp;    private double[] columnPercentWidth;
+<b class="nc">&nbsp;    private double columnPercentTotal = 0;</b>
+&nbsp;
+&nbsp;    private CompositeSize columnMinWidth;
+&nbsp;    private CompositeSize columnPrefWidth;
+&nbsp;    private CompositeSize columnMaxWidth;
+&nbsp;    private Priority[] columnGrow;
+&nbsp;
+<b class="nc">&nbsp;    private boolean metricsDirty = true;</b>
+&nbsp;
+&nbsp;    // This is set to true while in layoutChildren and set false on the conclusion.
+&nbsp;    // It is used to decide whether to update metricsDirty in requestLayout().
+<b class="nc">&nbsp;    private boolean performingLayout = false;</b>
+&nbsp;
+&nbsp;    private int numRows;
+&nbsp;    private int numColumns;
+&nbsp;
+&nbsp;    private int getNumberOfRows() {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        return numRows;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private int getNumberOfColumns() {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        return numColumns;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean isNodePositionedByBaseline(Node n){
+<b class="nc">&nbsp;        return (getRowValignment(getNodeRowIndex(n)) == VPos.BASELINE &amp;&amp; getValignment(n) == null)</b>
+<b class="nc">&nbsp;                || getValignment(n) == VPos.BASELINE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void computeGridMetrics() {
+<b class="nc">&nbsp;        if (metricsDirty) {</b>
+<b class="nc">&nbsp;            numRows = rowConstraints.size();</b>
+<b class="nc">&nbsp;            numColumns = columnConstraints.size();</b>
+<b class="nc">&nbsp;            final List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;            for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;                Node child = managed.get(i);</b>
+<b class="nc">&nbsp;                int rowIndex = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;                int columnIndex = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;                int rowEnd = getNodeRowEnd(child);</b>
+<b class="nc">&nbsp;                int columnEnd = getNodeColumnEnd(child);</b>
+<b class="nc">&nbsp;                numRows = Math.max(numRows, (rowEnd != REMAINING ? rowEnd : rowIndex) + 1);</b>
+<b class="nc">&nbsp;                numColumns = Math.max(numColumns, (columnEnd != REMAINING ? columnEnd : columnIndex) + 1);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            rowPercentHeight = createDoubleArray(numRows, -1);</b>
+<b class="nc">&nbsp;            rowPercentTotal = 0;</b>
+<b class="nc">&nbsp;            columnPercentWidth = createDoubleArray(numColumns, -1);</b>
+<b class="nc">&nbsp;            columnPercentTotal = 0;</b>
+<b class="nc">&nbsp;            columnGrow = createPriorityArray(numColumns, Priority.NEVER);</b>
+<b class="nc">&nbsp;            rowGrow = createPriorityArray(numRows, Priority.NEVER);</b>
+<b class="nc">&nbsp;            rowMinBaselineComplement = createDoubleArray(numRows, -1);</b>
+<b class="nc">&nbsp;            rowPrefBaselineComplement = createDoubleArray(numRows, -1);</b>
+<b class="nc">&nbsp;            rowMaxBaselineComplement = createDoubleArray(numRows, -1);</b>
+<b class="nc">&nbsp;            rowBaseline = new List[numRows];</b>
+<b class="nc">&nbsp;            for (int i = 0, sz = numRows; i &lt; sz; ++i) {</b>
+<b class="nc">&nbsp;                if (i &lt; rowConstraints.size()) {</b>
+<b class="nc">&nbsp;                    final RowConstraints rc = rowConstraints.get(i);</b>
+<b class="nc">&nbsp;                    double percentHeight = rc.getPercentHeight();</b>
+<b class="nc">&nbsp;                    Priority vGrow = rc.getVgrow();</b>
+<b class="nc">&nbsp;                    if (percentHeight &gt;= 0) {</b>
+<b class="nc">&nbsp;                        rowPercentHeight[i] = percentHeight;</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    if (vGrow != null) {</b>
+<b class="nc">&nbsp;                        rowGrow[i] = vGrow;</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                List&lt;Node&gt; baselineNodes = new ArrayList&lt;&gt;(numColumns);</b>
+<b class="nc">&nbsp;                for (int j = 0, size = managed.size(); j &lt; size; j++) {</b>
+<b class="nc">&nbsp;                    Node n = managed.get(j);</b>
+<b class="nc">&nbsp;                    if (getNodeRowIndex(n) == i &amp;&amp; isNodePositionedByBaseline(n)) {</b>
+<b class="nc">&nbsp;                        baselineNodes.add(n);</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="nc">&nbsp;                rowMinBaselineComplement[i] = getMinBaselineComplement(baselineNodes);</b>
+<b class="nc">&nbsp;                rowPrefBaselineComplement[i] = getPrefBaselineComplement(baselineNodes);</b>
+<b class="nc">&nbsp;                rowMaxBaselineComplement[i] = getMaxBaselineComplement(baselineNodes);</b>
+<b class="nc">&nbsp;                rowBaseline[i] = baselineNodes;</b>
+&nbsp;
+&nbsp;            }
+<b class="nc">&nbsp;            for (int i = 0, sz = Math.min(numColumns, columnConstraints.size()); i &lt; sz; ++i) {</b>
+<b class="nc">&nbsp;                final ColumnConstraints cc = columnConstraints.get(i);</b>
+<b class="nc">&nbsp;                double percentWidth = cc.getPercentWidth();</b>
+<b class="nc">&nbsp;                Priority hGrow = cc.getHgrow();</b>
+<b class="nc">&nbsp;                if (percentWidth &gt;= 0)</b>
+<b class="nc">&nbsp;                    columnPercentWidth[i] = percentWidth;</b>
+<b class="nc">&nbsp;                if (hGrow != null)</b>
+<b class="nc">&nbsp;                    columnGrow[i] = hGrow;</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;                Node child = managed.get(i);</b>
+<b class="nc">&nbsp;                if (getNodeColumnSpan(child) == 1) {</b>
+<b class="nc">&nbsp;                    Priority hg = getNodeHgrow(child);</b>
+<b class="nc">&nbsp;                    int idx = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;                    columnGrow[idx] = Priority.max(columnGrow[idx], hg);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                if (getNodeRowSpan(child) == 1) {</b>
+<b class="nc">&nbsp;                    Priority vg = getNodeVgrow(child);</b>
+<b class="nc">&nbsp;                    int idx = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;                    rowGrow[idx] = Priority.max(rowGrow[idx], vg);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            for (int i = 0; i &lt; rowPercentHeight.length; i++) {</b>
+<b class="nc">&nbsp;                if (rowPercentHeight[i] &gt; 0) {</b>
+<b class="nc">&nbsp;                    rowPercentTotal += rowPercentHeight[i];</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            if (rowPercentTotal &gt; 100) {</b>
+<b class="nc">&nbsp;                double weight = 100 / rowPercentTotal;</b>
+<b class="nc">&nbsp;                for (int i = 0; i &lt; rowPercentHeight.length; i++) {</b>
+<b class="nc">&nbsp;                    if (rowPercentHeight[i] &gt; 0) {</b>
+<b class="nc">&nbsp;                        rowPercentHeight[i] *= weight;</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="nc">&nbsp;                rowPercentTotal = 100;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            for (int i = 0; i &lt; columnPercentWidth.length; i++) {</b>
+<b class="nc">&nbsp;                if (columnPercentWidth[i] &gt; 0) {</b>
+<b class="nc">&nbsp;                    columnPercentTotal += columnPercentWidth[i];</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            if (columnPercentTotal &gt; 100) {</b>
+<b class="nc">&nbsp;                double weight = 100 / columnPercentTotal;</b>
+<b class="nc">&nbsp;                for (int i = 0; i &lt; columnPercentWidth.length; i++) {</b>
+<b class="nc">&nbsp;                    if (columnPercentWidth[i] &gt; 0) {</b>
+<b class="nc">&nbsp;                        columnPercentWidth[i] *= weight;</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="nc">&nbsp;                columnPercentTotal = 100;</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            bias = null;</b>
+<b class="nc">&nbsp;            for (int i = 0; i &lt; managed.size(); ++i) {</b>
+<b class="nc">&nbsp;                final Orientation b = managed.get(i).getContentBias();</b>
+<b class="nc">&nbsp;                if (b != null) {</b>
+<b class="nc">&nbsp;                    bias = b;</b>
+<b class="nc">&nbsp;                    if (b == Orientation.HORIZONTAL) {</b>
+&nbsp;                        break;
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            metricsDirty = false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override protected double computeMinWidth(double height) {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        performingLayout = true;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            final double[] heights = height == -1 ? null : computeHeightsToFit(height).asArray();</b>
+&nbsp;
+<b class="nc">&nbsp;            return snapSpaceX(getInsets().getLeft()) +</b>
+<b class="nc">&nbsp;                    computeMinWidths(heights).computeTotalWithMultiSize() +</b>
+<b class="nc">&nbsp;                    snapSpaceX(getInsets().getRight());</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            performingLayout = false;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override protected double computeMinHeight(double width) {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        performingLayout = true;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            final double[] widths = width == -1 ? null : computeWidthsToFit(width).asArray();</b>
+&nbsp;
+<b class="nc">&nbsp;            return snapSpaceY(getInsets().getTop()) +</b>
+<b class="nc">&nbsp;                    computeMinHeights(widths).computeTotalWithMultiSize() +</b>
+<b class="nc">&nbsp;                    snapSpaceY(getInsets().getBottom());</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            performingLayout = false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override protected double computePrefWidth(double height) {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        performingLayout = true;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            final double[] heights = height == -1 ? null : computeHeightsToFit(height).asArray();</b>
+&nbsp;
+<b class="nc">&nbsp;            return snapSpaceX(getInsets().getLeft()) +</b>
+<b class="nc">&nbsp;                    computePrefWidths(heights).computeTotalWithMultiSize() +</b>
+<b class="nc">&nbsp;                    snapSpaceX(getInsets().getRight());</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            performingLayout = false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override protected double computePrefHeight(double width) {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        performingLayout = true;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            final double[] widths = width == -1 ? null : computeWidthsToFit(width).asArray();</b>
+&nbsp;
+<b class="nc">&nbsp;            return snapSpaceY(getInsets().getTop()) +</b>
+<b class="nc">&nbsp;                    computePrefHeights(widths).computeTotalWithMultiSize() +</b>
+<b class="nc">&nbsp;                    snapSpaceY(getInsets().getBottom());</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            performingLayout = false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private VPos getRowValignment(int rowIndex) {
+<b class="nc">&nbsp;        if (rowIndex &lt; getRowConstraints().size()) {</b>
+<b class="nc">&nbsp;            RowConstraints constraints = getRowConstraints().get(rowIndex);</b>
+<b class="nc">&nbsp;            if (constraints.getValignment() != null) {</b>
+<b class="nc">&nbsp;                return constraints.getValignment();</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return VPos.CENTER;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HPos getColumnHalignment(int columnIndex) {
+<b class="nc">&nbsp;        if (columnIndex &lt; getColumnConstraints().size()) {</b>
+<b class="nc">&nbsp;            ColumnConstraints constraints = getColumnConstraints().get(columnIndex);</b>
+<b class="nc">&nbsp;            if (constraints.getHalignment() != null) {</b>
+<b class="nc">&nbsp;                return constraints.getHalignment();</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return HPos.LEFT;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getColumnMinWidth(int columnIndex) {
+<b class="nc">&nbsp;        if (columnIndex &lt; getColumnConstraints().size()) {</b>
+<b class="nc">&nbsp;            ColumnConstraints constraints = getColumnConstraints().get(columnIndex);</b>
+<b class="nc">&nbsp;            return constraints.getMinWidth();</b>
+&nbsp;
+&nbsp;        }
+<b class="nc">&nbsp;        return USE_COMPUTED_SIZE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getRowMinHeight(int rowIndex) {
+<b class="nc">&nbsp;        if (rowIndex &lt; getRowConstraints().size()) {</b>
+<b class="nc">&nbsp;            RowConstraints constraints = getRowConstraints().get(rowIndex);</b>
+<b class="nc">&nbsp;            return constraints.getMinHeight();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return USE_COMPUTED_SIZE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getColumnMaxWidth(int columnIndex) {
+<b class="nc">&nbsp;        if (columnIndex &lt; getColumnConstraints().size()) {</b>
+<b class="nc">&nbsp;            ColumnConstraints constraints = getColumnConstraints().get(columnIndex);</b>
+<b class="nc">&nbsp;            return constraints.getMaxWidth();</b>
+&nbsp;
+&nbsp;        }
+<b class="nc">&nbsp;        return USE_COMPUTED_SIZE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getColumnPrefWidth(int columnIndex) {
+<b class="nc">&nbsp;        if (columnIndex &lt; getColumnConstraints().size()) {</b>
+<b class="nc">&nbsp;            ColumnConstraints constraints = getColumnConstraints().get(columnIndex);</b>
+<b class="nc">&nbsp;            return constraints.getPrefWidth();</b>
+&nbsp;
+&nbsp;        }
+<b class="nc">&nbsp;        return USE_COMPUTED_SIZE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getRowPrefHeight(int rowIndex) {
+<b class="nc">&nbsp;        if (rowIndex &lt; getRowConstraints().size()) {</b>
+<b class="nc">&nbsp;            RowConstraints constraints = getRowConstraints().get(rowIndex);</b>
+<b class="nc">&nbsp;            return constraints.getPrefHeight();</b>
+&nbsp;
+&nbsp;        }
+<b class="nc">&nbsp;        return USE_COMPUTED_SIZE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getRowMaxHeight(int rowIndex) {
+<b class="nc">&nbsp;        if (rowIndex &lt; getRowConstraints().size()) {</b>
+<b class="nc">&nbsp;            RowConstraints constraints = getRowConstraints().get(rowIndex);</b>
+<b class="nc">&nbsp;            return constraints.getMaxHeight();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return USE_COMPUTED_SIZE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean shouldRowFillHeight(int rowIndex) {
+<b class="nc">&nbsp;        if (rowIndex &lt; getRowConstraints().size()) {</b>
+<b class="nc">&nbsp;            return getRowConstraints().get(rowIndex).isFillHeight();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean shouldColumnFillWidth(int columnIndex) {
+<b class="nc">&nbsp;        if (columnIndex &lt; getColumnConstraints().size()) {</b>
+<b class="nc">&nbsp;            return getColumnConstraints().get(columnIndex).isFillWidth();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getTotalWidthOfNodeColumns(Node child, double[] widths) {
+<b class="nc">&nbsp;        if (getNodeColumnSpan(child) == 1) {</b>
+<b class="nc">&nbsp;            return widths[getNodeColumnIndex(child)];</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            double total = 0;</b>
+<b class="nc">&nbsp;            for (int i = getNodeColumnIndex(child), last = getNodeColumnEndConvertRemaining(child); i &lt;= last; ++i) {</b>
+<b class="nc">&nbsp;                total += widths[i];</b>
+&nbsp;            }
+<b class="nc">&nbsp;            return total;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computeMaxHeights() {
+<b class="nc">&nbsp;        if (rowMaxHeight == null) {</b>
+<b class="nc">&nbsp;            rowMaxHeight = createCompositeRows(Double.MAX_VALUE); // Do not restrict the row (to allow grow). The</b>
+&nbsp;                                                                  // Nodes will be restricted to their computed size
+&nbsp;                                                                  // in Region.layoutInArea call
+<b class="nc">&nbsp;            final ObservableList&lt;RowConstraints&gt; rowConstr = getRowConstraints();</b>
+<b class="nc">&nbsp;            CompositeSize prefHeights = null;</b>
+<b class="nc">&nbsp;            for (int i = 0; i &lt; rowConstr.size(); ++i) {</b>
+<b class="nc">&nbsp;                final RowConstraints curConstraint = rowConstr.get(i);</b>
+<b class="nc">&nbsp;                final double constrMaxH = curConstraint.getMaxHeight();</b>
+<b class="nc">&nbsp;                if (constrMaxH == USE_PREF_SIZE) {</b>
+<b class="nc">&nbsp;                    if (prefHeights == null) {</b>
+<b class="nc">&nbsp;                        prefHeights = computePrefHeights(null);</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    rowMaxHeight.setPresetSize(i, prefHeights.getSize(i));</b>
+<b class="nc">&nbsp;                } else if (constrMaxH != USE_COMPUTED_SIZE) {</b>
+<b class="nc">&nbsp;                    final double maxRowHeight = snapSizeY(constrMaxH);</b>
+<b class="nc">&nbsp;                    final double constrMinH = curConstraint.getMinHeight();</b>
+<b class="nc">&nbsp;                    if (constrMinH &gt;= 0 ) {</b>
+<b class="nc">&nbsp;                        final double min = snapSizeY(curConstraint.getMinHeight());</b>
+<b class="nc">&nbsp;                        rowMaxHeight.setPresetSize(i, boundedSize(min, maxRowHeight, maxRowHeight));</b>
+&nbsp;                    } else {
+<b class="nc">&nbsp;                        rowMaxHeight.setPresetSize(i, maxRowHeight);</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return rowMaxHeight;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computePrefHeights(double[] widths) {
+&nbsp;        CompositeSize result;
+<b class="nc">&nbsp;        if (widths == null) {</b>
+<b class="nc">&nbsp;            if (rowPrefHeight != null) {</b>
+<b class="nc">&nbsp;                return rowPrefHeight;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            rowPrefHeight = createCompositeRows(0);</b>
+<b class="nc">&nbsp;            result = rowPrefHeight;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            result = createCompositeRows(0);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        final ObservableList&lt;RowConstraints&gt; rowConstr = getRowConstraints();</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; rowConstr.size(); ++i) {</b>
+<b class="nc">&nbsp;            final RowConstraints curConstraint = rowConstr.get(i);</b>
+<b class="nc">&nbsp;            final double constrMinH = curConstraint.getMinHeight();</b>
+<b class="nc">&nbsp;            final double constrPrefH = curConstraint.getPrefHeight();</b>
+<b class="nc">&nbsp;            if (constrPrefH != USE_COMPUTED_SIZE) {</b>
+<b class="nc">&nbsp;                final double prefRowHeight = snapSizeY(constrPrefH);</b>
+<b class="nc">&nbsp;                final double constrMaxH = curConstraint.getMaxHeight();</b>
+<b class="nc">&nbsp;                if (constrMinH &gt;= 0 || constrMaxH &gt;= 0) {</b>
+<b class="nc">&nbsp;                    final double min = (constrMinH &lt; 0 ? 0 : snapSizeY(constrMinH));</b>
+<b class="nc">&nbsp;                    final double max = (constrMaxH &lt; 0 ? Double.POSITIVE_INFINITY : snapSizeY(constrMaxH));</b>
+<b class="nc">&nbsp;                    result.setPresetSize(i, boundedSize(min, prefRowHeight, max));</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    result.setPresetSize(i, prefRowHeight);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            } else if (constrMinH &gt; 0){</b>
+<b class="nc">&nbsp;                result.setSize(i, snapSizeY(constrMinH));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;        for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            Node child = managed.get(i);</b>
+<b class="nc">&nbsp;            int start = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;            int end = getNodeRowEndConvertRemaining(child);</b>
+<b class="nc">&nbsp;            double childPrefAreaHeight = computeChildPrefAreaHeight(child, isNodePositionedByBaseline(child) ? rowPrefBaselineComplement[start] : -1, getMargin(child),</b>
+<b class="nc">&nbsp;                    widths == null ? -1 : getTotalWidthOfNodeColumns(child, widths));</b>
+<b class="nc">&nbsp;            if (start == end &amp;&amp; !result.isPreset(start)) {</b>
+<b class="nc">&nbsp;                double min = getRowMinHeight(start);</b>
+<b class="nc">&nbsp;                double max = getRowMaxHeight(start);</b>
+<b class="nc">&nbsp;                result.setMaxSize(start, boundedSize(min &lt; 0 ? 0 : min, childPrefAreaHeight, max &lt; 0 ? Double.MAX_VALUE : max));</b>
+<b class="nc">&nbsp;            } else if (start != end){</b>
+<b class="nc">&nbsp;                result.setMaxMultiSize(start, end + 1, childPrefAreaHeight);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computeMinHeights(double[] widths) {
+&nbsp;        CompositeSize result;
+<b class="nc">&nbsp;        if (widths == null) {</b>
+<b class="nc">&nbsp;            if (rowMinHeight != null) {</b>
+<b class="nc">&nbsp;                return rowMinHeight;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            rowMinHeight = createCompositeRows(0);</b>
+<b class="nc">&nbsp;            result = rowMinHeight;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            result = createCompositeRows(0);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        final ObservableList&lt;RowConstraints&gt; rowConstr = getRowConstraints();</b>
+<b class="nc">&nbsp;        CompositeSize prefHeights = null;</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; rowConstr.size(); ++i) {</b>
+<b class="nc">&nbsp;            final double constrMinH = rowConstr.get(i).getMinHeight();</b>
+<b class="nc">&nbsp;            if (constrMinH == USE_PREF_SIZE) {</b>
+<b class="nc">&nbsp;                if (prefHeights == null) {</b>
+<b class="nc">&nbsp;                    prefHeights = computePrefHeights(widths);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                result.setPresetSize(i, prefHeights.getSize(i));</b>
+<b class="nc">&nbsp;            } else if (constrMinH != USE_COMPUTED_SIZE) {</b>
+<b class="nc">&nbsp;                result.setPresetSize(i, snapSizeY(constrMinH));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;        for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            Node child = managed.get(i);</b>
+<b class="nc">&nbsp;            int start = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;            int end = getNodeRowEndConvertRemaining(child);</b>
+<b class="nc">&nbsp;            double childMinAreaHeight = computeChildMinAreaHeight(child, isNodePositionedByBaseline(child) ? rowMinBaselineComplement[start] : -1, getMargin(child),</b>
+<b class="nc">&nbsp;                             widths == null ? -1 : getTotalWidthOfNodeColumns(child, widths));</b>
+<b class="nc">&nbsp;            if (start == end &amp;&amp; !result.isPreset(start)) {</b>
+<b class="nc">&nbsp;                result.setMaxSize(start, childMinAreaHeight);</b>
+<b class="nc">&nbsp;            } else if (start != end){</b>
+<b class="nc">&nbsp;                result.setMaxMultiSize(start, end + 1, childMinAreaHeight);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double getTotalHeightOfNodeRows(Node child, double[] heights) {
+<b class="nc">&nbsp;        if (getNodeRowSpan(child) == 1) {</b>
+<b class="nc">&nbsp;            return heights[getNodeRowIndex(child)];</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            double total = 0;</b>
+<b class="nc">&nbsp;            for (int i = getNodeRowIndex(child), last = getNodeRowEndConvertRemaining(child); i &lt;= last; ++i) {</b>
+<b class="nc">&nbsp;                total += heights[i];</b>
+&nbsp;            }
+<b class="nc">&nbsp;            return total;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computeMaxWidths() {
+<b class="nc">&nbsp;        if (columnMaxWidth == null) {</b>
+<b class="nc">&nbsp;            columnMaxWidth = createCompositeColumns(Double.MAX_VALUE);// Do not restrict the column (to allow grow). The</b>
+&nbsp;                                                                      // Nodes will be restricted to their computed size
+&nbsp;                                                                      // in Region.layoutInArea call
+<b class="nc">&nbsp;            final ObservableList&lt;ColumnConstraints&gt; columnConstr = getColumnConstraints();</b>
+<b class="nc">&nbsp;            CompositeSize prefWidths = null;</b>
+<b class="nc">&nbsp;            for (int i = 0; i &lt; columnConstr.size(); ++i) {</b>
+<b class="nc">&nbsp;                final ColumnConstraints curConstraint = columnConstr.get(i);</b>
+<b class="nc">&nbsp;                final double constrMaxW = curConstraint.getMaxWidth();</b>
+<b class="nc">&nbsp;                if (constrMaxW == USE_PREF_SIZE) {</b>
+<b class="nc">&nbsp;                    if (prefWidths == null) {</b>
+<b class="nc">&nbsp;                        prefWidths = computePrefWidths(null);</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    columnMaxWidth.setPresetSize(i, prefWidths.getSize(i));</b>
+<b class="nc">&nbsp;                } else if (constrMaxW != USE_COMPUTED_SIZE) {</b>
+<b class="nc">&nbsp;                    double maxColumnWidth = snapSizeX(constrMaxW);</b>
+<b class="nc">&nbsp;                    final double constrMinW = curConstraint.getMinWidth();</b>
+<b class="nc">&nbsp;                    if (constrMinW &gt;= 0) {</b>
+<b class="nc">&nbsp;                        final double min = snapSizeX(constrMinW);</b>
+<b class="nc">&nbsp;                        columnMaxWidth.setPresetSize(i, boundedSize(min, maxColumnWidth, maxColumnWidth));</b>
+&nbsp;                    } else {
+<b class="nc">&nbsp;                        columnMaxWidth.setPresetSize(i, maxColumnWidth);</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return columnMaxWidth;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computePrefWidths(double[] heights) {
+&nbsp;        CompositeSize result;
+<b class="nc">&nbsp;        if (heights == null) {</b>
+<b class="nc">&nbsp;            if (columnPrefWidth != null) {</b>
+<b class="nc">&nbsp;                return columnPrefWidth;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            columnPrefWidth = createCompositeColumns(0);</b>
+<b class="nc">&nbsp;            result = columnPrefWidth;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            result = createCompositeColumns(0);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        final ObservableList&lt;ColumnConstraints&gt; columnConstr = getColumnConstraints();</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; columnConstr.size(); ++i) {</b>
+<b class="nc">&nbsp;            final ColumnConstraints curConstraint = columnConstr.get(i);</b>
+<b class="nc">&nbsp;            final double constrPrefW = curConstraint.getPrefWidth();</b>
+<b class="nc">&nbsp;            final double constrMinW = curConstraint.getMinWidth();</b>
+<b class="nc">&nbsp;            if (constrPrefW != USE_COMPUTED_SIZE) {</b>
+<b class="nc">&nbsp;                final double prefColumnWidth = snapSizeX(constrPrefW);</b>
+<b class="nc">&nbsp;                final double constrMaxW = curConstraint.getMaxWidth();</b>
+<b class="nc">&nbsp;                if (constrMinW &gt;= 0 || constrMaxW &gt;= 0) {</b>
+<b class="nc">&nbsp;                    double min = (constrMinW &lt; 0 ? 0 : snapSizeX(constrMinW));</b>
+<b class="nc">&nbsp;                    final double max = (constrMaxW &lt; 0 ? Double.POSITIVE_INFINITY : snapSizeX(constrMaxW));</b>
+<b class="nc">&nbsp;                    result.setPresetSize(i, boundedSize(min &lt; 0 ? 0 : min,</b>
+&nbsp;                            prefColumnWidth,
+<b class="nc">&nbsp;                            max &lt; 0 ? Double.POSITIVE_INFINITY : max));</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    result.setPresetSize(i, prefColumnWidth);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            } else if (constrMinW &gt; 0){</b>
+<b class="nc">&nbsp;                result.setSize(i, snapSizeX(constrMinW));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;        for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            Node child = managed.get(i);</b>
+<b class="nc">&nbsp;            int start = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;            int end = getNodeColumnEndConvertRemaining(child);</b>
+<b class="nc">&nbsp;            if (start == end &amp;&amp; !result.isPreset(start)) {</b>
+<b class="nc">&nbsp;                double min = getColumnMinWidth(start);</b>
+<b class="nc">&nbsp;                double max = getColumnMaxWidth(start);</b>
+<b class="nc">&nbsp;                result.setMaxSize(start, boundedSize(min &lt; 0 ? 0 : min, computeChildPrefAreaWidth(child,</b>
+<b class="nc">&nbsp;                        getBaselineComplementForChild(child), getMargin(child),</b>
+<b class="nc">&nbsp;                        heights == null ? -1 : getTotalHeightOfNodeRows(child, heights), false),</b>
+<b class="nc">&nbsp;                        max &lt; 0 ? Double.MAX_VALUE : max));</b>
+<b class="nc">&nbsp;            } else if (start != end) {</b>
+<b class="nc">&nbsp;                result.setMaxMultiSize(start, end + 1, computeChildPrefAreaWidth(child, getBaselineComplementForChild(child),</b>
+<b class="nc">&nbsp;                        getMargin(child),</b>
+<b class="nc">&nbsp;                        heights == null ? -1 : getTotalHeightOfNodeRows(child, heights), false));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computeMinWidths(double[] heights) {
+&nbsp;        CompositeSize result;
+<b class="nc">&nbsp;        if (heights == null) {</b>
+<b class="nc">&nbsp;            if (columnMinWidth != null) {</b>
+<b class="nc">&nbsp;                return columnMinWidth;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            columnMinWidth = createCompositeColumns(0);</b>
+<b class="nc">&nbsp;            result = columnMinWidth;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            result = createCompositeColumns(0);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        final ObservableList&lt;ColumnConstraints&gt; columnConstr = getColumnConstraints();</b>
+<b class="nc">&nbsp;        CompositeSize prefWidths = null;</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; columnConstr.size(); ++i) {</b>
+<b class="nc">&nbsp;            final double constrMinW = columnConstr.get(i).getMinWidth();</b>
+<b class="nc">&nbsp;            if (constrMinW == USE_PREF_SIZE) {</b>
+<b class="nc">&nbsp;                if (prefWidths == null) {</b>
+<b class="nc">&nbsp;                    prefWidths = computePrefWidths(heights);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                result.setPresetSize(i, prefWidths.getSize(i));</b>
+<b class="nc">&nbsp;            } else if (constrMinW != USE_COMPUTED_SIZE) {</b>
+<b class="nc">&nbsp;                result.setPresetSize(i, snapSizeX(constrMinW));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Node&gt; managed = getManagedChildren();</b>
+<b class="nc">&nbsp;        for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            Node child = managed.get(i);</b>
+<b class="nc">&nbsp;            int start = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;            int end = getNodeColumnEndConvertRemaining(child);</b>
+<b class="nc">&nbsp;            if (start == end &amp;&amp; !result.isPreset(start)) {</b>
+<b class="nc">&nbsp;                result.setMaxSize(start, computeChildMinAreaWidth(child, getBaselineComplementForChild(child),</b>
+<b class="nc">&nbsp;                        getMargin(child),</b>
+<b class="nc">&nbsp;                        heights == null ? -1 : getTotalHeightOfNodeRows(child, heights),false));</b>
+<b class="nc">&nbsp;            } else if (start != end){</b>
+<b class="nc">&nbsp;                result.setMaxMultiSize(start, end + 1, computeChildMinAreaWidth(child, getBaselineComplementForChild(child),</b>
+<b class="nc">&nbsp;                        getMargin(child),</b>
+<b class="nc">&nbsp;                        heights == null ? -1 : getTotalHeightOfNodeRows(child, heights), false));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computeHeightsToFit(double height) {
+<b class="nc">&nbsp;        assert(height != -1);</b>
+&nbsp;        final CompositeSize heights;
+<b class="nc">&nbsp;        if (rowPercentTotal == 100) {</b>
+&nbsp;            // all rows defined by percentage, no need to compute pref heights
+<b class="nc">&nbsp;            heights = createCompositeRows(0);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            heights = (CompositeSize) computePrefHeights(null).clone();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        adjustRowHeights(heights, height);</b>
+<b class="nc">&nbsp;        return heights;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize computeWidthsToFit(double width) {
+<b class="nc">&nbsp;        assert(width != -1);</b>
+&nbsp;        final CompositeSize widths;
+<b class="nc">&nbsp;        if (columnPercentTotal == 100) {</b>
+&nbsp;            // all columns defined by percentage, no need to compute pref widths
+<b class="nc">&nbsp;            widths = createCompositeColumns(0);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            widths = (CompositeSize) computePrefWidths(null).clone();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        adjustColumnWidths(widths, width);</b>
+<b class="nc">&nbsp;        return widths;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @return null unless one of its children has a content bias.
+&nbsp;     */
+&nbsp;    @Override public Orientation getContentBias() {
+<b class="nc">&nbsp;        computeGridMetrics();</b>
+<b class="nc">&nbsp;        return bias;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override public void requestLayout() {
+&nbsp;        // RT-18878: Do not update metrics dirty if we are performing layout.
+&nbsp;        // If metricsDirty is set true during a layout pass the next call to computeGridMetrics()
+&nbsp;        // will clear all the cell bounds resulting in out of date info until the
+&nbsp;        // next layout pass.
+<b class="nc">&nbsp;        if (performingLayout) {</b>
+&nbsp;            return;
+<b class="nc">&nbsp;        } else if (metricsDirty) {</b>
+<b class="nc">&nbsp;            super.requestLayout();</b>
+&nbsp;            return;
+&nbsp;        }
+<b class="nc">&nbsp;        metricsDirty = true;</b>
+<b class="nc">&nbsp;        bias = null;</b>
+<b class="nc">&nbsp;        rowGrow = null;</b>
+<b class="nc">&nbsp;        rowMinHeight = rowPrefHeight = rowMaxHeight = null;</b>
+<b class="nc">&nbsp;        columnGrow = null;</b>
+<b class="nc">&nbsp;        columnMinWidth = columnPrefWidth = columnMaxWidth = null;</b>
+<b class="nc">&nbsp;        rowMinBaselineComplement = rowPrefBaselineComplement = rowMaxBaselineComplement = null;</b>
+<b class="nc">&nbsp;        super.requestLayout();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override protected void layoutChildren() {
+<b class="nc">&nbsp;        performingLayout = true;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            final double snaphgap = snapSpaceX(getHgap());</b>
+<b class="nc">&nbsp;            final double snapvgap = snapSpaceY(getVgap());</b>
+<b class="nc">&nbsp;            final double top = snapSpaceY(getInsets().getTop());</b>
+<b class="nc">&nbsp;            final double bottom = snapSpaceY(getInsets().getBottom());</b>
+<b class="nc">&nbsp;            final double left = snapSpaceX(getInsets().getLeft());</b>
+<b class="nc">&nbsp;            final double right = snapSpaceX(getInsets().getRight());</b>
+&nbsp;
+<b class="nc">&nbsp;            final double width = getWidth();</b>
+<b class="nc">&nbsp;            final double height = getHeight();</b>
+<b class="nc">&nbsp;            final double contentHeight = height - top - bottom;</b>
+<b class="nc">&nbsp;            final double contentWidth = width - left - right;</b>
+&nbsp;            double columnTotal;
+&nbsp;            double rowTotal;
+<b class="nc">&nbsp;            computeGridMetrics();</b>
+&nbsp;
+<b class="nc">&nbsp;            Orientation contentBias = getContentBias();</b>
+&nbsp;            CompositeSize heights;
+&nbsp;            final CompositeSize widths;
+<b class="nc">&nbsp;            if (contentBias == null) {</b>
+<b class="nc">&nbsp;                heights = (CompositeSize) computePrefHeights(null).clone();</b>
+<b class="nc">&nbsp;                widths = (CompositeSize) computePrefWidths(null).clone();</b>
+<b class="nc">&nbsp;                rowTotal = adjustRowHeights(heights, height);</b>
+<b class="nc">&nbsp;                columnTotal = adjustColumnWidths(widths, width);</b>
+<b class="nc">&nbsp;            } else if (contentBias == Orientation.HORIZONTAL) {</b>
+<b class="nc">&nbsp;                widths = (CompositeSize) computePrefWidths(null).clone();</b>
+<b class="nc">&nbsp;                columnTotal = adjustColumnWidths(widths, width);</b>
+<b class="nc">&nbsp;                heights = computePrefHeights(widths.asArray());</b>
+<b class="nc">&nbsp;                rowTotal = adjustRowHeights(heights, height);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                heights = (CompositeSize) computePrefHeights(null).clone();</b>
+<b class="nc">&nbsp;                rowTotal = adjustRowHeights(heights, height);</b>
+<b class="nc">&nbsp;                widths = computePrefWidths(heights.asArray());</b>
+<b class="nc">&nbsp;                columnTotal = adjustColumnWidths(widths, width);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            final double x = left + computeXOffset(contentWidth, columnTotal, getAlignmentInternal().getHpos());</b>
+<b class="nc">&nbsp;            final double y = top + computeYOffset(contentHeight, rowTotal, getAlignmentInternal().getVpos());</b>
+<b class="nc">&nbsp;            final List&lt;Node&gt; managed = getManagedChildren();</b>
+&nbsp;
+<b class="nc">&nbsp;            double[] baselineOffsets = createDoubleArray(numRows, -1);</b>
+&nbsp;
+<b class="nc">&nbsp;            for (int i = 0, size = managed.size(); i &lt; size; i++) {</b>
+<b class="nc">&nbsp;                final Node child = managed.get(i);</b>
+<b class="nc">&nbsp;                final int rowIndex = getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;                int columnIndex = getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;                int colspan = getNodeColumnSpan(child);</b>
+<b class="nc">&nbsp;                if (colspan == REMAINING) {</b>
+<b class="nc">&nbsp;                    colspan = widths.getLength() - columnIndex;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                int rowspan = getNodeRowSpan(child);</b>
+<b class="nc">&nbsp;                if (rowspan == REMAINING) {</b>
+<b class="nc">&nbsp;                    rowspan = heights.getLength() - rowIndex;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                double areaX = x;</b>
+<b class="nc">&nbsp;                for (int j = 0; j &lt; columnIndex; j++) {</b>
+<b class="nc">&nbsp;                    areaX += widths.getSize(j) + snaphgap;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                double areaY = y;</b>
+<b class="nc">&nbsp;                for (int j = 0; j &lt; rowIndex; j++) {</b>
+<b class="nc">&nbsp;                    areaY += heights.getSize(j) + snapvgap;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                double areaW = widths.getSize(columnIndex);</b>
+<b class="nc">&nbsp;                for (int j = 2; j &lt;= colspan; j++) {</b>
+<b class="nc">&nbsp;                    areaW += widths.getSize(columnIndex + j - 1) + snaphgap;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                double areaH = heights.getSize(rowIndex);</b>
+<b class="nc">&nbsp;                for (int j = 2; j &lt;= rowspan; j++) {</b>
+<b class="nc">&nbsp;                    areaH += heights.getSize(rowIndex + j - 1) + snapvgap;</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                HPos halign = getHalignment(child);</b>
+<b class="nc">&nbsp;                VPos valign = getValignment(child);</b>
+<b class="nc">&nbsp;                Boolean fillWidth = isFillWidth(child);</b>
+<b class="nc">&nbsp;                Boolean fillHeight = isFillHeight(child);</b>
+&nbsp;
+<b class="nc">&nbsp;                if (halign == null) {</b>
+<b class="nc">&nbsp;                    halign = getColumnHalignment(columnIndex);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                if (valign == null) {</b>
+<b class="nc">&nbsp;                    valign = getRowValignment(rowIndex);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                if (fillWidth == null) {</b>
+<b class="nc">&nbsp;                    fillWidth = shouldColumnFillWidth(columnIndex);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                if (fillHeight == null) {</b>
+<b class="nc">&nbsp;                    fillHeight = shouldRowFillHeight(rowIndex);</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                double baselineOffset = 0;</b>
+<b class="nc">&nbsp;                if (valign == VPos.BASELINE) {</b>
+<b class="nc">&nbsp;                    if (baselineOffsets[rowIndex] == -1) {</b>
+<b class="nc">&nbsp;                        baselineOffsets[rowIndex] = getAreaBaselineOffset(rowBaseline[rowIndex],</b>
+&nbsp;                                marginAccessor,
+&nbsp;                                t -&gt; {
+<b class="nc">&nbsp;                                    Node n = rowBaseline[rowIndex].get(t);</b>
+<b class="nc">&nbsp;                                    int c = getNodeColumnIndex(n);</b>
+<b class="nc">&nbsp;                                    int cs = getNodeColumnSpan(n);</b>
+<b class="nc">&nbsp;                                    if (cs == REMAINING) {</b>
+<b class="nc">&nbsp;                                        cs = widths.getLength() - c;</b>
+&nbsp;                                    }
+<b class="nc">&nbsp;                                    double w = widths.getSize(c);</b>
+<b class="nc">&nbsp;                                    for (int j = 2; j &lt;= cs; j++) {</b>
+<b class="nc">&nbsp;                                        w += widths.getSize(c + j - 1) + snaphgap;</b>
+&nbsp;                                    }
+<b class="nc">&nbsp;                                    return w;</b>
+&nbsp;                                },
+&nbsp;                                areaH,
+&nbsp;                                t -&gt; {
+<b class="nc">&nbsp;                                    Boolean b = isFillHeight(child);</b>
+<b class="nc">&nbsp;                                    if (b != null) {</b>
+<b class="nc">&nbsp;                                        return b;</b>
+&nbsp;                                    }
+<b class="nc">&nbsp;                                    return shouldRowFillHeight(getNodeRowIndex(child));</b>
+&nbsp;                                }, rowMinBaselineComplement[rowIndex]
+&nbsp;                        );
+&nbsp;                    }
+<b class="nc">&nbsp;                    baselineOffset = baselineOffsets[rowIndex];</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                Insets margin = getMargin(child);</b>
+<b class="nc">&nbsp;                layoutInArea(child, areaX, areaY, areaW, areaH,</b>
+&nbsp;                        baselineOffset,
+&nbsp;                        margin,
+<b class="nc">&nbsp;                        fillWidth, fillHeight,</b>
+&nbsp;                        halign, valign);
+&nbsp;            }
+<b class="nc">&nbsp;            layoutGridLines(widths, heights, x, y, rowTotal, columnTotal);</b>
+<b class="nc">&nbsp;            currentHeights = heights;</b>
+<b class="nc">&nbsp;            currentWidths = widths;</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            performingLayout = false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private double adjustRowHeights(final CompositeSize heights, double height) {
+<b class="nc">&nbsp;        assert(height != -1);</b>
+<b class="nc">&nbsp;        final double snapvgap = snapSpaceY(getVgap());</b>
+<b class="nc">&nbsp;        final double top = snapSpaceY(getInsets().getTop());</b>
+<b class="nc">&nbsp;        final double bottom = snapSpaceY(getInsets().getBottom());</b>
+<b class="nc">&nbsp;        final double vgaps = snapvgap * (getNumberOfRows() - 1);</b>
+<b class="nc">&nbsp;        final double contentHeight = height - top - bottom;</b>
+&nbsp;
+&nbsp;        // if there are percentage rows, give them their percentages first
+<b class="nc">&nbsp;        if (rowPercentTotal &gt; 0) {</b>
+<b class="nc">&nbsp;            double remainder = 0;</b>
+<b class="nc">&nbsp;            for (int i = 0; i &lt; rowPercentHeight.length; i++) {</b>
+<b class="nc">&nbsp;                if (rowPercentHeight[i] &gt;= 0) {</b>
+<b class="nc">&nbsp;                    double size = (contentHeight - vgaps) * (rowPercentHeight[i]/100);</b>
+<b class="nc">&nbsp;                    double floor = Math.floor(size);</b>
+<b class="nc">&nbsp;                    remainder += size - floor;</b>
+&nbsp;
+&nbsp;                    // snap size to integer boundary based on the computed remainder as we loop through the rows.
+<b class="nc">&nbsp;                    size = floor;</b>
+<b class="nc">&nbsp;                    if (remainder &gt;= 0.5) {</b>
+<b class="nc">&nbsp;                        size++;</b>
+<b class="nc">&nbsp;                        remainder = (-1.0) + remainder;</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    heights.setSize(i, size);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        double rowTotal = heights.computeTotal();</b>
+<b class="nc">&nbsp;        if (rowPercentTotal &lt; 100) {</b>
+<b class="nc">&nbsp;            double heightAvailable = height - top - bottom - rowTotal;</b>
+&nbsp;            // now that both fixed and percentage rows have been computed, divy up any surplus or deficit
+<b class="nc">&nbsp;            if (heightAvailable != 0) {</b>
+&nbsp;                // maybe grow or shrink row heights
+<b class="nc">&nbsp;                double remaining = growToMultiSpanPreferredHeights(heights, heightAvailable);</b>
+<b class="nc">&nbsp;                remaining = growOrShrinkRowHeights(heights, Priority.ALWAYS, remaining);</b>
+<b class="nc">&nbsp;                remaining = growOrShrinkRowHeights(heights, Priority.SOMETIMES, remaining);</b>
+<b class="nc">&nbsp;                rowTotal += (heightAvailable - remaining);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return rowTotal;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double growToMultiSpanPreferredHeights(CompositeSize heights, double extraHeight) {
+<b class="nc">&nbsp;        if (extraHeight &lt;= 0) {</b>
+<b class="nc">&nbsp;            return extraHeight;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Set&lt;Integer&gt; rowsAlways = new TreeSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        Set&lt;Integer&gt; rowsSometimes = new TreeSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        Set&lt;Integer&gt; lastRows = new TreeSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (Entry&lt;Interval, Double&gt; ms : heights.multiSizes()) {</b>
+<b class="nc">&nbsp;            final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;            for (int i = interval.begin; i &lt; interval.end; ++i) {</b>
+<b class="nc">&nbsp;                if (rowPercentHeight[i] &lt; 0) {</b>
+<b class="nc">&nbsp;                    switch (rowGrow[i]) {</b>
+&nbsp;                        case ALWAYS:
+<b class="nc">&nbsp;                            rowsAlways.add(i);</b>
+&nbsp;                            break;
+&nbsp;                        case SOMETIMES:
+<b class="nc">&nbsp;                            rowsSometimes.add(i);</b>
+&nbsp;                            break;
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            if (rowPercentHeight[interval.end - 1] &lt; 0) {</b>
+<b class="nc">&nbsp;                lastRows.add(interval.end - 1);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        double remaining = extraHeight;</b>
+&nbsp;
+<b class="nc">&nbsp;        while (rowsAlways.size() &gt; 0 &amp;&amp; remaining &gt; rowsAlways.size()) {</b>
+<b class="nc">&nbsp;            double rowPortion = Math.floor(remaining / rowsAlways.size());</b>
+<b class="nc">&nbsp;            for (Iterator&lt;Integer&gt; it = rowsAlways.iterator(); it.hasNext();) {</b>
+<b class="nc">&nbsp;                int i = it.next();</b>
+<b class="nc">&nbsp;                double maxOfRow = getRowMaxHeight(i);</b>
+<b class="nc">&nbsp;                double prefOfRow = getRowPrefHeight(i);</b>
+<b class="nc">&nbsp;                double actualPortion = rowPortion;</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Entry&lt;Interval, Double&gt; ms : heights.multiSizes()) {</b>
+<b class="nc">&nbsp;                    final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;                    if (interval.contains(i)) {</b>
+<b class="nc">&nbsp;                        int intervalRows = 0;</b>
+<b class="nc">&nbsp;                        for (int j = interval.begin; j &lt; interval.end; ++j) {</b>
+<b class="nc">&nbsp;                            if (rowsAlways.contains(j)) {</b>
+<b class="nc">&nbsp;                                intervalRows++;</b>
+&nbsp;                            }
+&nbsp;                        }
+<b class="nc">&nbsp;                        double curLength = heights.computeTotal(interval.begin, interval.end);</b>
+<b class="nc">&nbsp;                        actualPortion = Math.min(Math.floor(Math.max(0, (ms.getValue() - curLength) / intervalRows)),</b>
+&nbsp;                                actualPortion);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                final double current = heights.getSize(i);</b>
+<b class="nc">&nbsp;                double bounded = maxOfRow &gt;= 0 ? boundedSize(0, current + actualPortion, maxOfRow) :</b>
+<b class="nc">&nbsp;                        maxOfRow == USE_PREF_SIZE &amp;&amp; prefOfRow &gt; 0 ? boundedSize(0, current + actualPortion, prefOfRow) :</b>
+<b class="nc">&nbsp;                        current + actualPortion;</b>
+<b class="nc">&nbsp;                final double portionUsed = bounded - current;</b>
+<b class="nc">&nbsp;                remaining -= portionUsed;</b>
+<b class="nc">&nbsp;                if (portionUsed != actualPortion || portionUsed == 0) {</b>
+<b class="nc">&nbsp;                    it.remove();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                heights.setSize(i, bounded);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        while (rowsSometimes.size() &gt; 0 &amp;&amp; remaining &gt; rowsSometimes.size()) {</b>
+<b class="nc">&nbsp;            double colPortion = Math.floor(remaining / rowsSometimes.size());</b>
+<b class="nc">&nbsp;            for (Iterator&lt;Integer&gt; it = rowsSometimes.iterator(); it.hasNext();) {</b>
+<b class="nc">&nbsp;                int i = it.next();</b>
+<b class="nc">&nbsp;                double maxOfRow = getRowMaxHeight(i);</b>
+<b class="nc">&nbsp;                double prefOfRow = getRowPrefHeight(i);</b>
+<b class="nc">&nbsp;                double actualPortion = colPortion;</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Entry&lt;Interval, Double&gt; ms : heights.multiSizes()) {</b>
+<b class="nc">&nbsp;                    final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;                    if (interval.contains(i)) {</b>
+<b class="nc">&nbsp;                        int intervalRows = 0;</b>
+<b class="nc">&nbsp;                        for (int j = interval.begin; j &lt; interval.end; ++j) {</b>
+<b class="nc">&nbsp;                            if (rowsSometimes.contains(j)) {</b>
+<b class="nc">&nbsp;                                intervalRows++;</b>
+&nbsp;                            }
+&nbsp;                        }
+<b class="nc">&nbsp;                        double curLength = heights.computeTotal(interval.begin, interval.end);</b>
+<b class="nc">&nbsp;                        actualPortion = Math.min(Math.floor(Math.max(0, (ms.getValue() - curLength) / intervalRows)),</b>
+&nbsp;                                actualPortion);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                final double current = heights.getSize(i);</b>
+<b class="nc">&nbsp;                double bounded = maxOfRow &gt;= 0 ? boundedSize(0, current + actualPortion, maxOfRow) :</b>
+<b class="nc">&nbsp;                        maxOfRow == USE_PREF_SIZE &amp;&amp; prefOfRow &gt; 0 ? boundedSize(0, current + actualPortion, prefOfRow) :</b>
+<b class="nc">&nbsp;                        current + actualPortion;</b>
+<b class="nc">&nbsp;                final double portionUsed = bounded - current;</b>
+<b class="nc">&nbsp;                remaining -= portionUsed;</b>
+<b class="nc">&nbsp;                if (portionUsed != actualPortion || portionUsed == 0) {</b>
+<b class="nc">&nbsp;                    it.remove();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                heights.setSize(i, bounded);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        while (lastRows.size() &gt; 0 &amp;&amp; remaining &gt; lastRows.size()) {</b>
+<b class="nc">&nbsp;            double colPortion = Math.floor(remaining / lastRows.size());</b>
+<b class="nc">&nbsp;            for (Iterator&lt;Integer&gt; it = lastRows.iterator(); it.hasNext();) {</b>
+<b class="nc">&nbsp;                int i = it.next();</b>
+<b class="nc">&nbsp;                double maxOfRow = getRowMaxHeight(i);</b>
+<b class="nc">&nbsp;                double prefOfRow = getRowPrefHeight(i);</b>
+<b class="nc">&nbsp;                double actualPortion = colPortion;</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Entry&lt;Interval, Double&gt; ms : heights.multiSizes()) {</b>
+<b class="nc">&nbsp;                    final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;                    if (interval.end - 1 == i) {</b>
+<b class="nc">&nbsp;                        double curLength = heights.computeTotal(interval.begin, interval.end);</b>
+<b class="nc">&nbsp;                        actualPortion = Math.min(Math.max(0, ms.getValue() - curLength),</b>
+&nbsp;                                actualPortion);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                final double current = heights.getSize(i);</b>
+<b class="nc">&nbsp;                double bounded = maxOfRow &gt;= 0 ? boundedSize(0, current + actualPortion, maxOfRow) :</b>
+<b class="nc">&nbsp;                        maxOfRow == USE_PREF_SIZE &amp;&amp; prefOfRow &gt; 0 ? boundedSize(0, current + actualPortion, prefOfRow) :</b>
+<b class="nc">&nbsp;                        current + actualPortion;</b>
+<b class="nc">&nbsp;                final double portionUsed = bounded - current;</b>
+<b class="nc">&nbsp;                remaining -= portionUsed;</b>
+<b class="nc">&nbsp;                if (portionUsed != actualPortion || portionUsed == 0) {</b>
+<b class="nc">&nbsp;                    it.remove();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                heights.setSize(i, bounded);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return remaining;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double growOrShrinkRowHeights(CompositeSize heights, Priority priority, double extraHeight) {
+<b class="nc">&nbsp;        final boolean shrinking = extraHeight &lt; 0;</b>
+<b class="nc">&nbsp;        List&lt;Integer&gt; adjusting = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt; rowGrow.length; i++) {</b>
+<b class="nc">&nbsp;            if (rowPercentHeight[i] &lt; 0 &amp;&amp; (shrinking || rowGrow[i] == priority)) {</b>
+<b class="nc">&nbsp;                adjusting.add(i);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        double available = extraHeight; // will be negative in shrinking case</b>
+<b class="nc">&nbsp;        boolean handleRemainder = false;</b>
+<b class="nc">&nbsp;        double portion = 0;</b>
+&nbsp;
+&nbsp;        // RT-25684: We have to be careful that when subtracting change
+&nbsp;        // that we don&#39;t jump right past 0 - this leads to an infinite
+&nbsp;        // loop
+<b class="nc">&nbsp;        final boolean wasPositive = available &gt;= 0.0;</b>
+<b class="nc">&nbsp;        boolean isPositive = wasPositive;</b>
+&nbsp;
+<b class="nc">&nbsp;        CompositeSize limitSize = shrinking? computeMinHeights(null) :</b>
+<b class="nc">&nbsp;                            computeMaxHeights();</b>
+<b class="nc">&nbsp;        while (available != 0 &amp;&amp; wasPositive == isPositive &amp;&amp; adjusting.size() &gt; 0) {</b>
+<b class="nc">&nbsp;            if (!handleRemainder) {</b>
+<b class="nc">&nbsp;                portion = available &gt; 0 ? Math.floor(available / adjusting.size()) :</b>
+<b class="nc">&nbsp;                        Math.ceil(available / adjusting.size()); // negative in shrinking case</b>
+&nbsp;            }
+<b class="nc">&nbsp;            if (portion != 0) {</b>
+<b class="nc">&nbsp;                for (Iterator&lt;Integer&gt; i = adjusting.iterator(); i.hasNext();) {</b>
+<b class="nc">&nbsp;                    final int index = i.next();</b>
+<b class="nc">&nbsp;                    double limit = snapSpaceY(limitSize.getProportionalMinOrMaxSize(index, shrinking))</b>
+<b class="nc">&nbsp;                            - heights.getSize(index); // negative in shrinking case</b>
+<b class="nc">&nbsp;                    if (shrinking &amp;&amp; limit &gt; 0</b>
+&nbsp;                            || !shrinking &amp;&amp; limit &lt; 0) { // Limit completely if current size
+&nbsp;                                                 // (originally based on preferred) already passed the computed limit
+<b class="nc">&nbsp;                        limit = 0;</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    final double change = Math.abs(limit) &lt;= Math.abs(portion)? limit : portion;</b>
+<b class="nc">&nbsp;                    heights.addSize(index, change);</b>
+<b class="nc">&nbsp;                    available -= change;</b>
+<b class="nc">&nbsp;                    isPositive = available &gt;= 0.0;</b>
+<b class="nc">&nbsp;                    if (Math.abs(change) &lt; Math.abs(portion)) {</b>
+<b class="nc">&nbsp;                        i.remove();</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    if (available == 0) {</b>
+&nbsp;                        break;
+&nbsp;                    }
+&nbsp;                }
+&nbsp;             } else {
+&nbsp;                // Handle the remainder
+<b class="nc">&nbsp;                portion = (int)(available) % adjusting.size();</b>
+<b class="nc">&nbsp;                if (portion == 0) {</b>
+&nbsp;                    break;
+&nbsp;                } else {
+&nbsp;                    // We have a remainder evenly distribute it.
+<b class="nc">&nbsp;                    portion = shrinking ? -1 : 1;</b>
+<b class="nc">&nbsp;                    handleRemainder = true;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return available; // might be negative in shrinking case</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double adjustColumnWidths(final CompositeSize widths, double width) {
+<b class="nc">&nbsp;        assert(width != -1);</b>
+<b class="nc">&nbsp;        final double snaphgap = snapSpaceX(getHgap());</b>
+<b class="nc">&nbsp;        final double left = snapSpaceX(getInsets().getLeft());</b>
+<b class="nc">&nbsp;        final double right = snapSpaceX(getInsets().getRight());</b>
+<b class="nc">&nbsp;        final double hgaps = snaphgap * (getNumberOfColumns() - 1);</b>
+<b class="nc">&nbsp;        final double contentWidth = width - left - right;</b>
+&nbsp;
+&nbsp;        // if there are percentage rows, give them their percentages first
+<b class="nc">&nbsp;        if (columnPercentTotal &gt; 0) {</b>
+<b class="nc">&nbsp;            double remainder = 0;</b>
+<b class="nc">&nbsp;            for (int i = 0; i &lt; columnPercentWidth.length; i++) {</b>
+<b class="nc">&nbsp;                if (columnPercentWidth[i] &gt;= 0) {</b>
+<b class="nc">&nbsp;                    double size = (contentWidth - hgaps) * (columnPercentWidth[i]/100);</b>
+<b class="nc">&nbsp;                    double floor = Math.floor(size);</b>
+<b class="nc">&nbsp;                    remainder += size - floor;</b>
+&nbsp;
+&nbsp;                    // snap size to integer boundary based on the computed remainder as we loop through the columns.
+<b class="nc">&nbsp;                    size = floor;</b>
+<b class="nc">&nbsp;                    if (remainder &gt;= 0.5) {</b>
+<b class="nc">&nbsp;                        size++;</b>
+<b class="nc">&nbsp;                        remainder = (-1.0) + remainder;</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    widths.setSize(i, size);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        double columnTotal = widths.computeTotal();</b>
+<b class="nc">&nbsp;        if (columnPercentTotal &lt; 100) {</b>
+<b class="nc">&nbsp;            double widthAvailable = width - left - right - columnTotal;</b>
+&nbsp;            // now that both fixed and percentage rows have been computed, divy up any surplus or deficit
+<b class="nc">&nbsp;            if (widthAvailable != 0) {</b>
+&nbsp;                // maybe grow or shrink row heights
+<b class="nc">&nbsp;                double remaining = growToMultiSpanPreferredWidths(widths, widthAvailable);</b>
+<b class="nc">&nbsp;                remaining = growOrShrinkColumnWidths(widths, Priority.ALWAYS, remaining);</b>
+<b class="nc">&nbsp;                remaining = growOrShrinkColumnWidths(widths, Priority.SOMETIMES, remaining);</b>
+<b class="nc">&nbsp;                columnTotal += (widthAvailable - remaining);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return columnTotal;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double growToMultiSpanPreferredWidths(CompositeSize widths, double extraWidth) {
+<b class="nc">&nbsp;        if (extraWidth &lt;= 0) {</b>
+<b class="nc">&nbsp;            return extraWidth;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Set&lt;Integer&gt; columnsAlways = new TreeSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        Set&lt;Integer&gt; columnsSometimes = new TreeSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        Set&lt;Integer&gt; lastColumns = new TreeSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (Entry&lt;Interval, Double&gt; ms : widths.multiSizes()) {</b>
+<b class="nc">&nbsp;            final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;            for (int i = interval.begin; i &lt; interval.end; ++i) {</b>
+<b class="nc">&nbsp;                if (columnPercentWidth[i] &lt; 0) {</b>
+<b class="nc">&nbsp;                    switch (columnGrow[i]) {</b>
+&nbsp;                        case ALWAYS:
+<b class="nc">&nbsp;                            columnsAlways.add(i);</b>
+&nbsp;                            break;
+&nbsp;                        case SOMETIMES:
+<b class="nc">&nbsp;                            columnsSometimes.add(i);</b>
+&nbsp;                            break;
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            if (columnPercentWidth[interval.end - 1] &lt; 0) {</b>
+<b class="nc">&nbsp;                lastColumns.add(interval.end - 1);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        double remaining = extraWidth;</b>
+&nbsp;
+<b class="nc">&nbsp;        while (columnsAlways.size() &gt; 0 &amp;&amp; remaining &gt; columnsAlways.size()) {</b>
+<b class="nc">&nbsp;            double colPortion = Math.floor(remaining / columnsAlways.size());</b>
+<b class="nc">&nbsp;            for (Iterator&lt;Integer&gt; it = columnsAlways.iterator(); it.hasNext();) {</b>
+<b class="nc">&nbsp;                int i = it.next();</b>
+<b class="nc">&nbsp;                double maxOfColumn = getColumnMaxWidth(i);</b>
+<b class="nc">&nbsp;                double prefOfColumn = getColumnPrefWidth(i);</b>
+<b class="nc">&nbsp;                double actualPortion = colPortion;</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Entry&lt;Interval, Double&gt; ms : widths.multiSizes()) {</b>
+<b class="nc">&nbsp;                    final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;                    if (interval.contains(i)) {</b>
+<b class="nc">&nbsp;                        int intervalColumns = 0;</b>
+<b class="nc">&nbsp;                        for (int j = interval.begin; j &lt; interval.end; ++j) {</b>
+<b class="nc">&nbsp;                            if (columnsAlways.contains(j)) {</b>
+<b class="nc">&nbsp;                                intervalColumns++;</b>
+&nbsp;                            }
+&nbsp;                        }
+<b class="nc">&nbsp;                        double curLength = widths.computeTotal(interval.begin, interval.end);</b>
+<b class="nc">&nbsp;                        actualPortion = Math.min(Math.floor(Math.max(0, (ms.getValue() - curLength) / intervalColumns)),</b>
+&nbsp;                                actualPortion);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                final double current = widths.getSize(i);</b>
+<b class="nc">&nbsp;                double bounded = maxOfColumn &gt;= 0 ? boundedSize(0, current + actualPortion, maxOfColumn) :</b>
+<b class="nc">&nbsp;                        maxOfColumn == USE_PREF_SIZE &amp;&amp; prefOfColumn &gt; 0 ? boundedSize(0, current + actualPortion, prefOfColumn) :</b>
+<b class="nc">&nbsp;                        current + actualPortion;</b>
+<b class="nc">&nbsp;                final double portionUsed = bounded - current;</b>
+<b class="nc">&nbsp;                remaining -= portionUsed;</b>
+<b class="nc">&nbsp;                if (portionUsed != actualPortion || portionUsed == 0) {</b>
+<b class="nc">&nbsp;                    it.remove();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                widths.setSize(i, bounded);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        while (columnsSometimes.size() &gt; 0 &amp;&amp; remaining &gt; columnsSometimes.size()) {</b>
+<b class="nc">&nbsp;            double colPortion = Math.floor(remaining / columnsSometimes.size());</b>
+<b class="nc">&nbsp;            for (Iterator&lt;Integer&gt; it = columnsSometimes.iterator(); it.hasNext();) {</b>
+<b class="nc">&nbsp;                int i = it.next();</b>
+<b class="nc">&nbsp;                double maxOfColumn = getColumnMaxWidth(i);</b>
+<b class="nc">&nbsp;                double prefOfColumn = getColumnPrefWidth(i);</b>
+<b class="nc">&nbsp;                double actualPortion = colPortion;</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Entry&lt;Interval, Double&gt; ms : widths.multiSizes()) {</b>
+<b class="nc">&nbsp;                    final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;                    if (interval.contains(i)) {</b>
+<b class="nc">&nbsp;                        int intervalColumns = 0;</b>
+<b class="nc">&nbsp;                        for (int j = interval.begin; j &lt; interval.end; ++j) {</b>
+<b class="nc">&nbsp;                            if (columnsSometimes.contains(j)) {</b>
+<b class="nc">&nbsp;                                intervalColumns++;</b>
+&nbsp;                            }
+&nbsp;                        }
+<b class="nc">&nbsp;                        double curLength = widths.computeTotal(interval.begin, interval.end);</b>
+<b class="nc">&nbsp;                        actualPortion = Math.min(Math.floor(Math.max(0, (ms.getValue() - curLength) / intervalColumns)),</b>
+&nbsp;                                actualPortion);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                final double current = widths.getSize(i);</b>
+<b class="nc">&nbsp;                double bounded = maxOfColumn &gt;= 0 ? boundedSize(0, current + actualPortion, maxOfColumn) :</b>
+<b class="nc">&nbsp;                        maxOfColumn == USE_PREF_SIZE &amp;&amp; prefOfColumn &gt; 0 ? boundedSize(0, current + actualPortion, prefOfColumn) :</b>
+<b class="nc">&nbsp;                        current + actualPortion;</b>
+<b class="nc">&nbsp;                final double portionUsed = bounded - current;</b>
+<b class="nc">&nbsp;                remaining -= portionUsed;</b>
+<b class="nc">&nbsp;                if (portionUsed != actualPortion || portionUsed == 0) {</b>
+<b class="nc">&nbsp;                    it.remove();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                widths.setSize(i, bounded);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        while (lastColumns.size() &gt; 0 &amp;&amp; remaining &gt; lastColumns.size()) {</b>
+<b class="nc">&nbsp;            double colPortion = Math.floor(remaining / lastColumns.size());</b>
+<b class="nc">&nbsp;            for (Iterator&lt;Integer&gt; it = lastColumns.iterator(); it.hasNext();) {</b>
+<b class="nc">&nbsp;                int i = it.next();</b>
+<b class="nc">&nbsp;                double maxOfColumn = getColumnMaxWidth(i);</b>
+<b class="nc">&nbsp;                double prefOfColumn = getColumnPrefWidth(i);</b>
+<b class="nc">&nbsp;                double actualPortion = colPortion;</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Entry&lt;Interval, Double&gt; ms : widths.multiSizes()) {</b>
+<b class="nc">&nbsp;                    final Interval interval = ms.getKey();</b>
+<b class="nc">&nbsp;                    if (interval.end - 1 == i) {</b>
+<b class="nc">&nbsp;                        double curLength = widths.computeTotal(interval.begin, interval.end);</b>
+<b class="nc">&nbsp;                        actualPortion = Math.min(Math.max(0, ms.getValue() - curLength),</b>
+&nbsp;                                actualPortion);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                final double current = widths.getSize(i);</b>
+<b class="nc">&nbsp;                double bounded = maxOfColumn &gt;= 0 ? boundedSize(0, current + actualPortion, maxOfColumn) :</b>
+<b class="nc">&nbsp;                        maxOfColumn == USE_PREF_SIZE &amp;&amp; prefOfColumn &gt; 0 ? boundedSize(0, current + actualPortion, prefOfColumn) :</b>
+<b class="nc">&nbsp;                        current + actualPortion;</b>
+<b class="nc">&nbsp;                final double portionUsed = bounded - current;</b>
+<b class="nc">&nbsp;                remaining -= portionUsed;</b>
+<b class="nc">&nbsp;                if (portionUsed != actualPortion || portionUsed == 0) {</b>
+<b class="nc">&nbsp;                    it.remove();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                widths.setSize(i, bounded);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return remaining;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private double growOrShrinkColumnWidths(CompositeSize widths, Priority priority, double extraWidth) {
+<b class="nc">&nbsp;        if (extraWidth == 0) {</b>
+<b class="nc">&nbsp;            return 0;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        final boolean shrinking = extraWidth &lt; 0;</b>
+<b class="nc">&nbsp;        List&lt;Integer&gt; adjusting = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt; columnGrow.length; i++) {</b>
+<b class="nc">&nbsp;            if (columnPercentWidth[i] &lt; 0 &amp;&amp; (shrinking || columnGrow[i] == priority)) {</b>
+<b class="nc">&nbsp;                adjusting.add(i);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        double available = extraWidth; // will be negative in shrinking case</b>
+<b class="nc">&nbsp;        boolean handleRemainder = false;</b>
+<b class="nc">&nbsp;        double portion = 0;</b>
+&nbsp;
+&nbsp;        // RT-25684: We have to be careful that when subtracting change
+&nbsp;        // that we don&#39;t jump right past 0 - this leads to an infinite
+&nbsp;        // loop
+<b class="nc">&nbsp;        final boolean wasPositive = available &gt;= 0.0;</b>
+<b class="nc">&nbsp;        boolean isPositive = wasPositive;</b>
+&nbsp;
+<b class="nc">&nbsp;        CompositeSize limitSize = shrinking? computeMinWidths(null) :</b>
+<b class="nc">&nbsp;                            computeMaxWidths();</b>
+<b class="nc">&nbsp;        while (available != 0 &amp;&amp; wasPositive == isPositive &amp;&amp; adjusting.size() &gt; 0) {</b>
+<b class="nc">&nbsp;            if (!handleRemainder) {</b>
+<b class="nc">&nbsp;                portion = available &gt; 0 ? Math.floor(available / adjusting.size()) :</b>
+<b class="nc">&nbsp;                        Math.ceil(available / adjusting.size()); // negative in shrinking case</b>
+&nbsp;            }
+<b class="nc">&nbsp;            if (portion != 0) {</b>
+<b class="nc">&nbsp;                for (Iterator&lt;Integer&gt; i = adjusting.iterator(); i.hasNext();) {</b>
+<b class="nc">&nbsp;                    final int index = i.next();</b>
+<b class="nc">&nbsp;                    double limit = snapSpaceX(limitSize.getProportionalMinOrMaxSize(index, shrinking))</b>
+<b class="nc">&nbsp;                            - widths.getSize(index); // negative in shrinking case</b>
+<b class="nc">&nbsp;                    if (shrinking &amp;&amp; limit &gt; 0</b>
+&nbsp;                            || !shrinking &amp;&amp; limit &lt; 0) { // Limit completely if current size
+&nbsp;                                                 // (originally based on preferred) already passed the computed limit
+<b class="nc">&nbsp;                        limit = 0;</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    final double change = Math.abs(limit) &lt;= Math.abs(portion)? limit : portion;</b>
+<b class="nc">&nbsp;                    widths.addSize(index, change);</b>
+<b class="nc">&nbsp;                    available -= change;</b>
+<b class="nc">&nbsp;                    isPositive = available &gt;= 0.0;</b>
+<b class="nc">&nbsp;                    if (Math.abs(change) &lt; Math.abs(portion)) {</b>
+<b class="nc">&nbsp;                        i.remove();</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    if (available == 0) {</b>
+&nbsp;                        break;
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            } else {
+&nbsp;                // Handle the remainder
+<b class="nc">&nbsp;                portion = (int)(available) % adjusting.size();</b>
+<b class="nc">&nbsp;                if (portion == 0) {</b>
+&nbsp;                    break;
+&nbsp;                } else {
+&nbsp;                    // We have a remainder evenly distribute it.
+<b class="nc">&nbsp;                    portion = shrinking ? -1 : 1;</b>
+<b class="nc">&nbsp;                    handleRemainder = true;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return available; // might be negative in shrinking case</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void layoutGridLines(CompositeSize columnWidths, CompositeSize rowHeights, double x, double y, double columnHeight, double rowWidth) {
+<b class="nc">&nbsp;        if (!isGridLinesVisible()) {</b>
+&nbsp;            return;
+&nbsp;        }
+<b class="nc">&nbsp;        if (!gridLines.getChildren().isEmpty()) {</b>
+<b class="nc">&nbsp;            gridLines.getChildren().clear();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        double hGap = snapSpaceX(getHgap());</b>
+<b class="nc">&nbsp;        double vGap = snapSpaceY(getVgap());</b>
+&nbsp;
+&nbsp;        // create vertical lines
+<b class="nc">&nbsp;        double linex = x;</b>
+<b class="nc">&nbsp;        double liney = y;</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt;= columnWidths.getLength(); i++) {</b>
+<b class="nc">&nbsp;             gridLines.getChildren().add(createGridLine(linex, liney, linex, liney + columnHeight));</b>
+<b class="nc">&nbsp;             if (i &gt; 0 &amp;&amp; i &lt; columnWidths.getLength() &amp;&amp; hGap != 0) {</b>
+<b class="nc">&nbsp;                 linex += hGap;</b>
+<b class="nc">&nbsp;                 gridLines.getChildren().add(createGridLine(linex, liney, linex, liney + columnHeight));</b>
+&nbsp;             }
+<b class="nc">&nbsp;             if (i &lt; columnWidths.getLength()) {</b>
+<b class="nc">&nbsp;                 linex += columnWidths.getSize(i);</b>
+&nbsp;             }
+&nbsp;        }
+&nbsp;        // create horizontal lines
+<b class="nc">&nbsp;        linex = x;</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt;= rowHeights.getLength(); i++) {</b>
+<b class="nc">&nbsp;            gridLines.getChildren().add(createGridLine(linex, liney, linex + rowWidth, liney));</b>
+<b class="nc">&nbsp;            if (i &gt; 0 &amp;&amp; i &lt; rowHeights.getLength() &amp;&amp; vGap != 0) {</b>
+<b class="nc">&nbsp;                liney += vGap;</b>
+<b class="nc">&nbsp;                gridLines.getChildren().add(createGridLine(linex, liney, linex + rowWidth, liney));</b>
+&nbsp;            }
+<b class="nc">&nbsp;            if (i &lt; rowHeights.getLength()) {</b>
+<b class="nc">&nbsp;                liney += rowHeights.getSize(i);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private Line createGridLine(double startX, double startY, double endX, double endY) {
+<b class="nc">&nbsp;         Line line = new Line();</b>
+<b class="nc">&nbsp;         line.setStartX(startX);</b>
+<b class="nc">&nbsp;         line.setStartY(startY);</b>
+<b class="nc">&nbsp;         line.setEndX(endX);</b>
+<b class="nc">&nbsp;         line.setEndY(endY);</b>
+<b class="nc">&nbsp;         line.setStroke(GRID_LINE_COLOR);</b>
+<b class="nc">&nbsp;         line.setStrokeDashOffset(GRID_LINE_DASH);</b>
+&nbsp;
+<b class="nc">&nbsp;         return line;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a string representation of this {@code GridPane} object.
+&nbsp;     * @return a string representation of this {@code GridPane} object.
+&nbsp;     */
+&nbsp;    @Override public String toString() {
+<b class="nc">&nbsp;        return &quot;Grid hgap=&quot;+getHgap()+&quot;, vgap=&quot;+getVgap()+&quot;, alignment=&quot;+getAlignment();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize createCompositeRows(double initSize) {
+<b class="nc">&nbsp;        return new CompositeSize(getNumberOfRows(), rowPercentHeight, rowPercentTotal,</b>
+<b class="nc">&nbsp;                snapSpaceY(getVgap()), initSize);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private CompositeSize createCompositeColumns(double initSize) {
+<b class="nc">&nbsp;        return new CompositeSize(getNumberOfColumns(), columnPercentWidth, columnPercentTotal,</b>
+<b class="nc">&nbsp;                snapSpaceX(getHgap()), initSize);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private int getNodeRowEndConvertRemaining(Node child) {
+<b class="nc">&nbsp;        int rowSpan = getNodeRowSpan(child);</b>
+<b class="nc">&nbsp;        return rowSpan != REMAINING? getNodeRowIndex(child) + rowSpan - 1 : getNumberOfRows() - 1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private int getNodeColumnEndConvertRemaining(Node child) {
+<b class="nc">&nbsp;        int columnSpan = getNodeColumnSpan(child);</b>
+<b class="nc">&nbsp;        return columnSpan != REMAINING? getNodeColumnIndex(child) + columnSpan - 1 : getNumberOfColumns() - 1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // This methods are inteded to be used by GridPaneDesignInfo
+&nbsp;    private CompositeSize currentHeights;
+&nbsp;    private CompositeSize currentWidths;
+&nbsp;
+&nbsp;    double[][] getGrid() {
+<b class="nc">&nbsp;        if (currentHeights == null || currentWidths == null) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return new double[][] {currentWidths.asArray(), currentHeights.asArray()};</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     *                         Stylesheet Handling                             *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Super-lazy instantiation pattern from Bill Pugh.
+&nbsp;     */
+&nbsp;     private static class StyleableProperties {
+&nbsp;
+&nbsp;         private static final CssMetaData&lt;GridPane,Boolean&gt; GRID_LINES_VISIBLE =
+&nbsp;             new CssMetaData&lt;&gt;(&quot;-fx-grid-lines-visible&quot;,
+&nbsp;                 BooleanConverter.getInstance(), Boolean.FALSE) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(GridPane node) {
+&nbsp;                return node.gridLinesVisible == null ||
+&nbsp;                        !node.gridLinesVisible.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Boolean&gt; getStyleableProperty(GridPane node) {
+&nbsp;                return (StyleableProperty&lt;Boolean&gt;)node.gridLinesVisibleProperty();
+&nbsp;            }
+&nbsp;         };
+&nbsp;
+&nbsp;         private static final CssMetaData&lt;GridPane,Number&gt; HGAP =
+&nbsp;             new CssMetaData&lt;&gt;(&quot;-fx-hgap&quot;,
+&nbsp;                 SizeConverter.getInstance(), 0.0){
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(GridPane node) {
+&nbsp;                return node.hgap == null || !node.hgap.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Number&gt; getStyleableProperty(GridPane node) {
+&nbsp;                return (StyleableProperty&lt;Number&gt;)node.hgapProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;         };
+&nbsp;
+&nbsp;         private static final CssMetaData&lt;GridPane,Pos&gt; ALIGNMENT =
+&nbsp;             new CssMetaData&lt;&gt;(&quot;-fx-alignment&quot;,
+&nbsp;                 new EnumConverter&lt;&gt;(Pos.class), Pos.TOP_LEFT) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(GridPane node) {
+&nbsp;                return node.alignment == null || !node.alignment.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Pos&gt; getStyleableProperty(GridPane node) {
+&nbsp;                return (StyleableProperty&lt;Pos&gt;)node.alignmentProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;         };
+&nbsp;
+&nbsp;         private static final CssMetaData&lt;GridPane,Number&gt; VGAP =
+&nbsp;             new CssMetaData&lt;&gt;(&quot;-fx-vgap&quot;,
+&nbsp;                 SizeConverter.getInstance(), 0.0){
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(GridPane node) {
+&nbsp;                return node.vgap == null || !node.vgap.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Number&gt; getStyleableProperty(GridPane node) {
+&nbsp;                return (StyleableProperty&lt;Number&gt;)node.vgapProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;         };
+&nbsp;
+&nbsp;         private static final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; STYLEABLES;
+&nbsp;         static {
+&nbsp;
+&nbsp;            final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; styleables =
+&nbsp;                    new ArrayList&lt;&gt;(Region.getClassCssMetaData());
+&nbsp;            styleables.add(GRID_LINES_VISIBLE);
+&nbsp;            styleables.add(HGAP);
+&nbsp;            styleables.add(ALIGNMENT);
+&nbsp;            styleables.add(VGAP);
+&nbsp;
+&nbsp;            STYLEABLES = Collections.unmodifiableList(styleables);
+&nbsp;         }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the {@code CssMetaData} associated with this class, which may include the
+&nbsp;     * {@code CssMetaData} of its superclasses.
+&nbsp;     * @return the {@code CssMetaData}
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getClassCssMetaData() {
+<b class="nc">&nbsp;        return StyleableProperties.STYLEABLES;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     *
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getCssMetaData() {
+<b class="nc">&nbsp;        return getClassCssMetaData();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static final class Interval implements Comparable&lt;Interval&gt; {
+&nbsp;
+&nbsp;        public final int begin;
+&nbsp;        public final int end;
+&nbsp;
+&nbsp;        public Interval(int begin, int end) {
+&nbsp;            this.begin = begin;
+&nbsp;            this.end = end;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public int compareTo(Interval o) {
+&nbsp;            return begin != o.begin ? begin - o.begin : end - o.end;
+&nbsp;        }
+&nbsp;
+&nbsp;        private boolean contains(int position) {
+&nbsp;            return begin &lt;= position &amp;&amp; position &lt; end;
+&nbsp;        }
+&nbsp;
+&nbsp;        private int size() {
+&nbsp;            return end - begin;
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private static final class CompositeSize implements Cloneable {
+&nbsp;
+&nbsp;        // These variables will be modified during the computations
+&nbsp;        double singleSizes[];
+&nbsp;        private SortedMap&lt;Interval, Double&gt; multiSizes;
+&nbsp;        private BitSet preset;
+&nbsp;
+&nbsp;        // Preset metrics for this dimension
+&nbsp;        private final double fixedPercent[];
+&nbsp;        private final double totalFixedPercent;
+&nbsp;        private final double gap;
+&nbsp;
+&nbsp;        public CompositeSize(int capacity, double fixedPercent[], double totalFixedPercent, double gap, double initSize) {
+&nbsp;            singleSizes = new double[capacity];
+&nbsp;            Arrays.fill(singleSizes, initSize);
+&nbsp;
+&nbsp;            this.fixedPercent = fixedPercent;
+&nbsp;            this.totalFixedPercent = totalFixedPercent;
+&nbsp;            this.gap = gap;
+&nbsp;        }
+&nbsp;
+&nbsp;        private void setSize(int position, double size) {
+&nbsp;            singleSizes[position] = size;
+&nbsp;        }
+&nbsp;
+&nbsp;        private void setPresetSize(int position, double size) {
+&nbsp;            setSize(position, size);
+&nbsp;            if (preset == null) {
+&nbsp;                preset = new BitSet(singleSizes.length);
+&nbsp;            }
+&nbsp;            preset.set(position);
+&nbsp;        }
+&nbsp;
+&nbsp;        private boolean isPreset(int position) {
+&nbsp;            if (preset == null) {
+&nbsp;                return false;
+&nbsp;            }
+&nbsp;            return preset.get(position);
+&nbsp;        }
+&nbsp;
+&nbsp;        private void addSize(int position, double change) {
+&nbsp;            singleSizes[position] = singleSizes[position] + change;
+&nbsp;        }
+&nbsp;
+&nbsp;        private double getSize(int position) {
+&nbsp;            return singleSizes[position];
+&nbsp;        }
+&nbsp;
+&nbsp;        private void setMaxSize(int position, double size) {
+&nbsp;            singleSizes[position] = Math.max(singleSizes[position], size);
+&nbsp;        }
+&nbsp;
+&nbsp;        private void setMultiSize(int startPosition, int endPosition, double size) {
+&nbsp;            if (multiSizes == null) {
+&nbsp;                multiSizes = new TreeMap&lt;&gt;();
+&nbsp;            }
+&nbsp;            Interval i = new Interval(startPosition, endPosition);
+&nbsp;            multiSizes.put(i, size);
+&nbsp;        }
+&nbsp;
+&nbsp;        private Iterable&lt;Entry&lt;Interval, Double&gt;&gt; multiSizes() {
+&nbsp;            if (multiSizes == null) {
+&nbsp;                return Collections.EMPTY_LIST;
+&nbsp;            }
+&nbsp;            return multiSizes.entrySet();
+&nbsp;        }
+&nbsp;
+&nbsp;        private void setMaxMultiSize(int startPosition, int endPosition, double size) {
+&nbsp;            if (multiSizes == null) {
+&nbsp;                multiSizes = new TreeMap&lt;&gt;();
+&nbsp;            }
+&nbsp;            Interval i = new Interval(startPosition, endPosition);
+&nbsp;            Double sz = multiSizes.get(i);
+&nbsp;            if (sz == null) {
+&nbsp;                multiSizes.put(i, size);
+&nbsp;            } else {
+&nbsp;                multiSizes.put(i, Math.max(size, sz));
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        private double getProportionalMinOrMaxSize(int position, boolean min) {
+&nbsp;            double result = singleSizes[position];
+&nbsp;            if (!isPreset(position) &amp;&amp; multiSizes != null) {
+&nbsp;                for (Interval i : multiSizes.keySet()) {
+&nbsp;                    if (i.contains(position)) {
+&nbsp;                        double segment = multiSizes.get(i) / i.size();
+&nbsp;                        double propSize = segment;
+&nbsp;                        for (int j = i.begin; j &lt; i.end; ++j) {
+&nbsp;                            if (j != position) {
+&nbsp;                                if (min ? singleSizes[j] &gt; segment : singleSizes[j] &lt; segment) {
+&nbsp;                                    propSize += segment - singleSizes[j];
+&nbsp;                                }
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;                        result = min ? Math.max(result, propSize) : Math.min(result, propSize);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;            return result;
+&nbsp;        }
+&nbsp;
+&nbsp;        private double computeTotal(final int from, final int to) {
+&nbsp;            double total = gap * (to - from - 1);
+&nbsp;            for (int i = from; i &lt; to; ++i) {
+&nbsp;                total += singleSizes[i];
+&nbsp;            }
+&nbsp;            return total;
+&nbsp;        }
+&nbsp;
+&nbsp;        private double computeTotal() {
+&nbsp;            return computeTotal(0, singleSizes.length);
+&nbsp;        }
+&nbsp;
+&nbsp;        private boolean allPreset(int begin, int end) {
+&nbsp;            if (preset == null) {
+&nbsp;                return false;
+&nbsp;            }
+&nbsp;            for (int i = begin; i &lt; end; ++i) {
+&nbsp;                if (!preset.get(i)) {
+&nbsp;                    return false;
+&nbsp;                }
+&nbsp;            }
+&nbsp;            return true;
+&nbsp;        }
+&nbsp;
+&nbsp;        private double computeTotalWithMultiSize() {
+&nbsp;            double total = computeTotal();
+&nbsp;            if (multiSizes != null) {
+&nbsp;                for (Entry&lt;Interval, Double&gt; e: multiSizes.entrySet()) {
+&nbsp;                    final Interval i = e.getKey();
+&nbsp;                    if (!allPreset(i.begin, i.end)) {
+&nbsp;                        double subTotal = computeTotal(i.begin, i.end);
+&nbsp;                        if (e.getValue() &gt; subTotal) {
+&nbsp;                            total += e.getValue() - subTotal;
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;            if (totalFixedPercent &gt; 0) {
+&nbsp;                double totalNotFixed = 0;
+&nbsp;                // First, remove the sizes that are fixed to be 0
+&nbsp;                for (int i = 0; i &lt; fixedPercent.length; ++i) {
+&nbsp;                    if (fixedPercent[i] == 0) {
+&nbsp;                        total -= singleSizes[i];
+&nbsp;                    }
+&nbsp;                }
+&nbsp;                for (int i = 0; i &lt; fixedPercent.length; ++i) {
+&nbsp;                    if (fixedPercent[i] &gt; 0) {
+&nbsp;                        // Grow the total so that every size at it&#39;s value corresponds at least to it&#39;s fixedPercent of the total
+&nbsp;                        // i.e. total * fixedPercent[i] &gt;= singleSizes[i]
+&nbsp;                        total = Math.max(total, singleSizes[i] * (100 / fixedPercent[i]));
+&nbsp;                    } else if (fixedPercent[i] &lt; 0){
+&nbsp;                        totalNotFixed += singleSizes[i];
+&nbsp;                    }
+&nbsp;                }
+&nbsp;                if (totalFixedPercent &lt; 100) {
+&nbsp;                    total = Math.max(total, totalNotFixed * 100 / (100 - totalFixedPercent));
+&nbsp;                }
+&nbsp;            }
+&nbsp;            return total;
+&nbsp;        }
+&nbsp;
+&nbsp;        private int getLength() {
+&nbsp;            return singleSizes.length;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        protected Object clone() {
+&nbsp;            try {
+&nbsp;            CompositeSize clone = (CompositeSize) super.clone();
+&nbsp;            clone.singleSizes = clone.singleSizes.clone();
+&nbsp;            if (multiSizes != null)
+&nbsp;                clone.multiSizes = new TreeMap&lt;&gt;(clone.multiSizes);
+&nbsp;            return clone;
+&nbsp;            } catch (CloneNotSupportedException ex) {
+&nbsp;                throw new RuntimeException(ex);
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        private double[] asArray() {
+&nbsp;            return singleSizes;
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the number of rows in this GridPane.
+&nbsp;     *
+&nbsp;     * @return the row count
+&nbsp;     * @since 9
+&nbsp;     */
+&nbsp;    public final int getRowCount() {
+<b class="nc">&nbsp;        int nRows = this.getRowConstraints().size();</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; this.getChildren().size(); i++) {</b>
+<b class="nc">&nbsp;            Node child = this.getChildren().get(i);</b>
+<b class="nc">&nbsp;            if (child.isManaged()) {</b>
+<b class="nc">&nbsp;                int rowIndex = GridPane.getNodeRowIndex(child);</b>
+<b class="nc">&nbsp;                int rowEnd = GridPane.getNodeRowEnd(child);</b>
+<b class="nc">&nbsp;                nRows = Math.max(nRows, (rowEnd != GridPane.REMAINING? rowEnd : rowIndex) + 1);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return nRows;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the number of columns in this GridPane.
+&nbsp;     *
+&nbsp;     * @return the column count
+&nbsp;     * @since 9
+&nbsp;     */
+&nbsp;    public final int getColumnCount() {
+<b class="nc">&nbsp;        int nColumns = this.getColumnConstraints().size();</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; this.getChildren().size(); i++) {</b>
+<b class="nc">&nbsp;            Node child = this.getChildren().get(i);</b>
+<b class="nc">&nbsp;            if (child.isManaged()) {</b>
+<b class="nc">&nbsp;                int columnIndex = GridPane.getNodeColumnIndex(child);</b>
+<b class="nc">&nbsp;                int columnEnd = GridPane.getNodeColumnEnd(child);</b>
+<b class="nc">&nbsp;                nColumns = Math.max(nColumns, (columnEnd != GridPane.REMAINING? columnEnd : columnIndex) + 1);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return nColumns;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the bounds of the cell at the specified column and row position.
+&nbsp;     *
+&nbsp;     * @param columnIndex the column index position for the cell within this
+&nbsp;     * GridPane, counting from 0
+&nbsp;     * @param rowIndex the row index position for the cell within this GridPane,
+&nbsp;     * counting from 0
+&nbsp;     * @return the bounds of the cell at columnIndex and rowIndex.
+&nbsp;     * @since 9
+&nbsp;     */
+&nbsp;    public final Bounds getCellBounds(int columnIndex, int rowIndex) {
+<b class="nc">&nbsp;        final double snaphgap = this.snapSpaceX(this.getHgap());</b>
+<b class="nc">&nbsp;        final double snapvgap = this.snapSpaceY(this.getVgap());</b>
+<b class="nc">&nbsp;        final double top = this.snapSpaceY(this.getInsets().getTop());</b>
+<b class="nc">&nbsp;        final double right = this.snapSpaceX(this.getInsets().getRight());</b>
+<b class="nc">&nbsp;        final double bottom = this.snapSpaceY(this.getInsets().getBottom());</b>
+<b class="nc">&nbsp;        final double left = this.snapSpaceX(this.getInsets().getLeft());</b>
+<b class="nc">&nbsp;        final double gridPaneHeight = this.snapSizeY(this.getHeight()) - (top + bottom);</b>
+<b class="nc">&nbsp;        final double gridPaneWidth = this.snapSizeX(this.getWidth()) - (left + right);</b>
+&nbsp;
+&nbsp;        // Compute grid. Result contains two double arrays, first for columns, second for rows
+&nbsp;        double[] columnWidths;
+&nbsp;        double[] rowHeights;
+&nbsp;
+<b class="nc">&nbsp;        double[][] grid = this.getGrid();</b>
+<b class="nc">&nbsp;        if (grid == null) {</b>
+<b class="nc">&nbsp;            rowHeights = new double[] {0};</b>
+<b class="nc">&nbsp;            rowIndex = 0;</b>
+<b class="nc">&nbsp;            columnWidths = new double[] {0};</b>
+<b class="nc">&nbsp;            columnIndex = 0;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            columnWidths = grid[0];</b>
+<b class="nc">&nbsp;            rowHeights = grid[1];</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // Compute the total row height
+<b class="nc">&nbsp;        double rowTotal = 0;</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; rowHeights.length; i++) {</b>
+<b class="nc">&nbsp;            rowTotal += rowHeights[i];</b>
+&nbsp;        }
+<b class="nc">&nbsp;        rowTotal += ((rowHeights.length - 1) * snapvgap);</b>
+&nbsp;
+&nbsp;        // Adjust for alignment
+<b class="nc">&nbsp;        double minY = top + Region.computeYOffset(gridPaneHeight, rowTotal, this.getAlignment().getVpos());</b>
+<b class="nc">&nbsp;        double height = rowHeights[rowIndex];</b>
+<b class="nc">&nbsp;        for (int j = 0; j &lt; rowIndex; j++) {</b>
+<b class="nc">&nbsp;            minY += rowHeights[j] + snapvgap;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // Compute the total column width
+<b class="nc">&nbsp;        double columnTotal = 0;</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; columnWidths.length; i++) {</b>
+<b class="nc">&nbsp;            columnTotal += columnWidths[i];</b>
+&nbsp;        }
+<b class="nc">&nbsp;        columnTotal += ((columnWidths.length - 1) * snaphgap);</b>
+&nbsp;
+&nbsp;        // Adjust for alignment
+<b class="nc">&nbsp;        double minX = left + Region.computeXOffset(gridPaneWidth, columnTotal, this.getAlignment().getHpos());</b>
+<b class="nc">&nbsp;        double width = columnWidths[columnIndex];</b>
+<b class="nc">&nbsp;        for (int j = 0; j &lt; columnIndex; j++) {</b>
+<b class="nc">&nbsp;            minX += columnWidths[j] + snaphgap;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return new BoundingBox(minX, minY, width, height);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

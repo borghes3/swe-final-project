@@ -1,0 +1,233 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AutoCloseExtension</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.extension</a>
+</div>
+
+<h1>Coverage Summary for Class: AutoCloseExtension (org.junit.jupiter.engine.extension)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AutoCloseExtension</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    54,5%
+  </span>
+  <span class="absValue">
+    (6/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    20%
+  </span>
+  <span class="absValue">
+    (2/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    36,4%
+  </span>
+  <span class="absValue">
+    (12/33)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.extension;
+&nbsp;
+&nbsp;import static org.junit.platform.commons.support.HierarchyTraversalMode.BOTTOM_UP;
+&nbsp;
+&nbsp;import java.lang.reflect.Field;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.util.function.Predicate;
+&nbsp;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.jupiter.api.AutoClose;
+&nbsp;import org.junit.jupiter.api.extension.AfterAllCallback;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionConfigurationException;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionContext;
+&nbsp;import org.junit.jupiter.api.extension.TestInstancePreDestroyCallback;
+&nbsp;import org.junit.platform.commons.logging.Logger;
+&nbsp;import org.junit.platform.commons.logging.LoggerFactory;
+&nbsp;import org.junit.platform.commons.support.AnnotationSupport;
+&nbsp;import org.junit.platform.commons.support.ModifierSupport;
+&nbsp;import org.junit.platform.commons.support.ReflectionSupport;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.commons.util.ReflectionUtils;
+&nbsp;import org.junit.platform.commons.util.StringUtils;
+&nbsp;import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
+&nbsp;
+&nbsp;/**
+&nbsp; * {@code AutoCloseExtension} is a JUnit Jupiter extension that closes resources
+&nbsp; * if a field in a test class is annotated with {@link AutoClose @AutoClose}.
+&nbsp; *
+&nbsp; * &lt;p&gt;Consult the Javadoc for {@code @AutoClose} for details on the contract.
+&nbsp; *
+&nbsp; * @since 5.11
+&nbsp; * @see AutoClose
+&nbsp; */
+<b class="fc">&nbsp;class AutoCloseExtension implements TestInstancePreDestroyCallback, AfterAllCallback {</b>
+&nbsp;
+<b class="fc">&nbsp;	private static final Logger logger = LoggerFactory.getLogger(AutoCloseExtension.class);</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void preDestroyTestInstance(ExtensionContext context) {
+<b class="fc">&nbsp;		ThrowableCollector throwableCollector = new ThrowableCollector(__ -&gt; false);</b>
+<b class="fc">&nbsp;		TestInstancePreDestroyCallback.preDestroyTestInstances(context,</b>
+<b class="fc">&nbsp;			testInstance -&gt; closeFields(testInstance.getClass(), testInstance, throwableCollector));</b>
+<b class="fc">&nbsp;		throwableCollector.assertEmpty();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void afterAll(ExtensionContext context) {
+<b class="fc">&nbsp;		ThrowableCollector throwableCollector = new ThrowableCollector(__ -&gt; false);</b>
+<b class="fc">&nbsp;		closeFields(context.getRequiredTestClass(), null, throwableCollector);</b>
+<b class="fc">&nbsp;		throwableCollector.assertEmpty();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void closeFields(Class&lt;?&gt; testClass, @Nullable Object testInstance,
+&nbsp;			ThrowableCollector throwableCollector) {
+&nbsp;
+<b class="fc">&nbsp;		Predicate&lt;Field&gt; predicate = (testInstance == null ? ModifierSupport::isStatic : ModifierSupport::isNotStatic);</b>
+<b class="fc">&nbsp;		AnnotationSupport.findAnnotatedFields(testClass, AutoClose.class, predicate, BOTTOM_UP)//</b>
+<b class="fc">&nbsp;				.forEach(field -&gt; throwableCollector.execute(() -&gt; closeField(field, testInstance)));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void closeField(Field field, @Nullable Object testInstance) throws Exception {
+<b class="nc">&nbsp;		String methodName = AnnotationSupport.findAnnotation(field, AutoClose.class).orElseThrow().value();</b>
+<b class="nc">&nbsp;		Class&lt;?&gt; fieldType = field.getType();</b>
+&nbsp;
+<b class="nc">&nbsp;		checkCondition(StringUtils.isNotBlank(methodName), &quot;@AutoClose on field %s must specify a method name.&quot;, field);</b>
+<b class="nc">&nbsp;		checkCondition(!fieldType.isPrimitive(), &quot;@AutoClose is not supported on primitive field %s.&quot;, field);</b>
+<b class="nc">&nbsp;		checkCondition(!fieldType.isArray(), &quot;@AutoClose is not supported on array field %s.&quot;, field);</b>
+&nbsp;
+<b class="nc">&nbsp;		Object fieldValue = ReflectionSupport.tryToReadFieldValue(field, testInstance).get();</b>
+<b class="nc">&nbsp;		if (fieldValue == null) {</b>
+<b class="nc">&nbsp;			logger.warn(() -&gt; &quot;Cannot @AutoClose field %s because it is null.&quot;.formatted(getQualifiedName(field)));</b>
+&nbsp;		}
+&nbsp;		else {
+<b class="nc">&nbsp;			invokeCloseMethod(field, fieldValue, methodName.strip());</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void invokeCloseMethod(Field field, Object target, String methodName) throws Exception {
+&nbsp;		// Avoid reflection if we can directly invoke close() via AutoCloseable.
+<b class="nc">&nbsp;		if (target instanceof @SuppressWarnings(&quot;resource&quot;) AutoCloseable closeable &amp;&amp; &quot;close&quot;.equals(methodName)) {</b>
+&nbsp;			closeable.close();
+&nbsp;			return;
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Class&lt;?&gt; targetType = target.getClass();</b>
+<b class="nc">&nbsp;		Method closeMethod = ReflectionSupport.findMethod(targetType, methodName).orElseThrow(</b>
+<b class="nc">&nbsp;			() -&gt; new ExtensionConfigurationException(</b>
+&nbsp;				&quot;Cannot @AutoClose field %s because %s does not define method %s().&quot;//
+<b class="nc">&nbsp;						.formatted(getQualifiedName(field), targetType.getName(), methodName)));</b>
+&nbsp;
+<b class="nc">&nbsp;		closeMethod = ReflectionUtils.getInterfaceMethodIfPossible(closeMethod, targetType);</b>
+<b class="nc">&nbsp;		ReflectionSupport.invokeMethod(closeMethod, target);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void checkCondition(boolean condition, String messageFormat, Field field) {
+<b class="nc">&nbsp;		Preconditions.condition(condition, () -&gt; messageFormat.formatted(getQualifiedName(field)));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static String getQualifiedName(Field field) {
+<b class="nc">&nbsp;		String typeName = field.getDeclaringClass().getCanonicalName();</b>
+<b class="nc">&nbsp;		if (typeName == null) {</b>
+<b class="nc">&nbsp;			typeName = field.getDeclaringClass().getTypeName();</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return typeName + &quot;.&quot; + field.getName();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

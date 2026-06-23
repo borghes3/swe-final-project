@@ -1,0 +1,625 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TestCase</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">junit.framework</a>
+</div>
+
+<h1>Coverage Summary for Class: TestCase (junit.framework)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TestCase</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/51)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/70)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package junit.framework;
+&nbsp;
+&nbsp;import java.lang.reflect.InvocationTargetException;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.lang.reflect.Modifier;
+&nbsp;
+&nbsp;/**
+&nbsp; * A test case defines the fixture to run multiple tests. To define a test case&lt;br/&gt;
+&nbsp; * &lt;ol&gt;
+&nbsp; *   &lt;li&gt;implement a subclass of &lt;code&gt;TestCase&lt;/code&gt;&lt;/li&gt;
+&nbsp; *   &lt;li&gt;define instance variables that store the state of the fixture&lt;/li&gt;
+&nbsp; *   &lt;li&gt;initialize the fixture state by overriding {@link #setUp()}&lt;/li&gt;
+&nbsp; *   &lt;li&gt;clean-up after a test by overriding {@link #tearDown()}.&lt;/li&gt;
+&nbsp; * &lt;/ol&gt;
+&nbsp; * Each test runs in its own fixture so there
+&nbsp; * can be no side effects among test runs.
+&nbsp; * Here is an example:
+&nbsp; * &lt;pre&gt;
+&nbsp; * public class MathTest extends TestCase {
+&nbsp; *    protected double fValue1;
+&nbsp; *    protected double fValue2;
+&nbsp; *
+&nbsp; *    protected void setUp() {
+&nbsp; *       fValue1= 2.0;
+&nbsp; *       fValue2= 3.0;
+&nbsp; *    }
+&nbsp; * }
+&nbsp; * &lt;/pre&gt;
+&nbsp; *
+&nbsp; * For each test implement a method which interacts
+&nbsp; * with the fixture. Verify the expected results with assertions specified
+&nbsp; * by calling {@link junit.framework.Assert#assertTrue(String, boolean)} with a boolean.
+&nbsp; * &lt;pre&gt;
+&nbsp; *    public void testAdd() {
+&nbsp; *       double result= fValue1 + fValue2;
+&nbsp; *       assertTrue(result == 5.0);
+&nbsp; *    }
+&nbsp; * &lt;/pre&gt;
+&nbsp; *
+&nbsp; * Once the methods are defined you can run them. The framework supports
+&nbsp; * both a static type safe and more dynamic way to run a test.
+&nbsp; * In the static way you override the runTest method and define the method to
+&nbsp; * be invoked. A convenient way to do so is with an anonymous inner class.
+&nbsp; * &lt;pre&gt;
+&nbsp; * TestCase test= new MathTest(&quot;add&quot;) {
+&nbsp; *    public void runTest() {
+&nbsp; *       testAdd();
+&nbsp; *    }
+&nbsp; * };
+&nbsp; * test.run();
+&nbsp; * &lt;/pre&gt;
+&nbsp; * The dynamic way uses reflection to implement {@link #runTest()}. It dynamically finds
+&nbsp; * and invokes a method.
+&nbsp; * In this case the name of the test case has to correspond to the test method
+&nbsp; * to be run.
+&nbsp; * &lt;pre&gt;
+&nbsp; * TestCase test= new MathTest(&quot;testAdd&quot;);
+&nbsp; * test.run();
+&nbsp; * &lt;/pre&gt;
+&nbsp; *
+&nbsp; * The tests to be run can be collected into a TestSuite. JUnit provides
+&nbsp; * different &lt;i&gt;test runners&lt;/i&gt; which can run a test suite and collect the results.
+&nbsp; * A test runner either expects a static method &lt;code&gt;suite&lt;/code&gt; as the entry
+&nbsp; * point to get a test to run or it will extract the suite automatically.
+&nbsp; * &lt;pre&gt;
+&nbsp; * public static Test suite() {
+&nbsp; *    suite.addTest(new MathTest(&quot;testAdd&quot;));
+&nbsp; *    suite.addTest(new MathTest(&quot;testDivideByZero&quot;));
+&nbsp; *    return suite;
+&nbsp; * }
+&nbsp; * &lt;/pre&gt;
+&nbsp; *
+&nbsp; * @see TestResult
+&nbsp; * @see TestSuite
+&nbsp; */
+&nbsp;@SuppressWarnings(&quot;deprecation&quot;)
+&nbsp;public abstract class TestCase extends Assert implements Test {
+&nbsp;    /**
+&nbsp;     * the name of the test case
+&nbsp;     */
+&nbsp;    private String fName;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * No-arg constructor to enable serialization. This method
+&nbsp;     * is not intended to be used by mere mortals without calling setName().
+&nbsp;     */
+<b class="nc">&nbsp;    public TestCase() {</b>
+<b class="nc">&nbsp;        fName = null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a test case with the given name.
+&nbsp;     */
+<b class="nc">&nbsp;    public TestCase(String name) {</b>
+<b class="nc">&nbsp;        fName = name;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Counts the number of test cases executed by run(TestResult result).
+&nbsp;     */
+&nbsp;    public int countTestCases() {
+<b class="nc">&nbsp;        return 1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a default TestResult object.
+&nbsp;     *
+&nbsp;     * @see TestResult
+&nbsp;     */
+&nbsp;    protected TestResult createResult() {
+<b class="nc">&nbsp;        return new TestResult();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A convenience method to run this test, collecting the results with a
+&nbsp;     * default TestResult object.
+&nbsp;     *
+&nbsp;     * @see TestResult
+&nbsp;     */
+&nbsp;    public TestResult run() {
+<b class="nc">&nbsp;        TestResult result = createResult();</b>
+<b class="nc">&nbsp;        run(result);</b>
+<b class="nc">&nbsp;        return result;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Runs the test case and collects the results in TestResult.
+&nbsp;     */
+&nbsp;    public void run(TestResult result) {
+<b class="nc">&nbsp;        result.run(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Runs the bare test sequence.
+&nbsp;     *
+&nbsp;     * @throws Throwable if any exception is thrown
+&nbsp;     */
+&nbsp;    public void runBare() throws Throwable {
+<b class="nc">&nbsp;        Throwable exception = null;</b>
+<b class="nc">&nbsp;        setUp();</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            runTest();</b>
+&nbsp;        } catch (Throwable running) {
+<b class="nc">&nbsp;            exception = running;</b>
+&nbsp;        } finally {
+&nbsp;            try {
+<b class="nc">&nbsp;                tearDown();</b>
+&nbsp;            } catch (Throwable tearingDown) {
+<b class="nc">&nbsp;                if (exception == null) exception = tearingDown;</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        if (exception != null) throw exception;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Override to run the test and assert its state.
+&nbsp;     *
+&nbsp;     * @throws Throwable if any exception is thrown
+&nbsp;     */
+&nbsp;    protected void runTest() throws Throwable {
+<b class="nc">&nbsp;        assertNotNull(&quot;TestCase.fName cannot be null&quot;, fName); // Some VMs crash when calling getMethod(null,null);</b>
+<b class="nc">&nbsp;        Method runMethod = null;</b>
+&nbsp;        try {
+&nbsp;            // use getMethod to get all public inherited
+&nbsp;            // methods. getDeclaredMethods returns all
+&nbsp;            // methods of this class but excludes the
+&nbsp;            // inherited ones.
+<b class="nc">&nbsp;            runMethod = getClass().getMethod(fName, (Class[]) null);</b>
+&nbsp;        } catch (NoSuchMethodException e) {
+<b class="nc">&nbsp;            fail(&quot;Method \&quot;&quot; + fName + &quot;\&quot; not found&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (!Modifier.isPublic(runMethod.getModifiers())) {</b>
+<b class="nc">&nbsp;            fail(&quot;Method \&quot;&quot; + fName + &quot;\&quot; should be public&quot;);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            runMethod.invoke(this);</b>
+&nbsp;        } catch (InvocationTargetException e) {
+<b class="nc">&nbsp;            e.fillInStackTrace();</b>
+<b class="nc">&nbsp;            throw e.getTargetException();</b>
+&nbsp;        } catch (IllegalAccessException e) {
+<b class="nc">&nbsp;            e.fillInStackTrace();</b>
+&nbsp;            throw e;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that a condition is true. If it isn&#39;t it throws
+&nbsp;     * an AssertionFailedError with the given message.
+&nbsp;     */
+&nbsp;    public static void assertTrue(String message, boolean condition) {
+<b class="nc">&nbsp;        Assert.assertTrue(message, condition);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that a condition is true. If it isn&#39;t it throws
+&nbsp;     * an AssertionFailedError.
+&nbsp;     */
+&nbsp;    public static void assertTrue(boolean condition) {
+<b class="nc">&nbsp;        Assert.assertTrue(condition);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that a condition is false. If it isn&#39;t it throws
+&nbsp;     * an AssertionFailedError with the given message.
+&nbsp;     */
+&nbsp;    public static void assertFalse(String message, boolean condition) {
+<b class="nc">&nbsp;        Assert.assertFalse(message, condition);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that a condition is false. If it isn&#39;t it throws
+&nbsp;     * an AssertionFailedError.
+&nbsp;     */
+&nbsp;    public static void assertFalse(boolean condition) {
+<b class="nc">&nbsp;        Assert.assertFalse(condition);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Fails a test with the given message.
+&nbsp;     */
+&nbsp;    public static void fail(String message) {
+<b class="nc">&nbsp;        Assert.fail(message);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Fails a test with no message.
+&nbsp;     */
+&nbsp;    public static void fail() {
+<b class="nc">&nbsp;        Assert.fail();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two objects are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two objects are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown.
+&nbsp;     */
+&nbsp;    public static void assertEquals(Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two Strings are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, String expected, String actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two Strings are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String expected, String actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two doubles are equal concerning a delta.  If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.  If the expected
+&nbsp;     * value is infinity then the delta value is ignored.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, double expected, double actual, double delta) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual, delta);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two doubles are equal concerning a delta. If the expected
+&nbsp;     * value is infinity then the delta value is ignored.
+&nbsp;     */
+&nbsp;    public static void assertEquals(double expected, double actual, double delta) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual, delta);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two floats are equal concerning a positive delta. If they
+&nbsp;     * are not an AssertionFailedError is thrown with the given message. If the
+&nbsp;     * expected value is infinity then the delta value is ignored.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, float expected, float actual, float delta) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual, delta);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two floats are equal concerning a delta. If the expected
+&nbsp;     * value is infinity then the delta value is ignored.
+&nbsp;     */
+&nbsp;    public static void assertEquals(float expected, float actual, float delta) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual, delta);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two longs are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, long expected, long actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two longs are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(long expected, long actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two booleans are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, boolean expected, boolean actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two booleans are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(boolean expected, boolean actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two bytes are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, byte expected, byte actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two bytes are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(byte expected, byte actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two chars are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, char expected, char actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two chars are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(char expected, char actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two shorts are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, short expected, short actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two shorts are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(short expected, short actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two ints are equal. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertEquals(String message, int expected, int actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two ints are equal.
+&nbsp;     */
+&nbsp;    public static void assertEquals(int expected, int actual) {
+<b class="nc">&nbsp;        Assert.assertEquals(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that an object isn&#39;t null.
+&nbsp;     */
+&nbsp;    public static void assertNotNull(Object object) {
+<b class="nc">&nbsp;        Assert.assertNotNull(object);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that an object isn&#39;t null. If it is
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertNotNull(String message, Object object) {
+<b class="nc">&nbsp;        Assert.assertNotNull(message, object);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that an object is null. If it isn&#39;t an {@link AssertionError} is
+&nbsp;     * thrown.
+&nbsp;     * Message contains: Expected: &lt;null&gt; but was: object
+&nbsp;     *
+&nbsp;     * @param object Object to check or &lt;code&gt;null&lt;/code&gt;
+&nbsp;     */
+&nbsp;    public static void assertNull(Object object) {
+<b class="nc">&nbsp;        Assert.assertNull(object);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that an object is null.  If it is not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertNull(String message, Object object) {
+<b class="nc">&nbsp;        Assert.assertNull(message, object);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two objects refer to the same object. If they are not
+&nbsp;     * an AssertionFailedError is thrown with the given message.
+&nbsp;     */
+&nbsp;    public static void assertSame(String message, Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.assertSame(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two objects refer to the same object. If they are not
+&nbsp;     * the same an AssertionFailedError is thrown.
+&nbsp;     */
+&nbsp;    public static void assertSame(Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.assertSame(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two objects do not refer to the same object. If they do
+&nbsp;     * refer to the same object an AssertionFailedError is thrown with the
+&nbsp;     * given message.
+&nbsp;     */
+&nbsp;    public static void assertNotSame(String message, Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.assertNotSame(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Asserts that two objects do not refer to the same object. If they do
+&nbsp;     * refer to the same object an AssertionFailedError is thrown.
+&nbsp;     */
+&nbsp;    public static void assertNotSame(Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.assertNotSame(expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void failSame(String message) {
+<b class="nc">&nbsp;        Assert.failSame(message);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void failNotSame(String message, Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.failNotSame(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void failNotEquals(String message, Object expected, Object actual) {
+<b class="nc">&nbsp;        Assert.failNotEquals(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static String format(String message, Object expected, Object actual) {
+<b class="nc">&nbsp;        return Assert.format(message, expected, actual);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets up the fixture, for example, open a network connection.
+&nbsp;     * This method is called before a test is executed.
+&nbsp;     */
+&nbsp;    protected void setUp() throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Tears down the fixture, for example, close a network connection.
+&nbsp;     * This method is called after a test is executed.
+&nbsp;     */
+&nbsp;    protected void tearDown() throws Exception {
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a string representation of the test case.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public String toString() {
+<b class="nc">&nbsp;        return getName() + &quot;(&quot; + getClass().getName() + &quot;)&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the name of a TestCase.
+&nbsp;     *
+&nbsp;     * @return the name of the TestCase
+&nbsp;     */
+&nbsp;    public String getName() {
+<b class="nc">&nbsp;        return fName;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the name of a TestCase.
+&nbsp;     *
+&nbsp;     * @param name the name to set
+&nbsp;     */
+&nbsp;    public void setName(String name) {
+<b class="nc">&nbsp;        fName = name;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

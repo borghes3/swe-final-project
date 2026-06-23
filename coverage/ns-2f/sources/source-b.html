@@ -1,0 +1,126 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Skinnable</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.control</a>
+</div>
+
+<h1>Coverage Summary for Class: Skinnable (javafx.scene.control)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">Skinnable</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.control;
+&nbsp;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; * The Skinnable interface is implemented by the {@link Control} class,
+&nbsp; * and therefore is implemented by all Control implementations.
+&nbsp; *
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public interface Skinnable {
+&nbsp;    /**
+&nbsp;     * The {@code Skin} responsible for rendering this {@code Skinnable}. From the
+&nbsp;     * perspective of the {@code Skinnable}, the {@code Skin} is a black box.
+&nbsp;     * It listens and responds to changes in state of its {@code Skinnable}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Some implementations of {@code Skinnable} define a one-to-one relationship between {@code Skinnable}
+&nbsp;     * and its {@code Skin}. Every {@code Skin} maintains a back reference to the
+&nbsp;     * {@code Skinnable}.  When required, this relationship is enforced when the {@code Skin} is set,
+&nbsp;     * throwing an {@code IllegalArgumentException} if the return value of {@link Skin#getSkinnable()}
+&nbsp;     * is not the same as this {@code Skinnable}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * A skin may be null.
+&nbsp;     *
+&nbsp;     * @return the skin property for this Skinnable
+&nbsp;     */
+&nbsp;    public ObjectProperty&lt;Skin&lt;?&gt;&gt; skinProperty();
+&nbsp;
+&nbsp;    public void setSkin(Skin&lt;?&gt; value);
+&nbsp;
+&nbsp;    public Skin&lt;?&gt; getSkin();
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

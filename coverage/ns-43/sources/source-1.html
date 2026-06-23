@@ -1,0 +1,388 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AbstractExtensionContext</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.descriptor</a>
+</div>
+
+<h1>Coverage Summary for Class: AbstractExtensionContext (org.junit.jupiter.engine.descriptor)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AbstractExtensionContext</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40%
+  </span>
+  <span class="absValue">
+    (12/30)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    38,1%
+  </span>
+  <span class="absValue">
+    (8/21)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    43%
+  </span>
+  <span class="absValue">
+    (34/79)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.descriptor;
+&nbsp;
+&nbsp;import static java.util.stream.Collectors.collectingAndThen;
+&nbsp;import static java.util.stream.Collectors.toCollection;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.Path;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.LinkedHashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.function.Function;
+&nbsp;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.jupiter.api.MediaType;
+&nbsp;import org.junit.jupiter.api.extension.ExecutableInvoker;
+&nbsp;import org.junit.jupiter.api.extension.Extension;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionContext;
+&nbsp;import org.junit.jupiter.api.function.ThrowingConsumer;
+&nbsp;import org.junit.jupiter.api.parallel.ExecutionMode;
+&nbsp;import org.junit.jupiter.engine.config.JupiterConfiguration;
+&nbsp;import org.junit.jupiter.engine.execution.DefaultExecutableInvoker;
+&nbsp;import org.junit.jupiter.engine.execution.LauncherStoreFacade;
+&nbsp;import org.junit.jupiter.engine.extension.ExtensionContextInternal;
+&nbsp;import org.junit.jupiter.engine.extension.ExtensionRegistry;
+&nbsp;import org.junit.platform.commons.JUnitException;
+&nbsp;import org.junit.platform.commons.logging.Logger;
+&nbsp;import org.junit.platform.commons.logging.LoggerFactory;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.commons.util.UnrecoverableExceptions;
+&nbsp;import org.junit.platform.engine.EngineExecutionListener;
+&nbsp;import org.junit.platform.engine.TestDescriptor;
+&nbsp;import org.junit.platform.engine.TestTag;
+&nbsp;import org.junit.platform.engine.reporting.FileEntry;
+&nbsp;import org.junit.platform.engine.reporting.ReportEntry;
+&nbsp;import org.junit.platform.engine.support.hierarchical.Node;
+&nbsp;import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
+&nbsp;
+&nbsp;/**
+&nbsp; * @since 5.0
+&nbsp; */
+&nbsp;abstract class AbstractExtensionContext&lt;T extends TestDescriptor&gt; implements ExtensionContextInternal, AutoCloseable {
+&nbsp;
+<b class="fc">&nbsp;	private static final Logger logger = LoggerFactory.getLogger(AbstractExtensionContext.class);</b>
+<b class="fc">&nbsp;	private static final Namespace CLOSEABLE_RESOURCE_LOGGING_NAMESPACE = Namespace.create(</b>
+&nbsp;		AbstractExtensionContext.class, &quot;CloseableResourceLogging&quot;);
+&nbsp;
+&nbsp;	private final @Nullable ExtensionContext parent;
+&nbsp;	private final EngineExecutionListener engineExecutionListener;
+&nbsp;	private final T testDescriptor;
+&nbsp;	private final Set&lt;String&gt; tags;
+&nbsp;	private final JupiterConfiguration configuration;
+&nbsp;	private final ExecutableInvoker executableInvoker;
+&nbsp;	private final ExtensionRegistry extensionRegistry;
+&nbsp;	private final LauncherStoreFacade launcherStoreFacade;
+&nbsp;	private final NamespacedHierarchicalStore&lt;org.junit.platform.engine.support.store.Namespace&gt; valuesStore;
+&nbsp;
+&nbsp;	AbstractExtensionContext(@Nullable ExtensionContext parent, EngineExecutionListener engineExecutionListener,
+&nbsp;			T testDescriptor, JupiterConfiguration configuration, ExtensionRegistry extensionRegistry,
+<b class="fc">&nbsp;			LauncherStoreFacade launcherStoreFacade) {</b>
+&nbsp;
+<b class="fc">&nbsp;		Preconditions.notNull(testDescriptor, &quot;TestDescriptor must not be null&quot;);</b>
+<b class="fc">&nbsp;		Preconditions.notNull(configuration, &quot;JupiterConfiguration must not be null&quot;);</b>
+<b class="fc">&nbsp;		Preconditions.notNull(extensionRegistry, &quot;ExtensionRegistry must not be null&quot;);</b>
+<b class="fc">&nbsp;		this.executableInvoker = new DefaultExecutableInvoker(this, extensionRegistry);</b>
+<b class="fc">&nbsp;		this.parent = parent;</b>
+<b class="fc">&nbsp;		this.engineExecutionListener = engineExecutionListener;</b>
+<b class="fc">&nbsp;		this.testDescriptor = testDescriptor;</b>
+<b class="fc">&nbsp;		this.configuration = configuration;</b>
+<b class="fc">&nbsp;		this.extensionRegistry = extensionRegistry;</b>
+<b class="fc">&nbsp;		this.launcherStoreFacade = launcherStoreFacade;</b>
+&nbsp;
+&nbsp;		// @formatter:off
+<b class="fc">&nbsp;		this.tags = testDescriptor.getTags().stream()</b>
+<b class="fc">&nbsp;				.map(TestTag::getName)</b>
+<b class="fc">&nbsp;				.collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));</b>
+&nbsp;		// @formatter:on
+&nbsp;
+<b class="fc">&nbsp;		this.valuesStore = new NamespacedHierarchicalStore&lt;&gt;(getParentStore(parent), createCloseAction());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private NamespacedHierarchicalStore&lt;org.junit.platform.engine.support.store.Namespace&gt; getParentStore(
+&nbsp;			@Nullable ExtensionContext parent) {
+<b class="fc">&nbsp;		return parent == null //</b>
+<b class="fc">&nbsp;				? this.launcherStoreFacade.getRequestLevelStore() //</b>
+<b class="fc">&nbsp;				: ((AbstractExtensionContext&lt;?&gt;) parent).valuesStore;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@SuppressWarnings(&quot;deprecation&quot;)
+&nbsp;	private &lt;N&gt; NamespacedHierarchicalStore.CloseAction&lt;N&gt; createCloseAction() {
+<b class="fc">&nbsp;		var store = this.launcherStoreFacade.getSessionLevelStore(CLOSEABLE_RESOURCE_LOGGING_NAMESPACE);</b>
+<b class="fc">&nbsp;		return (__, ___, value) -&gt; {</b>
+<b class="fc">&nbsp;			boolean isAutoCloseEnabled = this.configuration.isClosingStoredAutoCloseablesEnabled();</b>
+&nbsp;
+<b class="pc">&nbsp;			if (isAutoCloseEnabled &amp;&amp; value instanceof @SuppressWarnings(&quot;resource&quot;) AutoCloseable closeable) {</b>
+&nbsp;				closeable.close();
+&nbsp;				return;
+&nbsp;			}
+&nbsp;
+<b class="pc">&nbsp;			if (value instanceof Store.CloseableResource resource) {</b>
+<b class="nc">&nbsp;				if (isAutoCloseEnabled) {</b>
+<b class="nc">&nbsp;					store.computeIfAbsent(value.getClass(), type -&gt; {</b>
+<b class="nc">&nbsp;						logger.warn(() -&gt; &quot;Type implements CloseableResource but not AutoCloseable: &quot; + type.getName());</b>
+<b class="nc">&nbsp;						return true;</b>
+&nbsp;					});
+&nbsp;				}
+&nbsp;				resource.close();
+&nbsp;			}
+&nbsp;		};
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void close() {
+<b class="fc">&nbsp;		this.valuesStore.close();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String getUniqueId() {
+<b class="nc">&nbsp;		return getTestDescriptor().getUniqueId().toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String getDisplayName() {
+<b class="nc">&nbsp;		return getTestDescriptor().getDisplayName();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void publishReportEntry(Map&lt;String, String&gt; values) {
+<b class="nc">&nbsp;		this.engineExecutionListener.reportingEntryPublished(this.testDescriptor, ReportEntry.from(values));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void publishFile(String name, MediaType mediaType, ThrowingConsumer&lt;Path&gt; action) {
+<b class="nc">&nbsp;		Preconditions.notBlank(name, &quot;name must not be null or blank&quot;);</b>
+<b class="nc">&nbsp;		Preconditions.notNull(mediaType, &quot;mediaType must not be null&quot;);</b>
+<b class="nc">&nbsp;		Preconditions.notNull(action, &quot;action must not be null&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		publishFileEntry(name, action, path -&gt; {</b>
+<b class="nc">&nbsp;			Preconditions.condition(Files.isRegularFile(path), () -&gt; &quot;Published path must be a regular file: &quot; + path);</b>
+<b class="nc">&nbsp;			return FileEntry.from(path, mediaType.toString());</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void publishDirectory(String name, ThrowingConsumer&lt;Path&gt; action) {
+<b class="nc">&nbsp;		Preconditions.notBlank(name, &quot;name must not be null or blank&quot;);</b>
+<b class="nc">&nbsp;		Preconditions.notNull(action, &quot;action must not be null&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		ThrowingConsumer&lt;Path&gt; enhancedAction = path -&gt; {</b>
+<b class="nc">&nbsp;			if (!Files.isDirectory(path)) {</b>
+<b class="nc">&nbsp;				Files.createDirectory(path);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			action.accept(path);</b>
+&nbsp;		};
+<b class="nc">&nbsp;		publishFileEntry(name, enhancedAction, path -&gt; {</b>
+<b class="nc">&nbsp;			Preconditions.condition(Files.isDirectory(path), () -&gt; &quot;Published path must be a directory: &quot; + path);</b>
+<b class="nc">&nbsp;			return FileEntry.from(path, null);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	private void publishFileEntry(String name, ThrowingConsumer&lt;Path&gt; action,
+&nbsp;			Function&lt;Path, FileEntry&gt; fileEntryCreator) {
+<b class="nc">&nbsp;		Path dir = createOutputDirectory();</b>
+<b class="nc">&nbsp;		Path path = dir.resolve(name);</b>
+<b class="nc">&nbsp;		Preconditions.condition(path.getParent() != null &amp;&amp; path.getParent().equals(dir),</b>
+<b class="nc">&nbsp;			() -&gt; &quot;name must not contain path separators: &quot; + name);</b>
+&nbsp;		try {
+<b class="nc">&nbsp;			action.accept(path);</b>
+&nbsp;		}
+&nbsp;		catch (Throwable t) {
+<b class="nc">&nbsp;			UnrecoverableExceptions.rethrowIfUnrecoverable(t);</b>
+<b class="nc">&nbsp;			throw new JUnitException(&quot;Failed to publish path&quot;, t);</b>
+&nbsp;		}
+<b class="nc">&nbsp;		Preconditions.condition(Files.exists(path), () -&gt; &quot;Published path must exist: &quot; + path);</b>
+<b class="nc">&nbsp;		FileEntry fileEntry = fileEntryCreator.apply(path);</b>
+<b class="nc">&nbsp;		this.engineExecutionListener.fileEntryPublished(this.testDescriptor, fileEntry);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private Path createOutputDirectory() {
+&nbsp;		try {
+<b class="nc">&nbsp;			return configuration.getOutputDirectoryCreator().createOutputDirectory(this.testDescriptor);</b>
+&nbsp;		}
+&nbsp;		catch (IOException e) {
+<b class="nc">&nbsp;			throw new JUnitException(&quot;Failed to create output directory&quot;, e);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Optional&lt;ExtensionContext&gt; getParent() {
+<b class="fc">&nbsp;		return Optional.ofNullable(this.parent);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ExtensionContext getRoot() {
+<b class="fc">&nbsp;		if (this.parent != null) {</b>
+<b class="fc">&nbsp;			return this.parent.getRoot();</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected T getTestDescriptor() {
+<b class="fc">&nbsp;		return this.testDescriptor;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Store getStore(Namespace namespace) {
+<b class="fc">&nbsp;		return launcherStoreFacade.getStoreAdapter(this.valuesStore, namespace);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Store getStore(StoreScope scope, Namespace namespace) {
+<b class="nc">&nbsp;		return switch (scope) {</b>
+<b class="nc">&nbsp;			case LAUNCHER_SESSION -&gt; launcherStoreFacade.getSessionLevelStore(namespace);</b>
+<b class="nc">&nbsp;			case EXECUTION_REQUEST -&gt; launcherStoreFacade.getRequestLevelStore(namespace);</b>
+<b class="nc">&nbsp;			case EXTENSION_CONTEXT -&gt; getStore(namespace);</b>
+&nbsp;		};
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Set&lt;String&gt; getTags() {
+&nbsp;		// return modifiable copy
+<b class="nc">&nbsp;		return new LinkedHashSet&lt;&gt;(this.tags);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Optional&lt;String&gt; getConfigurationParameter(String key) {
+<b class="fc">&nbsp;		return this.configuration.getRawConfigurationParameter(key);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public &lt;V&gt; Optional&lt;V&gt; getConfigurationParameter(String key,
+&nbsp;			Function&lt;? super String, ? extends @Nullable V&gt; transformer) {
+<b class="fc">&nbsp;		return this.configuration.getRawConfigurationParameter(key, transformer);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ExecutionMode getExecutionMode() {
+<b class="nc">&nbsp;		return toJupiterExecutionMode(getPlatformExecutionMode());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ExecutableInvoker getExecutableInvoker() {
+<b class="nc">&nbsp;		return executableInvoker;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public &lt;E extends Extension&gt; List&lt;E&gt; getExtensions(Class&lt;E&gt; extensionType) {
+<b class="nc">&nbsp;		return extensionRegistry.getExtensions(extensionType);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected abstract Node.ExecutionMode getPlatformExecutionMode();
+&nbsp;
+&nbsp;	private ExecutionMode toJupiterExecutionMode(Node.ExecutionMode mode) {
+<b class="nc">&nbsp;		return switch (mode) {</b>
+<b class="nc">&nbsp;			case CONCURRENT -&gt; ExecutionMode.CONCURRENT;</b>
+<b class="nc">&nbsp;			case SAME_THREAD -&gt; ExecutionMode.SAME_THREAD;</b>
+&nbsp;		};
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

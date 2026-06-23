@@ -1,0 +1,326 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ExceptionUtils</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.platform.commons.util</a>
+</div>
+
+<h1>Coverage Summary for Class: ExceptionUtils (org.junit.platform.commons.util)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ExceptionUtils</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/51)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.platform.commons.util;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;
+&nbsp;import java.io.PrintWriter;
+&nbsp;import java.io.StringWriter;
+&nbsp;import java.util.ArrayDeque;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.Deque;
+&nbsp;import java.util.LinkedHashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.function.Predicate;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.platform.commons.annotation.Contract;
+&nbsp;
+&nbsp;/**
+&nbsp; * Collection of utilities for working with exceptions.
+&nbsp; *
+&nbsp; * &lt;h2&gt;DISCLAIMER&lt;/h2&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;These utilities are intended solely for usage within the JUnit framework
+&nbsp; * itself. &lt;strong&gt;Any usage by external parties is not supported.&lt;/strong&gt;
+&nbsp; * Use at your own risk!
+&nbsp; *
+&nbsp; * @since 1.0
+&nbsp; */
+&nbsp;@API(status = INTERNAL, since = &quot;1.0&quot;)
+&nbsp;public final class ExceptionUtils {
+&nbsp;
+&nbsp;	private static final String JUNIT_START_PACKAGE_PREFIX = &quot;org.junit.start.&quot;;
+&nbsp;
+&nbsp;	private static final String JUNIT_PLATFORM_LAUNCHER_PACKAGE_PREFIX = &quot;org.junit.platform.launcher.&quot;;
+&nbsp;
+<b class="nc">&nbsp;	private static final Predicate&lt;String&gt; STACK_TRACE_ELEMENT_FILTER = ClassNamePatternFilterUtils //</b>
+<b class="nc">&nbsp;			.excludeMatchingClassNames(&quot;org.junit.*,jdk.internal.reflect.*,sun.reflect.*&quot;);</b>
+&nbsp;
+&nbsp;	private ExceptionUtils() {
+&nbsp;		/* no-op */
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Throw the supplied {@link Throwable}, &lt;em&gt;masked&lt;/em&gt; as an
+&nbsp;	 * unchecked exception.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The supplied {@code Throwable} will not be wrapped. Rather, it
+&nbsp;	 * will be thrown &lt;em&gt;as is&lt;/em&gt; using an exploit of the Java language
+&nbsp;	 * that relies on a combination of generics and type erasure to trick
+&nbsp;	 * the Java compiler into believing that the thrown exception is an
+&nbsp;	 * unchecked exception even if it is a checked exception.
+&nbsp;	 *
+&nbsp;	 * &lt;h4&gt;Warning&lt;/h4&gt;
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;This method should be used sparingly.
+&nbsp;	 *
+&nbsp;	 * @param t the {@code Throwable} to throw as an unchecked exception;
+&nbsp;	 * never {@code null}
+&nbsp;	 * @return this method always throws an exception and therefore never
+&nbsp;	 * returns anything; the return type is merely present to allow this
+&nbsp;	 * method to be supplied as the operand in a {@code throw} statement
+&nbsp;	 */
+&nbsp;	@Contract(&quot;_ -&gt; fail&quot;)
+&nbsp;	public static RuntimeException throwAsUncheckedException(Throwable t) {
+<b class="nc">&nbsp;		Preconditions.notNull(t, &quot;Throwable must not be null&quot;);</b>
+&nbsp;		// The following line will never actually return an exception but rather
+&nbsp;		// throw t masked as a RuntimeException.
+<b class="nc">&nbsp;		return ExceptionUtils.throwAs(t);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Contract(&quot;_ -&gt; fail&quot;)
+&nbsp;	@SuppressWarnings({ &quot;unchecked&quot;, &quot;TypeParameterUnusedInFormals&quot; })
+&nbsp;	private static &lt;T extends Throwable&gt; T throwAs(Throwable t) throws T {
+&nbsp;		throw (T) t;
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Read the stacktrace of the supplied {@link Throwable} into a String.
+&nbsp;	 */
+&nbsp;	public static String readStackTrace(Throwable throwable) {
+<b class="nc">&nbsp;		Preconditions.notNull(throwable, &quot;Throwable must not be null&quot;);</b>
+<b class="nc">&nbsp;		StringWriter stringWriter = new StringWriter();</b>
+<b class="nc">&nbsp;		try (PrintWriter printWriter = new PrintWriter(stringWriter)) {</b>
+<b class="nc">&nbsp;			throwable.printStackTrace(printWriter);</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return stringWriter.toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Prune the stack trace of the supplied {@link Throwable}.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Prune all {@linkplain StackTraceElement stack trace elements} up to one
+&nbsp;	 * of the supplied {@code classNames}. All subsequent elements in the stack
+&nbsp;	 * trace will be retained.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;If the {@code classNames} do not match any of the stacktrace elements
+&nbsp;	 * then the {@code org.junit}, {@code jdk.internal.reflect}, and
+&nbsp;	 * {@code sun.reflect} packages are pruned.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Additionally:
+&nbsp;	 * &lt;ul&gt;
+&nbsp;	 *     &lt;li&gt;all elements prior to and including the first JUnit Platform Launcher call will be removed.
+&nbsp;	 *     &lt;li&gt;all elements prior to and including {@code org.junit.start} are kept.
+&nbsp;	 * &lt;/ul&gt;
+&nbsp;	 *
+&nbsp;	 * @param throwable the {@code Throwable} whose stack trace should be pruned;
+&nbsp;	 * never {@code null}
+&nbsp;	 * @param classNames the class names that should stop the pruning if encountered;
+&nbsp;	 * never {@code null}
+&nbsp;	 *
+&nbsp;	 * @since 1.10
+&nbsp;	 */
+&nbsp;	@API(status = INTERNAL, since = &quot;1.10&quot;)
+&nbsp;	public static void pruneStackTrace(Throwable throwable, List&lt;String&gt; classNames) {
+<b class="nc">&nbsp;		Preconditions.notNull(throwable, &quot;Throwable must not be null&quot;);</b>
+<b class="nc">&nbsp;		Preconditions.notNull(classNames, &quot;List of class names must not be null&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		List&lt;StackTraceElement&gt; stackTrace = Arrays.asList(throwable.getStackTrace());</b>
+<b class="nc">&nbsp;		List&lt;StackTraceElement&gt; prunedStackTrace = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		List&lt;StackTraceElement&gt; junitStartStackTrace = new ArrayList&lt;&gt;(0);</b>
+&nbsp;
+<b class="nc">&nbsp;		Collections.reverse(stackTrace);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; stackTrace.size(); i++) {</b>
+<b class="nc">&nbsp;			StackTraceElement element = stackTrace.get(i);</b>
+<b class="nc">&nbsp;			String className = element.getClassName();</b>
+&nbsp;
+<b class="nc">&nbsp;			if (classNames.contains(className) &amp;&amp; !includesJunitStart(stackTrace, i + 1)) {</b>
+&nbsp;				// We found the test
+&nbsp;				// everything before that is not informative.
+<b class="nc">&nbsp;				prunedStackTrace.clear();</b>
+&nbsp;				// Include all elements called by the test
+<b class="nc">&nbsp;				prunedStackTrace.addAll(stackTrace.subList(i, stackTrace.size()));</b>
+&nbsp;				break;
+&nbsp;			}
+<b class="nc">&nbsp;			else if (className.startsWith(JUNIT_START_PACKAGE_PREFIX)) {</b>
+<b class="nc">&nbsp;				junitStartStackTrace.addAll(prunedStackTrace);</b>
+<b class="nc">&nbsp;				prunedStackTrace.clear();</b>
+<b class="nc">&nbsp;				junitStartStackTrace.add(element);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			else if (className.startsWith(JUNIT_PLATFORM_LAUNCHER_PACKAGE_PREFIX)) {</b>
+<b class="nc">&nbsp;				prunedStackTrace.clear();</b>
+&nbsp;			}
+<b class="nc">&nbsp;			else if (STACK_TRACE_ELEMENT_FILTER.test(className)) {</b>
+<b class="nc">&nbsp;				prunedStackTrace.add(element);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!junitStartStackTrace.isEmpty()) {</b>
+<b class="nc">&nbsp;			junitStartStackTrace.addAll(prunedStackTrace);</b>
+<b class="nc">&nbsp;			prunedStackTrace = junitStartStackTrace;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Collections.reverse(prunedStackTrace);</b>
+<b class="nc">&nbsp;		throwable.setStackTrace(prunedStackTrace.toArray(new StackTraceElement[0]));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static boolean includesJunitStart(List&lt;StackTraceElement&gt; stackTrace, int fromIndex) {
+<b class="nc">&nbsp;		return stackTrace.stream() //</b>
+<b class="nc">&nbsp;				.skip(fromIndex) //</b>
+<b class="nc">&nbsp;				.map(StackTraceElement::getClassName) //</b>
+<b class="nc">&nbsp;				.anyMatch(className -&gt; className.startsWith(JUNIT_START_PACKAGE_PREFIX));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all causes and suppressed exceptions in the stack trace of the
+&nbsp;	 * supplied {@link Throwable}.
+&nbsp;	 *
+&nbsp;	 * @param rootThrowable the {@code Throwable} to explore; never {@code null}
+&nbsp;	 * @return an immutable list of all throwables found, including the supplied
+&nbsp;	 * one; never {@code null}
+&nbsp;	 *
+&nbsp;	 * @since 1.10
+&nbsp;	 */
+&nbsp;	@API(status = INTERNAL, since = &quot;1.10&quot;)
+&nbsp;	public static List&lt;Throwable&gt; findNestedThrowables(Throwable rootThrowable) {
+<b class="nc">&nbsp;		Preconditions.notNull(rootThrowable, &quot;Throwable must not be null&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		Set&lt;Throwable&gt; visited = new LinkedHashSet&lt;&gt;();</b>
+<b class="nc">&nbsp;		Deque&lt;Throwable&gt; toVisit = new ArrayDeque&lt;&gt;();</b>
+<b class="nc">&nbsp;		toVisit.add(rootThrowable);</b>
+&nbsp;
+<b class="nc">&nbsp;		while (!toVisit.isEmpty()) {</b>
+<b class="nc">&nbsp;			Throwable current = toVisit.remove();</b>
+<b class="nc">&nbsp;			boolean isFirstVisit = visited.add(current);</b>
+<b class="nc">&nbsp;			if (isFirstVisit) {</b>
+<b class="nc">&nbsp;				Throwable cause = current.getCause();</b>
+<b class="nc">&nbsp;				if (cause != null) {</b>
+<b class="nc">&nbsp;					toVisit.add(cause);</b>
+&nbsp;				}
+<b class="nc">&nbsp;				Collections.addAll(toVisit, current.getSuppressed());</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return List.copyOf(visited);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CavePaintingsEventCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.cards.events</a>
+</div>
+
+<h1>Coverage Summary for Class: CavePaintingsEventCard (it.polimi.ingsw.am23.model.cards.events)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CavePaintingsEventCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83,3%
+  </span>
+  <span class="absValue">
+    (5/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92,3%
+  </span>
+  <span class="absValue">
+    (12/13)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.cards.events;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.Game;
+&nbsp;import it.polimi.ingsw.am23.model.cards.BuildingCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.EventCard;
+&nbsp;import it.polimi.ingsw.am23.model.effects.CavePaintingsEffectData;
+&nbsp;import it.polimi.ingsw.am23.model.enums.CharacterType;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;/**
+&nbsp; * Event card implementing the Cave Paintings scoring rule.
+&nbsp; * Players who own at least {@code minArtists} Artist characters are awarded
+&nbsp; * prestige points proportional to the number of Artists owned; players that
+&nbsp; * miss the threshold lose a flat amount of prestige points.
+&nbsp; */
+&nbsp;public class CavePaintingsEventCard extends EventCard {
+&nbsp;
+&nbsp;    private final int minArtists;
+&nbsp;    private final int pointsToRemove;
+&nbsp;    private final int pointsFactor;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Builds a new Cave Paintings event card.
+&nbsp;     *
+&nbsp;     * @param id             unique identifier of the card
+&nbsp;     * @param era            era the card belongs to
+&nbsp;     * @param points         printed victory points
+&nbsp;     * @param isFinal        whether the card is resolved only at end of match
+&nbsp;     * @param minArtists     minimum number of Artists required to score positively
+&nbsp;     * @param pointsToRemove flat prestige loss for players below the threshold
+&nbsp;     * @param pointsFactor   prestige points awarded per Artist when above the threshold
+&nbsp;     */
+&nbsp;    public CavePaintingsEventCard(String id, Era era, int points, boolean isFinal, int minArtists, int pointsToRemove, int pointsFactor) {
+<b class="fc">&nbsp;        super(id, era, points, isFinal);</b>
+<b class="fc">&nbsp;        this.minArtists = minArtists;</b>
+<b class="fc">&nbsp;        this.pointsToRemove = pointsToRemove;</b>
+<b class="fc">&nbsp;        this.pointsFactor = pointsFactor;</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void resolve(Game game) {
+<b class="fc">&nbsp;        List&lt;Player&gt; players = game.getPlayers();</b>
+&nbsp;
+<b class="fc">&nbsp;        for (Player player : players) {</b>
+<b class="fc">&nbsp;            if (player.getTribe().count(CharacterType.ARTIST) &gt;= minArtists) {</b>
+<b class="fc">&nbsp;                player.addPrestigePoints(player.getTribe().count(CharacterType.ARTIST) * pointsFactor);</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                player.spendPrestigePoints(pointsToRemove);</b>
+&nbsp;            }
+<b class="fc">&nbsp;            CavePaintingsEffectData data = new CavePaintingsEffectData();</b>
+<b class="pc">&nbsp;            for (BuildingCard building : player.getTribe().getBuildings()) {</b>
+<b class="nc">&nbsp;                building.getEffect().applyCavePaintings(game, player, data);</b>
+&nbsp;            }
+<b class="fc">&nbsp;            player.applyFoodDelta(data.getExtraFood());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

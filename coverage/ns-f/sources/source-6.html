@@ -1,0 +1,180 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ShamanRitualEventCardTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.cards.events</a>
+</div>
+
+<h1>Coverage Summary for Class: ShamanRitualEventCardTest (it.polimi.ingsw.am23.model.cards.events)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ShamanRitualEventCardTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (32/32)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.cards.events;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.Game;
+&nbsp;import it.polimi.ingsw.am23.model.TestUtils;
+&nbsp;import it.polimi.ingsw.am23.model.board.OfferAction;
+&nbsp;import it.polimi.ingsw.am23.model.board.OfferTile;
+&nbsp;import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;import org.junit.jupiter.api.Test;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import static org.junit.jupiter.api.Assertions.assertEquals;
+&nbsp;
+<b class="fc">&nbsp;class ShamanRitualEventCardTest {</b>
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void resolveAssignsWinAndLossByStarRanking() {
+&nbsp;        // Input  : p1 with 3 shaman stars, p2 with 1; resolve ShamanRitualEventCard(winReward=5, loserPenalty=2).
+&nbsp;        //          p1 has the most stars → wins +5 PP; p2 has the fewest → loses -2 PP.
+&nbsp;        // Output : p1.getPrestigePoints()==5 and p2.getPrestigePoints()==-2.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 0, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 0, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        new it.polimi.ingsw.am23.model.cards.characters.ShamanCard(&quot;s1&quot;, Era.ERA_1, 0, 3, 2).onTaken(game, p1);</b>
+<b class="fc">&nbsp;        new it.polimi.ingsw.am23.model.cards.characters.ShamanCard(&quot;s2&quot;, Era.ERA_1, 0, 1, 2).onTaken(game, p2);</b>
+&nbsp;
+<b class="fc">&nbsp;        new ShamanRitualEventCard(&quot;sr&quot;, Era.ERA_1, 0, false, 5, 2).resolve(game);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(5, p1.getPrestigePoints());</b>
+<b class="fc">&nbsp;        assertEquals(-2, p2.getPrestigePoints());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void resolveSetsWinnerAndLoserToFalseWhenNoExtremes() {
+&nbsp;        // Input  : 3 players each with PP=5 and 2 shaman stars; resolve ShamanRitualEventCard(winReward=5, loserPenalty=2).
+&nbsp;        //          All tied → no clear winner/loser, the value/star multiplier still grants +3 PP each.
+&nbsp;        // Output : every player ends with prestigePoints == 8 (5 + 3).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 0, 5);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 0, 5);</b>
+<b class="fc">&nbsp;        Player p3 = TestUtils.player(&quot;p3&quot;, 0, 5);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2, p3),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 3, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        new it.polimi.ingsw.am23.model.cards.characters.ShamanCard(&quot;s1&quot;, Era.ERA_1, 0, 2, 3).onTaken(game, p1);</b>
+<b class="fc">&nbsp;        new it.polimi.ingsw.am23.model.cards.characters.ShamanCard(&quot;s2&quot;, Era.ERA_1, 0, 2, 3).onTaken(game, p2);</b>
+<b class="fc">&nbsp;        new it.polimi.ingsw.am23.model.cards.characters.ShamanCard(&quot;s3&quot;, Era.ERA_1, 0, 2, 3).onTaken(game, p3);</b>
+&nbsp;
+<b class="fc">&nbsp;        new ShamanRitualEventCard(&quot;sr&quot;, Era.ERA_1, 0, false, 5, 2).resolve(game);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(8, p1.getPrestigePoints());</b>
+<b class="fc">&nbsp;        assertEquals(8, p2.getPrestigePoints());</b>
+<b class="fc">&nbsp;        assertEquals(8, p3.getPrestigePoints());</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,192 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > DynamicContainerTestDescriptor</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.descriptor</a>
+</div>
+
+<h1>Coverage Summary for Class: DynamicContainerTestDescriptor (org.junit.jupiter.engine.descriptor)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DynamicContainerTestDescriptor</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/16)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.descriptor;
+&nbsp;
+&nbsp;import static org.junit.jupiter.engine.descriptor.TestFactoryTestDescriptor.createDynamicDescriptor;
+&nbsp;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.concurrent.atomic.AtomicInteger;
+&nbsp;import java.util.function.UnaryOperator;
+&nbsp;import java.util.stream.Stream;
+&nbsp;
+&nbsp;import org.junit.jupiter.api.DynamicContainer;
+&nbsp;import org.junit.jupiter.api.DynamicNode;
+&nbsp;import org.junit.jupiter.engine.config.JupiterConfiguration;
+&nbsp;import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.engine.TestDescriptor;
+&nbsp;import org.junit.platform.engine.TestSource;
+&nbsp;import org.junit.platform.engine.UniqueId;
+&nbsp;
+&nbsp;/**
+&nbsp; * {@link TestDescriptor} for a {@link DynamicContainer}.
+&nbsp; *
+&nbsp; * @since 5.0
+&nbsp; */
+&nbsp;class DynamicContainerTestDescriptor extends DynamicNodeTestDescriptor {
+&nbsp;
+&nbsp;	private final DynamicContainer dynamicContainer;
+&nbsp;	private final TestSource testSource;
+&nbsp;	private final DynamicDescendantFilter dynamicDescendantFilter;
+&nbsp;
+&nbsp;	DynamicContainerTestDescriptor(UniqueId uniqueId, int index, DynamicContainer dynamicContainer,
+&nbsp;			TestSource testSource, DynamicDescendantFilter dynamicDescendantFilter,
+&nbsp;			JupiterConfiguration configuration) {
+&nbsp;
+<b class="nc">&nbsp;		super(uniqueId, index, dynamicContainer, testSource, configuration);</b>
+<b class="nc">&nbsp;		this.dynamicContainer = dynamicContainer;</b>
+<b class="nc">&nbsp;		this.testSource = testSource;</b>
+<b class="nc">&nbsp;		this.dynamicDescendantFilter = dynamicDescendantFilter;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected DynamicContainerTestDescriptor withUniqueId(UnaryOperator&lt;UniqueId&gt; uniqueIdTransformer) {
+<b class="nc">&nbsp;		return new DynamicContainerTestDescriptor(uniqueIdTransformer.apply(getUniqueId()), this.index,</b>
+&nbsp;			this.dynamicContainer, this.testSource, this.dynamicDescendantFilter, this.configuration);
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Type getType() {
+<b class="nc">&nbsp;		return Type.CONTAINER;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	Optional&lt;ExecutionMode&gt; getExplicitChildExecutionMode() {
+<b class="nc">&nbsp;		return this.dynamicContainer.getChildExecutionMode().map(JupiterTestDescriptor::toExecutionMode);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public JupiterEngineExecutionContext execute(JupiterEngineExecutionContext context,
+&nbsp;			DynamicTestExecutor dynamicTestExecutor) throws Exception {
+&nbsp;
+<b class="nc">&nbsp;		AtomicInteger index = new AtomicInteger(1);</b>
+<b class="nc">&nbsp;		try (Stream&lt;? extends DynamicNode&gt; children = dynamicContainer.getChildren()) {</b>
+&nbsp;			// @formatter:off
+<b class="nc">&nbsp;			children.map(child -&gt; {</b>
+<b class="nc">&nbsp;						Preconditions.notNull(child, &quot;individual dynamic node must not be null&quot;);</b>
+<b class="nc">&nbsp;						return toDynamicDescriptor(index.getAndIncrement(), child);</b>
+&nbsp;					})
+<b class="nc">&nbsp;					.flatMap(Optional::stream)</b>
+<b class="nc">&nbsp;					.forEachOrdered(dynamicTestExecutor::execute);</b>
+&nbsp;			// @formatter:on
+&nbsp;		}
+<b class="nc">&nbsp;		return context;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private Optional&lt;JupiterTestDescriptor&gt; toDynamicDescriptor(int index, DynamicNode childNode) {
+<b class="nc">&nbsp;		return createDynamicDescriptor(this, childNode, index, testSource, dynamicDescendantFilter, configuration);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

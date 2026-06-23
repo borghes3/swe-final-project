@@ -1,0 +1,366 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SocketClient</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.network.socket.client</a>
+</div>
+
+<h1>Coverage Summary for Class: SocketClient (it.polimi.ingsw.am23.network.socket.client)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SocketClient</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/21)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/44)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/83)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.network.socket.client;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualServer;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualView;
+&nbsp;import it.polimi.ingsw.am23.network.socket.messages.Message;
+&nbsp;import it.polimi.ingsw.am23.network.socket.messages.request.*;
+&nbsp;import it.polimi.ingsw.am23.network.socket.messages.response.*;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.ObjectInputStream;
+&nbsp;import java.io.ObjectOutputStream;
+&nbsp;import java.net.InetSocketAddress;
+&nbsp;import java.net.Socket;
+&nbsp;import java.net.SocketException;
+&nbsp;
+&nbsp;/**
+&nbsp; * Client-side socket transport.
+&nbsp; * Implements {@link VirtualServer} by serializing each request into a
+&nbsp; * typed {@link Message} and shipping it over an {@link ObjectOutputStream}.
+&nbsp; * Incoming server callbacks are dispatched to the local {@link VirtualView}
+&nbsp; * by a dedicated reader thread.
+&nbsp; */
+&nbsp;public final class SocketClient implements VirtualServer {
+&nbsp;
+&nbsp;    private final Socket socket;  // to communicate with the server
+&nbsp;    private final VirtualView view;  // to communicate with the view
+&nbsp;    private final ObjectOutputStream out;
+&nbsp;    private final ObjectInputStream in;
+&nbsp;
+<b class="nc">&nbsp;    private SocketClient(Socket socket, VirtualView view) throws IOException {</b>
+<b class="nc">&nbsp;        this.socket = socket;</b>
+<b class="nc">&nbsp;        this.view = view;</b>
+&nbsp;        // output stream first to avoid the classic ObjectStream init deadlock
+<b class="nc">&nbsp;        this.out = new ObjectOutputStream(socket.getOutputStream());</b>
+<b class="nc">&nbsp;        this.in = new ObjectInputStream(socket.getInputStream());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Establishes the TCP connection to the server and starts the reader
+&nbsp;     * thread.
+&nbsp;     *
+&nbsp;     * @param host server host name or IP
+&nbsp;     * @param view local view to dispatch callbacks to
+&nbsp;     * @return the resulting {@link VirtualServer} stub
+&nbsp;     * @throws IOException on connection failure
+&nbsp;     */
+&nbsp;    public static VirtualServer connectToServer(String host, VirtualView view) throws IOException {
+<b class="nc">&nbsp;        Socket socket = new Socket();</b>
+<b class="nc">&nbsp;        socket.connect(new InetSocketAddress(host, 1235), 2000);</b>
+<b class="nc">&nbsp;        SocketClient client = new SocketClient(socket, view);</b>
+<b class="nc">&nbsp;        client.startListening();</b>
+<b class="nc">&nbsp;        return client;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // callback from server to client
+&nbsp;
+&nbsp;    // Listens for messages (from server) on a dedicated daemon thread.
+&nbsp;    private void startListening() {
+<b class="nc">&nbsp;        Thread thread = new Thread(this::readLoop, &quot;socket-reader&quot;);</b>
+<b class="nc">&nbsp;        thread.setDaemon(true);</b>
+<b class="nc">&nbsp;        thread.start();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void readLoop() {
+&nbsp;        try {
+<b class="nc">&nbsp;            while (!socket.isClosed()) {</b>
+<b class="nc">&nbsp;                Message message = (Message) in.readObject();</b>
+<b class="nc">&nbsp;                dispatch(message);</b>
+&nbsp;            }
+&nbsp;        } catch (java.io.EOFException | SocketException e) {
+<b class="nc">&nbsp;            System.err.println(&quot;&lt;SocketClient&gt;: server lost – &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;            notifyCrash();</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            System.err.println(&quot;&lt;SocketClient&gt;: connection closed – &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;            notifyCrash();</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(e);</b>
+&nbsp;        } finally {
+&nbsp;            close();
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyCrash() {
+&nbsp;        try {
+<b class="nc">&nbsp;            view.onServerCrashed();</b>
+&nbsp;        } catch (Exception ignored) {
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void dispatch(Message message) throws Exception {
+<b class="nc">&nbsp;        if (message instanceof OnConnectedMessage m) {</b>
+<b class="nc">&nbsp;            view.onConnected(m.getPlayerId(), m.getLobbies());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnConnectErrorMessage m) {</b>
+<b class="nc">&nbsp;            view.onConnectError(m.getReason());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnLobbyListUpdatedMessage m) {</b>
+<b class="nc">&nbsp;            view.onLobbyListUpdated(m.getLobbies());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnLobbyCreatedMessage m) {</b>
+<b class="nc">&nbsp;            view.onLobbyCreated(m.getLobby());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnLobbyUpdateMessage m) {</b>
+<b class="nc">&nbsp;            view.onLobbyUpdate(m.getLobby());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnJoinErrorMessage m) {</b>
+<b class="nc">&nbsp;            view.onJoinError(m.getReason());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnLobbyClosedMessage) {</b>
+<b class="nc">&nbsp;            view.onLobbyClosed();</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnGameStartedMessage m) {</b>
+<b class="nc">&nbsp;            view.onGameStarted(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnTotemPlacedMessage m) {</b>
+<b class="nc">&nbsp;            view.onTotemPlaced(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnEndOfPlacingPhaseMessage m) {</b>
+<b class="nc">&nbsp;            view.onEndOfPlacingPhase(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnCardsTakenMessage m) {</b>
+<b class="nc">&nbsp;            view.onCardsTaken(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnExtraDrawRequestMessage m) {</b>
+<b class="nc">&nbsp;            view.onExtraDrawRequest(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnExtraCardTakenMessage m) {</b>
+<b class="nc">&nbsp;            view.onExtraCardTaken(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnEventResolvedMessage m) {</b>
+<b class="nc">&nbsp;            view.onEventResolved(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnMarketRefreshedMessage m) {</b>
+<b class="nc">&nbsp;            view.onMarketRefreshed(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnEraProgressionMessage m) {</b>
+<b class="nc">&nbsp;            view.onEraProgression(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnGameOverMessage) {</b>
+<b class="nc">&nbsp;            view.onGameOver();</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnScoreboardAvailableMessage m) {</b>
+<b class="nc">&nbsp;            view.onScoreboardAvailable(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnMatchRankingsAvailableMessage m) {</b>
+<b class="nc">&nbsp;            view.onMatchRankingsAvailable(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnLeaderboardAvailableMessage m) {</b>
+<b class="nc">&nbsp;            view.onLeaderboardAvailable(m.getPayload());</b>
+&nbsp;
+<b class="nc">&nbsp;        } else if (message instanceof OnActionErrorMessage m) {</b>
+<b class="nc">&nbsp;            view.onActionError(m.getActionType(), m.getMessage());</b>
+&nbsp;
+&nbsp;        } else {
+<b class="nc">&nbsp;            System.err.println(&quot;SocketClient: unknown message – &quot; + message.getClass().getName());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void close() {
+&nbsp;        try {
+<b class="nc">&nbsp;            socket.close();</b>
+&nbsp;        } catch (IOException ignored) {
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // requests from view to server
+&nbsp;
+&nbsp;    private synchronized void send(Message message) throws Exception {
+&nbsp;        try {
+<b class="nc">&nbsp;            out.writeObject(message);</b>
+<b class="nc">&nbsp;            out.flush();</b>
+<b class="nc">&nbsp;            out.reset();</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new Exception(&quot;Failed to send message to server: &quot; + e.getMessage(), e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void connect(String playerName, VirtualView client) throws Exception {
+<b class="nc">&nbsp;        send(new ConnectMessage(playerName));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void createLobby(String playerId, String lobbyName, int maxPlayers) throws Exception {
+<b class="nc">&nbsp;        send(new CreateLobbyMessage(playerId, lobbyName, maxPlayers));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void joinLobby(String playerId, String lobbyId) throws Exception {
+<b class="nc">&nbsp;        send(new JoinLobbyMessage(playerId, lobbyId));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void leaveLobby(String playerId, String lobbyId) throws Exception {
+<b class="nc">&nbsp;        send(new LeaveLobbyMessage(playerId, lobbyId));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void startGame(String playerId, String lobbyId) throws Exception {
+<b class="nc">&nbsp;        send(new StartGameMessage(playerId, lobbyId));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void placeTotem(String playerId, char offerTileChar) throws Exception {
+<b class="nc">&nbsp;        send(new PlaceTotemMessage(playerId, offerTileChar));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws Exception {
+<b class="nc">&nbsp;        send(new TakeCardMessage(playerId, selectedSingleCard));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws Exception {
+<b class="nc">&nbsp;        send(new TakeExtraCardMessage(playerId, selectedCardExtraDraw));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void skipTurn(String playerId) throws Exception {
+<b class="nc">&nbsp;        send(new SkipTurnMessage(playerId));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void disconnect(String playerId) throws Exception {
+<b class="nc">&nbsp;        send(new DisconnectMessage(playerId));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void requestLobbyList(String playerId) throws Exception {
+<b class="nc">&nbsp;        send(new RefreshLobbyListMessage(playerId));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void requestLeaderboard(String playerId, int playerCount) throws Exception {
+<b class="nc">&nbsp;        send(new RequestLeaderboardMessage(playerId, playerCount));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;No-op on the socket transport: the reader loop already detects
+&nbsp;     * connection drops, so no application-level ping is needed.&lt;/p&gt;
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void ping() {
+<b class="nc">&nbsp;    }</b>
+&nbsp;}
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

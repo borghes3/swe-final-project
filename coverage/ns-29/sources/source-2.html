@@ -1,0 +1,222 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > HostServices</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.application</a>
+</div>
+
+<h1>Coverage Summary for Class: HostServices (javafx.application)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">HostServices</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.application;
+&nbsp;
+&nbsp;import java.net.URI;
+&nbsp;
+&nbsp;import com.sun.javafx.application.HostServicesDelegate;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class provides HostServices for an Application. This includes
+&nbsp; * methods to get the code base and document base for an Application,
+&nbsp; * and to show a web page in a browser.
+&nbsp; *
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public final class HostServices {
+&nbsp;
+&nbsp;    private final HostServicesDelegate delegate;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Package scope constructor to create the HostServices object.
+&nbsp;     *
+&nbsp;     * @param app the application class
+&nbsp;     */
+<b class="nc">&nbsp;    HostServices(Application app) {</b>
+<b class="nc">&nbsp;        delegate = HostServicesDelegate.getInstance(app);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the code base URI for this application.
+&nbsp;     * This method returns
+&nbsp;     * the directory containing the application jar file. If the
+&nbsp;     * application is not packaged in a jar file, this method
+&nbsp;     * returns the empty string.
+&nbsp;     *
+&nbsp;     * @return the code base URI for this application.
+&nbsp;     */
+&nbsp;    public final String getCodeBase() {
+<b class="nc">&nbsp;        return delegate.getCodeBase();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the document base URI for this application.
+&nbsp;     * This method returns
+&nbsp;     * the URI of the current directory.
+&nbsp;     *
+&nbsp;     * @return the document base URI for this application.
+&nbsp;     */
+&nbsp;    public final String getDocumentBase() {
+<b class="nc">&nbsp;        return delegate.getDocumentBase();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Resolves the specified relative URI against the base URI and returns
+&nbsp;     * the resolved URI.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;Example:&lt;/p&gt;
+&nbsp;     * &lt;pre&gt;
+&nbsp;     *     HostServices services = getHostServices();
+&nbsp;     *     String myImage = services.resolveURI(services.getDocumentBase(),
+&nbsp;     *                                          &quot;image.jpg&quot;);
+&nbsp;     *     Image image = new Image(myImage);
+&nbsp;     * &lt;/pre&gt;
+&nbsp;     *
+&nbsp;     * @param base the base URI against which to resolve the relative URI
+&nbsp;     *
+&nbsp;     * @param rel the relative URI to be resolved
+&nbsp;     *
+&nbsp;     * @throws NullPointerException if either the &lt;code&gt;base&lt;/code&gt; or the
+&nbsp;     * &lt;code&gt;rel&lt;/code&gt; strings are null.
+&nbsp;     * @throws IllegalArgumentException if there is an error parsing either
+&nbsp;     * the &lt;code&gt;base&lt;/code&gt; or &lt;code&gt;rel&lt;/code&gt; URI strings, or if there is
+&nbsp;     * any other error in resolving the URI.
+&nbsp;     *
+&nbsp;     * @return the fully resolved URI.
+&nbsp;     */
+&nbsp;    public final String resolveURI(String base, String rel) {
+<b class="nc">&nbsp;        URI uri = URI.create(base).resolve(rel);</b>
+<b class="nc">&nbsp;        return uri.toString();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Opens the specified URI in a new browser window or tab.
+&nbsp;     * The determination of whether it is a new browser window or a tab in
+&nbsp;     * an existing browser window will be made by the browser preferences.
+&nbsp;     * Note that this will respect the pop-up blocker settings of the default
+&nbsp;     * browser; it will not try to circumvent them.
+&nbsp;     *
+&nbsp;     * @param uri the URI of the web page that will be opened in a browser.
+&nbsp;     */
+&nbsp;    public final void showDocument(String uri) {
+<b class="nc">&nbsp;        delegate.showDocument(uri);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

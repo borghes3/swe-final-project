@@ -1,0 +1,316 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Event</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.event</a>
+</div>
+
+<h1>Coverage Summary for Class: Event (javafx.event)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Event</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/25)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.event;
+&nbsp;
+&nbsp;import java.util.EventObject;
+&nbsp;
+&nbsp;import com.sun.javafx.event.EventUtil;
+&nbsp;import java.io.IOException;
+&nbsp;import javafx.beans.NamedArg;
+&nbsp;
+&nbsp;// PENDING_DOC_REVIEW
+&nbsp;/**
+&nbsp; * Base class for FX events. Each FX event has associated an event source,
+&nbsp; * event target and an event type. The event source specifies for an event
+&nbsp; * handler the object on which that handler has been registered and which sent
+&nbsp; * the event to it. The event target defines the path through which the event
+&nbsp; * will travel when posted. The event type provides additional classification
+&nbsp; * to events of the same {@code Event} class.
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public class Event extends EventObject implements Cloneable {
+&nbsp;
+&nbsp;    private static final long serialVersionUID = 20121107L;
+&nbsp;    /**
+&nbsp;     * The constant which represents an unknown event source / target.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventTarget NULL_SOURCE_TARGET = tail -&gt; tail;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Common supertype for all event types.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;Event&gt; ANY = EventType.ROOT;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Type of the event.
+&nbsp;     */
+&nbsp;    protected EventType&lt;? extends Event&gt; eventType;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Event target that defines the path through which the event
+&nbsp;     * will travel when posted.
+&nbsp;     */
+&nbsp;    protected transient EventTarget target;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether this event has been consumed by any filter or handler.
+&nbsp;     */
+&nbsp;    protected boolean consumed;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Construct a new {@code Event} with the specified event type. The source
+&nbsp;     * and target of the event is set to {@code NULL_SOURCE_TARGET}.
+&nbsp;     *
+&nbsp;     * @param eventType the event type
+&nbsp;     */
+&nbsp;    public Event(final @NamedArg(&quot;eventType&quot;) EventType&lt;? extends Event&gt; eventType) {
+<b class="nc">&nbsp;        this(null, null, eventType);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Construct a new {@code Event} with the specified event source, target
+&nbsp;     * and type. If the source or target is set to {@code null}, it is replaced
+&nbsp;     * by the {@code NULL_SOURCE_TARGET} value.
+&nbsp;     *
+&nbsp;     * @param source the event source which sent the event
+&nbsp;     * @param target the event target to associate with the event
+&nbsp;     * @param eventType the event type
+&nbsp;     */
+&nbsp;    public Event(final @NamedArg(&quot;source&quot;) Object source,
+&nbsp;                 final @NamedArg(&quot;target&quot;) EventTarget target,
+&nbsp;                 final @NamedArg(&quot;eventType&quot;) EventType&lt;? extends Event&gt; eventType) {
+<b class="nc">&nbsp;        super((source != null) ? source : NULL_SOURCE_TARGET);</b>
+<b class="nc">&nbsp;        this.target = (target != null) ? target : NULL_SOURCE_TARGET;</b>
+<b class="nc">&nbsp;        this.eventType = eventType;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the event target of this event. The event target specifies
+&nbsp;     * the path through which the event will travel when posted.
+&nbsp;     *
+&nbsp;     * @return the event target
+&nbsp;     */
+&nbsp;    public EventTarget getTarget() {
+<b class="nc">&nbsp;        return target;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the event type of this event. Objects of the same {@code Event}
+&nbsp;     * class can have different event types. These event types further specify
+&nbsp;     * what kind of event occurred.
+&nbsp;     *
+&nbsp;     * @return the event type
+&nbsp;     */
+&nbsp;    public EventType&lt;? extends Event&gt; getEventType() {
+<b class="nc">&nbsp;        return eventType;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates and returns a copy of this event with the specified event source
+&nbsp;     * and target. If the source or target is set to {@code null}, it is
+&nbsp;     * replaced by the {@code NULL_SOURCE_TARGET} value.
+&nbsp;     *
+&nbsp;     * @param newSource the new source of the copied event
+&nbsp;     * @param newTarget the new target of the copied event
+&nbsp;     * @return the event copy with the new source and target
+&nbsp;     */
+&nbsp;    public Event copyFor(final Object newSource, final EventTarget newTarget) {
+<b class="nc">&nbsp;        final Event newEvent = (Event) clone();</b>
+&nbsp;
+<b class="nc">&nbsp;        newEvent.source = (newSource != null) ? newSource : NULL_SOURCE_TARGET;</b>
+<b class="nc">&nbsp;        newEvent.target = (newTarget != null) ? newTarget : NULL_SOURCE_TARGET;</b>
+<b class="nc">&nbsp;        newEvent.consumed = false;</b>
+&nbsp;
+<b class="nc">&nbsp;        return newEvent;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Indicates whether this {@code Event} has been consumed by any filter or
+&nbsp;     * handler.
+&nbsp;     *
+&nbsp;     * @return {@code true} if this {@code Event} has been consumed,
+&nbsp;     *     {@code false} otherwise
+&nbsp;     */
+&nbsp;    public boolean isConsumed() {
+<b class="nc">&nbsp;        return consumed;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Marks this {@code Event} as consumed. This stops its further propagation.
+&nbsp;     */
+&nbsp;    public void consume() {
+<b class="nc">&nbsp;        consumed = true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates and returns a copy of this {@code Event}.
+&nbsp;     * @return a new instance of {@code Event} with all values copied from
+&nbsp;     * this {@code Event}.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public Object clone() {
+&nbsp;        try {
+<b class="nc">&nbsp;            return super.clone();</b>
+&nbsp;        } catch (final CloneNotSupportedException e) {
+&nbsp;            // we implement Cloneable, this shouldn&#39;t happen
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;Can&#39;t clone Event&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+<b class="nc">&nbsp;        in.defaultReadObject();</b>
+<b class="nc">&nbsp;        source = NULL_SOURCE_TARGET;</b>
+<b class="nc">&nbsp;        target = NULL_SOURCE_TARGET;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // PENDING_DOC_REVIEW
+&nbsp;    /**
+&nbsp;     * Fires the specified event. The given event target specifies the path
+&nbsp;     * through which the event will travel.
+&nbsp;     *
+&nbsp;     * @param eventTarget the target for the event
+&nbsp;     * @param event the event to fire
+&nbsp;     * @throws NullPointerException if eventTarget or event is null
+&nbsp;     */
+&nbsp;    public static void fireEvent(EventTarget eventTarget, Event event) {
+<b class="nc">&nbsp;        if (eventTarget == null) {</b>
+<b class="nc">&nbsp;            throw new NullPointerException(&quot;Event target must not be null!&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (event == null) {</b>
+<b class="nc">&nbsp;            throw new NullPointerException(&quot;Event must not be null!&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        EventUtil.fireEvent(eventTarget, event);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,290 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MethodOrderingVisitor</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.discovery</a>
+</div>
+
+<h1>Coverage Summary for Class: MethodOrderingVisitor (org.junit.jupiter.engine.discovery)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MethodOrderingVisitor</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    57,9%
+  </span>
+  <span class="absValue">
+    (11/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33,3%
+  </span>
+  <span class="absValue">
+    (4/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    55,2%
+  </span>
+  <span class="absValue">
+    (32/58)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.discovery;
+&nbsp;
+&nbsp;import static java.util.Comparator.comparing;
+&nbsp;import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.function.Consumer;
+&nbsp;import java.util.function.UnaryOperator;
+&nbsp;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.jupiter.api.MethodOrderer;
+&nbsp;import org.junit.jupiter.api.Order;
+&nbsp;import org.junit.jupiter.api.TestMethodOrder;
+&nbsp;import org.junit.jupiter.engine.config.JupiterConfiguration;
+&nbsp;import org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor;
+&nbsp;import org.junit.jupiter.engine.descriptor.JupiterTestDescriptor;
+&nbsp;import org.junit.jupiter.engine.descriptor.MethodBasedTestDescriptor;
+&nbsp;import org.junit.platform.commons.support.AnnotationSupport;
+&nbsp;import org.junit.platform.commons.support.ReflectionSupport;
+&nbsp;import org.junit.platform.commons.util.LruCache;
+&nbsp;import org.junit.platform.engine.DiscoveryIssue;
+&nbsp;import org.junit.platform.engine.DiscoveryIssue.Severity;
+&nbsp;import org.junit.platform.engine.TestDescriptor;
+&nbsp;import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
+&nbsp;import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter.Condition;
+&nbsp;
+&nbsp;/**
+&nbsp; * @since 5.5
+&nbsp; */
+&nbsp;class MethodOrderingVisitor extends AbstractOrderingVisitor {
+&nbsp;
+<b class="fc">&nbsp;	private final LruCache&lt;ClassBasedTestDescriptor, DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt;&gt; ordererCache = new LruCache&lt;&gt;(</b>
+&nbsp;		10);
+&nbsp;	private final JupiterConfiguration configuration;
+&nbsp;	private final DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt; globalOrderer;
+&nbsp;	private final Condition&lt;MethodBasedTestDescriptor&gt; noOrderAnnotation;
+&nbsp;
+&nbsp;	// Not a static field to avoid initialization at build time for GraalVM
+&nbsp;	private final UnaryOperator&lt;List&lt;TestDescriptor&gt;&gt; methodsBeforeNestedClassesOrderer;
+&nbsp;
+&nbsp;	MethodOrderingVisitor(JupiterConfiguration configuration, DiscoveryIssueReporter issueReporter) {
+<b class="fc">&nbsp;		super(issueReporter);</b>
+<b class="fc">&nbsp;		this.configuration = configuration;</b>
+<b class="fc">&nbsp;		this.globalOrderer = createGlobalOrderer(configuration);</b>
+<b class="fc">&nbsp;		this.noOrderAnnotation = issueReporter.createReportingCondition(</b>
+<b class="fc">&nbsp;			testDescriptor -&gt; !isAnnotated(testDescriptor.getTestMethod(), Order.class), testDescriptor -&gt; {</b>
+<b class="nc">&nbsp;				String message = &quot;&quot;&quot;</b>
+&nbsp;						Ineffective @Order annotation on method &#39;%s&#39;. \
+&nbsp;						It will not be applied because MethodOrderer.OrderAnnotation is not in use. \
+&nbsp;						Note that the annotation may be either directly present or meta-present on the method.&quot;&quot;&quot;//
+<b class="nc">&nbsp;						.formatted(testDescriptor.getTestMethod().toGenericString());</b>
+<b class="nc">&nbsp;				return DiscoveryIssue.builder(Severity.INFO, message) //</b>
+<b class="nc">&nbsp;						.source(testDescriptor.getSource()) //</b>
+<b class="nc">&nbsp;						.build();</b>
+&nbsp;			});
+<b class="fc">&nbsp;		this.methodsBeforeNestedClassesOrderer = createMethodsBeforeNestedClassesOrderer();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void visit(TestDescriptor testDescriptor) {
+<b class="fc">&nbsp;		doWithMatchingDescriptor(ClassBasedTestDescriptor.class, testDescriptor, this::orderContainedMethods,</b>
+<b class="nc">&nbsp;			descriptor -&gt; &quot;Failed to order methods for &quot; + descriptor.getTestClass());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected boolean shouldNonMatchingDescriptorsComeBeforeOrderedOnes() {
+&nbsp;		// Non-matching descriptors can only contain @Nested test classes which should be
+&nbsp;		// added after local test methods.
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void orderContainedMethods(ClassBasedTestDescriptor descriptor) {
+<b class="fc">&nbsp;		var wrapperOrderer = createAndCacheClassLevelOrderer(descriptor);</b>
+<b class="fc">&nbsp;		var methodOrderer = wrapperOrderer.getOrderer();</b>
+&nbsp;
+<b class="fc">&nbsp;		orderChildrenTestDescriptors(descriptor, //</b>
+&nbsp;			MethodBasedTestDescriptor.class, //
+<b class="fc">&nbsp;			toValidationAction(methodOrderer), //</b>
+&nbsp;			DefaultMethodDescriptor::new, //
+&nbsp;			wrapperOrderer);
+&nbsp;
+<b class="pc">&nbsp;		if (methodOrderer == null) {</b>
+&nbsp;			// If there is an orderer, this is ensured by the call above
+<b class="fc">&nbsp;			descriptor.orderChildren(methodsBeforeNestedClassesOrderer);</b>
+&nbsp;		}
+&nbsp;		else {
+&nbsp;			// Note: MethodOrderer#getDefaultExecutionMode() is guaranteed
+&nbsp;			// to be invoked after MethodOrderer#orderMethods().
+<b class="nc">&nbsp;			methodOrderer.getDefaultExecutionMode() //</b>
+<b class="nc">&nbsp;					.map(JupiterTestDescriptor::toExecutionMode) //</b>
+<b class="nc">&nbsp;					.ifPresent(descriptor::setDefaultChildExecutionMode);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt; createGlobalOrderer(
+&nbsp;			JupiterConfiguration configuration) {
+<b class="fc">&nbsp;		MethodOrderer methodOrderer = configuration.getDefaultTestMethodOrderer().orElse(null);</b>
+<b class="pc">&nbsp;		return methodOrderer == null ? DescriptorWrapperOrderer.noop() : createDescriptorWrapperOrderer(methodOrderer);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt; createAndCacheClassLevelOrderer(
+&nbsp;			ClassBasedTestDescriptor classBasedTestDescriptor) {
+<b class="fc">&nbsp;		var orderer = createClassLevelOrderer(classBasedTestDescriptor);</b>
+<b class="fc">&nbsp;		ordererCache.put(classBasedTestDescriptor, orderer);</b>
+<b class="fc">&nbsp;		return orderer;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt; createClassLevelOrderer(
+&nbsp;			ClassBasedTestDescriptor classBasedTestDescriptor) {
+<b class="fc">&nbsp;		return AnnotationSupport.findAnnotation(classBasedTestDescriptor.getTestClass(), TestMethodOrder.class)//</b>
+<b class="fc">&nbsp;				.map(TestMethodOrder::value)//</b>
+<b class="fc">&nbsp;				.map(this::createDescriptorWrapperOrderer)//</b>
+<b class="fc">&nbsp;				.orElseGet(() -&gt; {</b>
+<b class="fc">&nbsp;					Object parent = classBasedTestDescriptor.getParent().orElse(null);</b>
+<b class="pc">&nbsp;					if (parent instanceof ClassBasedTestDescriptor parentClassTestDescriptor) {</b>
+<b class="nc">&nbsp;						var cacheEntry = ordererCache.get(parentClassTestDescriptor);</b>
+<b class="nc">&nbsp;						return cacheEntry != null ? cacheEntry : createClassLevelOrderer(parentClassTestDescriptor);</b>
+&nbsp;					}
+<b class="fc">&nbsp;					return globalOrderer;</b>
+&nbsp;				});
+&nbsp;	}
+&nbsp;
+&nbsp;	private DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt; createDescriptorWrapperOrderer(
+&nbsp;			Class&lt;? extends MethodOrderer&gt; ordererClass) {
+<b class="nc">&nbsp;		if (ordererClass == MethodOrderer.Default.class) {</b>
+<b class="nc">&nbsp;			return globalOrderer;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return createDescriptorWrapperOrderer(ReflectionSupport.newInstance(ordererClass));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private DescriptorWrapperOrderer&lt;ClassBasedTestDescriptor, MethodOrderer, DefaultMethodDescriptor&gt; createDescriptorWrapperOrderer(
+&nbsp;			MethodOrderer methodOrderer) {
+<b class="nc">&nbsp;		OrderingAction&lt;ClassBasedTestDescriptor, DefaultMethodDescriptor&gt; orderingAction = (parent,</b>
+<b class="nc">&nbsp;				methodDescriptors) -&gt; methodOrderer.orderMethods(</b>
+<b class="nc">&nbsp;					new DefaultMethodOrdererContext(parent.getTestClass(), methodDescriptors, this.configuration));</b>
+&nbsp;
+<b class="nc">&nbsp;		MessageGenerator&lt;ClassBasedTestDescriptor&gt; descriptorsAddedMessageGenerator = (parent,</b>
+<b class="nc">&nbsp;				number) -&gt; &quot;MethodOrderer [%s] added %d MethodDescriptor(s) for test class [%s] which will be ignored.&quot;.formatted(</b>
+<b class="nc">&nbsp;					methodOrderer.getClass().getName(), number, parent.getTestClass().getName());</b>
+<b class="nc">&nbsp;		MessageGenerator&lt;ClassBasedTestDescriptor&gt; descriptorsRemovedMessageGenerator = (parent,</b>
+<b class="nc">&nbsp;				number) -&gt; &quot;MethodOrderer [%s] removed %d MethodDescriptor(s) for test class [%s] which will be retained with arbitrary ordering.&quot;.formatted(</b>
+<b class="nc">&nbsp;					methodOrderer.getClass().getName(), number, parent.getTestClass().getName());</b>
+&nbsp;
+<b class="nc">&nbsp;		return new DescriptorWrapperOrderer&lt;&gt;(methodOrderer, orderingAction, descriptorsAddedMessageGenerator,</b>
+&nbsp;			descriptorsRemovedMessageGenerator);
+&nbsp;	}
+&nbsp;
+&nbsp;	private Optional&lt;Consumer&lt;MethodBasedTestDescriptor&gt;&gt; toValidationAction(@Nullable MethodOrderer methodOrderer) {
+<b class="pc">&nbsp;		if (methodOrderer instanceof MethodOrderer.OrderAnnotation) {</b>
+<b class="nc">&nbsp;			return Optional.empty();</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return Optional.of(noOrderAnnotation::check);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static UnaryOperator&lt;List&lt;TestDescriptor&gt;&gt; createMethodsBeforeNestedClassesOrderer() {
+<b class="fc">&nbsp;		var methodsFirst = comparing(MethodBasedTestDescriptor.class::isInstance).reversed();</b>
+<b class="fc">&nbsp;		return children -&gt; {</b>
+<b class="fc">&nbsp;			children.sort(methodsFirst);</b>
+<b class="fc">&nbsp;			return children;</b>
+&nbsp;		};
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

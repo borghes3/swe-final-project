@@ -1,0 +1,480 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ObservableValue</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.beans.value</a>
+</div>
+
+<h1>Coverage Summary for Class: ObservableValue (javafx.beans.value)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ObservableValue</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/13)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.beans.value;
+&nbsp;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.function.BiConsumer;
+&nbsp;import java.util.function.Consumer;
+&nbsp;import java.util.function.Function;
+&nbsp;
+&nbsp;import com.sun.javafx.binding.ConditionalBinding;
+&nbsp;import com.sun.javafx.binding.FlatMappedBinding;
+&nbsp;import com.sun.javafx.binding.MappedBinding;
+&nbsp;import com.sun.javafx.binding.OrElseBinding;
+&nbsp;
+&nbsp;import javafx.beans.InvalidationListener;
+&nbsp;import javafx.beans.Observable;
+&nbsp;import javafx.util.Subscription;
+&nbsp;
+&nbsp;/**
+&nbsp; * An {@code ObservableValue} is an entity that wraps a value and allows to
+&nbsp; * observe the value for changes. In general this interface should not be
+&nbsp; * implemented directly but one of its sub-interfaces
+&nbsp; * ({@code ObservableBooleanValue} etc.).
+&nbsp; * &lt;p&gt;
+&nbsp; * The value of the {@code ObservableValue} can be requested with
+&nbsp; * {@link #getValue()}.
+&nbsp; * &lt;p&gt;
+&nbsp; * An implementation of {@code ObservableValue} may support lazy evaluation,
+&nbsp; * which means that the value is not immediately recomputed after changes, but
+&nbsp; * lazily the next time the value is requested (see note 1 in &quot;Implementation Requirements&quot;).
+&nbsp; * &lt;p&gt;
+&nbsp; * An {@code ObservableValue} generates two types of events: change events and
+&nbsp; * invalidation events. A change event indicates that the value has changed
+&nbsp; * (see note 2 in &quot;Implementation Requirements&quot;). An
+&nbsp; * invalidation event is generated if the current value is not valid anymore.
+&nbsp; * This distinction becomes important if the {@code ObservableValue} supports
+&nbsp; * lazy evaluation, because for a lazily evaluated value one does not know if an
+&nbsp; * invalid value really has changed until it is recomputed. For this reason,
+&nbsp; * generating change events requires eager evaluation while invalidation events
+&nbsp; * can be generated for eager and lazy implementations.
+&nbsp; * &lt;p&gt;
+&nbsp; * Implementations of this class should strive to generate as few events as
+&nbsp; * possible to avoid wasting too much time in event handlers. Implementations in
+&nbsp; * this library mark themselves as invalid when the first invalidation event
+&nbsp; * occurs. They do not generate any more invalidation events until their value is
+&nbsp; * recomputed and valid again.
+&nbsp; * &lt;p&gt;
+&nbsp; * Two types of listeners can be attached to an {@code ObservableValue}:
+&nbsp; * {@link InvalidationListener} to listen to invalidation events and
+&nbsp; * {@link ChangeListener} to listen to change events.
+&nbsp; * &lt;p&gt;
+&nbsp; * Important note: attaching a {@code ChangeListener} enforces eager computation
+&nbsp; * even if the implementation of the {@code ObservableValue} supports lazy
+&nbsp; * evaluation.
+&nbsp; *
+&nbsp; * @param &lt;T&gt;
+&nbsp; *            The type of the wrapped value.
+&nbsp; *
+&nbsp; * @implSpec &lt;ol&gt;
+&nbsp; * &lt;li&gt; All bindings and properties in the JavaFX library support lazy evaluation.&lt;/li&gt;
+&nbsp; * &lt;li&gt; All implementing classes in the JavaFX library check for a change using reference
+&nbsp; * equality (and not object equality, {@code Object#equals(Object)}) of the value.&lt;/li&gt;
+&nbsp; * &lt;/ol&gt;
+&nbsp; *
+&nbsp; * @see ObservableBooleanValue
+&nbsp; * @see ObservableDoubleValue
+&nbsp; * @see ObservableFloatValue
+&nbsp; * @see ObservableIntegerValue
+&nbsp; * @see ObservableLongValue
+&nbsp; * @see ObservableNumberValue
+&nbsp; * @see ObservableObjectValue
+&nbsp; * @see ObservableStringValue
+&nbsp; *
+&nbsp; *
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public interface ObservableValue&lt;T&gt; extends Observable {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Adds a {@link ChangeListener} which will be notified whenever the value
+&nbsp;     * of the {@code ObservableValue} changes. If the same listener is added
+&nbsp;     * more than once, then it will be notified more than once. That is, no
+&nbsp;     * check is made to ensure uniqueness.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Note that the same actual {@code ChangeListener} instance may be safely
+&nbsp;     * registered for different {@code ObservableValues}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The {@code ObservableValue} stores a strong reference to the listener
+&nbsp;     * which will prevent the listener from being garbage collected and may
+&nbsp;     * result in a memory leak. It is recommended to either unregister a
+&nbsp;     * listener by calling {@link #removeListener(ChangeListener)
+&nbsp;     * removeListener} after use or to use an instance of
+&nbsp;     * {@link WeakChangeListener} avoid this situation.
+&nbsp;     *
+&nbsp;     * @see #removeListener(ChangeListener)
+&nbsp;     *
+&nbsp;     * @param listener
+&nbsp;     *            The listener to register
+&nbsp;     * @throws NullPointerException
+&nbsp;     *             if the listener is null
+&nbsp;     */
+&nbsp;    void addListener(ChangeListener&lt;? super T&gt; listener);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes the given listener from the list of listeners that are notified
+&nbsp;     * whenever the value of the {@code ObservableValue} changes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If the given listener has not been previously registered (i.e. it was
+&nbsp;     * never added) then this method call is a no-op. If it had been previously
+&nbsp;     * added then it will be removed. If it had been added more than once, then
+&nbsp;     * only the first occurrence will be removed.
+&nbsp;     *
+&nbsp;     * @see #addListener(ChangeListener)
+&nbsp;     *
+&nbsp;     * @param listener
+&nbsp;     *            The listener to remove
+&nbsp;     * @throws NullPointerException
+&nbsp;     *             if the listener is null
+&nbsp;     */
+&nbsp;    void removeListener(ChangeListener&lt;? super T&gt; listener);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the current value of this {@code ObservableValue}
+&nbsp;     *
+&nbsp;     * @return The current value
+&nbsp;     */
+&nbsp;    T getValue();
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns an {@code ObservableValue} that holds the result of applying the
+&nbsp;     * given mapping function on this value. The result is updated when this
+&nbsp;     * {@code ObservableValue} changes. If this value is {@code null}, no
+&nbsp;     * mapping is applied and the resulting value is also {@code null}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For example, mapping a string to an upper case string:
+&nbsp;     * &lt;pre&gt;{@code
+&nbsp;     * var text = new SimpleStringProperty(&quot;abcd&quot;);
+&nbsp;     * ObservableValue&lt;String&gt; upperCase = text.map(String::toUpperCase);
+&nbsp;     *
+&nbsp;     * upperCase.getValue();  // Returns &quot;ABCD&quot;
+&nbsp;     * text.set(&quot;xyz&quot;);
+&nbsp;     * upperCase.getValue();  // Returns &quot;XYZ&quot;
+&nbsp;     * text.set(null);
+&nbsp;     * upperCase.getValue();  // Returns null
+&nbsp;     * }&lt;/pre&gt;
+&nbsp;     *
+&nbsp;     * @param &lt;U&gt; the type of values held by the resulting {@code ObservableValue}
+&nbsp;     * @param mapper the mapping function to apply to a value, cannot be {@code null}
+&nbsp;     * @return an {@code ObservableValue} that holds the result of applying the given
+&nbsp;     *     mapping function on this value, or {@code null} when it
+&nbsp;     *     is {@code null}; never returns {@code null}
+&nbsp;     * @throws NullPointerException if the mapping function is {@code null}
+&nbsp;     * @since 19
+&nbsp;     */
+&nbsp;    default &lt;U&gt; ObservableValue&lt;U&gt; map(Function&lt;? super T, ? extends U&gt; mapper) {
+<b class="nc">&nbsp;        return new MappedBinding&lt;&gt;(this, mapper);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns an {@code ObservableValue} that holds this value, or the given constant if
+&nbsp;     * it is {@code null}. The result is updated when this {@code ObservableValue} changes. This
+&nbsp;     * method, when combined with {@link #map(Function)}, allows handling of all values
+&nbsp;     * including {@code null} values.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For example, mapping a string to an upper case string, but leaving it blank
+&nbsp;     * if the input is {@code null}:
+&nbsp;     * &lt;pre&gt;{@code
+&nbsp;     * var text = new SimpleStringProperty(&quot;abcd&quot;);
+&nbsp;     * ObservableValue&lt;String&gt; upperCase = text.map(String::toUpperCase).orElse(&quot;&quot;);
+&nbsp;     *
+&nbsp;     * upperCase.getValue();  // Returns &quot;ABCD&quot;
+&nbsp;     * text.set(null);
+&nbsp;     * upperCase.getValue();  // Returns &quot;&quot;
+&nbsp;     * }&lt;/pre&gt;
+&nbsp;     *
+&nbsp;     * @param constant the value to use when this {@code ObservableValue}
+&nbsp;     *     holds {@code null}; can be {@code null}
+&nbsp;     * @return an {@code ObservableValue} that holds this value, or the given constant if
+&nbsp;     *     it is {@code null}; never returns {@code null}
+&nbsp;     * @since 19
+&nbsp;     */
+&nbsp;    default ObservableValue&lt;T&gt; orElse(T constant) {
+<b class="nc">&nbsp;        return new OrElseBinding&lt;&gt;(this, constant);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns an {@code ObservableValue} that holds the value of an {@code ObservableValue}
+&nbsp;     * produced by applying the given mapping function on this value. The result is updated
+&nbsp;     * when either this {@code ObservableValue} or the {@code ObservableValue} produced by
+&nbsp;     * the mapping changes. If this value is {@code null}, no mapping is applied and the
+&nbsp;     * resulting value is {@code null}. If the mapping resulted in {@code null}, then the
+&nbsp;     * resulting value is also {@code null}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This method is similar to {@link #map(Function)}, but the mapping function is
+&nbsp;     * one whose result is already an {@code ObservableValue}, and if invoked, {@code flatMap} does
+&nbsp;     * not wrap it within an additional {@code ObservableValue}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For example, a property that is only {@code true} when a UI element is part of a {@code Scene}
+&nbsp;     * that is part of a {@code Window} that is currently shown on screen:
+&nbsp;     * &lt;pre&gt;{@code
+&nbsp;     * ObservableValue&lt;Boolean&gt; isShowing = listView.sceneProperty()
+&nbsp;     *     .flatMap(Scene::windowProperty)
+&nbsp;     *     .flatMap(Window::showingProperty)
+&nbsp;     *     .orElse(false);
+&nbsp;     *
+&nbsp;     * // Assuming the listView is currently shown to the user, then:
+&nbsp;     *
+&nbsp;     * isShowing.getValue();  // Returns true
+&nbsp;     *
+&nbsp;     * listView.getScene().getWindow().hide();
+&nbsp;     * isShowing.getValue();  // Returns false
+&nbsp;     *
+&nbsp;     * listView.getScene().getWindow().show();
+&nbsp;     * isShowing.getValue();  // Returns true
+&nbsp;     *
+&nbsp;     * listView.getParent().getChildren().remove(listView);
+&nbsp;     * isShowing.getValue();  // Returns false
+&nbsp;     * }&lt;/pre&gt;
+&nbsp;     * Changes in any of the values of: the scene of {@code listView}, the window of that scene, or
+&nbsp;     * the showing of that window, will update the boolean value {@code isShowing}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This method is preferred over {@link javafx.beans.binding.Bindings#select Bindings} methods
+&nbsp;     * since it is type safe.
+&nbsp;     *
+&nbsp;     * @param &lt;U&gt; the type of values held by the resulting {@code ObservableValue}
+&nbsp;     * @param mapper the mapping function to apply to a value, cannot be {@code null}
+&nbsp;     * @return an {@code ObservableValue} that holds the value of an {@code ObservableValue}
+&nbsp;     *     produced by applying the given mapping function on this value, or
+&nbsp;     *     {@code null} when the value is {@code null}; never returns {@code null}
+&nbsp;     * @throws NullPointerException if the mapping function is {@code null}
+&nbsp;     * @since 19
+&nbsp;     */
+&nbsp;    default &lt;U&gt; ObservableValue&lt;U&gt; flatMap(Function&lt;? super T, ? extends ObservableValue&lt;? extends U&gt;&gt; mapper) {
+<b class="nc">&nbsp;        return new FlatMappedBinding&lt;&gt;(this, mapper);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns an {@code ObservableValue} that holds this value and is updated only
+&nbsp;     * when {@code condition} holds {@code true}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The returned {@code ObservableValue} only observes this value when
+&nbsp;     * {@code condition} holds {@code true}. This allows this {@code ObservableValue}
+&nbsp;     * and the conditional {@code ObservableValue} to be garbage collected if neither is
+&nbsp;     * otherwise strongly referenced when {@code condition} holds {@code false}.
+&nbsp;     * This is in contrast to the general behavior of bindings, where the binding is
+&nbsp;     * only eligible for garbage collection when not observed itself.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * A {@code condition} holding {@code null} is treated as holding {@code false}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For example:
+&nbsp;     * &lt;pre&gt;{@code
+&nbsp;     * ObservableValue&lt;Boolean&gt; condition = new SimpleBooleanProperty(true);
+&nbsp;     * ObservableValue&lt;String&gt; longLivedProperty = new SimpleStringProperty(&quot;A&quot;);
+&nbsp;     * ObservableValue&lt;String&gt; whenProperty = longLivedProperty.when(condition);
+&nbsp;     *
+&nbsp;     * // observe whenProperty, which will in turn observe longLivedProperty
+&nbsp;     * whenProperty.addListener((ov, old, current) -&gt; System.out.println(current));
+&nbsp;     *
+&nbsp;     * longLivedProperty.setValue(&quot;B&quot;);  // &quot;B&quot; is printed
+&nbsp;     *
+&nbsp;     * condition.setValue(false);
+&nbsp;     *
+&nbsp;     * // After condition becomes false, whenProperty stops observing longLivedProperty; condition
+&nbsp;     * // and whenProperty may now be eligible for GC despite being observed by the ChangeListener
+&nbsp;     *
+&nbsp;     * longLivedProperty.setValue(&quot;C&quot;);  // nothing is printed
+&nbsp;     * longLivedProperty.setValue(&quot;D&quot;);  // nothing is printed
+&nbsp;     *
+&nbsp;     * condition.setValue(true);  // longLivedProperty is observed again, and &quot;D&quot; is printed
+&nbsp;     * }&lt;/pre&gt;
+&nbsp;     *
+&nbsp;     * @param condition a boolean {@code ObservableValue}, cannot be {@code null}
+&nbsp;     * @return an {@code ObservableValue} that holds this value whenever the given
+&nbsp;     *     condition evaluates to {@code true}, otherwise holds the last seen value;
+&nbsp;     *     never returns {@code null}
+&nbsp;     * @since 20
+&nbsp;     */
+&nbsp;    default ObservableValue&lt;T&gt; when(ObservableValue&lt;Boolean&gt; condition) {
+<b class="nc">&nbsp;        return new ConditionalBinding&lt;&gt;(this, condition);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a {@code Subscription} on this {@code ObservableValue} which calls the given
+&nbsp;     * {@code changeSubscriber} with the old and new value whenever its value changes.
+&nbsp;     * The provided subscriber is akin to a {@code ChangeListener} without the
+&nbsp;     * {@code ObservableValue} parameter.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The parameters supplied to the {@link BiConsumer} are the old and new values,
+&nbsp;     * respectively.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Note that the same subscriber instance may be safely subscribed for
+&nbsp;     * different {@code Observables}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Also note that when subscribing on an {@code Observable} with a longer
+&nbsp;     * lifecycle than the subscriber, the subscriber must be unsubscribed
+&nbsp;     * when no longer needed as the subscription will otherwise keep the subscriber
+&nbsp;     * from being garbage collected. Considering creating a derived {@code ObservableValue}
+&nbsp;     * using {@link #when(ObservableValue)} and subscribing on this derived observable value
+&nbsp;     * to automatically decouple the lifecycle of the subscriber from this
+&nbsp;     * {@code ObservableValue} when some condition holds.
+&nbsp;     *
+&nbsp;     * @param changeSubscriber a {@code BiConsumer} to supply with the old and new values
+&nbsp;     *     of this {@code ObservableValue}, cannot be {@code null}
+&nbsp;     * @return a {@code Subscription} which can be used to cancel this
+&nbsp;     *     subscription, never {@code null}
+&nbsp;     * @throws NullPointerException if the subscriber is {@code null}
+&nbsp;     * @see #addListener(ChangeListener)
+&nbsp;     * @since 21
+&nbsp;     */
+&nbsp;    default Subscription subscribe(BiConsumer&lt;? super T, ? super T&gt; changeSubscriber) {
+<b class="nc">&nbsp;      Objects.requireNonNull(changeSubscriber, &quot;changeSubscriber cannot be null&quot;);</b>
+<b class="nc">&nbsp;      ChangeListener&lt;T&gt; listener = (obs, old, current) -&gt; changeSubscriber.accept(old, current);</b>
+&nbsp;
+<b class="nc">&nbsp;      addListener(listener);</b>
+&nbsp;
+<b class="nc">&nbsp;      return () -&gt; removeListener(listener);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a {@code Subscription} on this {@code ObservableValue} which immediately
+&nbsp;     * provides the current value to the given {@code valueSubscriber}, followed by any
+&nbsp;     * subsequent values whenever its value changes. The {@code valueSubscriber} is called
+&nbsp;     * immediately for convenience, since usually the user will want to initialize a value
+&nbsp;     * and then update on changes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Note that the same subscriber instance may be safely subscribed for
+&nbsp;     * different {@code Observables}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Also note that when subscribing on an {@code Observable} with a longer
+&nbsp;     * lifecycle than the subscriber, the subscriber must be unsubscribed
+&nbsp;     * when no longer needed as the subscription will otherwise keep the subscriber
+&nbsp;     * from being garbage collected. Considering creating a derived {@code ObservableValue}
+&nbsp;     * using {@link #when(ObservableValue)} and subscribing on this derived observable value
+&nbsp;     * to automatically decouple the lifecycle of the subscriber from this
+&nbsp;     * {@code ObservableValue} when some condition holds.
+&nbsp;     *
+&nbsp;     * @param valueSubscriber a {@code Consumer} to supply with the values of this
+&nbsp;     *     {@code ObservableValue}, cannot be {@code null}
+&nbsp;     * @return a {@code Subscription} which can be used to cancel this
+&nbsp;     *     subscription, never {@code null}
+&nbsp;     * @throws NullPointerException if the subscriber is {@code null}
+&nbsp;     * @since 21
+&nbsp;     */
+&nbsp;    default Subscription subscribe(Consumer&lt;? super T&gt; valueSubscriber) {
+<b class="nc">&nbsp;        Objects.requireNonNull(valueSubscriber, &quot;valueSubscriber cannot be null&quot;);</b>
+<b class="nc">&nbsp;        ChangeListener&lt;T&gt; listener = (obs, old, current) -&gt; valueSubscriber.accept(current);</b>
+&nbsp;
+<b class="nc">&nbsp;        valueSubscriber.accept(getValue());  // eagerly send current value</b>
+<b class="nc">&nbsp;        addListener(listener);</b>
+&nbsp;
+<b class="nc">&nbsp;        return () -&gt; removeListener(listener);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1227 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MouseEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.input</a>
+</div>
+
+<h1>Coverage Summary for Class: MouseEvent (javafx.scene.input)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MouseEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/37)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/32)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/124)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.input;
+&nbsp;
+&nbsp;import com.sun.javafx.tk.Toolkit;
+&nbsp;import javafx.beans.NamedArg;
+&nbsp;import javafx.event.EventTarget;
+&nbsp;import javafx.event.EventType;
+&nbsp;import javafx.geometry.Point3D;
+&nbsp;import com.sun.javafx.scene.input.InputEventUtils;
+&nbsp;import java.io.IOException;
+&nbsp;
+&nbsp;// PENDING_DOC_REVIEW
+&nbsp;/**
+&nbsp; * When a mouse event occurs, the top-most node under cursor is picked and
+&nbsp; * the event is delivered to it through capturing and bubbling phases
+&nbsp; * described at {@link javafx.event.EventDispatcher EventDispatcher}.
+&nbsp; * &lt;p&gt;
+&nbsp; * The mouse (pointer&#39;s) location is available relative to several
+&nbsp; * coordinate systems: x,y - relative to the origin of the
+&nbsp; * MouseEvent&#39;s node, sceneX,sceneY - relative to to the
+&nbsp; * origin of the {@code Scene} that contains the node,
+&nbsp; * screenX,screenY - relative to origin of the screen that
+&nbsp; * contains the mouse pointer.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Dragging gestures&lt;/h2&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * There are three types of dragging gestures. They are all initiated by
+&nbsp; * a mouse press event and terminated as a result of a mouse released
+&nbsp; * event, the source node decides which gesture will take place.
+&nbsp; * &lt;p&gt;
+&nbsp; * The simple press-drag-release gesture is default. It&#39;s best used to allow
+&nbsp; * changing size of a shape, dragging it around and so on. Whole
+&nbsp; * press-drag-release gesture is delivered to one node. When a mouse
+&nbsp; * button is pressed, the top-most node is picked and all subsequent
+&nbsp; * mouse events are delivered to the same node until the button is released.
+&nbsp; * If a mouse clicked event is generated from these events, it is still
+&nbsp; * delivered to the same node.
+&nbsp; * &lt;p&gt;
+&nbsp; * During simple press-drag-release gesture, the other nodes are not involved
+&nbsp; * and don&#39;t get any events. If these nodes need to be involved in the gesture,
+&nbsp; * full press-drag-release gesture has to be activated. This gesture is
+&nbsp; * best used for connecting nodes by &quot;wires&quot;, dragging nodes to other nodes etc.
+&nbsp; * This gesture type is more closely described at
+&nbsp; * {@link javafx.scene.input.MouseDragEvent MouseDragEvent} which contains
+&nbsp; * the events delivered to the gesture targets.
+&nbsp; * &lt;p&gt;
+&nbsp; * The third gesture type is platform-supported drag-and-drop gesture. It serves
+&nbsp; * best to transfer data and works also between (not necessarily FX)
+&nbsp; * applications. This gesture type is more closely described
+&nbsp; * at {@link javafx.scene.input.DragEvent DragEvent}.
+&nbsp; * &lt;p&gt;
+&nbsp; * In a short summary, simple press-drag-release gesture is activated
+&nbsp; * automatically when a mouse button is pressed and delivers all
+&nbsp; * {@code MouseEvent}s to the gesture source. When you start dragging,
+&nbsp; * eventually the {@code DRAG_DETECTED} event arrives. In its handler
+&nbsp; * you can either start full press-drag-release gesture by calling
+&nbsp; * {@code startFullDrag} method on a node or scene - the {@code MouseDragEvent}s
+&nbsp; * start to be delivered to gesture targets, or you can start drag and drop
+&nbsp; * gesture by calling {@code startDragAndDrop} method on a node or scene -
+&nbsp; * the system switches into the drag and drop mode and {@code DragEvent}s start
+&nbsp; * to be delivered instead of {@code MouseEvent}s. If you don&#39;t call any of
+&nbsp; * those methods, the simple press-drag-release gesture continues.
+&nbsp; * &lt;p&gt;
+&nbsp; * Note that dragging a finger over touch screen produces mouse dragging events,
+&nbsp; * but also scroll gesture events. If it means a conflict in an application
+&nbsp; * (the physical dragging action is handled by two different handlers), the
+&nbsp; * {@code isSynthesized()} method may be used to detect the problem and make the
+&nbsp; * dragging handlers behave accordingly.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Mouse enter/exit handling&lt;/h2&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * When the mouse enters a node, the node gets {@code MOUSE_ENTERED} event, when
+&nbsp; * it leaves, it gets {@code MOUSE_EXITED} event. These events are delivered
+&nbsp; * only to the entered/exited node and seemingly don&#39;t go through the
+&nbsp; * capturing/bubbling phases. This is the most common use-case.
+&nbsp; * &lt;p&gt;
+&nbsp; * When the capturing or bubbling is desired, there are
+&nbsp; * {@code MOUSE_ENTERED_TARGET}/{@code MOUSE_EXITED_TARGET} events. These events
+&nbsp; * go through capturing/bubbling phases normally. This means that parent may
+&nbsp; * receive the {@code MOUSE_ENTERED_TARGET} event when the mouse entered
+&nbsp; * either the parent itself or some of its children. To distinguish between
+&nbsp; * these two cases, the event target can be tested on equality with the node.
+&nbsp; * &lt;p&gt;
+&nbsp; * These two types are closely connected:
+&nbsp; * {@code MOUSE_ENTERED}/{@code MOUSE_EXITED} are subtypes
+&nbsp; * of {@code MOUSE_ENTERED_TARGET}/{@code MOUSE_EXITED_TARGET}.
+&nbsp; * During capturing phase,
+&nbsp; * {@code MOUSE_ENTERED_TARGET} is delivered to the
+&nbsp; * parents. When the event is delivered to the event target (the node that
+&nbsp; * has actually been entered), its type is switched to
+&nbsp; * {@code MOUSE_ENTERED}. Then the type is switched back to
+&nbsp; * {@code MOUSE_ENTERED_TARGET} for the bubbling phase.
+&nbsp; * It&#39;s still one event just switching types, so if it&#39;s filtered or consumed,
+&nbsp; * it affects both event variants. Thanks to the subtype-relationship, a
+&nbsp; * {@code MOUSE_ENTERED_TARGET} event handler will receive the
+&nbsp; * {@code MOUSE_ENTERED} event on target.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Notes&lt;/h2&gt;
+&nbsp; * &lt;ul&gt;
+&nbsp; *   &lt;li&gt;For triggering context menus see the {@link ContextMenuEvent}.&lt;/li&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public class MouseEvent extends InputEvent {
+&nbsp;
+&nbsp;    private static final long serialVersionUID = 20121107L;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Common supertype for all mouse event types.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; ANY =</b>
+&nbsp;            new EventType&lt;&gt;(InputEvent.ANY, &quot;MOUSE&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when a mouse button is pressed. This activates a
+&nbsp;     * press-drag-release gesture, so all subsequent mouse events until
+&nbsp;     * the button is released are delivered to the same node.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_PRESSED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_PRESSED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when a mouse button is released. It is delivered
+&nbsp;     * to the same node where the button has been pressed which activated
+&nbsp;     * a press-drag-release gesture.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_RELEASED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_RELEASED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when a mouse button has been clicked (pressed and
+&nbsp;     * released on the same node). This event provides a button-like behavior
+&nbsp;     * to any node. Note that even long drags can generate click event (it
+&nbsp;     * is delivered to the top-most node on which the mouse was both
+&nbsp;     * pressed and released).
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_CLICKED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_CLICKED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when the mouse enters a node. It&#39;s the bubbling variant,
+&nbsp;     * which is delivered also to all parents of the entered node (unless it
+&nbsp;     * was consumed). When notifications about mouse entering some of node&#39;s
+&nbsp;     * children are not desired, {@code MOUSE_ENTERED} event handler should
+&nbsp;     * be used.
+&nbsp;     *
+&nbsp;     * @see MouseEvent MouseEvent for more information about mouse entered/exited handling
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_ENTERED_TARGET =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_ENTERED_TARGET&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when the mouse enters a node. This event type is delivered
+&nbsp;     * only to the entered node, if parents want to filter it or get the
+&nbsp;     * bubbling event, they need to use {@code MOUSE_ENTERED_TARGET}.
+&nbsp;     *
+&nbsp;     * @see MouseEvent MouseEvent for more information about mouse entered/exited handling
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_ENTERED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.MOUSE_ENTERED_TARGET, &quot;MOUSE_ENTERED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when the mouse exits a node. It&#39;s the bubbling variant,
+&nbsp;     * which is delivered also to all parents of the exited node (unless it
+&nbsp;     * was consumed). When notifications about mouse exiting some of node&#39;s
+&nbsp;     * children are not desired, {@code MOUSE_EXITED} event handler should
+&nbsp;     * be used.
+&nbsp;     *
+&nbsp;     * @see MouseEvent MouseEvent for more information about mouse entered/exited handling
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_EXITED_TARGET =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_EXITED_TARGET&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when the mouse exits a node. This event type is delivered
+&nbsp;     * only to the exited node, if parents want to filter it or get the
+&nbsp;     * bubbling event, they need to use {@code MOUSE_EXITED_TARGET}.
+&nbsp;     *
+&nbsp;     * @see MouseEvent MouseEvent for more information about mouse entered/exited handling
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_EXITED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.MOUSE_EXITED_TARGET, &quot;MOUSE_EXITED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when the mouse moves within a node and no buttons
+&nbsp;     * are pressed. If any mouse button is pressed, MOUSE_DRAGGED event
+&nbsp;     * occurs instead.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_MOVED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_MOVED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event occurs when the mouse moves with a pressed button.
+&nbsp;     * It is delivered to the same node where the button has been pressed
+&nbsp;     * which activated a press-drag-release gesture. It is delivered
+&nbsp;     * regardless of the mouse being within bounds of the node.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; MOUSE_DRAGGED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;MOUSE_DRAGGED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This event is delivered to a node that is identified as a source of a
+&nbsp;     * dragging gesture. Handler of this event is the only place where
+&nbsp;     * full press-drag-release gesture or a drag and drop gesture can be
+&nbsp;     * started (by calling {@link javafx.scene.Node#startFullDrag startFullDrag()}
+&nbsp;     * of {@link javafx.scene.Node#startDragAndDrop startDragAndDrop()} method).
+&nbsp;     * If none of them is called, simple press-drag-release gesture will continue.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Note that his event is generated based on dragging the mouse over a
+&nbsp;     * platform-specific distance threshold. You can modify this behavior
+&nbsp;     * by calling {@code setDragDetect} method on any MOUSE_PRESSED or
+&nbsp;     * MOUSE_DRAGGED event.
+&nbsp;     *
+&nbsp;     * @see MouseEvent MouseEvent for more details about simple press-drag-release gestures
+&nbsp;     * @see MouseDragEvent MouseDragEvent for more details about full press-drag-release gestures
+&nbsp;     * @see DragEvent DragEvent for more details about drag and drop gestures
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;MouseEvent&gt; DRAG_DETECTED =</b>
+&nbsp;            new EventType&lt;&gt;(MouseEvent.ANY, &quot;DRAG_DETECTED&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Fills the given event by this event&#39;s coordinates recomputed to the given
+&nbsp;     * source object
+&nbsp;     * @param newEvent Event whose coordinates are to be filled
+&nbsp;     * @param newSource Source object to compute coordinates for
+&nbsp;     */
+&nbsp;    void recomputeCoordinatesToSource(MouseEvent oldEvent, Object newSource) {
+&nbsp;
+<b class="nc">&nbsp;        final Point3D newCoordinates = InputEventUtils.recomputeCoordinates(</b>
+&nbsp;                pickResult, newSource);
+&nbsp;
+<b class="nc">&nbsp;        x = newCoordinates.getX();</b>
+<b class="nc">&nbsp;        y = newCoordinates.getY();</b>
+<b class="nc">&nbsp;        z = newCoordinates.getZ();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public EventType&lt;? extends MouseEvent&gt; getEventType() {
+<b class="nc">&nbsp;        return (EventType&lt;? extends MouseEvent&gt;) super.getEventType();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Copies this event for a different source and target.
+&nbsp;     * In most cases you don&#39;t need to use this method, it&#39;s called
+&nbsp;     * automatically when you fire the event.
+&nbsp;     * @param newSource New event source
+&nbsp;     * @param newTarget New event target
+&nbsp;     * @return copy of this event for a different source and target
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public MouseEvent copyFor(Object newSource, EventTarget newTarget) {
+<b class="nc">&nbsp;        MouseEvent e = (MouseEvent) super.copyFor(newSource, newTarget);</b>
+<b class="nc">&nbsp;        e.recomputeCoordinatesToSource(this, newSource);</b>
+<b class="nc">&nbsp;        return e;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a copy of the given event with the given fields substituted.
+&nbsp;     * @param newSource the new source of the copied event
+&nbsp;     * @param newTarget the new target of the copied event
+&nbsp;     * @param eventType the new eventType
+&nbsp;     * @return the event copy with the fields substituted
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public MouseEvent copyFor(Object newSource, EventTarget newTarget, EventType&lt;? extends MouseEvent&gt; eventType) {
+<b class="nc">&nbsp;        MouseEvent e = copyFor(newSource, newTarget);</b>
+<b class="nc">&nbsp;        e.eventType = eventType;</b>
+<b class="nc">&nbsp;        return e;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs new MouseEvent event with null source and target.
+&nbsp;     *
+&nbsp;     * Both {@link #isBackButtonDown()}  and {@link #isForwardButtonDown()}
+&nbsp;     * will return {@literal false} for this event.
+&nbsp;     *
+&nbsp;     * @param eventType The type of the event.
+&nbsp;     * @param x The x with respect to the scene.
+&nbsp;     * @param y The y with respect to the scene.
+&nbsp;     * @param screenX The x coordinate relative to screen.
+&nbsp;     * @param screenY The y coordinate relative to screen.
+&nbsp;     * @param button the mouse button used
+&nbsp;     * @param clickCount number of click counts
+&nbsp;     * @param shiftDown true if shift modifier was pressed.
+&nbsp;     * @param controlDown true if control modifier was pressed.
+&nbsp;     * @param altDown true if alt modifier was pressed.
+&nbsp;     * @param metaDown true if meta modifier was pressed.
+&nbsp;     * @param primaryButtonDown true if primary button was pressed.
+&nbsp;     * @param middleButtonDown true if middle button was pressed.
+&nbsp;     * @param secondaryButtonDown true if secondary button was pressed.
+&nbsp;     * @param synthesized if this event was synthesized
+&nbsp;     * @param popupTrigger whether this event denotes a popup trigger for current platform
+&nbsp;     * @param stillSincePress see {@link #isStillSincePress() }
+&nbsp;     * @param pickResult pick result. Can be null, in this case a 2D pick result
+&nbsp;     *                   without any further values is constructed
+&nbsp;     *                   based on the scene coordinates
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public MouseEvent(
+&nbsp;            @NamedArg(&quot;eventType&quot;) EventType&lt;? extends MouseEvent&gt; eventType,
+&nbsp;            @NamedArg(&quot;x&quot;) double x, @NamedArg(&quot;y&quot;) double y,
+&nbsp;            @NamedArg(&quot;screenX&quot;) double screenX, @NamedArg(&quot;screenY&quot;) double screenY,
+&nbsp;            @NamedArg(&quot;button&quot;) MouseButton button,
+&nbsp;            @NamedArg(&quot;clickCount&quot;) int clickCount,
+&nbsp;            @NamedArg(&quot;shiftDown&quot;) boolean shiftDown,
+&nbsp;            @NamedArg(&quot;controlDown&quot;) boolean controlDown,
+&nbsp;            @NamedArg(&quot;altDown&quot;) boolean altDown,
+&nbsp;            @NamedArg(&quot;metaDown&quot;) boolean metaDown,
+&nbsp;            @NamedArg(&quot;primaryButtonDown&quot;) boolean primaryButtonDown,
+&nbsp;            @NamedArg(&quot;middleButtonDown&quot;) boolean middleButtonDown,
+&nbsp;            @NamedArg(&quot;secondaryButtonDown&quot;) boolean secondaryButtonDown,
+&nbsp;            @NamedArg(&quot;synthesized&quot;) boolean synthesized,
+&nbsp;            @NamedArg(&quot;popupTrigger&quot;) boolean popupTrigger,
+&nbsp;            @NamedArg(&quot;stillSincePress&quot;) boolean stillSincePress,
+&nbsp;            @NamedArg(&quot;pickResult&quot;) PickResult pickResult) {
+<b class="nc">&nbsp;        this(null, null, eventType, x, y, screenX, screenY, button, clickCount,</b>
+&nbsp;                shiftDown, controlDown, altDown, metaDown,
+&nbsp;                primaryButtonDown, middleButtonDown, secondaryButtonDown,
+&nbsp;                synthesized, popupTrigger, stillSincePress, pickResult);
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs new MouseEvent event with null source and target.
+&nbsp;     * @param eventType The type of the event.
+&nbsp;     * @param x The x with respect to the scene.
+&nbsp;     * @param y The y with respect to the scene.
+&nbsp;     * @param screenX The x coordinate relative to screen.
+&nbsp;     * @param screenY The y coordinate relative to screen.
+&nbsp;     * @param button the mouse button used
+&nbsp;     * @param clickCount number of click counts
+&nbsp;     * @param shiftDown true if shift modifier was pressed.
+&nbsp;     * @param controlDown true if control modifier was pressed.
+&nbsp;     * @param altDown true if alt modifier was pressed.
+&nbsp;     * @param metaDown true if meta modifier was pressed.
+&nbsp;     * @param primaryButtonDown true if primary button was pressed.
+&nbsp;     * @param middleButtonDown true if middle button was pressed.
+&nbsp;     * @param secondaryButtonDown true if secondary button was pressed.
+&nbsp;     * @param backButtonDown true if back button was pressed.
+&nbsp;     * @param forwardButtonDown true if forward button was pressed
+&nbsp;     * @param synthesized if this event was synthesized
+&nbsp;     * @param popupTrigger whether this event denotes a popup trigger for current platform
+&nbsp;     * @param stillSincePress see {@link #isStillSincePress() }
+&nbsp;     * @param pickResult pick result. Can be null, in this case a 2D pick result
+&nbsp;     *                   without any further values is constructed
+&nbsp;     *                   based on the scene coordinates
+&nbsp;     * @since 12
+&nbsp;     */
+&nbsp;    public MouseEvent(
+&nbsp;            @NamedArg(&quot;eventType&quot;) EventType&lt;? extends MouseEvent&gt; eventType,
+&nbsp;            @NamedArg(&quot;x&quot;) double x, @NamedArg(&quot;y&quot;) double y,
+&nbsp;            @NamedArg(&quot;screenX&quot;) double screenX, @NamedArg(&quot;screenY&quot;) double screenY,
+&nbsp;            @NamedArg(&quot;button&quot;) MouseButton button,
+&nbsp;            @NamedArg(&quot;clickCount&quot;) int clickCount,
+&nbsp;            @NamedArg(&quot;shiftDown&quot;) boolean shiftDown,
+&nbsp;            @NamedArg(&quot;controlDown&quot;) boolean controlDown,
+&nbsp;            @NamedArg(&quot;altDown&quot;) boolean altDown,
+&nbsp;            @NamedArg(&quot;metaDown&quot;) boolean metaDown,
+&nbsp;            @NamedArg(&quot;primaryButtonDown&quot;) boolean primaryButtonDown,
+&nbsp;            @NamedArg(&quot;middleButtonDown&quot;) boolean middleButtonDown,
+&nbsp;            @NamedArg(&quot;secondaryButtonDown&quot;) boolean secondaryButtonDown,
+&nbsp;            @NamedArg(&quot;backButtonDown&quot;) boolean backButtonDown,
+&nbsp;            @NamedArg(&quot;forwardButtonDown&quot;) boolean forwardButtonDown,
+&nbsp;            @NamedArg(&quot;synthesized&quot;) boolean synthesized,
+&nbsp;            @NamedArg(&quot;popupTrigger&quot;) boolean popupTrigger,
+&nbsp;            @NamedArg(&quot;stillSincePress&quot;) boolean stillSincePress,
+&nbsp;            @NamedArg(&quot;pickResult&quot;) PickResult pickResult) {
+<b class="nc">&nbsp;        this(null, null, eventType, x, y, screenX, screenY, button, clickCount,</b>
+&nbsp;                shiftDown, controlDown, altDown, metaDown,
+&nbsp;                primaryButtonDown, middleButtonDown, secondaryButtonDown,
+&nbsp;                backButtonDown, forwardButtonDown,
+&nbsp;                synthesized, popupTrigger, stillSincePress, pickResult);
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs new MouseEvent event.
+&nbsp;     *
+&nbsp;     * Both {@link #isBackButtonDown()}  and {@link #isForwardButtonDown()}
+&nbsp;     * will return {@literal false} for this event.
+&nbsp;     *
+&nbsp;     * @param source the source of the event. Can be null.
+&nbsp;     * @param target the target of the event. Can be null.
+&nbsp;     * @param eventType The type of the event.
+&nbsp;     * @param x The x with respect to the source. Should be in scene coordinates if source == null or source is not a Node.
+&nbsp;     * @param y The y with respect to the source. Should be in scene coordinates if source == null or source is not a Node.
+&nbsp;     * @param screenX The x coordinate relative to screen.
+&nbsp;     * @param screenY The y coordinate relative to screen.
+&nbsp;     * @param button the mouse button used
+&nbsp;     * @param clickCount number of click counts
+&nbsp;     * @param shiftDown true if shift modifier was pressed.
+&nbsp;     * @param controlDown true if control modifier was pressed.
+&nbsp;     * @param altDown true if alt modifier was pressed.
+&nbsp;     * @param metaDown true if meta modifier was pressed.
+&nbsp;     * @param primaryButtonDown true if primary button was pressed.
+&nbsp;     * @param middleButtonDown true if middle button was pressed.
+&nbsp;     * @param secondaryButtonDown true if secondary button was pressed.
+&nbsp;     * @param synthesized if this event was synthesized
+&nbsp;     * @param popupTrigger whether this event denotes a popup trigger for current platform
+&nbsp;     * @param stillSincePress see {@link #isStillSincePress() }
+&nbsp;     * @param pickResult pick result. Can be null, in this case a 2D pick result
+&nbsp;     *                   without any further values is constructed
+&nbsp;     *                   based on the scene coordinates and target
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public MouseEvent(@NamedArg(&quot;source&quot;) Object source, @NamedArg(&quot;target&quot;) EventTarget target,
+&nbsp;            @NamedArg(&quot;eventType&quot;) EventType&lt;? extends MouseEvent&gt; eventType,
+&nbsp;            @NamedArg(&quot;x&quot;) double x, @NamedArg(&quot;y&quot;) double y,
+&nbsp;            @NamedArg(&quot;screenX&quot;) double screenX, @NamedArg(&quot;screenY&quot;) double screenY,
+&nbsp;            @NamedArg(&quot;button&quot;) MouseButton button,
+&nbsp;            @NamedArg(&quot;clickCount&quot;) int clickCount,
+&nbsp;            @NamedArg(&quot;shiftDown&quot;) boolean shiftDown,
+&nbsp;            @NamedArg(&quot;controlDown&quot;) boolean controlDown,
+&nbsp;            @NamedArg(&quot;altDown&quot;) boolean altDown,
+&nbsp;            @NamedArg(&quot;metaDown&quot;) boolean metaDown,
+&nbsp;            @NamedArg(&quot;primaryButtonDown&quot;) boolean primaryButtonDown,
+&nbsp;            @NamedArg(&quot;middleButtonDown&quot;) boolean middleButtonDown,
+&nbsp;            @NamedArg(&quot;secondaryButtonDown&quot;) boolean secondaryButtonDown,
+&nbsp;            @NamedArg(&quot;synthesized&quot;) boolean synthesized,
+&nbsp;            @NamedArg(&quot;popupTrigger&quot;) boolean popupTrigger,
+&nbsp;            @NamedArg(&quot;stillSincePress&quot;) boolean stillSincePress,
+&nbsp;            @NamedArg(&quot;pickResult&quot;) PickResult pickResult) {
+<b class="nc">&nbsp;        this(source, target, eventType, x, y, screenX, screenY, button, clickCount,</b>
+&nbsp;                shiftDown, controlDown, altDown, metaDown,
+&nbsp;                primaryButtonDown, middleButtonDown, secondaryButtonDown, false, false,
+&nbsp;                synthesized, popupTrigger, stillSincePress, pickResult);
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs new MouseEvent event.
+&nbsp;     * @param source the source of the event. Can be null.
+&nbsp;     * @param target the target of the event. Can be null.
+&nbsp;     * @param eventType The type of the event.
+&nbsp;     * @param x The x with respect to the source. Should be in scene coordinates if source == null or source is not a Node.
+&nbsp;     * @param y The y with respect to the source. Should be in scene coordinates if source == null or source is not a Node.
+&nbsp;     * @param screenX The x coordinate relative to screen.
+&nbsp;     * @param screenY The y coordinate relative to screen.
+&nbsp;     * @param button the mouse button used
+&nbsp;     * @param clickCount number of click counts
+&nbsp;     * @param shiftDown true if shift modifier was pressed.
+&nbsp;     * @param controlDown true if control modifier was pressed.
+&nbsp;     * @param altDown true if alt modifier was pressed.
+&nbsp;     * @param metaDown true if meta modifier was pressed.
+&nbsp;     * @param primaryButtonDown true if primary button was pressed.
+&nbsp;     * @param middleButtonDown true if middle button was pressed.
+&nbsp;     * @param secondaryButtonDown true if secondary button was pressed.
+&nbsp;     * @param backButtonDown true if the back button was pressed
+&nbsp;     * @param forwardButtonDown true if the forward button was pressed
+&nbsp;     * @param synthesized if this event was synthesized
+&nbsp;     * @param popupTrigger whether this event denotes a popup trigger for current platform
+&nbsp;     * @param stillSincePress see {@link #isStillSincePress() }
+&nbsp;     * @param pickResult pick result. Can be null, in this case a 2D pick result
+&nbsp;     *                   without any further values is constructed
+&nbsp;     *                   based on the scene coordinates and target
+&nbsp;     * @since 12
+&nbsp;     */
+&nbsp;    public MouseEvent(@NamedArg(&quot;source&quot;) Object source, @NamedArg(&quot;target&quot;) EventTarget target,
+&nbsp;                      @NamedArg(&quot;eventType&quot;) EventType&lt;? extends MouseEvent&gt; eventType,
+&nbsp;                      @NamedArg(&quot;x&quot;) double x, @NamedArg(&quot;y&quot;) double y,
+&nbsp;                      @NamedArg(&quot;screenX&quot;) double screenX, @NamedArg(&quot;screenY&quot;) double screenY,
+&nbsp;                      @NamedArg(&quot;button&quot;) MouseButton button,
+&nbsp;                      @NamedArg(&quot;clickCount&quot;) int clickCount,
+&nbsp;                      @NamedArg(&quot;shiftDown&quot;) boolean shiftDown,
+&nbsp;                      @NamedArg(&quot;controlDown&quot;) boolean controlDown,
+&nbsp;                      @NamedArg(&quot;altDown&quot;) boolean altDown,
+&nbsp;                      @NamedArg(&quot;metaDown&quot;) boolean metaDown,
+&nbsp;                      @NamedArg(&quot;primaryButtonDown&quot;) boolean primaryButtonDown,
+&nbsp;                      @NamedArg(&quot;middleButtonDown&quot;) boolean middleButtonDown,
+&nbsp;                      @NamedArg(&quot;secondaryButtonDown&quot;) boolean secondaryButtonDown,
+&nbsp;                      @NamedArg(&quot;backButtonDown&quot;) boolean backButtonDown,
+&nbsp;                      @NamedArg(&quot;forwardButtonDown&quot;) boolean forwardButtonDown,
+&nbsp;                      @NamedArg(&quot;synthesized&quot;) boolean synthesized,
+&nbsp;                      @NamedArg(&quot;popupTrigger&quot;) boolean popupTrigger,
+&nbsp;                      @NamedArg(&quot;stillSincePress&quot;) boolean stillSincePress,
+&nbsp;                      @NamedArg(&quot;pickResult&quot;) PickResult pickResult) {
+<b class="nc">&nbsp;        super(source, target, eventType);</b>
+<b class="nc">&nbsp;        this.x = x;</b>
+<b class="nc">&nbsp;        this.y = y;</b>
+<b class="nc">&nbsp;        this.screenX = screenX;</b>
+<b class="nc">&nbsp;        this.screenY = screenY;</b>
+<b class="nc">&nbsp;        this.sceneX = x;</b>
+<b class="nc">&nbsp;        this.sceneY = y;</b>
+<b class="nc">&nbsp;        this.button = button;</b>
+<b class="nc">&nbsp;        this.clickCount = clickCount;</b>
+<b class="nc">&nbsp;        this.shiftDown = shiftDown;</b>
+<b class="nc">&nbsp;        this.controlDown = controlDown;</b>
+<b class="nc">&nbsp;        this.altDown = altDown;</b>
+<b class="nc">&nbsp;        this.metaDown = metaDown;</b>
+<b class="nc">&nbsp;        this.primaryButtonDown = primaryButtonDown;</b>
+<b class="nc">&nbsp;        this.middleButtonDown = middleButtonDown;</b>
+<b class="nc">&nbsp;        this.secondaryButtonDown = secondaryButtonDown;</b>
+<b class="nc">&nbsp;        this.backButtonDown = backButtonDown;</b>
+<b class="nc">&nbsp;        this.forwardButtonDown = forwardButtonDown;</b>
+<b class="nc">&nbsp;        this.synthesized = synthesized;</b>
+<b class="nc">&nbsp;        this.stillSincePress = stillSincePress;</b>
+<b class="nc">&nbsp;        this.popupTrigger = popupTrigger;</b>
+<b class="nc">&nbsp;        this.pickResult = pickResult;</b>
+<b class="nc">&nbsp;        this.pickResult = pickResult != null ? pickResult : new PickResult(target, x, y);</b>
+<b class="nc">&nbsp;        final Point3D p = InputEventUtils.recomputeCoordinates(this.pickResult, null);</b>
+<b class="nc">&nbsp;        this.x = p.getX();</b>
+<b class="nc">&nbsp;        this.y = p.getY();</b>
+<b class="nc">&nbsp;        this.z = p.getZ();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a copy of this mouse event of MouseDragEvent type
+&nbsp;     * @param e the mouse event to copy
+&nbsp;     * @param source the new source of the copied event
+&nbsp;     * @param target the new target of the copied event
+&nbsp;     * @param type the new MouseDragEvent type
+&nbsp;     * @param gestureSource the new source of the gesture
+&nbsp;     * @param pickResult pick result. Can be null, in this case a 2D pick result
+&nbsp;     *                   without any further values is constructed
+&nbsp;     *                   based on the scene coordinates
+&nbsp;     * @return new MouseDragEvent that was created from MouseEvent
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static MouseDragEvent copyForMouseDragEvent(
+&nbsp;            MouseEvent e,
+&nbsp;            Object source, EventTarget target,
+&nbsp;            EventType&lt;MouseDragEvent&gt; type,
+&nbsp;            Object gestureSource, PickResult pickResult) {
+<b class="nc">&nbsp;        MouseDragEvent ev = new MouseDragEvent(source, target,</b>
+&nbsp;                type, e.sceneX, e.sceneY, e.screenX, e.screenY,
+&nbsp;                e.button, e.clickCount, e.shiftDown, e.controlDown,
+&nbsp;                e.altDown, e.metaDown, e.primaryButtonDown, e.middleButtonDown,
+&nbsp;                e.secondaryButtonDown, e.backButtonDown, e.forwardButtonDown, e.synthesized, e.popupTrigger,
+&nbsp;                pickResult, gestureSource);
+<b class="nc">&nbsp;        ev.recomputeCoordinatesToSource(e, source);</b>
+<b class="nc">&nbsp;        return ev;</b>
+&nbsp;    }
+<b class="nc">&nbsp;    private final Flags flags = new Flags();</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Determines whether this event will be followed by {@code DRAG_DETECTED}
+&nbsp;     * event. It has effect only with  {@code MOUSE_PRESSED} and
+&nbsp;     * {@code MOUSE_DRAGGED} events.
+&nbsp;     *
+&nbsp;     * @return true if the {@code DRAG_DETECTED} event will follow
+&nbsp;     */
+&nbsp;    public boolean isDragDetect() {
+<b class="nc">&nbsp;        return flags.dragDetect;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Augments drag detection behavior. The value says whether this event
+&nbsp;     * will be followed by {@code DRAG_DETECTED} event. It has effect only
+&nbsp;     * with  {@code MOUSE_PRESSED} and  {@code MOUSE_DRAGGED} events.
+&nbsp;     *
+&nbsp;     * @param dragDetect Whether {@code DRAG_DETECTED} event will follow
+&nbsp;     */
+&nbsp;    public void setDragDetect(boolean dragDetect) {
+<b class="nc">&nbsp;        flags.dragDetect = dragDetect;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Horizontal x position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s node.
+&nbsp;     */
+&nbsp;    private transient double x;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Horizontal position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s source.
+&nbsp;     *
+&nbsp;     * @return horizontal position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s source.
+&nbsp;     */
+&nbsp;    public final double getX() {
+<b class="nc">&nbsp;        return x;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Vertical y position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s node.
+&nbsp;     */
+&nbsp;    private transient double y;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Vertical position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s source.
+&nbsp;     *
+&nbsp;     * @return vertical position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s source.
+&nbsp;     */
+&nbsp;    public final double getY() {
+<b class="nc">&nbsp;        return y;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Depth z position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s node.
+&nbsp;     */
+&nbsp;    private transient double z;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Depth position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s source.
+&nbsp;     *
+&nbsp;     * @return depth position of the event relative to the
+&nbsp;     * origin of the MouseEvent&#39;s source.
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final double getZ() {
+<b class="nc">&nbsp;        return z;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Absolute horizontal x position of the event.
+&nbsp;     */
+&nbsp;    private final double screenX;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns absolute horizontal position of the event.
+&nbsp;     * @return absolute horizontal position of the event
+&nbsp;     */
+&nbsp;    public final double getScreenX() {
+<b class="nc">&nbsp;        return screenX;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Absolute vertical y position of the event.
+&nbsp;     */
+&nbsp;    private final double screenY;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns absolute vertical position of the event.
+&nbsp;     * @return absolute vertical position of the event
+&nbsp;     */
+&nbsp;    public final double getScreenY() {
+<b class="nc">&nbsp;        return screenY;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Horizontal x position of the event relative to the
+&nbsp;     * origin of the {@code Scene} that contains the MouseEvent&#39;s node.
+&nbsp;     * If the node is not in a {@code Scene}, then the value is relative to
+&nbsp;     * the boundsInParent of the root-most parent of the MouseEvent&#39;s node.
+&nbsp;     */
+&nbsp;    private final double sceneX;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns horizontal position of the event relative to the
+&nbsp;     * origin of the {@code Scene} that contains the MouseEvent&#39;s source.
+&nbsp;     * If the node is not in a {@code Scene}, then the value is relative to
+&nbsp;     * the boundsInParent of the root-most parent of the MouseEvent&#39;s node.
+&nbsp;     * Note that in 3D scene, this represents the flat coordinates after
+&nbsp;     * applying the projection transformations.
+&nbsp;     *
+&nbsp;     * @return horizontal position of the event relative to the
+&nbsp;     * origin of the {@code Scene} that contains the MouseEvent&#39;s source
+&nbsp;     */
+&nbsp;    public final double getSceneX() {
+<b class="nc">&nbsp;        return sceneX;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Vertical y position of the event relative to the
+&nbsp;     * origin of the {@code Scene} that contains the MouseEvent&#39;s node.
+&nbsp;     * If the node is not in a {@code Scene}, then the value is relative to
+&nbsp;     * the boundsInParent of the root-most parent of the MouseEvent&#39;s node.
+&nbsp;     */
+&nbsp;    private final double sceneY;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns vertical position of the event relative to the
+&nbsp;     * origin of the {@code Scene} that contains the MouseEvent&#39;s source.
+&nbsp;     * If the node is not in a {@code Scene}, then the value is relative to
+&nbsp;     * the boundsInParent of the root-most parent of the MouseEvent&#39;s node.
+&nbsp;     * Note that in 3D scene, this represents the flat coordinates after
+&nbsp;     * applying the projection transformations.
+&nbsp;     *
+&nbsp;     * @return vertical position of the event relative to the
+&nbsp;     * origin of the {@code Scene} that contains the MouseEvent&#39;s source
+&nbsp;     */
+&nbsp;    public final double getSceneY() {
+<b class="nc">&nbsp;        return sceneY;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Which, if any, of the mouse buttons is responsible for this event.
+&nbsp;     */
+&nbsp;    private final MouseButton button;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Which, if any, of the mouse buttons is responsible for this event.
+&nbsp;     *
+&nbsp;     * @return mouse button whose state change caused this event
+&nbsp;     */
+&nbsp;    public final MouseButton getButton() {
+<b class="nc">&nbsp;        return button;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Number of mouse clicks associated with this event.
+&nbsp;     * All MOUSE_MOVED events have the clickCount value equal to 0. The
+&nbsp;     * value is increased with MOUSE_PRESSED event and stays like
+&nbsp;     * that for all subsequent events till MOUSE_RELEASED, including the
+&nbsp;     * afterwards generated MOUSE_CLICKED event. The value is increased
+&nbsp;     * to numbers higher than one if all the events between two subsequent
+&nbsp;     * presses happen on a small region and in a small time (according
+&nbsp;     * to native operating system configuration).
+&nbsp;     */
+&nbsp;    private final int clickCount;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns number of mouse clicks associated with this event.
+&nbsp;     * All MOUSE_MOVED events have the clickCount value equal to 0. The
+&nbsp;     * value is increased with MOUSE_PRESSED event and stays like
+&nbsp;     * that for all subsequent events till MOUSE_RELEASED, including the
+&nbsp;     * afterwards generated MOUSE_CLICKED event. The value is increased
+&nbsp;     * to numbers higher than one if all the events between two subsequent
+&nbsp;     * presses happen on a small region and in a small time (according
+&nbsp;     * to native operating system configuration).
+&nbsp;     *
+&nbsp;     * @return number of mouse clicks associated with this event
+&nbsp;     */
+&nbsp;    public final int getClickCount() {
+<b class="nc">&nbsp;        return clickCount;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether the mouse cursor left the hysteresis region since the previous
+&nbsp;     * press.
+&nbsp;     */
+&nbsp;    private final boolean stillSincePress;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Indicates whether the mouse cursor stayed in the system-provided
+&nbsp;     * hysteresis area since last pressed event that occurred before this event.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Click event is generated for a node if mouse was both pressed and
+&nbsp;     * released over the node, regardless of mouse movements between the press
+&nbsp;     * and release. If a node wants to react differently on a simple click and
+&nbsp;     * on a mouse drag, it should use a system-supplied short distance
+&nbsp;     * threshold to decide between click and drag (users often perform
+&nbsp;     * inadvertent tiny movements during a click). It can be easily achieved
+&nbsp;     * by ignoring all drags with this method returning {@code true} and
+&nbsp;     * ignoring all clicks with this method returning {@code false}.
+&nbsp;     *
+&nbsp;     * @return true if there were no significant mouse movements (out of
+&nbsp;     * system hysteresis area) since the last pressed event that occurred
+&nbsp;     * before this event.
+&nbsp;     */
+&nbsp;    public final boolean isStillSincePress() {
+<b class="nc">&nbsp;        return stillSincePress;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Shift modifier is down on this event.
+&nbsp;     */
+&nbsp;    private final boolean shiftDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Shift modifier is down on this event.
+&nbsp;     * @return true if the Shift modifier is down on this event
+&nbsp;     */
+&nbsp;    public final boolean isShiftDown() {
+<b class="nc">&nbsp;        return shiftDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Control modifier is down on this event.
+&nbsp;     */
+&nbsp;    private final boolean controlDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Control modifier is down on this event.
+&nbsp;     * @return true if the Control modifier is down on this event
+&nbsp;     */
+&nbsp;    public final boolean isControlDown() {
+<b class="nc">&nbsp;        return controlDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Alt modifier is down on this event.
+&nbsp;     */
+&nbsp;    private final boolean altDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Alt modifier is down on this event.
+&nbsp;     * @return true if the Alt modifier is down on this event
+&nbsp;     */
+&nbsp;    public final boolean isAltDown() {
+<b class="nc">&nbsp;        return altDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Meta modifier is down on this event.
+&nbsp;     */
+&nbsp;    private final boolean metaDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not the Meta modifier is down on this event.
+&nbsp;     * @return true if the Meta modifier is down on this event
+&nbsp;     */
+&nbsp;    public final boolean isMetaDown() {
+<b class="nc">&nbsp;        return metaDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private final boolean synthesized;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Indicates whether this event is synthesized from using a touch screen
+&nbsp;     * instead of usual mouse event source devices like mouse or track pad.
+&nbsp;     * When a finger is dragged over a touch screen, both scrolling gesture
+&nbsp;     * and mouse dragging are produced. If it causes a conflict in an
+&nbsp;     * application, this flag can be used to tell apart the usual mouse dragging
+&nbsp;     * from the touch screen dragging already handled as scroll events.
+&nbsp;     * @return true if this event is synthesized from using a touch screen
+&nbsp;     * @since JavaFX 2.2
+&nbsp;     */
+&nbsp;    public boolean isSynthesized() {
+<b class="nc">&nbsp;        return synthesized;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns whether or not the host platform common shortcut modifier is
+&nbsp;     * down on this event. This common shortcut modifier is a modifier key which
+&nbsp;     * is used commonly in shortcuts on the host platform. It is for example
+&nbsp;     * {@code control} on Windows and {@code meta} (command key) on Mac.
+&nbsp;     *
+&nbsp;     * @return {@code true} if the shortcut modifier is down, {@code false}
+&nbsp;     *      otherwise
+&nbsp;     */
+&nbsp;    public final boolean isShortcutDown() {
+<b class="nc">&nbsp;        switch (Toolkit.getToolkit().getPlatformShortcutKey()) {</b>
+&nbsp;            case SHIFT:
+<b class="nc">&nbsp;                return shiftDown;</b>
+&nbsp;
+&nbsp;            case CONTROL:
+<b class="nc">&nbsp;                return controlDown;</b>
+&nbsp;
+&nbsp;            case ALT:
+<b class="nc">&nbsp;                return altDown;</b>
+&nbsp;
+&nbsp;            case META:
+<b class="nc">&nbsp;                return metaDown;</b>
+&nbsp;
+&nbsp;            default:
+<b class="nc">&nbsp;                return false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Whether or not this mouse event is the popup menu
+&nbsp;     * trigger event for the platform.
+&nbsp;     * &lt;p&gt;&lt;b&gt;Note&lt;/b&gt;: Popup menus are triggered differently
+&nbsp;     * on different systems. Therefore, {@code popupTrigger}
+&nbsp;     * should be checked in both {@code onMousePressed}
+&nbsp;     * and {@code mouseReleased} for proper cross-platform functionality.
+&nbsp;     */
+&nbsp;    private final boolean popupTrigger;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns {@code true} if this mouse event is the popup menu
+&nbsp;     * trigger event for the platform.
+&nbsp;     * &lt;p&gt;&lt;b&gt;Note&lt;/b&gt;: Popup menus are triggered differently
+&nbsp;     * on different systems. Therefore, {@code popupTrigger}
+&nbsp;     * should be checked in both {@code onMousePressed}
+&nbsp;     * and {@code mouseReleased} for proper cross-platform functionality.
+&nbsp;     *
+&nbsp;     * @return {@code true} if this mouse event is the popup menu
+&nbsp;     * trigger event for the platform
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final boolean isPopupTrigger() {
+<b class="nc">&nbsp;        return popupTrigger;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@code true} if primary button (button 1, usually the left) is currently
+&nbsp;     * pressed. Note that this is different from the {@link #getButton() button}
+&nbsp;     * variable in that the {@code button} variable indicates which button press was
+&nbsp;     * responsible for this event while this variable indicates whether the
+&nbsp;     * primary button is depressed.
+&nbsp;     */
+&nbsp;    private final boolean primaryButtonDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns {@code true} if primary button (button 1, usually the left)
+&nbsp;     * is currently pressed. Note that this is different from the
+&nbsp;     * {@code getButton()} method that indicates which button press was
+&nbsp;     * responsible for this event while this method indicates whether the
+&nbsp;     * primary button is depressed.
+&nbsp;     *
+&nbsp;     * @return {@code true} if primary button (button 1, usually the left)
+&nbsp;     * is currently pressed
+&nbsp;     */
+&nbsp;    public final boolean isPrimaryButtonDown() {
+<b class="nc">&nbsp;        return primaryButtonDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@code true} if secondary button (button 3, usually the right) is currently
+&nbsp;     * pressed. Note that this is different from the {@link #getButton() button}
+&nbsp;     * variable in that the {@code button} variable indicates which button press was
+&nbsp;     * responsible for this event while this variable indicates whether the
+&nbsp;     * primary button is depressed.
+&nbsp;     */
+&nbsp;    private final boolean secondaryButtonDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns {@code true} if secondary button (button 3, usually the right)
+&nbsp;     * is currently pressed. Note that this is different from the
+&nbsp;     * {@code getButton()} method that indicates which button press was
+&nbsp;     * responsible for this event while this method indicates whether the
+&nbsp;     * secondary button is depressed.
+&nbsp;     *
+&nbsp;     * @return {@code true} if secondary button (button 3, usually the right)
+&nbsp;     * is currently pressed
+&nbsp;     */
+&nbsp;    public final boolean isSecondaryButtonDown() {
+<b class="nc">&nbsp;        return secondaryButtonDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@code true} if middle button (button 2) is currently pressed.
+&nbsp;     * Note that this is different from the {@link #getButton() button} variable in
+&nbsp;     * that the {@code button} variable indicates which button press was
+&nbsp;     * responsible for this event while this variable indicates whether the
+&nbsp;     * middle button is depressed.
+&nbsp;     */
+&nbsp;    private final boolean middleButtonDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns {@code true} if middle button (button 2)
+&nbsp;     * is currently pressed. Note that this is different from the
+&nbsp;     * {@code getButton()} method that indicates which button press was
+&nbsp;     * responsible for this event while this method indicates whether the
+&nbsp;     * middle button is depressed.
+&nbsp;     *
+&nbsp;     * @return {@code true} if middle button (button 2) is currently pressed
+&nbsp;     */
+&nbsp;    public final boolean isMiddleButtonDown() {
+<b class="nc">&nbsp;        return middleButtonDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@code true} if back button (button 4) is currently pressed.
+&nbsp;     * Note that this is different from the {@link #getButton() button} variable in
+&nbsp;     * that the {@code button} variable indicates which button press was
+&nbsp;     * responsible for this event while this variable indicates whether the
+&nbsp;     * back button is depressed.
+&nbsp;     */
+&nbsp;    private final boolean backButtonDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns {@code true} if back button (button 4)
+&nbsp;     * is currently pressed. Note that this is different from the
+&nbsp;     * {@code getButton()} method that indicates which button press was
+&nbsp;     * responsible for this event while this method indicates whether the
+&nbsp;     * back button is depressed.
+&nbsp;     *
+&nbsp;     * @return {@code true} if back button (button 4) is currently pressed
+&nbsp;     * @since 12
+&nbsp;     */
+&nbsp;    public final boolean isBackButtonDown() {
+<b class="nc">&nbsp;        return backButtonDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@code true} if forward button (button 5) is currently pressed.
+&nbsp;     * Note that this is different from the {@link #getButton() button} variable in
+&nbsp;     * that the {@code button} variable indicates which button press was
+&nbsp;     * responsible for this event while this variable indicates whether the
+&nbsp;     * forward button is depressed.
+&nbsp;     */
+&nbsp;    private final boolean forwardButtonDown;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns {@code true} if forward button (button 5)
+&nbsp;     * is currently pressed. Note that this is different from the
+&nbsp;     * {@code getButton()} method that indicates which button press was
+&nbsp;     * responsible for this event while this method indicates whether the
+&nbsp;     * back button is depressed.
+&nbsp;     *
+&nbsp;     * @return {@code true} if forward button (button 5) is currently pressed
+&nbsp;     * @since 12
+&nbsp;     */
+&nbsp;    public final boolean isForwardButtonDown() {
+<b class="nc">&nbsp;        return forwardButtonDown;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a string representation of this {@code MouseEvent} object.
+&nbsp;     * @return a string representation of this {@code MouseEvent} object.
+&nbsp;     */
+&nbsp;    @Override public String toString() {
+<b class="nc">&nbsp;        final StringBuilder sb = new StringBuilder(&quot;MouseEvent [&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        sb.append(&quot;source = &quot;).append(getSource());</b>
+<b class="nc">&nbsp;        sb.append(&quot;, target = &quot;).append(getTarget());</b>
+<b class="nc">&nbsp;        sb.append(&quot;, eventType = &quot;).append(getEventType());</b>
+<b class="nc">&nbsp;        sb.append(&quot;, consumed = &quot;).append(isConsumed());</b>
+&nbsp;
+<b class="nc">&nbsp;        sb.append(&quot;, x = &quot;).append(getX()).append(&quot;, y = &quot;).append(getY())</b>
+<b class="nc">&nbsp;                .append(&quot;, z = &quot;).append(getZ());</b>
+&nbsp;
+<b class="nc">&nbsp;        if (getButton() != null) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, button = &quot;).append(getButton());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (getClickCount() &gt; 1) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, clickCount = &quot;).append(getClickCount());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isPrimaryButtonDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, primaryButtonDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isMiddleButtonDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, middleButtonDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isSecondaryButtonDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, secondaryButtonDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isBackButtonDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, backButtonDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isForwardButtonDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, forwardButtonDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isShiftDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, shiftDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isControlDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, controlDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isAltDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, altDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isMetaDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, metaDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isShortcutDown()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, shortcutDown&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (isSynthesized()) {</b>
+<b class="nc">&nbsp;            sb.append(&quot;, synthesized&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        sb.append(&quot;, pickResult = &quot;).append(getPickResult());</b>
+&nbsp;
+<b class="nc">&nbsp;        return sb.append(&quot;]&quot;).toString();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Information about the pick if the picked {@code Node} is a
+&nbsp;     * {@code Shape3D} node and its pickOnBounds is false.
+&nbsp;     */
+&nbsp;    private PickResult pickResult;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns information about the pick.
+&nbsp;     *
+&nbsp;     * @return new PickResult object that contains information about the pick
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final PickResult getPickResult() {
+<b class="nc">&nbsp;        return pickResult;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * These properties need to live in a separate object shared among all the
+&nbsp;     * copied events to make sure that the values are propagated to the
+&nbsp;     * original event.
+&nbsp;     */
+&nbsp;    private static class Flags implements Cloneable {
+&nbsp;        /**
+&nbsp;         * Whether dragDetected event is going to be sent after this event.
+&nbsp;         * Applies only to MOUSE_PRESSED and MOUSE_MOVED event types.
+&nbsp;         */
+&nbsp;        boolean dragDetect = true;
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public Flags clone() {
+&nbsp;            try {
+&nbsp;                return (Flags) super.clone();
+&nbsp;            } catch (CloneNotSupportedException e) {
+&nbsp;                /* won&#39;t happen */
+&nbsp;                return null;
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void readObject(java.io.ObjectInputStream in)
+&nbsp;            throws IOException, ClassNotFoundException {
+<b class="nc">&nbsp;        in.defaultReadObject();</b>
+<b class="nc">&nbsp;        x = sceneX;</b>
+<b class="nc">&nbsp;        y = sceneY;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

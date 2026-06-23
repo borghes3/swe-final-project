@@ -1,0 +1,262 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VirtualView</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.network</a>
+</div>
+
+<h1>Coverage Summary for Class: VirtualView (it.polimi.ingsw.am23.network)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">VirtualView</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.network;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.enums.ActionType;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.*;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;/**
+&nbsp; * Remote view contract exposed by the client to the server.
+&nbsp; * Every method represents a notification the server can push to the client
+&nbsp; * to keep its UI in sync with the model.
+&nbsp; */
+&nbsp;public interface VirtualView {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies the client that the connection has been accepted.
+&nbsp;     *
+&nbsp;     * @param playerId unique identifier assigned to the player
+&nbsp;     * @param lobbies  current snapshot of the lobby list
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onConnected(String playerId, List&lt;LobbyState&gt; lobbies) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies the client that the connection has been rejected.
+&nbsp;     *
+&nbsp;     * @param reason human readable rejection reason (e.g. &quot;nickname already in use&quot;)
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onConnectError(String reason) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies the client about an updated snapshot of the lobby list.
+&nbsp;     *
+&nbsp;     * @param lobbies updated lobby list
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onLobbyListUpdated(List&lt;LobbyState&gt; lobbies) throws Exception;
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies the lobby creator that the lobby has been created.
+&nbsp;     *
+&nbsp;     * @param lobby the created lobby
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onLobbyCreated(LobbyState lobby) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that some change happened inside a lobby the client is in.
+&nbsp;     *
+&nbsp;     * @param lobby the updated lobby state
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onLobbyUpdate(LobbyState lobby) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the requested join failed.
+&nbsp;     *
+&nbsp;     * @param reason human readable rejection reason
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onJoinError(String reason) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the lobby has been closed (e.g. the owner left).
+&nbsp;     *
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onLobbyClosed() throws Exception;
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the match has started, carrying the initial state.
+&nbsp;     *
+&nbsp;     * @param payload initial state payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onGameStarted(GameStartedPayload payload) throws Exception;
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that a totem has been placed.
+&nbsp;     *
+&nbsp;     * @param payload placement payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onTotemPlaced(TotemPlacedPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the placing phase has ended.
+&nbsp;     *
+&nbsp;     * @param payload end-of-placing payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that one or more cards have been drawn.
+&nbsp;     *
+&nbsp;     * @param payload cards-taken payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onCardsTaken(CardsTakenPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that a player is invited to perform an extra draw.
+&nbsp;     *
+&nbsp;     * @param payload extra draw request payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that an extra draw has been completed.
+&nbsp;     *
+&nbsp;     * @param payload extra card payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onExtraCardTaken(ExtraCardTakenPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that an event card has been resolved.
+&nbsp;     *
+&nbsp;     * @param payload event resolution payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onEventResolved(EventResolvedPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the market has been refreshed at end of round.
+&nbsp;     *
+&nbsp;     * @param payload market refresh payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onMarketRefreshed(MarketRefresherPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the match progressed to a new era.
+&nbsp;     *
+&nbsp;     * @param payload era progression payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onEraProgression(EraProgressionPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the match has ended.
+&nbsp;     *
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onGameOver() throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the final scoreboard is available.
+&nbsp;     *
+&nbsp;     * @param payload scoreboard payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onScoreboardAvailable(ScoreBoardPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the global rankings related to the match just finished
+&nbsp;     * are available.
+&nbsp;     *
+&nbsp;     * @param payload match rankings payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onMatchRankingsAvailable(MatchRankingsPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the requested leaderboard slice is available.
+&nbsp;     *
+&nbsp;     * @param payload leaderboard payload
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onLeaderboardAvailable(LeaderboardPayload payload) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that a previous action was rejected by the model.
+&nbsp;     *
+&nbsp;     * @param actionType type of the rejected action
+&nbsp;     * @param message    human readable rejection reason
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onActionError(ActionType actionType, String message) throws Exception;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Notifies that the server side connection has been lost.
+&nbsp;     *
+&nbsp;     * @throws Exception on transport failure
+&nbsp;     */
+&nbsp;    void onServerCrashed() throws Exception;
+&nbsp;}
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

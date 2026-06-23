@@ -1,0 +1,551 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > JsonElement</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.google.gson</a>
+</div>
+
+<h1>Coverage Summary for Class: JsonElement (com.google.gson)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JsonElement</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/22)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/35)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (C) 2008 Google Inc.
+&nbsp; *
+&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+&nbsp; * you may not use this file except in compliance with the License.
+&nbsp; * You may obtain a copy of the License at
+&nbsp; *
+&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+&nbsp; *
+&nbsp; * Unless required by applicable law or agreed to in writing, software
+&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+&nbsp; * See the License for the specific language governing permissions and
+&nbsp; * limitations under the License.
+&nbsp; */
+&nbsp;
+&nbsp;package com.google.gson;
+&nbsp;
+&nbsp;import com.google.errorprone.annotations.CanIgnoreReturnValue;
+&nbsp;import com.google.gson.internal.Streams;
+&nbsp;import com.google.gson.stream.JsonWriter;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.Reader;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.math.BigInteger;
+&nbsp;
+&nbsp;/**
+&nbsp; * A class representing an element of JSON. It could either be a {@link JsonObject}, a {@link
+&nbsp; * JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
+&nbsp; *
+&nbsp; * &lt;p&gt;This class provides multiple {@code getAs} methods which allow
+&nbsp; *
+&nbsp; * &lt;ul&gt;
+&nbsp; *   &lt;li&gt;obtaining the represented primitive value, for example {@link #getAsString()}
+&nbsp; *   &lt;li&gt;casting to the {@code JsonElement} subclasses in a convenient way, for example {@link
+&nbsp; *       #getAsJsonObject()}
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * &lt;h2&gt;Converting {@code JsonElement} from / to JSON&lt;/h2&gt;
+&nbsp; *
+&nbsp; * There are two ways to parse JSON data as a {@link JsonElement}:
+&nbsp; *
+&nbsp; * &lt;ul&gt;
+&nbsp; *   &lt;li&gt;{@link JsonParser}, for example:
+&nbsp; *       &lt;pre&gt;
+&nbsp; * JsonObject jsonObject = JsonParser.parseString(&quot;{}&quot;).getAsJsonObject();
+&nbsp; * &lt;/pre&gt;
+&nbsp; *   &lt;li&gt;{@link Gson#fromJson(Reader, Class) Gson.fromJson(..., JsonElement.class)}&lt;br&gt;
+&nbsp; *       It is possible to directly specify a {@code JsonElement} subclass, for example:
+&nbsp; *       &lt;pre&gt;
+&nbsp; * JsonObject jsonObject = gson.fromJson(&quot;{}&quot;, JsonObject.class);
+&nbsp; * &lt;/pre&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * To convert a {@code JsonElement} to JSON either {@link #toString() JsonElement.toString()} or the
+&nbsp; * method {@link Gson#toJson(JsonElement)} and its overloads can be used.
+&nbsp; *
+&nbsp; * &lt;p&gt;It is also possible to obtain the {@link TypeAdapter} for {@code JsonElement} from a {@link
+&nbsp; * Gson} instance and then use it for conversion from and to JSON:
+&nbsp; *
+&nbsp; * &lt;pre&gt;{@code
+&nbsp; * TypeAdapter&lt;JsonElement&gt; adapter = gson.getAdapter(JsonElement.class);
+&nbsp; *
+&nbsp; * JsonElement value = adapter.fromJson(&quot;{}&quot;);
+&nbsp; * String json = adapter.toJson(value);
+&nbsp; * }&lt;/pre&gt;
+&nbsp; *
+&nbsp; * &lt;h2&gt;{@code JsonElement} as JSON data&lt;/h2&gt;
+&nbsp; *
+&nbsp; * {@code JsonElement} can also be treated as JSON data, allowing to deserialize from a {@code
+&nbsp; * JsonElement} and serializing to a {@code JsonElement}. The {@link Gson} class offers these
+&nbsp; * methods for this:
+&nbsp; *
+&nbsp; * &lt;ul&gt;
+&nbsp; *   &lt;li&gt;{@link Gson#fromJson(JsonElement, Class) Gson.fromJson(JsonElement, ...)}, for example:
+&nbsp; *       &lt;pre&gt;
+&nbsp; * JsonObject jsonObject = ...;
+&nbsp; * MyClass myObj = gson.fromJson(jsonObject, MyClass.class);
+&nbsp; * &lt;/pre&gt;
+&nbsp; *   &lt;li&gt;{@link Gson#toJsonTree(Object)}, for example:
+&nbsp; *       &lt;pre&gt;
+&nbsp; * MyClass myObj = ...;
+&nbsp; * JsonElement json = gson.toJsonTree(myObj);
+&nbsp; * &lt;/pre&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * The {@link TypeAdapter} class provides corresponding methods as well:
+&nbsp; *
+&nbsp; * &lt;ul&gt;
+&nbsp; *   &lt;li&gt;{@link TypeAdapter#fromJsonTree(JsonElement)}
+&nbsp; *   &lt;li&gt;{@link TypeAdapter#toJsonTree(Object)}
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * @author Inderjeet Singh
+&nbsp; * @author Joel Leitch
+&nbsp; */
+&nbsp;public abstract class JsonElement {
+&nbsp;  /**
+&nbsp;   * @deprecated Creating custom {@code JsonElement} subclasses is highly discouraged and can lead
+&nbsp;   *     to undefined behavior.&lt;br&gt;
+&nbsp;   *     This constructor is only kept for backward compatibility.
+&nbsp;   */
+&nbsp;  @Deprecated
+<b class="nc">&nbsp;  public JsonElement() {}</b>
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Returns a deep copy of this element. Immutable elements like primitives and nulls are not
+&nbsp;   * copied.
+&nbsp;   *
+&nbsp;   * @since 2.8.2
+&nbsp;   */
+&nbsp;  public abstract JsonElement deepCopy();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Provides a check for verifying if this element is a JSON array or not.
+&nbsp;   *
+&nbsp;   * @return true if this element is of type {@link JsonArray}, false otherwise.
+&nbsp;   */
+&nbsp;  public boolean isJsonArray() {
+<b class="nc">&nbsp;    return this instanceof JsonArray;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Provides a check for verifying if this element is a JSON object or not.
+&nbsp;   *
+&nbsp;   * @return true if this element is of type {@link JsonObject}, false otherwise.
+&nbsp;   */
+&nbsp;  public boolean isJsonObject() {
+<b class="nc">&nbsp;    return this instanceof JsonObject;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Provides a check for verifying if this element is a primitive or not.
+&nbsp;   *
+&nbsp;   * @return true if this element is of type {@link JsonPrimitive}, false otherwise.
+&nbsp;   */
+&nbsp;  public boolean isJsonPrimitive() {
+<b class="nc">&nbsp;    return this instanceof JsonPrimitive;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Provides a check for verifying if this element represents a null value or not.
+&nbsp;   *
+&nbsp;   * @return true if this element is of type {@link JsonNull}, false otherwise.
+&nbsp;   * @since 1.2
+&nbsp;   */
+&nbsp;  public boolean isJsonNull() {
+<b class="nc">&nbsp;    return this instanceof JsonNull;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link JsonObject}. If this element is of some
+&nbsp;   * other type, an {@link IllegalStateException} will result. Hence it is best to use this method
+&nbsp;   * after ensuring that this element is of the desired type by calling {@link #isJsonObject()}
+&nbsp;   * first.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link JsonObject}.
+&nbsp;   * @throws IllegalStateException if this element is of another type.
+&nbsp;   */
+&nbsp;  public JsonObject getAsJsonObject() {
+<b class="nc">&nbsp;    if (isJsonObject()) {</b>
+<b class="nc">&nbsp;      return (JsonObject) this;</b>
+&nbsp;    }
+<b class="nc">&nbsp;    throw new IllegalStateException(&quot;Not a JSON Object: &quot; + this);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link JsonArray}. If this element is of some other
+&nbsp;   * type, an {@link IllegalStateException} will result. Hence it is best to use this method after
+&nbsp;   * ensuring that this element is of the desired type by calling {@link #isJsonArray()} first.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link JsonArray}.
+&nbsp;   * @throws IllegalStateException if this element is of another type.
+&nbsp;   */
+&nbsp;  public JsonArray getAsJsonArray() {
+<b class="nc">&nbsp;    if (isJsonArray()) {</b>
+<b class="nc">&nbsp;      return (JsonArray) this;</b>
+&nbsp;    }
+<b class="nc">&nbsp;    throw new IllegalStateException(&quot;Not a JSON Array: &quot; + this);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link JsonPrimitive}. If this element is of some
+&nbsp;   * other type, an {@link IllegalStateException} will result. Hence it is best to use this method
+&nbsp;   * after ensuring that this element is of the desired type by calling {@link #isJsonPrimitive()}
+&nbsp;   * first.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link JsonPrimitive}.
+&nbsp;   * @throws IllegalStateException if this element is of another type.
+&nbsp;   */
+&nbsp;  public JsonPrimitive getAsJsonPrimitive() {
+<b class="nc">&nbsp;    if (isJsonPrimitive()) {</b>
+<b class="nc">&nbsp;      return (JsonPrimitive) this;</b>
+&nbsp;    }
+<b class="nc">&nbsp;    throw new IllegalStateException(&quot;Not a JSON Primitive: &quot; + this);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link JsonNull}. If this element is of some other
+&nbsp;   * type, an {@link IllegalStateException} will result. Hence it is best to use this method after
+&nbsp;   * ensuring that this element is of the desired type by calling {@link #isJsonNull()} first.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link JsonNull}.
+&nbsp;   * @throws IllegalStateException if this element is of another type.
+&nbsp;   * @since 1.2
+&nbsp;   */
+&nbsp;  @CanIgnoreReturnValue // When this method is used only to verify that the value is JsonNull
+&nbsp;  public JsonNull getAsJsonNull() {
+<b class="nc">&nbsp;    if (isJsonNull()) {</b>
+<b class="nc">&nbsp;      return (JsonNull) this;</b>
+&nbsp;    }
+<b class="nc">&nbsp;    throw new IllegalStateException(&quot;Not a JSON Null: &quot; + this);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a boolean value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive boolean value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public boolean getAsBoolean() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link Number}.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link Number}.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}, or cannot be converted to a number.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public Number getAsNumber() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a string value.
+&nbsp;   *
+&nbsp;   * @return this element as a string value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public String getAsString() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a primitive double value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive double value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if the value contained is not a valid double.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public double getAsDouble() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a primitive float value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive float value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if the value contained is not a valid float.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public float getAsFloat() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a primitive long value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive long value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if the value contained is not a valid long.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public long getAsLong() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a primitive integer value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive integer value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if the value contained is not a valid integer.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public int getAsInt() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a primitive byte value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive byte value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if the value contained is not a valid byte.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   * @since 1.3
+&nbsp;   */
+&nbsp;  public byte getAsByte() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get the first character of the string value of this element.
+&nbsp;   *
+&nbsp;   * @return the first character of the string value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}, or if its string value is empty.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   * @since 1.3
+&nbsp;   * @deprecated This method is misleading, as it does not get this element as a char but rather as
+&nbsp;   *     a string&#39;s first character.
+&nbsp;   */
+&nbsp;  @Deprecated
+&nbsp;  public char getAsCharacter() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link BigDecimal}.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link BigDecimal}.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if this element is not a valid {@link BigDecimal}.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   * @since 1.2
+&nbsp;   */
+&nbsp;  public BigDecimal getAsBigDecimal() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a {@link BigInteger}.
+&nbsp;   *
+&nbsp;   * @return this element as a {@link BigInteger}.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if this element is not a valid {@link BigInteger}.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   * @since 1.2
+&nbsp;   */
+&nbsp;  public BigInteger getAsBigInteger() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Convenience method to get this element as a primitive short value.
+&nbsp;   *
+&nbsp;   * @return this element as a primitive short value.
+&nbsp;   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+&nbsp;   *     JsonArray}.
+&nbsp;   * @throws NumberFormatException if the value contained is not a valid short.
+&nbsp;   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+&nbsp;   *     more than a single element.
+&nbsp;   */
+&nbsp;  public short getAsShort() {
+<b class="nc">&nbsp;    throw new UnsupportedOperationException(getClass().getSimpleName());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Converts this element to a JSON string.
+&nbsp;   *
+&nbsp;   * &lt;p&gt;For example:
+&nbsp;   *
+&nbsp;   * &lt;pre&gt;
+&nbsp;   * JsonObject object = new JsonObject();
+&nbsp;   * object.add(&quot;a&quot;, JsonNull.INSTANCE);
+&nbsp;   * JsonArray array = new JsonArray();
+&nbsp;   * array.add(1);
+&nbsp;   * object.add(&quot;b&quot;, array);
+&nbsp;   *
+&nbsp;   * String json = object.toString();
+&nbsp;   * // json: {&quot;a&quot;:null,&quot;b&quot;:[1]}
+&nbsp;   * &lt;/pre&gt;
+&nbsp;   *
+&nbsp;   * If this element or any nested elements contain {@link Double#NaN NaN} or {@link
+&nbsp;   * Double#isInfinite() Infinity} that value is written to JSON, even though the JSON specification
+&nbsp;   * does not permit these values.
+&nbsp;   *
+&nbsp;   * &lt;p&gt;To customize formatting or to directly write to an {@link Appendable} instead of creating an
+&nbsp;   * intermediate {@code String} first, use {@link Gson#toJson(JsonElement, Appendable)
+&nbsp;   * Gson.toJson(JsonElement, ...)}.
+&nbsp;   *
+&nbsp;   * &lt;p&gt;To get the contained String value (without enclosing {@code &quot;} and without escaping), use
+&nbsp;   * {@link #getAsString()} instead:
+&nbsp;   *
+&nbsp;   * &lt;pre&gt;
+&nbsp;   * JsonPrimitive jsonPrimitive = new JsonPrimitive(&quot;with \&quot; quote&quot;);
+&nbsp;   * String json = jsonPrimitive.toString();
+&nbsp;   * // json: &quot;with \&quot; quote&quot;
+&nbsp;   * String value = jsonPrimitive.getAsString();
+&nbsp;   * // value: with &quot; quote
+&nbsp;   * &lt;/pre&gt;
+&nbsp;   */
+&nbsp;  @Override
+&nbsp;  public String toString() {
+&nbsp;    try {
+<b class="nc">&nbsp;      StringBuilder stringBuilder = new StringBuilder();</b>
+<b class="nc">&nbsp;      JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(stringBuilder));</b>
+&nbsp;      // Make writer lenient because toString() must not fail, even if for example JsonPrimitive
+&nbsp;      // contains NaN
+<b class="nc">&nbsp;      jsonWriter.setStrictness(Strictness.LENIENT);</b>
+<b class="nc">&nbsp;      Streams.write(this, jsonWriter);</b>
+<b class="nc">&nbsp;      return stringBuilder.toString();</b>
+&nbsp;    } catch (IOException e) {
+<b class="nc">&nbsp;      throw new AssertionError(e);</b>
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

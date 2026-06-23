@@ -1,0 +1,1862 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TextInputControl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.control</a>
+</div>
+
+<h1>Coverage Summary for Class: TextInputControl (javafx.scene.control)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TextInputControl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/93)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/266)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/421)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.control;
+&nbsp;
+&nbsp;import com.sun.javafx.scene.control.FormatterAccessor;
+&nbsp;import javafx.beans.DefaultProperty;
+&nbsp;import javafx.beans.InvalidationListener;
+&nbsp;import javafx.beans.Observable;
+&nbsp;import javafx.beans.binding.IntegerBinding;
+&nbsp;import javafx.beans.property.BooleanProperty;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;import javafx.beans.property.ObjectPropertyBase;
+&nbsp;import javafx.beans.property.ReadOnlyBooleanProperty;
+&nbsp;import javafx.beans.property.ReadOnlyBooleanWrapper;
+&nbsp;import javafx.beans.property.ReadOnlyIntegerProperty;
+&nbsp;import javafx.beans.property.ReadOnlyIntegerWrapper;
+&nbsp;import javafx.beans.property.ReadOnlyObjectProperty;
+&nbsp;import javafx.beans.property.ReadOnlyObjectWrapper;
+&nbsp;import javafx.beans.property.ReadOnlyStringProperty;
+&nbsp;import javafx.beans.property.ReadOnlyStringWrapper;
+&nbsp;import javafx.beans.property.SimpleBooleanProperty;
+&nbsp;import javafx.beans.property.SimpleStringProperty;
+&nbsp;import javafx.beans.property.StringProperty;
+&nbsp;import javafx.beans.value.ChangeListener;
+&nbsp;import javafx.beans.value.ObservableStringValue;
+&nbsp;import javafx.beans.value.ObservableValue;
+&nbsp;import javafx.beans.value.WritableValue;
+&nbsp;import javafx.css.CssMetaData;
+&nbsp;import javafx.css.FontCssMetaData;
+&nbsp;import javafx.css.PseudoClass;
+&nbsp;import javafx.css.StyleOrigin;
+&nbsp;import javafx.css.Styleable;
+&nbsp;import javafx.css.StyleableObjectProperty;
+&nbsp;import javafx.css.StyleableProperty;
+&nbsp;import javafx.scene.AccessibleAction;
+&nbsp;import javafx.scene.AccessibleAttribute;
+&nbsp;import javafx.scene.input.Clipboard;
+&nbsp;import javafx.scene.input.ClipboardContent;
+&nbsp;import javafx.scene.text.Font;
+&nbsp;
+&nbsp;import java.text.BreakIterator;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.sun.javafx.util.Utils;
+&nbsp;import com.sun.javafx.binding.ExpressionHelper;
+&nbsp;import com.sun.javafx.scene.NodeHelper;
+&nbsp;import javafx.util.StringConverter;
+&nbsp;
+&nbsp;/**
+&nbsp; * Abstract base class for text input controls.
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;@DefaultProperty(&quot;text&quot;)
+&nbsp;public abstract class TextInputControl extends Control {
+&nbsp;    /**
+&nbsp;     * Interface representing a text input&#39;s content. Since it is an ObservableStringValue,
+&nbsp;     * you can also bind to, or observe the content.
+&nbsp;     * @since JavaFX 2.0
+&nbsp;     */
+&nbsp;    protected interface Content extends ObservableStringValue {
+&nbsp;        /**
+&nbsp;         * Retrieves a subset of the content.
+&nbsp;         *
+&nbsp;         * @param start the start
+&nbsp;         * @param end the end
+&nbsp;         * @return a subset of the content
+&nbsp;         */
+&nbsp;        public String get(int start, int end);
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Inserts a sequence of characters into the content.
+&nbsp;         *
+&nbsp;         * @param index the index
+&nbsp;         * @param text the text string
+&nbsp;         * @param notifyListeners the notify listener flag
+&nbsp;         * @since JavaFX 2.1
+&nbsp;         */
+&nbsp;        public void insert(int index, String text, boolean notifyListeners);
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Removes a sequence of characters from the content.
+&nbsp;         *
+&nbsp;         * @param start the start
+&nbsp;         * @param end the end
+&nbsp;         * @param notifyListeners the notify listener flag
+&nbsp;         * @since JavaFX 2.1
+&nbsp;         */
+&nbsp;        public void delete(int start, int end, boolean notifyListeners);
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Returns the number of characters represented by the content.
+&nbsp;         * @return the number of characters
+&nbsp;         */
+&nbsp;        public int length();
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Package private base implementation of Content.
+&nbsp;     */
+&nbsp;    abstract static class ContentBase implements Content {
+&nbsp;        private ExpressionHelper&lt;String&gt; helper;
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void addListener(ChangeListener&lt;? super String&gt; changeListener) {
+&nbsp;            helper = ExpressionHelper.addListener(helper, this, changeListener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void removeListener(ChangeListener&lt;? super String&gt; changeListener) {
+&nbsp;            helper = ExpressionHelper.removeListener(helper, changeListener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void addListener(InvalidationListener listener) {
+&nbsp;            helper = ExpressionHelper.addListener(helper, this, listener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void removeListener(InvalidationListener listener) {
+&nbsp;            helper = ExpressionHelper.removeListener(helper, listener);
+&nbsp;        }
+&nbsp;
+&nbsp;        protected final void fireValueChangedEvent() {
+&nbsp;            ExpressionHelper.fireValueChangedEvent(helper);
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean blockSelectedTextUpdate;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Constructors                                                            *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new TextInputControl. The content is an immutable property and
+&nbsp;     * must be specified (as non-null) at the time of construction.
+&nbsp;     *
+&nbsp;     * @param content a non-null implementation of Content.
+&nbsp;     */
+<b class="nc">&nbsp;    protected TextInputControl(final Content content) {</b>
+<b class="nc">&nbsp;        this.content = content;</b>
+&nbsp;
+&nbsp;        // Add a listener so that whenever the Content is changed, we notify
+&nbsp;        // listeners of the text property that it is invalid.
+<b class="nc">&nbsp;        content.addListener(observable -&gt; {</b>
+<b class="nc">&nbsp;            if (content.length() &gt; 0) {</b>
+<b class="nc">&nbsp;                text.textIsNull = false;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            text.controlContentHasChanged();</b>
+&nbsp;        });
+&nbsp;
+&nbsp;        // Bind the length to be based on the length of the text property
+<b class="nc">&nbsp;        length.bind(new IntegerBinding() {</b>
+&nbsp;            { bind(text); }
+&nbsp;            @Override protected int computeValue() {
+&nbsp;                String txt = text.get();
+&nbsp;                return txt == null ? 0 : txt.length();
+&nbsp;            }
+&nbsp;        });
+&nbsp;
+&nbsp;        // Bind the selected text to be based on the selection and text properties
+<b class="nc">&nbsp;        selection.addListener((ob, o, n) -&gt; updateSelectedText());</b>
+<b class="nc">&nbsp;        text.addListener((ob, o, n) -&gt; updateSelectedText());</b>
+&nbsp;
+<b class="nc">&nbsp;        focusedProperty().addListener((ob, o, n) -&gt; {</b>
+<b class="nc">&nbsp;            if (n) {</b>
+<b class="nc">&nbsp;                if (getTextFormatter() != null) {</b>
+<b class="nc">&nbsp;                    updateText(getTextFormatter());</b>
+&nbsp;                }
+&nbsp;            } else {
+<b class="nc">&nbsp;                commitValue();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;
+&nbsp;        // Specify the default style class
+<b class="nc">&nbsp;        getStyleClass().add(&quot;text-input&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateSelectedText() {
+<b class="nc">&nbsp;        if (!blockSelectedTextUpdate) {</b>
+<b class="nc">&nbsp;            String txt = text.get();</b>
+<b class="nc">&nbsp;            IndexRange sel = selection.get();</b>
+<b class="nc">&nbsp;            if (txt == null || sel == null) {</b>
+<b class="nc">&nbsp;                selectedText.set(&quot;&quot;);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                int start = sel.getStart();</b>
+<b class="nc">&nbsp;                int end = sel.getEnd();</b>
+<b class="nc">&nbsp;                int length = txt.length();</b>
+<b class="nc">&nbsp;                if (end &gt; start + length) {</b>
+<b class="nc">&nbsp;                    end = length;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                if (start &gt; length - 1) {</b>
+<b class="nc">&nbsp;                    start = end = 0;</b>
+&nbsp;                }
+<b class="nc">&nbsp;                selectedText.set(txt.substring(start, end));</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Properties                                                              *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The default font to use for text in the TextInputControl. If the TextInputControl&#39;s text is
+&nbsp;     * rich text then this font may or may not be used depending on the font
+&nbsp;     * information embedded in the rich text, but in any case where a default
+&nbsp;     * font is required, this font will be used.
+&nbsp;     * @return the font property
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;Font&gt; fontProperty() {
+<b class="nc">&nbsp;        if (font == null) {</b>
+<b class="nc">&nbsp;            font = new StyleableObjectProperty&lt;Font&gt;(Font.getDefault()) {</b>
+&nbsp;
+&nbsp;
+&nbsp;                private boolean fontSetByCss = false;
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public void applyStyle(StyleOrigin newOrigin, Font value) {
+&nbsp;
+&nbsp;                    //
+&nbsp;                    // RT-20727 - if CSS is setting the font, then make sure invalidate doesn&#39;t call NodeHelper.reapplyCSS
+&nbsp;                    //
+&nbsp;                    try {
+&nbsp;                        // super.applyStyle calls set which might throw if value is bound.
+&nbsp;                        // Have to make sure fontSetByCss is reset.
+&nbsp;                        fontSetByCss = true;
+&nbsp;                        super.applyStyle(newOrigin, value);
+&nbsp;                    } catch(Exception e) {
+&nbsp;                        throw e;
+&nbsp;                    } finally {
+&nbsp;                        fontSetByCss = false;
+&nbsp;                    }
+&nbsp;
+&nbsp;                }
+&nbsp;
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public void set(Font value) {
+&nbsp;                    final Font oldValue = get();
+&nbsp;                    if (value == null ? oldValue == null : value.equals(oldValue)) {
+&nbsp;                        return;
+&nbsp;                    }
+&nbsp;                    super.set(value);
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    // RT-20727 - if font is changed by calling setFont, then
+&nbsp;                    // css might need to be reapplied since font size affects
+&nbsp;                    // calculated values for styles with relative values
+&nbsp;                    if(fontSetByCss == false) {
+&nbsp;                        NodeHelper.reapplyCSS(TextInputControl.this);
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;TextInputControl,Font&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.FONT;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return TextInputControl.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;font&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return font;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ObjectProperty&lt;Font&gt; font;
+<b class="nc">&nbsp;    public final void setFont(Font value) { fontProperty().setValue(value); }</b>
+<b class="nc">&nbsp;    public final Font getFont() { return font == null ? Font.getDefault() : font.getValue(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The prompt text to display in the {@code TextInputControl}. If set to null or an empty string, no
+&nbsp;     * prompt text is displayed.
+&nbsp;     *
+&nbsp;     * @defaultValue An empty String
+&nbsp;     * @since JavaFX 2.2
+&nbsp;     */
+<b class="nc">&nbsp;    private StringProperty promptText = new SimpleStringProperty(this, &quot;promptText&quot;, &quot;&quot;) {</b>
+&nbsp;        @Override protected void invalidated() {
+&nbsp;            // Strip out newlines
+&nbsp;            String txt = get();
+&nbsp;            if (txt != null &amp;&amp; txt.contains(&quot;\n&quot;)) {
+&nbsp;                txt = txt.replace(&quot;\n&quot;, &quot;&quot;);
+&nbsp;                set(txt);
+&nbsp;            }
+&nbsp;        }
+&nbsp;    };
+<b class="nc">&nbsp;    public final StringProperty promptTextProperty() { return promptText; }</b>
+<b class="nc">&nbsp;    public final String getPromptText() { return promptText.get(); }</b>
+<b class="nc">&nbsp;    public final void setPromptText(String value) { promptText.set(value); }</b>
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The property contains currently attached {@link TextFormatter}.
+&nbsp;     * Since the value is part of the {@code Formatter}, changing the TextFormatter will update the text based on the new textFormatter.
+&nbsp;     *
+&nbsp;     * @defaultValue null
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+<b class="nc">&nbsp;    private final ObjectProperty&lt;TextFormatter&lt;?&gt;&gt; textFormatter = new ObjectPropertyBase&lt;&gt;() {</b>
+&nbsp;
+&nbsp;        private TextFormatter&lt;?&gt; oldFormatter = null;
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public Object getBean() {
+&nbsp;            return TextInputControl.this;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public String getName() {
+&nbsp;            return &quot;textFormatter&quot;;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        protected void invalidated() {
+&nbsp;            final TextFormatter&lt;?&gt; formatter = get();
+&nbsp;            try {
+&nbsp;                if (formatter != null) {
+&nbsp;                    try {
+&nbsp;                        formatter.bindToControl(f -&gt; updateText(f));
+&nbsp;                    } catch (IllegalStateException e) {
+&nbsp;                        if (isBound()) {
+&nbsp;                            unbind();
+&nbsp;                        }
+&nbsp;                        set(null);
+&nbsp;                        throw e;
+&nbsp;                    }
+&nbsp;                    if (!isFocused()) {
+&nbsp;                        updateText(get());
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                if (oldFormatter != null) {
+&nbsp;                    oldFormatter.unbindFromControl();
+&nbsp;                }
+&nbsp;            } finally {
+&nbsp;                oldFormatter = formatter;
+&nbsp;            }
+&nbsp;        }
+&nbsp;    };
+<b class="nc">&nbsp;    public final ObjectProperty&lt;TextFormatter&lt;?&gt;&gt; textFormatterProperty() { return textFormatter; }</b>
+<b class="nc">&nbsp;    public final TextFormatter&lt;?&gt; getTextFormatter() { return textFormatter.get(); }</b>
+<b class="nc">&nbsp;    public final void setTextFormatter(TextFormatter&lt;?&gt; value) { textFormatter.set(value); }</b>
+&nbsp;
+&nbsp;    private final Content content;
+&nbsp;    /**
+&nbsp;     * Returns the text input&#39;s content model.
+&nbsp;     * @return the text input&#39;s content model
+&nbsp;     */
+&nbsp;    protected final Content getContent() {
+<b class="nc">&nbsp;        return content;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The textual content of this TextInputControl.
+&nbsp;     */
+<b class="nc">&nbsp;    private TextProperty text = new TextProperty();</b>
+<b class="nc">&nbsp;    public final String getText() { return text.get(); }</b>
+<b class="nc">&nbsp;    public final void setText(String value) { text.set(value); }</b>
+<b class="nc">&nbsp;    public final StringProperty textProperty() { return text; }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The number of characters in the text input.
+&nbsp;     */
+<b class="nc">&nbsp;    private ReadOnlyIntegerWrapper length = new ReadOnlyIntegerWrapper(this, &quot;length&quot;);</b>
+<b class="nc">&nbsp;    public final int getLength() { return length.get(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyIntegerProperty lengthProperty() { return length.getReadOnlyProperty(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Indicates whether this TextInputControl can be edited by the user.
+&nbsp;     */
+<b class="nc">&nbsp;    private BooleanProperty editable = new SimpleBooleanProperty(this, &quot;editable&quot;, true) {</b>
+&nbsp;        @Override protected void invalidated() {
+&nbsp;            pseudoClassStateChanged(PSEUDO_CLASS_READONLY, ! get());
+&nbsp;        }
+&nbsp;    };
+<b class="nc">&nbsp;    public final boolean isEditable() { return editable.getValue(); }</b>
+<b class="nc">&nbsp;    public final void setEditable(boolean value) { editable.setValue(value); }</b>
+<b class="nc">&nbsp;    public final BooleanProperty editableProperty() { return editable; }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The current selection.
+&nbsp;     */
+<b class="nc">&nbsp;    private ReadOnlyObjectWrapper&lt;IndexRange&gt; selection = new ReadOnlyObjectWrapper&lt;&gt;(this, &quot;selection&quot;, new IndexRange(0, 0));</b>
+<b class="nc">&nbsp;    public final IndexRange getSelection() { return selection.getValue(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyObjectProperty&lt;IndexRange&gt; selectionProperty() { return selection.getReadOnlyProperty(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the characters in the TextInputControl which are selected
+&nbsp;     */
+<b class="nc">&nbsp;    private ReadOnlyStringWrapper selectedText = new ReadOnlyStringWrapper(this, &quot;selectedText&quot;);</b>
+<b class="nc">&nbsp;    public final String getSelectedText() { return selectedText.get(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyStringProperty selectedTextProperty() { return selectedText.getReadOnlyProperty(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The &lt;code&gt;anchor&lt;/code&gt; of the text selection.
+&nbsp;     * The &lt;code&gt;anchor&lt;/code&gt; and &lt;code&gt;caretPosition&lt;/code&gt; make up the selection
+&nbsp;     * range. Selection must always be specified in terms of begin &amp;lt;= end, but
+&nbsp;     * &lt;code&gt;anchor&lt;/code&gt; may be less than, equal to, or greater than the
+&nbsp;     * &lt;code&gt;caretPosition&lt;/code&gt;. Depending on how the user selects text,
+&nbsp;     * the anchor might represent the lower or upper bound of the selection.
+&nbsp;     */
+<b class="nc">&nbsp;    private ReadOnlyIntegerWrapper anchor = new ReadOnlyIntegerWrapper(this, &quot;anchor&quot;, 0);</b>
+<b class="nc">&nbsp;    public final int getAnchor() { return anchor.get(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyIntegerProperty anchorProperty() { return anchor.getReadOnlyProperty(); }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The current position of the caret within the text.
+&nbsp;     * The &lt;code&gt;anchor&lt;/code&gt; and &lt;code&gt;caretPosition&lt;/code&gt; make up the selection
+&nbsp;     * range. Selection must always be specified in terms of begin &amp;lt;= end, but
+&nbsp;     * &lt;code&gt;anchor&lt;/code&gt; may be less than, equal to, or greater than the
+&nbsp;     * &lt;code&gt;caretPosition&lt;/code&gt;. Depending on how the user selects text,
+&nbsp;     * the caretPosition might represent the lower or upper bound of the selection.
+&nbsp;     */
+<b class="nc">&nbsp;    private ReadOnlyIntegerWrapper caretPosition = new ReadOnlyIntegerWrapper(this, &quot;caretPosition&quot;, 0);</b>
+<b class="nc">&nbsp;    public final int getCaretPosition() { return caretPosition.get(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyIntegerProperty caretPositionProperty() { return caretPosition.getReadOnlyProperty(); }</b>
+&nbsp;
+<b class="nc">&nbsp;    private UndoRedoChange undoChangeHead = new UndoRedoChange();</b>
+<b class="nc">&nbsp;    private UndoRedoChange undoChange = undoChangeHead;</b>
+<b class="nc">&nbsp;    private boolean createNewUndoRecord = false;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The property describes if it&#39;s currently possible to undo the latest change of the content that was done.
+&nbsp;     * @defaultValue false
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+<b class="nc">&nbsp;    private final ReadOnlyBooleanWrapper undoable = new ReadOnlyBooleanWrapper(this, &quot;undoable&quot;, false);</b>
+<b class="nc">&nbsp;    public final boolean isUndoable() { return undoable.get(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyBooleanProperty undoableProperty() { return undoable.getReadOnlyProperty(); }</b>
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The property describes if it&#39;s currently possible to redo the latest change of the content that was undone.
+&nbsp;     * @defaultValue false
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+<b class="nc">&nbsp;    private final ReadOnlyBooleanWrapper redoable = new ReadOnlyBooleanWrapper(this, &quot;redoable&quot;, false);</b>
+<b class="nc">&nbsp;    public final boolean isRedoable() { return redoable.get(); }</b>
+<b class="nc">&nbsp;    public final ReadOnlyBooleanProperty redoableProperty() { return redoable.getReadOnlyProperty(); }</b>
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Methods                                                                 *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a subset of the text input&#39;s content.
+&nbsp;     *
+&nbsp;     * @param start must be a value between 0 and end - 1.
+&nbsp;     * @param end must be less than or equal to the length
+&nbsp;     * @return the subset of the text input&#39;s content
+&nbsp;     */
+&nbsp;    public String getText(int start, int end) {
+<b class="nc">&nbsp;        if (start &gt; end) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;The start must be &lt;= the end&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (start &lt; 0</b>
+<b class="nc">&nbsp;            || end &gt; getLength()) {</b>
+<b class="nc">&nbsp;            throw new IndexOutOfBoundsException();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return getContent().get(start, end);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Appends a sequence of characters to the content.
+&nbsp;     *
+&nbsp;     * @param text a non null String
+&nbsp;     */
+&nbsp;    public void appendText(String text) {
+<b class="nc">&nbsp;        insertText(getLength(), text);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Inserts a sequence of characters into the content.
+&nbsp;     *
+&nbsp;     * @param index The location to insert the text.
+&nbsp;     * @param text The text to insert.
+&nbsp;     */
+&nbsp;    public void insertText(int index, String text) {
+<b class="nc">&nbsp;        replaceText(index, index, text);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes a range of characters from the content.
+&nbsp;     *
+&nbsp;     * @param range The range of text to delete. The range object must not be null.
+&nbsp;     *
+&nbsp;     * @see #deleteText(int, int)
+&nbsp;     */
+&nbsp;    public void deleteText(IndexRange range) {
+<b class="nc">&nbsp;        replaceText(range, &quot;&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes a range of characters from the content.
+&nbsp;     *
+&nbsp;     * @param start The starting index in the range, inclusive. This must be &amp;gt;= 0 and &amp;lt; the end.
+&nbsp;     * @param end The ending index in the range, exclusive. This is one-past the last character to
+&nbsp;     *            delete (consistent with the String manipulation methods). This must be &amp;gt; the start,
+&nbsp;     *            and &amp;lt;= the length of the text.
+&nbsp;     */
+&nbsp;    public void deleteText(int start, int end) {
+<b class="nc">&nbsp;        replaceText(start, end, &quot;&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Replaces a range of characters with the given text.
+&nbsp;     *
+&nbsp;     * @param range The range of text to replace. The range object must not be null.
+&nbsp;     * @param text The text that is to replace the range. This must not be null.
+&nbsp;     *
+&nbsp;     * @see #replaceText(int, int, String)
+&nbsp;     */
+&nbsp;    public void replaceText(IndexRange range, String text) {
+<b class="nc">&nbsp;        final int start = range.getStart();</b>
+<b class="nc">&nbsp;        final int end = start + range.getLength();</b>
+<b class="nc">&nbsp;        replaceText(start, end, text);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Replaces a range of characters with the given text.
+&nbsp;     *
+&nbsp;     * @param start The starting index in the range, inclusive. This must be &amp;gt;= 0 and &amp;lt; the end.
+&nbsp;     * @param end The ending index in the range, exclusive. This is one-past the last character to
+&nbsp;     *            delete (consistent with the String manipulation methods). This must be &amp;gt; the start,
+&nbsp;     *            and &amp;lt;= the length of the text.
+&nbsp;     * @param text The text that is to replace the range. This must not be null.
+&nbsp;     */
+&nbsp;    public void replaceText(final int start, final int end, final String text) {
+<b class="nc">&nbsp;        if (start &gt; end) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (text == null) {</b>
+<b class="nc">&nbsp;            throw new NullPointerException();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (start &lt; 0</b>
+<b class="nc">&nbsp;            || end &gt; getLength()) {</b>
+<b class="nc">&nbsp;            throw new IndexOutOfBoundsException();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (!this.text.isBound()) {</b>
+<b class="nc">&nbsp;            final int oldLength = getLength();</b>
+<b class="nc">&nbsp;            TextFormatter&lt;?&gt; formatter = getTextFormatter();</b>
+&nbsp;            TextFormatter.Change change;
+<b class="nc">&nbsp;            if (formatter != null &amp;&amp; formatter.getFilter() != null) {</b>
+<b class="nc">&nbsp;                change = new TextFormatter.Change(this, getFormatterAccessor(), start, end, text);</b>
+<b class="nc">&nbsp;                change = formatter.getFilter().apply(change);</b>
+<b class="nc">&nbsp;                if (change == null) {</b>
+&nbsp;                    return;
+&nbsp;                }
+&nbsp;            } else {
+<b class="nc">&nbsp;                change = new TextFormatter.Change(this, getFormatterAccessor(), start, end, filterInput(text));</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Update the content
+<b class="nc">&nbsp;            updateContent(change, oldLength == 0);</b>
+&nbsp;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateContent(TextFormatter.Change change, boolean forceNewUndoRecord) {
+<b class="nc">&nbsp;        final boolean nonEmptySelection = getSelection().getLength() &gt; 0;</b>
+<b class="nc">&nbsp;        String oldText = getText(change.start, change.end);</b>
+<b class="nc">&nbsp;        int adjustmentAmount = replaceText(change.start, change.end, change.text, change.getAnchor(), change.getCaretPosition());</b>
+<b class="nc">&nbsp;        String newText = getText(change.start, change.start + change.text.length() - adjustmentAmount);</b>
+<b class="nc">&nbsp;        if (newText.equals(oldText)) {</b>
+&nbsp;            // Undo record not required as there is no change in the text.
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        /*
+&nbsp;         * A new undo record is created, if
+&nbsp;         * 1. createNewUndoRecord is true, currently it is set to true for paste operation
+&nbsp;         * 2. Text is selected and a character is typed
+&nbsp;         * 3. This is the first operation to be added to undo record
+&nbsp;         * 4. forceNewUndoRecord is true, currently it is set to true if there is no text present
+&nbsp;         * 5. Space character is typed
+&nbsp;         * 6. 2500 milliseconds are elapsed since the undo record was created
+&nbsp;         * 7. Cursor position is changed and a character is typed
+&nbsp;         * 8. A range of text is replaced programmatically using replaceText()
+&nbsp;         * Otherwise, the last undo record is updated or discarded.
+&nbsp;         */
+&nbsp;
+<b class="nc">&nbsp;        int endOfUndoChange = undoChange == undoChangeHead ? -1 : undoChange.start + undoChange.newText.length();</b>
+<b class="nc">&nbsp;        boolean isNewSpaceChar = false;</b>
+<b class="nc">&nbsp;        if (newText.equals(&quot; &quot;)) {</b>
+<b class="nc">&nbsp;            if (!UndoRedoChange.isSpaceCharSequence()) {</b>
+<b class="nc">&nbsp;                isNewSpaceChar = true;</b>
+<b class="nc">&nbsp;                UndoRedoChange.setSpaceCharSequence(true);</b>
+&nbsp;            }
+&nbsp;        } else {
+<b class="nc">&nbsp;            UndoRedoChange.setSpaceCharSequence(false);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (createNewUndoRecord || nonEmptySelection || endOfUndoChange == -1 || forceNewUndoRecord ||</b>
+<b class="nc">&nbsp;                isNewSpaceChar || UndoRedoChange.hasChangeDurationElapsed() ||</b>
+&nbsp;                (endOfUndoChange != change.start &amp;&amp; endOfUndoChange != change.end) || change.end - change.start &gt; 0) {
+<b class="nc">&nbsp;            undoChange = undoChange.add(change.start, oldText, newText);</b>
+<b class="nc">&nbsp;        } else if (change.start != change.end &amp;&amp; change.text.isEmpty()) {</b>
+&nbsp;            // I know I am deleting, and am located at the end of the range of the current undo record
+<b class="nc">&nbsp;            if (undoChange.newText.length() &gt; 0) {</b>
+<b class="nc">&nbsp;                undoChange.newText = undoChange.newText.substring(0, change.start - undoChange.start);</b>
+<b class="nc">&nbsp;                if (undoChange.newText.isEmpty()) {</b>
+&nbsp;                    // throw away this undo change record
+<b class="nc">&nbsp;                    undoChange = undoChange.discard();</b>
+&nbsp;                }
+&nbsp;            } else {
+<b class="nc">&nbsp;                if (change.start == endOfUndoChange) {</b>
+<b class="nc">&nbsp;                    undoChange.oldText += oldText;</b>
+&nbsp;                } else { // end == endOfUndoChange
+<b class="nc">&nbsp;                    undoChange.oldText = oldText + undoChange.oldText;</b>
+<b class="nc">&nbsp;                    undoChange.start--;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } else {
+&nbsp;            // I know I am adding, and am located at the end of the range of the current undo record
+<b class="nc">&nbsp;            undoChange.newText += newText;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        updateUndoRedoState();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Transfers the currently selected range in the text to the clipboard,
+&nbsp;     * removing the current selection.
+&nbsp;     */
+&nbsp;    public void cut() {
+<b class="nc">&nbsp;        copy();</b>
+<b class="nc">&nbsp;        IndexRange selection = getSelection();</b>
+<b class="nc">&nbsp;        deleteText(selection.getStart(), selection.getEnd());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Transfers the currently selected range in the text to the clipboard,
+&nbsp;     * leaving the current selection.
+&nbsp;     */
+&nbsp;     public void copy() {
+<b class="nc">&nbsp;        final String selectedText = getSelectedText();</b>
+<b class="nc">&nbsp;        if (selectedText.length() &gt; 0) {</b>
+<b class="nc">&nbsp;            final ClipboardContent content = new ClipboardContent();</b>
+<b class="nc">&nbsp;            content.putString(selectedText);</b>
+<b class="nc">&nbsp;            Clipboard.getSystemClipboard().setContent(content);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Transfers the contents in the clipboard into this text,
+&nbsp;     * replacing the current selection.  If there is no selection, the contents
+&nbsp;     * in the clipboard is inserted at the current caret position.
+&nbsp;     */
+&nbsp;    public void paste() {
+<b class="nc">&nbsp;        final Clipboard clipboard = Clipboard.getSystemClipboard();</b>
+<b class="nc">&nbsp;        if (clipboard.hasString()) {</b>
+<b class="nc">&nbsp;            final String text = clipboard.getString();</b>
+<b class="nc">&nbsp;            if (text != null) {</b>
+<b class="nc">&nbsp;                createNewUndoRecord = true;</b>
+&nbsp;                try {
+<b class="nc">&nbsp;                    replaceSelection(text);</b>
+&nbsp;                } finally {
+<b class="nc">&nbsp;                    createNewUndoRecord = false;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the selection backward one char in the text. This may have the
+&nbsp;     * effect of deselecting, depending on the location of the anchor relative
+&nbsp;     * to the caretPosition. This function effectively just moves the caretPosition.
+&nbsp;     */
+&nbsp;    public void selectBackward() {
+<b class="nc">&nbsp;        if (getCaretPosition() &gt; 0 &amp;&amp; getLength() &gt; 0) {</b>
+&nbsp;            // because the anchor stays put, by moving the caret to the left
+&nbsp;            // we ensure that a selection is registered and that it is correct
+<b class="nc">&nbsp;            if (charIterator == null) {</b>
+<b class="nc">&nbsp;                charIterator = BreakIterator.getCharacterInstance();</b>
+&nbsp;            }
+<b class="nc">&nbsp;            charIterator.setText(getText());</b>
+<b class="nc">&nbsp;            selectRange(getAnchor(), charIterator.preceding(getCaretPosition()));</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the selection forward one char in the text. This may have the
+&nbsp;     * effect of deselecting, depending on the location of the anchor relative
+&nbsp;     * to the caretPosition. This function effectively just moves the caret forward.
+&nbsp;     */
+&nbsp;    public void selectForward() {
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        if (textLength &gt; 0 &amp;&amp; getCaretPosition() &lt; textLength) {</b>
+<b class="nc">&nbsp;            if (charIterator == null) {</b>
+<b class="nc">&nbsp;                charIterator = BreakIterator.getCharacterInstance();</b>
+&nbsp;            }
+<b class="nc">&nbsp;            charIterator.setText(getText());</b>
+<b class="nc">&nbsp;            selectRange(getAnchor(), charIterator.following(getCaretPosition()));</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The break iterator instances for navigation over words and complex characters.
+&nbsp;     */
+&nbsp;    private BreakIterator charIterator;
+&nbsp;    private BreakIterator wordIterator;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to the beginning of previous word. This function
+&nbsp;     * also has the effect of clearing the selection.
+&nbsp;     */
+&nbsp;    public void previousWord() {
+<b class="nc">&nbsp;        previousWord(false);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to the beginning of next word. This function
+&nbsp;     * also has the effect of clearing the selection.
+&nbsp;     */
+&nbsp;    public void nextWord() {
+<b class="nc">&nbsp;        nextWord(false);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to the end of the next word. This function
+&nbsp;     * also has the effect of clearing the selection.
+&nbsp;     */
+&nbsp;    public void endOfNextWord() {
+<b class="nc">&nbsp;        endOfNextWord(false);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to the beginning of previous word. This does not cause
+&nbsp;     * the selection to be cleared. Rather, the anchor stays put and the caretPosition is
+&nbsp;     * moved to the beginning of previous word.
+&nbsp;     */
+&nbsp;    public void selectPreviousWord() {
+<b class="nc">&nbsp;        previousWord(true);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to the beginning of next word. This does not cause
+&nbsp;     * the selection to be cleared. Rather, the anchor stays put and the caretPosition is
+&nbsp;     * moved to the beginning of next word.
+&nbsp;     */
+&nbsp;    public void selectNextWord() {
+<b class="nc">&nbsp;        nextWord(true);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to the end of the next word. This does not cause
+&nbsp;     * the selection to be cleared.
+&nbsp;     */
+&nbsp;    public void selectEndOfNextWord() {
+<b class="nc">&nbsp;        endOfNextWord(true);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void previousWord(boolean select) {
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        final String text = getText();</b>
+<b class="nc">&nbsp;        if (textLength &lt;= 0) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (wordIterator == null) {</b>
+<b class="nc">&nbsp;            wordIterator = BreakIterator.getWordInstance();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        wordIterator.setText(text);</b>
+&nbsp;
+<b class="nc">&nbsp;        int pos = wordIterator.preceding(Utils.clamp(0, getCaretPosition(), textLength));</b>
+&nbsp;
+&nbsp;        // Skip the non-word region, then move/select to the beginning of the word.
+<b class="nc">&nbsp;        while (pos != BreakIterator.DONE &amp;&amp;</b>
+<b class="nc">&nbsp;               !Character.isLetterOrDigit(text.charAt(Utils.clamp(0, pos, textLength-1)))) {</b>
+<b class="nc">&nbsp;            pos = wordIterator.preceding(Utils.clamp(0, pos, textLength));</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // move/select
+<b class="nc">&nbsp;        selectRange(select ? getAnchor() : pos, pos);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void nextWord(boolean select) {
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        final String text = getText();</b>
+<b class="nc">&nbsp;        if (textLength &lt;= 0) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (wordIterator == null) {</b>
+<b class="nc">&nbsp;            wordIterator = BreakIterator.getWordInstance();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        wordIterator.setText(text);</b>
+&nbsp;
+<b class="nc">&nbsp;        int last = wordIterator.following(Utils.clamp(0, getCaretPosition(), textLength-1));</b>
+<b class="nc">&nbsp;        int current = wordIterator.next();</b>
+&nbsp;
+&nbsp;        // Skip whitespace characters to the beginning of next word, but
+&nbsp;        // stop at newline. Then move the caret or select a range.
+<b class="nc">&nbsp;        while (current != BreakIterator.DONE) {</b>
+<b class="nc">&nbsp;            for (int p=last; p&lt;=current; p++) {</b>
+<b class="nc">&nbsp;                char ch = text.charAt(Utils.clamp(0, p, textLength-1));</b>
+&nbsp;                // Avoid using Character.isSpaceChar() and Character.isWhitespace(),
+&nbsp;                // because they include LINE_SEPARATOR, PARAGRAPH_SEPARATOR, etc.
+<b class="nc">&nbsp;                if (ch != &#39; &#39; &amp;&amp; ch != &#39;\t&#39;) {</b>
+<b class="nc">&nbsp;                    if (select) {</b>
+<b class="nc">&nbsp;                        selectRange(getAnchor(), p);</b>
+&nbsp;                    } else {
+<b class="nc">&nbsp;                        selectRange(p, p);</b>
+&nbsp;                    }
+&nbsp;                    return;
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            last = current;</b>
+<b class="nc">&nbsp;            current = wordIterator.next();</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // move/select to the end
+<b class="nc">&nbsp;        if (select) {</b>
+<b class="nc">&nbsp;            selectRange(getAnchor(), textLength);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            end();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void endOfNextWord(boolean select) {
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        final String text = getText();</b>
+<b class="nc">&nbsp;        if (textLength &lt;= 0) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (wordIterator == null) {</b>
+<b class="nc">&nbsp;            wordIterator = BreakIterator.getWordInstance();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        wordIterator.setText(text);</b>
+&nbsp;
+<b class="nc">&nbsp;        int last = wordIterator.following(Utils.clamp(0, getCaretPosition(), textLength));</b>
+<b class="nc">&nbsp;        int current = wordIterator.next();</b>
+&nbsp;
+&nbsp;        // skip the non-word region, then move/select to the end of the word.
+<b class="nc">&nbsp;        while (current != BreakIterator.DONE) {</b>
+<b class="nc">&nbsp;            for (int p=last; p&lt;=current; p++) {</b>
+<b class="nc">&nbsp;                if (!Character.isLetterOrDigit(text.charAt(Utils.clamp(0, p, textLength-1)))) {</b>
+<b class="nc">&nbsp;                    if (select) {</b>
+<b class="nc">&nbsp;                        selectRange(getAnchor(), p);</b>
+&nbsp;                    } else {
+<b class="nc">&nbsp;                        selectRange(p, p);</b>
+&nbsp;                    }
+&nbsp;                    return;
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            last = current;</b>
+<b class="nc">&nbsp;            current = wordIterator.next();</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // move/select to the end
+<b class="nc">&nbsp;        if (select) {</b>
+<b class="nc">&nbsp;            selectRange(getAnchor(), textLength);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            end();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Selects all text in the text input.
+&nbsp;     */
+&nbsp;    public void selectAll() {
+<b class="nc">&nbsp;        selectRange(0, getLength());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to before the first char of the text. This function
+&nbsp;     * also has the effect of clearing the selection.
+&nbsp;     */
+&nbsp;    public void home() {
+&nbsp;        // user wants to go to start
+<b class="nc">&nbsp;        selectRange(0, 0);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to after the last char of the text. This function
+&nbsp;     * also has the effect of clearing the selection.
+&nbsp;     */
+&nbsp;    public void end() {
+&nbsp;        // user wants to go to end
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        if (textLength &gt; 0) {</b>
+<b class="nc">&nbsp;            selectRange(textLength, textLength);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to before the first char of text. This does not cause
+&nbsp;     * the selection to be cleared. Rather, the anchor stays put and the
+&nbsp;     * caretPosition is moved to before the first char.
+&nbsp;     */
+&nbsp;    public void selectHome() {
+<b class="nc">&nbsp;        selectRange(getAnchor(), 0);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret to after the last char of text. This does not cause
+&nbsp;     * the selection to be cleared. Rather, the anchor stays put and the
+&nbsp;     * caretPosition is moved to after the last char.
+&nbsp;     */
+&nbsp;    public void selectEnd() {
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        if (textLength &gt; 0) selectRange(getAnchor(), textLength);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Deletes the character that precedes the current caret position from the
+&nbsp;     * text if there is no selection, or deletes the selection if there is one.
+&nbsp;     * This function returns true if the deletion succeeded, false otherwise.
+&nbsp;     * @return true if the deletion succeeded, false otherwise
+&nbsp;     */
+&nbsp;    public boolean deletePreviousChar() {
+<b class="nc">&nbsp;        boolean failed = true;</b>
+<b class="nc">&nbsp;        if (isEditable() &amp;&amp; !isDisabled()) {</b>
+<b class="nc">&nbsp;            final String text = getText();</b>
+<b class="nc">&nbsp;            final int dot = getCaretPosition();</b>
+<b class="nc">&nbsp;            final int mark = getAnchor();</b>
+<b class="nc">&nbsp;            if (dot != mark) {</b>
+&nbsp;                // there is a selection of text to remove
+<b class="nc">&nbsp;                replaceSelection(&quot;&quot;);</b>
+<b class="nc">&nbsp;                failed = false;</b>
+<b class="nc">&nbsp;            } else if (dot &gt; 0) {</b>
+&nbsp;                // The caret is not at the beginning, so remove some characters.
+&nbsp;                // Typically you&#39;d only be removing a single character, but
+&nbsp;                // in some cases you must remove two depending on the unicode
+&nbsp;                // characters
+&nbsp;                // Note: Do not use charIterator here, because we do want to
+&nbsp;                // break up clusters when deleting backwards.
+<b class="nc">&nbsp;                int p = Character.offsetByCodePoints(text, dot, -1);</b>
+<b class="nc">&nbsp;                deleteText(p, dot);</b>
+<b class="nc">&nbsp;                failed = false;</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return !failed;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Deletes the character that follows the current caret position from the
+&nbsp;     * text if there is no selection, or deletes the selection if there is one.
+&nbsp;     * This function returns true if the deletion succeeded, false otherwise.
+&nbsp;     * @return true if the deletion succeeded, false otherwise
+&nbsp;     */
+&nbsp;    public boolean deleteNextChar() {
+<b class="nc">&nbsp;        boolean failed = true;</b>
+<b class="nc">&nbsp;        if (isEditable() &amp;&amp; !isDisabled()) {</b>
+<b class="nc">&nbsp;            final int textLength = getLength();</b>
+<b class="nc">&nbsp;            final String text = getText();</b>
+<b class="nc">&nbsp;            final int dot = getCaretPosition();</b>
+<b class="nc">&nbsp;            final int mark = getAnchor();</b>
+<b class="nc">&nbsp;            if (dot != mark) {</b>
+&nbsp;                // there is a selection of text to remove
+<b class="nc">&nbsp;                replaceSelection(&quot;&quot;);</b>
+<b class="nc">&nbsp;                failed = false;</b>
+<b class="nc">&nbsp;            } else if (textLength &gt; 0 &amp;&amp; dot &lt; textLength) {</b>
+&nbsp;                // The caret is not at the end, so remove some characters.
+&nbsp;                // Typically you&#39;d only be removing a single character, but
+&nbsp;                // in some cases you must remove two depending on the unicode
+&nbsp;                // characters
+<b class="nc">&nbsp;                if (charIterator == null) {</b>
+<b class="nc">&nbsp;                    charIterator = BreakIterator.getCharacterInstance();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                charIterator.setText(text);</b>
+<b class="nc">&nbsp;                int p = charIterator.following(dot);</b>
+<b class="nc">&nbsp;                deleteText(dot, p);</b>
+<b class="nc">&nbsp;                failed = false;</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return !failed;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret position forward. If there is no selection, then the
+&nbsp;     * caret position is moved one character forward. If there is a selection,
+&nbsp;     * then the caret position is moved to the end of the selection and
+&nbsp;     * the selection cleared.
+&nbsp;     */
+&nbsp;    public void forward() {
+&nbsp;        // user has moved caret to the right
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        final int dot = getCaretPosition();</b>
+<b class="nc">&nbsp;        final int mark = getAnchor();</b>
+<b class="nc">&nbsp;        if (dot != mark) {</b>
+<b class="nc">&nbsp;            int pos = Math.max(dot, mark);</b>
+<b class="nc">&nbsp;            selectRange(pos, pos);</b>
+<b class="nc">&nbsp;        } else if (dot &lt; textLength &amp;&amp; textLength &gt; 0) {</b>
+<b class="nc">&nbsp;            if (charIterator == null) {</b>
+<b class="nc">&nbsp;                charIterator = BreakIterator.getCharacterInstance();</b>
+&nbsp;            }
+<b class="nc">&nbsp;            charIterator.setText(getText());</b>
+<b class="nc">&nbsp;            int pos = charIterator.following(dot);</b>
+<b class="nc">&nbsp;            selectRange(pos, pos);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        deselect();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Moves the caret position backward. If there is no selection, then the
+&nbsp;     * caret position is moved one character backward. If there is a selection,
+&nbsp;     * then the caret position is moved to the beginning of the selection and
+&nbsp;     * the selection cleared.
+&nbsp;     *
+&nbsp;     * Note: This function is intended to be used by experts, primarily
+&nbsp;     *       by those implementing new Skins or Behaviors. It is not common
+&nbsp;     *       for developers or designers to access this function directly.
+&nbsp;     */
+&nbsp;    public void backward() {
+&nbsp;        // user has moved caret to the left
+<b class="nc">&nbsp;        final int textLength = getLength();</b>
+<b class="nc">&nbsp;        final int dot = getCaretPosition();</b>
+<b class="nc">&nbsp;        final int mark = getAnchor();</b>
+<b class="nc">&nbsp;        if (dot != mark) {</b>
+<b class="nc">&nbsp;            int pos = Math.min(dot, mark);</b>
+<b class="nc">&nbsp;            selectRange(pos, pos);</b>
+<b class="nc">&nbsp;        } else if (dot &gt; 0 &amp;&amp; textLength &gt; 0) {</b>
+<b class="nc">&nbsp;            if (charIterator == null) {</b>
+<b class="nc">&nbsp;                charIterator = BreakIterator.getCharacterInstance();</b>
+&nbsp;            }
+<b class="nc">&nbsp;            charIterator.setText(getText());</b>
+<b class="nc">&nbsp;            int pos = charIterator.preceding(dot);</b>
+<b class="nc">&nbsp;            selectRange(pos, pos);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        deselect();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Positions the caret to the position indicated by {@code pos}. This
+&nbsp;     * function will also clear the selection.
+&nbsp;     * @param pos the position
+&nbsp;     */
+&nbsp;    public void positionCaret(int pos) {
+<b class="nc">&nbsp;        final int p = Utils.clamp(0, pos, getLength());</b>
+<b class="nc">&nbsp;        selectRange(p, p);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Positions the caret to the position indicated by {@code pos} and extends
+&nbsp;     * the selection, if there is one. If there is no selection, then a
+&nbsp;     * selection is formed where the anchor is at the current caret position
+&nbsp;     * and the caretPosition is moved to pos.
+&nbsp;     * @param pos the position
+&nbsp;     */
+&nbsp;    public void selectPositionCaret(int pos) {
+<b class="nc">&nbsp;        selectRange(getAnchor(), Utils.clamp(0, pos, getLength()));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Positions the anchor and caretPosition explicitly.
+&nbsp;     * @param anchor the anchor
+&nbsp;     * @param caretPosition the caretPosition
+&nbsp;     */
+&nbsp;    public void selectRange(int anchor, int caretPosition) {
+<b class="nc">&nbsp;        caretPosition = Utils.clamp(0, caretPosition, getLength());</b>
+<b class="nc">&nbsp;        anchor = Utils.clamp(0, anchor, getLength());</b>
+&nbsp;
+<b class="nc">&nbsp;        TextFormatter.Change change = new TextFormatter.Change(this, getFormatterAccessor(), anchor, caretPosition);</b>
+<b class="nc">&nbsp;        TextFormatter&lt;?&gt; formatter = getTextFormatter();</b>
+<b class="nc">&nbsp;        if (formatter != null &amp;&amp; formatter.getFilter() != null) {</b>
+<b class="nc">&nbsp;            change = formatter.getFilter().apply(change);</b>
+<b class="nc">&nbsp;            if (change == null) {</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        updateContent(change, false);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void doSelectRange(int anchor, int caretPosition) {
+<b class="nc">&nbsp;        this.caretPosition.set(Utils.clamp(0, caretPosition, getLength()));</b>
+<b class="nc">&nbsp;        this.anchor.set(Utils.clamp(0, anchor, getLength()));</b>
+<b class="nc">&nbsp;        this.selection.set(IndexRange.normalize(getAnchor(), getCaretPosition()));</b>
+<b class="nc">&nbsp;        notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This function will extend the selection to include the specified pos.
+&nbsp;     * This is different from selectPositionCaret in that it does not simply
+&nbsp;     * move the caret. Rather, it will reposition the caret and anchor as necessary
+&nbsp;     * to ensure that pos becomes the new caret and the far other end of the
+&nbsp;     * selection becomes the anchor.
+&nbsp;     * @param pos the position
+&nbsp;     */
+&nbsp;    public void extendSelection(int pos) {
+<b class="nc">&nbsp;        final int p = Utils.clamp(0, pos, getLength());</b>
+<b class="nc">&nbsp;        final int dot = getCaretPosition();</b>
+<b class="nc">&nbsp;        final int mark = getAnchor();</b>
+<b class="nc">&nbsp;        int start = Math.min(dot, mark);</b>
+<b class="nc">&nbsp;        int end = Math.max(dot, mark);</b>
+<b class="nc">&nbsp;        if (p &lt; start) {</b>
+<b class="nc">&nbsp;            selectRange(end, p);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            selectRange(start, p);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Clears the text.
+&nbsp;     */
+&nbsp;    public void clear() {
+<b class="nc">&nbsp;        deselect();</b>
+<b class="nc">&nbsp;        if (!text.isBound()) {</b>
+<b class="nc">&nbsp;            setText(&quot;&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Clears the selection.
+&nbsp;     */
+&nbsp;    public void deselect() {
+&nbsp;        // set the anchor equal to the caret position, which clears the selection
+&nbsp;        // while also preserving the caret position
+<b class="nc">&nbsp;        selectRange(getCaretPosition(), getCaretPosition());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Replaces the selection with the given replacement String. If there is
+&nbsp;     * no selection, then the replacement text is simply inserted at the current
+&nbsp;     * caret position. If there was a selection, then the selection is cleared
+&nbsp;     * and the given replacement text inserted.
+&nbsp;     * @param replacement the replacement string
+&nbsp;     */
+&nbsp;    public void replaceSelection(String replacement) {
+<b class="nc">&nbsp;        replaceText(getSelection(), replacement);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * If possible, undoes the last modification. If {@link #isUndoable()} returns
+&nbsp;     * false, then calling this method has no effect.
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+&nbsp;    public final void undo() {
+<b class="nc">&nbsp;        if (isUndoable()) {</b>
+&nbsp;            // Apply reverse change here
+<b class="nc">&nbsp;            final int start = undoChange.start;</b>
+<b class="nc">&nbsp;            final String newText = undoChange.newText;</b>
+<b class="nc">&nbsp;            final String oldText = undoChange.oldText;</b>
+&nbsp;
+<b class="nc">&nbsp;            blockSelectedTextUpdate = true;</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                if (newText != null) {</b>
+<b class="nc">&nbsp;                    getContent().delete(start, start + newText.length(), oldText.isEmpty());</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                if (oldText != null) {</b>
+<b class="nc">&nbsp;                    getContent().insert(start, oldText, true);</b>
+<b class="nc">&nbsp;                    doSelectRange(start, start + oldText.length());</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    doSelectRange(start, start + newText.length());</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                undoChange = undoChange.prev;</b>
+&nbsp;            } finally {
+<b class="nc">&nbsp;                blockSelectedTextUpdate = false;</b>
+<b class="nc">&nbsp;                updateSelectedText();</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        updateUndoRedoState();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * If possible, redoes the last undone modification. If {@link #isRedoable()} returns
+&nbsp;     * false, then calling this method has no effect.
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+&nbsp;    public final void redo() {
+<b class="nc">&nbsp;        if (isRedoable()) {</b>
+&nbsp;            // Apply change here
+<b class="nc">&nbsp;            undoChange = undoChange.next;</b>
+<b class="nc">&nbsp;            final int start = undoChange.start;</b>
+<b class="nc">&nbsp;            final String newText = undoChange.newText;</b>
+<b class="nc">&nbsp;            final String oldText = undoChange.oldText;</b>
+&nbsp;
+<b class="nc">&nbsp;            blockSelectedTextUpdate = true;</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                if (oldText != null) {</b>
+<b class="nc">&nbsp;                    getContent().delete(start, start + oldText.length(), newText.isEmpty());</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                if (newText != null) {</b>
+<b class="nc">&nbsp;                    getContent().insert(start, newText, true);</b>
+<b class="nc">&nbsp;                    doSelectRange(start + newText.length(), start + newText.length());</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    doSelectRange(start, start);</b>
+&nbsp;                }
+&nbsp;            } finally {
+<b class="nc">&nbsp;                blockSelectedTextUpdate = false;</b>
+<b class="nc">&nbsp;                updateSelectedText();</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        updateUndoRedoState();</b>
+&nbsp;        // else beep ?
+&nbsp;    }
+&nbsp;
+&nbsp;    // Used by TextArea, although there are probably other better ways of
+&nbsp;    // doing this.
+<b class="nc">&nbsp;    void textUpdated() { }</b>
+&nbsp;
+&nbsp;    private void resetUndoRedoState() {
+<b class="nc">&nbsp;        undoChange = undoChangeHead;</b>
+<b class="nc">&nbsp;        undoChange.next = null;</b>
+<b class="nc">&nbsp;        updateUndoRedoState();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateUndoRedoState() {
+<b class="nc">&nbsp;        undoable.set(undoChange != undoChangeHead);</b>
+<b class="nc">&nbsp;        redoable.set(undoChange.next != null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean filterAndSet(String value) {
+&nbsp;        // Send the new value through the textFormatter, if one exists.
+<b class="nc">&nbsp;        TextFormatter&lt;?&gt; formatter = getTextFormatter();</b>
+<b class="nc">&nbsp;        int length = content.length();</b>
+<b class="nc">&nbsp;        if (formatter != null &amp;&amp; formatter.getFilter() != null &amp;&amp; !text.isBound()) {</b>
+<b class="nc">&nbsp;            TextFormatter.Change change = new TextFormatter.Change(</b>
+<b class="nc">&nbsp;                    TextInputControl.this, getFormatterAccessor(), 0, length, value, 0, 0);</b>
+<b class="nc">&nbsp;            change = formatter.getFilter().apply(change);</b>
+<b class="nc">&nbsp;            if (change == null) {</b>
+<b class="nc">&nbsp;                return false;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            replaceText(change.start, change.end, change.text, change.getAnchor(), change.getCaretPosition());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            replaceText(0, length, value, 0, 0);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This is what is ultimately called by every code path that will update
+&nbsp;     * the content (except for undo / redo). The input into this method has
+&nbsp;     * already run through the textFormatter where appropriate.
+&nbsp;     *
+&nbsp;     * @param start            The start index into the existing text which
+&nbsp;     *                         will be replaced by the new value
+&nbsp;     * @param end              The end index into the existing text which will
+&nbsp;     *                         be replaced by the new value. As with
+&nbsp;     *                         String.replace this is a lastIndex+1 value
+&nbsp;     * @param value            The new text value
+&nbsp;     * @param anchor           The new selection anchor after the change is made
+&nbsp;     * @param caretPosition    The new selection caretPosition after the change
+&nbsp;     *                         is made.
+&nbsp;     * @return The amount of adjustment made to the end / anchor / caretPosition to
+&nbsp;     *         accommodate for subsequent filtering (such as the filtering of
+&nbsp;     *         new lines by the TextField)
+&nbsp;     */
+&nbsp;    private int replaceText(int start, int end, String value, int anchor, int caretPosition) {
+&nbsp;        // RT-16566: Need to take into account stripping of chars into the
+&nbsp;        // final anchor &amp; caret position
+<b class="nc">&nbsp;        blockSelectedTextUpdate = true;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            int length = getLength();</b>
+<b class="nc">&nbsp;            int adjustmentAmount = 0;</b>
+<b class="nc">&nbsp;            if (end != start) {</b>
+<b class="nc">&nbsp;                getContent().delete(start, end, value.isEmpty());</b>
+<b class="nc">&nbsp;                length -= (end - start);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            if (value != null) {</b>
+<b class="nc">&nbsp;                getContent().insert(start, value, true);</b>
+<b class="nc">&nbsp;                adjustmentAmount = value.length() - (getLength() - length);</b>
+<b class="nc">&nbsp;                anchor -= adjustmentAmount;</b>
+<b class="nc">&nbsp;                caretPosition -= adjustmentAmount;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            doSelectRange(anchor, caretPosition);</b>
+<b class="nc">&nbsp;            return adjustmentAmount;</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            blockSelectedTextUpdate = false;</b>
+<b class="nc">&nbsp;            updateSelectedText();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private &lt;T&gt; void updateText(TextFormatter&lt;T&gt; formatter) {
+<b class="nc">&nbsp;        T value = formatter.getValue();</b>
+<b class="nc">&nbsp;        StringConverter&lt;T&gt; converter = formatter.getValueConverter();</b>
+<b class="nc">&nbsp;        if (converter != null) {</b>
+<b class="nc">&nbsp;            String text = converter.toString(value);</b>
+<b class="nc">&nbsp;            if (text == null) text = &quot;&quot;;</b>
+<b class="nc">&nbsp;            replaceText(0, getLength(), text, text.length(), text.length());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Commit the current text and convert it to a value.
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+&nbsp;    public final void commitValue() {
+<b class="nc">&nbsp;        if (getTextFormatter() != null) {</b>
+<b class="nc">&nbsp;            getTextFormatter().updateValue(getText());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * If the field is currently being edited, this call will set text to the last commited value.
+&nbsp;     * @since JavaFX 8u40
+&nbsp;     */
+&nbsp;    public final void cancelEdit() {
+<b class="nc">&nbsp;        if (getTextFormatter() != null) {</b>
+<b class="nc">&nbsp;            updateText(getTextFormatter());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private FormatterAccessor accessor;
+&nbsp;
+&nbsp;    private FormatterAccessor getFormatterAccessor() {
+<b class="nc">&nbsp;        if (accessor == null) {</b>
+<b class="nc">&nbsp;            accessor = new TextInputControlFromatterAccessor();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return accessor;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    String filterInput(String text) {
+&nbsp;        // This method should be overridden by child classes.
+&nbsp;        // It is overridden in TextField and TextArea as needed.
+<b class="nc">&nbsp;        return text;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A little utility method for stripping out unwanted characters.
+&nbsp;     *
+&nbsp;     * @param txt
+&nbsp;     * @param stripNewlines
+&nbsp;     * @param stripTabs
+&nbsp;     * @return The string after having the unwanted characters stripped out.
+&nbsp;     */
+&nbsp;    static String filterInput(String txt, boolean stripNewlines, boolean stripTabs) {
+&nbsp;        // Most of the time, when text is inserted, there are no illegal
+&nbsp;        // characters. So we&#39;ll do a &quot;cheap&quot; check for illegal characters.
+&nbsp;        // If we find one, we&#39;ll do a longer replace algorithm. In the
+&nbsp;        // case of illegal characters, this may at worst be an O(2n) solution.
+&nbsp;        // Strip out any characters that are outside the printed range
+<b class="nc">&nbsp;        if (containsInvalidCharacters(txt, stripNewlines, stripTabs)) {</b>
+<b class="nc">&nbsp;            StringBuilder s = new StringBuilder(txt.length());</b>
+<b class="nc">&nbsp;            for (int i=0; i&lt;txt.length(); i++) {</b>
+<b class="nc">&nbsp;                final char c = txt.charAt(i);</b>
+<b class="nc">&nbsp;                if (!isInvalidCharacter(c, stripNewlines, stripTabs)) {</b>
+<b class="nc">&nbsp;                    s.append(c);</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            txt = s.toString();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return txt;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    static boolean containsInvalidCharacters(String txt, boolean newlineIllegal, boolean tabIllegal) {
+<b class="nc">&nbsp;        for (int i=0; i&lt;txt.length(); i++) {</b>
+<b class="nc">&nbsp;            final char c = txt.charAt(i);</b>
+<b class="nc">&nbsp;            if (isInvalidCharacter(c, newlineIllegal, tabIllegal)) return true;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static boolean isInvalidCharacter(char c, boolean newlineIllegal, boolean tabIllegal) {
+<b class="nc">&nbsp;        if (c == 0x7F) return true;</b>
+<b class="nc">&nbsp;        if (c == 0xA) return newlineIllegal;</b>
+<b class="nc">&nbsp;        if (c == 0x9) return tabIllegal;</b>
+<b class="nc">&nbsp;        if (c &lt; 0x20) return true;</b>
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // It can be bound, in which case we will force it to be an eager
+&nbsp;    // binding so that we update the content eagerly
+&nbsp;    // It can be bidirectionally bound, which basically will just work
+&nbsp;    // If somebody changes the content directly, it will be notified and
+&nbsp;    // send an invalidation event.
+&nbsp;    private class TextProperty extends StringProperty {
+&nbsp;        // This is used only when the property is bound
+&nbsp;        private ObservableValue&lt;? extends String&gt; observable = null;
+&nbsp;        // Added to the observable when bound
+&nbsp;        private InvalidationListener listener = null;
+&nbsp;        // Used for event handling
+&nbsp;        private ExpressionHelper&lt;String&gt; helper = null;
+&nbsp;        // The developer my set the Text property to null. Although
+&nbsp;        // the Content must be given an empty String, we must still
+&nbsp;        // treat the value as though it were null, so that a subsequent
+&nbsp;        // getText() will return null.
+&nbsp;        private boolean textIsNull = false;
+&nbsp;
+&nbsp;        @Override public String get() {
+&nbsp;            // Since we force eager binding and content is always up to date,
+&nbsp;            // we just need to get it from content and not through the binding
+&nbsp;            return textIsNull ? null : content.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void set(String value) {
+&nbsp;            if (isBound()) {
+&nbsp;                throw new java.lang.RuntimeException(&quot;A bound value cannot be set.&quot;);
+&nbsp;            }
+&nbsp;            doSet(value);
+&nbsp;            markInvalid();
+&nbsp;        }
+&nbsp;
+&nbsp;        /**
+&nbsp;         * Called whenever the content on the control has changed (as determined
+&nbsp;         * by a listener on the content).
+&nbsp;         */
+&nbsp;        private void controlContentHasChanged() {
+&nbsp;            markInvalid();
+&nbsp;            notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void bind(ObservableValue&lt;? extends String&gt; observable) {
+&nbsp;            if (observable == null) {
+&nbsp;                throw new NullPointerException(&quot;Cannot bind to null&quot;);
+&nbsp;            }
+&nbsp;            if (!observable.equals(this.observable)) {
+&nbsp;                unbind();
+&nbsp;                this.observable = observable;
+&nbsp;                if (listener == null) {
+&nbsp;                    listener = new Listener();
+&nbsp;                }
+&nbsp;                this.observable.addListener(listener);
+&nbsp;                markInvalid();
+&nbsp;                doSet(observable.getValue());
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void unbind() {
+&nbsp;            if (observable != null) {
+&nbsp;                doSet(observable.getValue());
+&nbsp;                observable.removeListener(listener);
+&nbsp;                observable = null;
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public boolean isBound() {
+&nbsp;            return observable != null;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void addListener(InvalidationListener listener) {
+&nbsp;            helper = ExpressionHelper.addListener(helper, this, listener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void removeListener(InvalidationListener listener) {
+&nbsp;            helper = ExpressionHelper.removeListener(helper, listener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void addListener(ChangeListener&lt;? super String&gt; listener) {
+&nbsp;            helper = ExpressionHelper.addListener(helper, this, listener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public void removeListener(ChangeListener&lt;? super String&gt; listener) {
+&nbsp;            helper = ExpressionHelper.removeListener(helper, listener);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public Object getBean() {
+&nbsp;            return TextInputControl.this;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public String getName() {
+&nbsp;            return &quot;text&quot;;
+&nbsp;        }
+&nbsp;
+&nbsp;        private void fireValueChangedEvent() {
+&nbsp;            ExpressionHelper.fireValueChangedEvent(helper);
+&nbsp;        }
+&nbsp;
+&nbsp;        private void markInvalid() {
+&nbsp;            fireValueChangedEvent();
+&nbsp;        }
+&nbsp;
+&nbsp;        /**
+&nbsp;         * doSet is called whenever the setText() method was called directly
+&nbsp;         * on the TextInputControl, or when the text property was bound,
+&nbsp;         * unbound, or reacted to a binding invalidation. It is *not* called
+&nbsp;         * when modifications to the content happened indirectly, such as
+&nbsp;         * through the replaceText / replaceSelection methods.
+&nbsp;         *
+&nbsp;         * @param value The new value
+&nbsp;         */
+&nbsp;        private void doSet(String value) {
+&nbsp;            // Guard against the null value.
+&nbsp;            textIsNull = value == null;
+&nbsp;            if (value == null) value = &quot;&quot;;
+&nbsp;
+&nbsp;            if (!filterAndSet(value)) return;
+&nbsp;
+&nbsp;            if (getTextFormatter() != null) {
+&nbsp;                getTextFormatter().updateValue(getText());
+&nbsp;            }
+&nbsp;
+&nbsp;            textUpdated();
+&nbsp;
+&nbsp;            // If the programmer has directly manipulated the text property
+&nbsp;            // or has it bound up, then we will clear out any modifications
+&nbsp;            // from the undo manager as we must suppose that the control is
+&nbsp;            // being reused, for example, between forms.
+&nbsp;            resetUndoRedoState();
+&nbsp;        }
+&nbsp;
+&nbsp;        private class Listener implements InvalidationListener {
+&nbsp;            @Override
+&nbsp;            public void invalidated(Observable valueModel) {
+&nbsp;                // We now need to force it to be eagerly recomputed
+&nbsp;                // because we need to push these changes to the
+&nbsp;                // content model. Because changing the model ends
+&nbsp;                // up calling invalidate and markInvalid, the
+&nbsp;                // listeners will all be notified.
+&nbsp;                doSet(observable.getValue());
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Used to form a linked-list of Undo / Redo changes. Each UndoRedoChange
+&nbsp;     * records the old and new text, and the start index. It also has
+&nbsp;     * the links to the previous and next Changes in the chain. There
+&nbsp;     * are two special UndoRedoChange objects in this chain representing the
+&nbsp;     * head and the tail so we can have beforeFirst and afterLast
+&nbsp;     * behavior as necessary.
+&nbsp;     */
+&nbsp;    static class UndoRedoChange {
+&nbsp;        static long prevRecordTime;
+&nbsp;        static final long CHANGE_DURATION = 2500; // milliseconds
+&nbsp;        static boolean spaceCharSequence = false;
+&nbsp;        int start;
+&nbsp;        String oldText;
+&nbsp;        String newText;
+&nbsp;        UndoRedoChange prev;
+&nbsp;        UndoRedoChange next;
+&nbsp;
+&nbsp;        UndoRedoChange() { }
+&nbsp;
+&nbsp;        public UndoRedoChange add(int start, String oldText, String newText) {
+&nbsp;            UndoRedoChange c = new UndoRedoChange();
+&nbsp;            c.start = start;
+&nbsp;            c.oldText = oldText;
+&nbsp;            c.newText = newText;
+&nbsp;            c.prev = this;
+&nbsp;            next = c;
+&nbsp;            prevRecordTime = System.currentTimeMillis();
+&nbsp;            return c;
+&nbsp;        }
+&nbsp;
+&nbsp;        static boolean hasChangeDurationElapsed() {
+&nbsp;            return (System.currentTimeMillis() - prevRecordTime &gt; CHANGE_DURATION) ;
+&nbsp;        }
+&nbsp;
+&nbsp;        static void setSpaceCharSequence(boolean value) {
+&nbsp;            spaceCharSequence = value;
+&nbsp;        }
+&nbsp;        static boolean isSpaceCharSequence() {
+&nbsp;            return spaceCharSequence;
+&nbsp;        }
+&nbsp;
+&nbsp;        public UndoRedoChange discard() {
+&nbsp;            prev.next = next;
+&nbsp;            return prev;
+&nbsp;        }
+&nbsp;
+&nbsp;        // Handy to use when debugging, just put it in undo or redo
+&nbsp;        // method or replaceText to see what is happening to the undo
+&nbsp;        // history as it occurs.
+&nbsp;        void debugPrint() {
+&nbsp;            UndoRedoChange c = this;
+&nbsp;            System.out.print(&quot;[&quot;);
+&nbsp;            while (c != null) {
+&nbsp;                System.out.print(c.toString());
+&nbsp;                if (c.next != null) System.out.print(&quot;, &quot;);
+&nbsp;                c = c.next;
+&nbsp;            }
+&nbsp;            System.out.println(&quot;]&quot;);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override public String toString() {
+&nbsp;            if (oldText == null &amp;&amp; newText == null) {
+&nbsp;                return &quot;head&quot;;
+&nbsp;            }
+&nbsp;            if (oldText.isEmpty() &amp;&amp; !newText.isEmpty()) {
+&nbsp;                return &quot;added &#39;&quot; + newText + &quot;&#39; at index &quot; + start;
+&nbsp;            } else if (!oldText.isEmpty() &amp;&amp; !newText.isEmpty()) {
+&nbsp;                return &quot;replaced &#39;&quot; + oldText + &quot;&#39; with &#39;&quot; + newText + &quot;&#39; at index &quot; + start;
+&nbsp;            } else {
+&nbsp;                return &quot;deleted &#39;&quot; + oldText + &quot;&#39; at index &quot; + start;
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Stylesheet Handling                                                     *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;    private static final PseudoClass PSEUDO_CLASS_READONLY</b>
+<b class="nc">&nbsp;            = PseudoClass.getPseudoClass(&quot;readonly&quot;);</b>
+&nbsp;
+&nbsp;    private static class StyleableProperties {
+&nbsp;        private static final FontCssMetaData&lt;TextInputControl&gt; FONT =
+&nbsp;            new FontCssMetaData&lt;&gt;(&quot;-fx-font&quot;, Font.getDefault()) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(TextInputControl n) {
+&nbsp;                return n.font == null || !n.font.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Font&gt; getStyleableProperty(TextInputControl n) {
+&nbsp;                return (StyleableProperty&lt;Font&gt;)(WritableValue&lt;Font&gt;)n.fontProperty();
+&nbsp;            }
+&nbsp;        };
+&nbsp;
+&nbsp;        private static final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; STYLEABLES;
+&nbsp;        static {
+&nbsp;            final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; styleables =
+&nbsp;                new ArrayList&lt;&gt;(Control.getClassCssMetaData());
+&nbsp;            styleables.add(FONT);
+&nbsp;            STYLEABLES = Collections.unmodifiableList(styleables);
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the {@code CssMetaData} associated with this class, which may include the
+&nbsp;     * {@code CssMetaData} of its superclasses.
+&nbsp;     * @return the {@code CssMetaData}
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getClassCssMetaData() {
+<b class="nc">&nbsp;        return StyleableProperties.STYLEABLES;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getControlCssMetaData() {
+<b class="nc">&nbsp;        return getClassCssMetaData();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Accessibility handling                                                  *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override
+&nbsp;    public Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters) {
+<b class="nc">&nbsp;        switch (attribute) {</b>
+&nbsp;            case TEXT: {
+<b class="nc">&nbsp;                String accText = getAccessibleText();</b>
+<b class="nc">&nbsp;                if (accText != null &amp;&amp; !accText.isEmpty()) return accText;</b>
+&nbsp;
+<b class="nc">&nbsp;                String text = getText();</b>
+<b class="nc">&nbsp;                if (text == null || text.isEmpty()) {</b>
+<b class="nc">&nbsp;                    text = getPromptText();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                return text;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            case EDITABLE: return isEditable();</b>
+<b class="nc">&nbsp;            case SELECTION_START: return getSelection().getStart();</b>
+<b class="nc">&nbsp;            case SELECTION_END: return getSelection().getEnd();</b>
+<b class="nc">&nbsp;            case CARET_OFFSET: return getCaretPosition();</b>
+<b class="nc">&nbsp;            case FONT: return getFont();</b>
+<b class="nc">&nbsp;            default: return super.queryAccessibleAttribute(attribute, parameters);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override
+&nbsp;    public void executeAccessibleAction(AccessibleAction action, Object... parameters) {
+<b class="nc">&nbsp;        switch (action) {</b>
+&nbsp;            case SET_TEXT: {
+<b class="nc">&nbsp;                String value = (String) parameters[0];</b>
+<b class="nc">&nbsp;                if (value != null) setText(value);</b>
+&nbsp;                break;
+&nbsp;            }
+&nbsp;            case SET_TEXT_SELECTION: {
+<b class="nc">&nbsp;                Integer start = (Integer) parameters[0];</b>
+<b class="nc">&nbsp;                Integer end = (Integer) parameters[1];</b>
+<b class="nc">&nbsp;                if (start != null &amp;&amp; end != null) {</b>
+<b class="nc">&nbsp;                    selectRange(start,  end);</b>
+&nbsp;                }
+&nbsp;                break;
+&nbsp;            }
+<b class="nc">&nbsp;            default: super.executeAccessibleAction(action, parameters);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private class TextInputControlFromatterAccessor implements FormatterAccessor {
+&nbsp;        @Override
+&nbsp;        public int getTextLength() {
+&nbsp;            return TextInputControl.this.getLength();
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public String getText(int begin, int end) {
+&nbsp;            return TextInputControl.this.getText(begin, end);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public int getCaret() {
+&nbsp;            return TextInputControl.this.getCaretPosition();
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public int getAnchor() {
+&nbsp;            return TextInputControl.this.getAnchor();
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

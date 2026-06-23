@@ -1,0 +1,150 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EndOfFileException</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.jline.reader</a>
+</div>
+
+<h1>Coverage Summary for Class: EndOfFileException (org.jline.reader)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EndOfFileException</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) the original author(s).
+&nbsp; *
+&nbsp; * This software is distributable under the BSD license. See the terms of the
+&nbsp; * BSD license in the documentation provided with this software.
+&nbsp; *
+&nbsp; * https://opensource.org/licenses/BSD-3-Clause
+&nbsp; */
+&nbsp;package org.jline.reader;
+&nbsp;
+&nbsp;/**
+&nbsp; * This exception is thrown by {@link LineReader#readLine} when
+&nbsp; * user the user types ctrl-D).
+&nbsp; */
+&nbsp;public class EndOfFileException extends RuntimeException {
+&nbsp;
+&nbsp;    private static final long serialVersionUID = 528485360925144689L;
+&nbsp;    private String partialLine;
+&nbsp;
+<b class="nc">&nbsp;    public EndOfFileException() {}</b>
+&nbsp;
+&nbsp;    public EndOfFileException(String message) {
+<b class="nc">&nbsp;        super(message);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public EndOfFileException(String message, Throwable cause) {
+<b class="nc">&nbsp;        super(message, cause);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public EndOfFileException(Throwable cause) {
+<b class="nc">&nbsp;        super(cause);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public EndOfFileException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+<b class="nc">&nbsp;        super(message, cause, enableSuppression, writableStackTrace);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public EndOfFileException partialLine(String partialLine) {
+<b class="nc">&nbsp;        this.partialLine = partialLine;</b>
+<b class="nc">&nbsp;        return this;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getPartialLine() {
+<b class="nc">&nbsp;        return partialLine;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Label</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.control</a>
+</div>
+
+<h1>Coverage Summary for Class: Label (javafx.scene.control)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Label</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/18)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.control;
+&nbsp;
+&nbsp;import javafx.scene.control.skin.LabelSkin;
+&nbsp;import com.sun.javafx.scene.NodeHelper;
+&nbsp;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;import javafx.beans.property.ObjectPropertyBase;
+&nbsp;import javafx.beans.value.ChangeListener;
+&nbsp;import javafx.css.StyleableProperty;
+&nbsp;import javafx.scene.AccessibleRole;
+&nbsp;import javafx.scene.Node;
+&nbsp;
+&nbsp;/**
+&nbsp; * Label is a non-editable text control. A Label is useful for displaying
+&nbsp; * text that is required to fit within a specific space, and thus may need
+&nbsp; * to use an ellipsis or truncation to size the string to fit. Labels also are
+&nbsp; * useful in that they can have mnemonics which, if used, will send focus to
+&nbsp; * the Control listed as the target of the &lt;code&gt;labelFor&lt;/code&gt; property.
+&nbsp; * &lt;p&gt;
+&nbsp; * Label sets focusTraversable to false.
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;Example:
+&nbsp; * &lt;pre&gt;&lt;code&gt;Label label = new Label(&quot;a label&quot;);&lt;/code&gt;&lt;/pre&gt;
+&nbsp; *
+&nbsp; * &lt;img src=&quot;doc-files/Label.png&quot; alt=&quot;Image of the Label control&quot;&gt;
+&nbsp; *
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public class Label extends Labeled {
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Constructors                                                            *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates an empty label
+&nbsp;     */
+<b class="nc">&nbsp;    public Label() {</b>
+<b class="nc">&nbsp;        initialize();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates Label with supplied text.
+&nbsp;     * @param text null text is treated as the empty string
+&nbsp;     */
+&nbsp;    public Label(String text) {
+<b class="nc">&nbsp;        super(text);</b>
+<b class="nc">&nbsp;        initialize();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a Label with the supplied text and graphic.
+&nbsp;     * @param text null text is treated as the empty string
+&nbsp;     * @param graphic a null graphic is acceptable
+&nbsp;     */
+&nbsp;    public Label(String text, Node graphic) {
+<b class="nc">&nbsp;        super(text, graphic);</b>
+<b class="nc">&nbsp;        initialize();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void initialize() {
+<b class="nc">&nbsp;        getStyleClass().setAll(&quot;label&quot;);</b>
+<b class="nc">&nbsp;        setAccessibleRole(AccessibleRole.TEXT);</b>
+&nbsp;        // Labels are not focus traversable, unlike most other UI Controls.
+&nbsp;        // focusTraversable is styleable through css. Calling setFocusTraversable
+&nbsp;        // makes it look to css like the user set the value and css will not
+&nbsp;        // override. Initializing focusTraversable by calling set on the
+&nbsp;        // CssMetaData ensures that css will be able to override the value.
+<b class="nc">&nbsp;        ((StyleableProperty&lt;Boolean&gt;)focusTraversableProperty()).applyStyle(null, Boolean.FALSE);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Properties                                                              *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+<b class="nc">&nbsp;    private ChangeListener&lt;Boolean&gt; mnemonicStateListener = (observable, oldValue, newValue) -&gt; {</b>
+<b class="nc">&nbsp;        NodeHelper.showMnemonicsProperty(Label.this).setValue(newValue);</b>
+&nbsp;    };
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A Label can act as a label for a different Control or
+&nbsp;     * Node. This is used for Mnemonics and Accelerator parsing.
+&nbsp;     * This allows setting of the target Node.
+&nbsp;     * @return the Node that this label is to be associated with
+&nbsp;     */
+&nbsp;    public ObjectProperty&lt;Node&gt; labelForProperty() {
+<b class="nc">&nbsp;        if (labelFor == null) {</b>
+<b class="nc">&nbsp;            labelFor = new ObjectPropertyBase&lt;&gt;() {</b>
+&nbsp;                Node oldValue = null;
+&nbsp;                @Override protected void invalidated() {
+&nbsp;                    if (oldValue != null) {
+&nbsp;                        NodeHelper.getNodeAccessor().setLabeledBy(oldValue, null);
+&nbsp;                        NodeHelper.showMnemonicsProperty(oldValue).removeListener(mnemonicStateListener);
+&nbsp;                    }
+&nbsp;                    final Node node = get();
+&nbsp;                    if (node != null) {
+&nbsp;                        NodeHelper.getNodeAccessor().setLabeledBy(node, Label.this);
+&nbsp;                        NodeHelper.showMnemonicsProperty(node).addListener(mnemonicStateListener);
+&nbsp;                        NodeHelper.setShowMnemonics(Label.this, NodeHelper.isShowMnemonics(node));
+&nbsp;                    } else {
+&nbsp;                        NodeHelper.setShowMnemonics(Label.this, false);
+&nbsp;                    }
+&nbsp;                    oldValue = node;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override public Object getBean() {
+&nbsp;                    return Label.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override public String getName() {
+&nbsp;                    return &quot;labelFor&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;
+&nbsp;        }
+<b class="nc">&nbsp;        return labelFor;</b>
+&nbsp;    }
+&nbsp;    private ObjectProperty&lt;Node&gt; labelFor;
+&nbsp;
+<b class="nc">&nbsp;    public final void setLabelFor(Node value) { labelForProperty().setValue(value); }</b>
+<b class="nc">&nbsp;    public final Node getLabelFor() { return labelFor == null ? null : labelFor.getValue(); }</b>
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Methods                                                                 *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override protected Skin&lt;?&gt; createDefaultSkin() {
+<b class="nc">&nbsp;        return new LabelSkin(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * CSS Support                                                             *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the initial focus traversable state of this control, for use
+&nbsp;     * by the JavaFX CSS engine to correctly set its initial value. This method
+&nbsp;     * is overridden as by default UI controls have focus traversable set to true,
+&nbsp;     * but that is not appropriate for this control.
+&nbsp;     *
+&nbsp;     * @since 9
+&nbsp;     */
+&nbsp;    @Override protected Boolean getInitialFocusTraversable() {
+<b class="nc">&nbsp;        return Boolean.FALSE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

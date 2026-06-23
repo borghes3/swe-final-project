@@ -1,0 +1,180 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > HunterCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.cards.characters</a>
+</div>
+
+<h1>Coverage Summary for Class: HunterCard (it.polimi.ingsw.am23.model.cards.characters)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">HunterCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (12/12)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.cards.characters;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.Game;
+&nbsp;import it.polimi.ingsw.am23.model.cards.CharacterCard;
+&nbsp;import it.polimi.ingsw.am23.model.enums.CharacterType;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;import it.polimi.ingsw.am23.model.state.CardState;
+&nbsp;import it.polimi.ingsw.am23.model.state.CharacterCardState;
+&nbsp;
+&nbsp;/**
+&nbsp; * Concrete {@link CharacterCard} representing the Hunter archetype.
+&nbsp; * When a Hunter card sporting the food symbol is collected, the player gains
+&nbsp; * one food per Hunter already present in their tribe.
+&nbsp; */
+&nbsp;public class HunterCard extends CharacterCard {
+&nbsp;
+&nbsp;    private final boolean hasFoodSymbol;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Builds a new Hunter card.
+&nbsp;     *
+&nbsp;     * @param id            unique identifier of the card
+&nbsp;     * @param era           era the card belongs to
+&nbsp;     * @param points        printed victory points
+&nbsp;     * @param hasFoodSymbol whether the card carries the food symbol
+&nbsp;     * @param minPlayers    minimum number of players for which the card is in play
+&nbsp;     */
+&nbsp;    public HunterCard(String id, Era era, int points, boolean hasFoodSymbol, int minPlayers) {
+<b class="fc">&nbsp;        super(id, era, points, CharacterType.HUNTER, minPlayers);</b>
+<b class="fc">&nbsp;        this.hasFoodSymbol = hasFoodSymbol;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;If the card has the food symbol, awards one food per Hunter
+&nbsp;     * already present in the player&#39;s tribe.&lt;/p&gt;
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void onAddedToTribe(Game game, Player player) {
+<b class="fc">&nbsp;        if (hasFoodSymbol) {</b>
+<b class="fc">&nbsp;            int huntersInTribe = player.getTribe().count(CharacterType.HUNTER);</b>
+<b class="fc">&nbsp;            player.applyFoodDelta(huntersInTribe);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public CardState toState() {
+<b class="fc">&nbsp;        return new CharacterCardState(</b>
+<b class="fc">&nbsp;                getId(),</b>
+<b class="fc">&nbsp;                getEra(),</b>
+<b class="fc">&nbsp;                getPoints(),</b>
+<b class="fc">&nbsp;                getCharacterType(),</b>
+<b class="fc">&nbsp;                getMinPlayers(),</b>
+<b class="fc">&nbsp;                hasFoodSymbol,</b>
+&nbsp;                null,
+&nbsp;                null,
+&nbsp;                null
+&nbsp;        );
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

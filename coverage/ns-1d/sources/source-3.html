@@ -1,0 +1,153 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VirtualViewRmi</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.network.rmi.server</a>
+</div>
+
+<h1>Coverage Summary for Class: VirtualViewRmi (it.polimi.ingsw.am23.network.rmi.server)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">VirtualViewRmi</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.network.rmi.server;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.enums.ActionType;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.*;
+&nbsp;import it.polimi.ingsw.am23.network.LobbyState;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualView;
+&nbsp;
+&nbsp;import java.rmi.Remote;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * RMI-flavored {@link VirtualView}.
+&nbsp; * Every method redeclares its parent to throw {@link RemoteException}, as
+&nbsp; * required by the {@link Remote} contract.
+&nbsp; */
+&nbsp;public interface VirtualViewRmi extends VirtualView, Remote {
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onConnected(String playerId, List&lt;LobbyState&gt; lobbies) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onConnectError(String reason) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onLobbyListUpdated(List&lt;LobbyState&gt; lobbies) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onLobbyCreated(LobbyState lobby) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onLobbyUpdate(LobbyState lobby) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onJoinError(String reason) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onLobbyClosed() throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onGameStarted(GameStartedPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onTotemPlaced(TotemPlacedPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onCardsTaken(CardsTakenPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onExtraCardTaken(ExtraCardTakenPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onEventResolved(EventResolvedPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onMarketRefreshed(MarketRefresherPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onEraProgression(EraProgressionPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onGameOver() throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onScoreboardAvailable(ScoreBoardPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onMatchRankingsAvailable(MatchRankingsPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onLeaderboardAvailable(LeaderboardPayload payload) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onActionError(ActionType actionType, String message) throws RemoteException;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    void onServerCrashed() throws RemoteException;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

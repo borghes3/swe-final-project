@@ -1,0 +1,748 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GameTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model</a>
+</div>
+
+<h1>Coverage Summary for Class: GameTest (it.polimi.ingsw.am23.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (22/22)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (312/312)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
+&nbsp;import it.polimi.ingsw.am23.model.board.Board;
+&nbsp;import it.polimi.ingsw.am23.model.board.CardMarket;
+&nbsp;import it.polimi.ingsw.am23.model.board.OfferAction;
+&nbsp;import it.polimi.ingsw.am23.model.board.OfferTile;
+&nbsp;import it.polimi.ingsw.am23.model.cards.BuildingCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am23.model.cards.events.SustenanceEventCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
+&nbsp;import it.polimi.ingsw.am23.model.deck.BuildingDeck;
+&nbsp;import it.polimi.ingsw.am23.model.deck.TribeDeck;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+&nbsp;import it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.enums.GamePhase;
+&nbsp;import it.polimi.ingsw.am23.model.enums.RowType;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;import it.polimi.ingsw.am23.model.resolvers.EventResolver;
+&nbsp;import org.junit.jupiter.api.Test;
+&nbsp;
+&nbsp;import java.util.EnumMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;import static org.junit.jupiter.api.Assertions.*;
+&nbsp;
+<b class="fc">&nbsp;class GameTest {</b>
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void startGameMovesToPlacingTotemsAndNotifiesObservers() {
+&nbsp;        // Input  : single player p1, one offer tile, one turn-order slot; attach observer; call startGame().
+&nbsp;        // Output : phase==PLACING_TOTEMS; observer received 1 onGameStarted, no extra state-changed events.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, &quot;p1&quot;)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();</b>
+<b class="fc">&nbsp;        game.addObserver(observer);</b>
+&nbsp;
+<b class="fc">&nbsp;        game.startGame();</b>
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(GamePhase.PLACING_TOTEMS, game.getGamePhase());</b>
+<b class="fc">&nbsp;        assertEquals(1, observer.gameStartedCount);</b>
+<b class="fc">&nbsp;        assertEquals(0, observer.stateChangedCount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void findPlayerThrowsForMissingPlayer() {
+&nbsp;        // Input  : game with only player &quot;p1&quot;; call findPlayer(&quot;missing&quot;).
+&nbsp;        // Output : PlayerNotFoundException is thrown.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        assertThrows(PlayerNotFoundException.class, () -&gt; game.findPlayer(&quot;missing&quot;));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void placeTotemRejectsWrongPlayerInTurnOrder() {
+&nbsp;        // Input  : turn-order with p1 first then p2; call game.placeTotem(&quot;p2&quot;, &#39;A&#39;) (wrong order).
+&nbsp;        // Output : failure with ErrorCode.WRONG_PLAYER, offer tile &#39;A&#39; remains free, turn-order still has p1 first.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(</b>
+&nbsp;                        new OfferTile(&#39;A&#39;, null, 2, new OfferAction(1, 0, 0)),
+&nbsp;                        new OfferTile(&#39;B&#39;, null, 2, new OfferAction(0, 1, 0))
+&nbsp;                ),
+<b class="fc">&nbsp;                List.of(</b>
+&nbsp;                        new TurnOrderSlot(0, 0, &quot;p1&quot;),
+&nbsp;                        new TurnOrderSlot(0, 0, &quot;p2&quot;)
+&nbsp;                ),
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.placeTotem(&quot;p2&quot;, &#39;A&#39;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertFalse(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.WRONG_PLAYER, result.getError());</b>
+<b class="fc">&nbsp;        assertTrue(game.getBoard().getOfferTile(&#39;A&#39;).isFree());</b>
+<b class="fc">&nbsp;        assertEquals(&quot;p1&quot;, game.getBoard().turnOrderTile().getSlot(0).getPlayerId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void placeTotemTransitionsToResolvingOffersWhenLastTotemIsPlaced() {
+&nbsp;        // Input  : two players p1/p2 in turn order; both call placeTotem in sequence (&#39;A&#39; then &#39;B&#39;).
+&nbsp;        // Output : both placements succeed, after the last one phase==RESOLVING_OFFERS,
+&nbsp;        //          and the turn-order tile is empty (no more pending totems).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(</b>
+&nbsp;                        new OfferTile(&#39;A&#39;, null, 2, new OfferAction(1, 0, 0)),
+&nbsp;                        new OfferTile(&#39;B&#39;, null, 2, new OfferAction(0, 1, 0))
+&nbsp;                ),
+<b class="fc">&nbsp;                List.of(</b>
+&nbsp;                        new TurnOrderSlot(0, 0, &quot;p1&quot;),
+&nbsp;                        new TurnOrderSlot(0, 0, &quot;p2&quot;)
+&nbsp;                ),
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.startGame();</b>
+<b class="fc">&nbsp;        assertTrue(game.placeTotem(&quot;p1&quot;, &#39;A&#39;).isSuccess());</b>
+<b class="fc">&nbsp;        ActionResult secondPlacement = game.placeTotem(&quot;p2&quot;, &#39;B&#39;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(secondPlacement.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.RESOLVING_OFFERS, game.getGamePhase());</b>
+<b class="fc">&nbsp;        assertTrue(game.getBoard().turnOrderTile().isEmpty());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void placeTotemRejectsOccupiedOfferTile() {
+&nbsp;        // Input  : offer &#39;A&#39; already occupied by another player; p1 (whose turn it is) calls placeTotem(&quot;p1&quot;, &#39;A&#39;).
+&nbsp;        // Output : failure with ErrorCode.INVALID_TILE.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;other&quot;, 2, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, &quot;p1&quot;)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.placeTotem(&quot;p1&quot;, &#39;A&#39;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertFalse(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.INVALID_TILE, result.getError());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeCardRejectsWronRow() {
+&nbsp;        // Input  : offer &#39;A&#39; grants 1 TOP draw (bottom=0); p1 calls takeSingleCard with BOTTOM row.
+&nbsp;        // Output : failure with ErrorCode.INVALID_ROW (drawable count from BOTTOM is 0).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;p1&quot;, 2, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, &quot;p2&quot;)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.BOTTOM, 0, false));</b>
+<b class="fc">&nbsp;        assertFalse(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.INVALID_ROW, result.getError());</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeCardsRejectsEventCardsAndDoesNotConsumeTurn() {
+&nbsp;        // Input  : Market TOP=[event sustenance card, artist a1]; p1 calls takeSingleCard for TOP[0] (the event).
+&nbsp;        // Output : failure with ErrorCode.CARD_NOT_TAKABLE, p1 still has the offer tile (turn not consumed).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Card topEvent = new SustenanceEventCard(&quot;se1&quot;, Era.ERA_1, 0, false);</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;p1&quot;, 2, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, &quot;p2&quot;)),</b>
+<b class="fc">&nbsp;                List.of(topEvent, TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, false));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertFalse(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.CARD_NOT_TAKABLE, result.getError());</b>
+<b class="fc">&nbsp;        assertNotNull(game.getBoard().getOfferTileByPlayerId(&quot;p1&quot;));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeCardsSuccessReturnsPlayerToTurnOrderAndGrantsFoodReward() {
+&nbsp;        // Input  : p1(food=1) on offer &#39;A&#39; with foodReward=2 and 1 TOP draw; takes artist a1.
+&nbsp;        // Output : success; p1.getFood()==3 (1+2 reward), tribe gets 1 character, p1 placed back on turn-order slot 0.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 1, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 0, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;p1&quot;, 2, new OfferAction(1, 0, 2))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(1, 0, null), new TurnOrderSlot(0, 0, &quot;p2&quot;)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, false));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(3, p1.getFood());</b>
+<b class="fc">&nbsp;        assertEquals(1, p1.getTribe().getCharacters().size());</b>
+<b class="fc">&nbsp;        assertEquals(&quot;p1&quot;, game.getBoard().turnOrderTile().getSlot(0).getPlayerId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeSingleCardAcceptsBuildingCardsAndPaysFoodCost() {
+&nbsp;        // Input  : p1(food=5), top building &quot;b1&quot; with cost=3; call takeSingleCard(TOP, 0, isBuilding=true).
+&nbsp;        // Output : success; p1.getFood()==2 (5-3), tribe has 1 building, p1 is placed in turn-order slot 0.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 5, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;p1&quot;, 2, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.building(&quot;b1&quot;, Era.ERA_1, 0, 3, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, true));</b>
+&nbsp;
+<b class="fc">&nbsp;        System.out.println(result.getError());</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(2, p1.getFood());</b>
+<b class="fc">&nbsp;        assertEquals(1, p1.getTribe().getBuildings().size());</b>
+<b class="fc">&nbsp;        assertEquals(&quot;p1&quot;, game.getBoard().turnOrderTile().getSlot(0).getPlayerId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeSingleCardAppliesPositiveTurnOrderFoodDelta() {
+&nbsp;        // Input  : p1(food=1), offer &#39;A&#39; with no food reward but turn-order slot has +2 food delta.
+&nbsp;        //          Take artist a1 → after drawing player is moved back to the slot (+2 food).
+&nbsp;        // Output : p1.getFood()==3 (1 + 2 from turn-order slot).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 1, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;p1&quot;, 1, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 2, null)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, false));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(3, p1.getFood());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeSingleCardFallsBackToPrestigeWhenTurnOrderFoodIsTooExpensive() {
+&nbsp;        // Input  : p1(food=1, PP=10); turn-order slot delta = -2 food. p1 cannot afford 2 food.
+&nbsp;        //          Take artist; on return-to-slot the negative delta is paid in PP (2*delta) instead of food.
+&nbsp;        // Output : p1.getFood()==1 (unchanged), p1.getPrestigePoints()==6 (10 - 4).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 1, 10);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, &quot;p1&quot;, 1, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, -2, null)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.setPhase(game, GamePhase.RESOLVING_OFFERS);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, false));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(1, p1.getFood());</b>
+<b class="fc">&nbsp;        assertEquals(6, p1.getPrestigePoints());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeExtraCardValidatesPendingPlayerAndCost() {
+&nbsp;        // Input  : 3 sequential takeExtraCard calls — (a) before any pending player is set;
+&nbsp;        //          (b) after setting p1 as pending, p2 tries to draw; (c) p1 tries to buy a building
+&nbsp;        //          costing 4 food but only has 1.
+&nbsp;        // Output : (a) NO_PENDING_EXTRA_DRAW, (b) INVALID_EXTRA_DRAW, (c) NOT_ENOUGH_FOOD.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 1, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        BuildingCard expensiveBuilding = TestUtils.building(&quot;b1&quot;, Era.ERA_1, 0, 4, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0));</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(expensiveBuilding),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(ErrorCode.NO_PENDING_EXTRA_DRAW, game.takeExtraCard(&quot;p1&quot;, new SelectedCardExtraDraw(0, null)).getError());</b>
+&nbsp;
+<b class="fc">&nbsp;        game.setPendingExtraDrawPlayerId(&quot;p1&quot;);</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.INVALID_EXTRA_DRAW, game.takeExtraCard(&quot;p2&quot;, new SelectedCardExtraDraw(0, null)).getError());</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.NOT_ENOUGH_FOOD, game.takeExtraCard(&quot;p1&quot;, new SelectedCardExtraDraw(null, 0)).getError());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeExtraCardAcceptsTribeCardSelection() {
+&nbsp;        // Input  : p1 is set as pending extra-draw player; p1 picks TOP[0] (a tribe artist) as extra card.
+&nbsp;        // Output : success; p1&#39;s tribe gains 1 character; phase advances to RESOLVING_EVENTS.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 2, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.setPendingExtraDrawPlayerId(&quot;p1&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeExtraCard(&quot;p1&quot;, new SelectedCardExtraDraw(0, null));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(1, p1.getTribe().getCharacters().size());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void takeExtraCardAcceptsBuildingSelection() {
+&nbsp;        // Input  : p1(food=5) is pending extra-draw; picks the top building &quot;b1&quot; (cost=2) as extra card.
+&nbsp;        // Output : success; p1.getFood()==3 (5-2); 1 building added to tribe; phase==RESOLVING_EVENTS.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 5, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.building(&quot;b1&quot;, Era.ERA_1, 0, 2, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.setPendingExtraDrawPlayerId(&quot;p1&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.takeExtraCard(&quot;p1&quot;, new SelectedCardExtraDraw(null, 0));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(3, p1.getFood());</b>
+<b class="fc">&nbsp;        assertEquals(1, p1.getTribe().getBuildings().size());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void resolveEventsAndCalculateScoresProduceObserverNotifications() {
+&nbsp;        // Input  : 2 players; BOTTOM has 1 sustenance event card; round=1; attach observer;
+&nbsp;        //          call resolveEvents() and calculateScores(); then removeObserver and calculateScores() again.
+&nbsp;        // Output : both ActionResults succeed; observer recorded 1 onEventResolved and 1 onScoreboardAvailable;
+&nbsp;        //          after removeObserver, scoresCount stays at 1.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(new SustenanceEventCard(&quot;s&quot;, Era.ERA_1, 0, false)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();</b>
+<b class="fc">&nbsp;        game.addObserver(observer);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult eventsResult = game.resolveEvents();</b>
+<b class="fc">&nbsp;        ActionResult scoresResult = game.calculateScores();</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(eventsResult.isSuccess());</b>
+<b class="fc">&nbsp;        assertTrue(scoresResult.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(1, observer.eventResolvedCount);</b>
+<b class="fc">&nbsp;        assertEquals(1, observer.scoresCount);</b>
+&nbsp;
+<b class="fc">&nbsp;        game.removeObserver(observer);</b>
+<b class="fc">&nbsp;        game.calculateScores();</b>
+<b class="fc">&nbsp;        assertEquals(1, observer.scoresCount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void resolveEventsAdvancesEraDuringCleanup() {
+&nbsp;        // Input  : 2 players; BOTTOM has 1 ERA_1 event; tribe deck contains an ERA_2 artist + several ERA_1 fillers;
+&nbsp;        //         resolveEvents() triggers cleanup which refills TOP and discovers an ERA_2 card → era progression.
+&nbsp;        // Output : success; currentEra==ERA_2; phase==PLACING_TOTEMS; observer recorded 1 onEraProgression.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Board board = new Board(</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                new it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile(List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(1, 0, null)))</b>
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        CardMarket cardMarket = new CardMarket(</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(new SustenanceEventCard(&quot;e1&quot;, Era.ERA_1, 0, false)),</b>
+<b class="fc">&nbsp;                List.of()</b>
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        Map&lt;Era, List&lt;BuildingCard&gt;&gt; buildingsByEra = new EnumMap&lt;&gt;(Era.class);</b>
+<b class="fc">&nbsp;        buildingsByEra.put(Era.ERA_2, List.of(TestUtils.building(&quot;b2&quot;, Era.ERA_2, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))));</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = new Game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+&nbsp;                board,
+<b class="fc">&nbsp;                new TribeDeck(List.of(</b>
+<b class="fc">&nbsp;                        TestUtils.artist(&quot;a2&quot;, Era.ERA_2),</b>
+<b class="fc">&nbsp;                        TestUtils.artist(&quot;a3&quot;, Era.ERA_1),</b>
+<b class="fc">&nbsp;                        TestUtils.artist(&quot;a4&quot;, Era.ERA_1),</b>
+<b class="fc">&nbsp;                        TestUtils.artist(&quot;a5&quot;, Era.ERA_1),</b>
+<b class="fc">&nbsp;                        TestUtils.artist(&quot;a6&quot;, Era.ERA_1),</b>
+<b class="fc">&nbsp;                        TestUtils.artist(&quot;a7&quot;, Era.ERA_1)</b>
+&nbsp;                )),
+&nbsp;                new BuildingDeck(buildingsByEra),
+&nbsp;                new EventResolver(),
+&nbsp;                cardMarket,
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();</b>
+<b class="fc">&nbsp;        game.addObserver(observer);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.resolveEvents();</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(Era.ERA_2, game.getCurrentEra());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.PLACING_TOTEMS, game.getGamePhase());</b>
+<b class="fc">&nbsp;        assertEquals(1, observer.eraProgressionCount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void resolveEventsAtRoundTenEndsGameAndNotifiesGameOver() {
+&nbsp;        // Input  : currentRound=10 (last round); TOP and BOTTOM each contain a sustenance event; call resolveEvents().
+&nbsp;        // Output : success; phase==ENDED; observer recorded 1 onGameOver.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 3, 0);</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, null), new TurnOrderSlot(0, 0, null)),</b>
+<b class="fc">&nbsp;                List.of(new SustenanceEventCard(&quot;s-top&quot;, Era.ERA_1, 0, true)),</b>
+<b class="fc">&nbsp;                List.of(new SustenanceEventCard(&quot;s-bottom&quot;, Era.ERA_1, 0, false)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                10
+&nbsp;        );
+<b class="fc">&nbsp;        TestUtils.RecordingObserver observer = new TestUtils.RecordingObserver();</b>
+<b class="fc">&nbsp;        game.addObserver(observer);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.resolveEvents();</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.ENDED, game.getGamePhase());</b>
+<b class="fc">&nbsp;        assertEquals(1, observer.gameOverCount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void autoResolveProcessesZeroDrawTilesAutomatically() {
+&nbsp;        // Input  : offer &#39;A&#39; = (0 draws, foodReward=3), offer &#39;B&#39; = (1 TOP draw, no reward).
+&nbsp;        //          Both players place totems (p1→&#39;A&#39;, p2→&#39;B&#39;). The &#39;A&#39; tile has 0 draws → auto-resolved.
+&nbsp;        // Output : phase==RESOLVING_OFFERS; &#39;A&#39; freed automatically; p1 returned to turn order with +3 food;
+&nbsp;        //          &#39;B&#39; remains occupied by p2 (still needs to draw).
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 0, 0);</b>
+<b class="fc">&nbsp;        Player p2 = TestUtils.player(&quot;p2&quot;, 0, 0);</b>
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1, p2),</b>
+<b class="fc">&nbsp;                List.of(</b>
+&nbsp;                        new OfferTile(&#39;A&#39;, null, 2, new OfferAction(0, 0, 3)),
+&nbsp;                        new OfferTile(&#39;B&#39;, null, 2, new OfferAction(1, 0, 0))
+&nbsp;                ),
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, &quot;p1&quot;), new TurnOrderSlot(1, 0, &quot;p2&quot;)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.startGame();</b>
+&nbsp;
+<b class="fc">&nbsp;        game.placeTotem(&quot;p1&quot;, &#39;A&#39;);</b>
+<b class="fc">&nbsp;        game.placeTotem(&quot;p2&quot;, &#39;B&#39;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(GamePhase.RESOLVING_OFFERS, game.getGamePhase());</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(game.getBoard().getOfferTile(&#39;A&#39;).isFree());</b>
+<b class="fc">&nbsp;        assertNotNull(game.getBoard().findTurnOrderSlotOccupiedBy(&quot;p1&quot;));</b>
+<b class="fc">&nbsp;        assertEquals(3, p1.getFood());</b>
+<b class="fc">&nbsp;        assertEquals(&quot;p2&quot;, game.getBoard().getOfferTile(&#39;B&#39;).getOccupiedByPlayerId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void skipTurnFailsWhenCharacterCardIsAvailable() {
+&nbsp;        // Input  : single player p1, offer &#39;A&#39; grants 1 TOP draw, market TOP has 1 artist (a character) available.
+&nbsp;        //          After placeTotem, p1 calls skipTurn (but a character is available, so skipping is forbidden).
+&nbsp;        // Output : failure with ErrorCode.CANNOT_SKIP.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 0, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 1, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, &quot;p1&quot;)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.startGame();</b>
+<b class="fc">&nbsp;        game.placeTotem(&quot;p1&quot;, &#39;A&#39;);</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.skipTurn(&quot;p1&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertFalse(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(ErrorCode.CANNOT_SKIP, result.getError());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void skipTurnSucceedsWhenOnlyBuildingsAvailable() {
+&nbsp;        // Input  : p1 (food=0) places totem on offer &#39;A&#39; that grants 2 top draws.
+&nbsp;        //          Market = [TOP=[artist a1], BOTTOM=[], top buildings=[b1]].
+&nbsp;        //          p1 takes the artist (1 of 2 top draws), then calls skipTurn(&quot;p1&quot;).
+&nbsp;        // Output : skipTurn succeeds (only buildings remain on TOP — no character forced),
+&nbsp;        //          offer &#39;A&#39; is freed, and the game advances to RESOLVING_EVENTS.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 0, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 1, new OfferAction(2, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, &quot;p1&quot;)),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.artist(&quot;a1&quot;, Era.ERA_1)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.building(&quot;b1&quot;, Era.ERA_1, 0, 0, new FlatEndGamePointsEffect(0))),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.startGame();</b>
+<b class="fc">&nbsp;        game.placeTotem(&quot;p1&quot;, &#39;A&#39;);</b>
+<b class="fc">&nbsp;        assertTrue(game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, false)).isSuccess());</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.skipTurn(&quot;p1&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertTrue(game.getBoard().getOfferTile(&#39;A&#39;).isFree());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Test
+&nbsp;    void skipTurnSucceedsInExtraDrawPhase() {
+&nbsp;        // Input  : p1 places totem on &#39;A&#39; (1 TOP draw); pending extra-draw is set to p1;
+&nbsp;        //          p1 takes the only top building (consuming the draw and entering EXTRA_DRAW phase);
+&nbsp;        //          then p1 calls skipTurn (no characters available → skip allowed).
+&nbsp;        // Output : skipTurn succeeds; phase advances to RESOLVING_EVENTS; currentPlayerId becomes null.
+<b class="fc">&nbsp;        Player p1 = TestUtils.player(&quot;p1&quot;, 0, 0);</b>
+&nbsp;
+<b class="fc">&nbsp;        Game game = TestUtils.game(</b>
+<b class="fc">&nbsp;                List.of(p1),</b>
+<b class="fc">&nbsp;                List.of(new OfferTile(&#39;A&#39;, null, 1, new OfferAction(1, 0, 0))),</b>
+<b class="fc">&nbsp;                List.of(new TurnOrderSlot(0, 0, &quot;p1&quot;)),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(),</b>
+<b class="fc">&nbsp;                List.of(TestUtils.building(&quot;b1&quot;, Era.ERA_1, 0, 0, new it.polimi.ingsw.am23.model.effects.buildings.FlatEndGamePointsEffect(0))),</b>
+&nbsp;                Era.ERA_1,
+&nbsp;                1
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        game.startGame();</b>
+<b class="fc">&nbsp;        game.placeTotem(&quot;p1&quot;, &#39;A&#39;);</b>
+&nbsp;
+<b class="fc">&nbsp;        game.setPendingExtraDrawPlayerId(&quot;p1&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        game.takeSingleCard(&quot;p1&quot;, new SelectedSingleCard(RowType.TOP, 0, true));</b>
+&nbsp;
+<b class="fc">&nbsp;        assertEquals(GamePhase.EXTRA_DRAW, game.getGamePhase());</b>
+&nbsp;
+<b class="fc">&nbsp;        ActionResult result = game.skipTurn(&quot;p1&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        assertTrue(result.isSuccess());</b>
+<b class="fc">&nbsp;        assertEquals(GamePhase.RESOLVING_EVENTS, game.getGamePhase());</b>
+<b class="fc">&nbsp;        assertNull(game.getGameState().currentPlayerId());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

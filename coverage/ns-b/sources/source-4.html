@@ -1,0 +1,1035 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Game</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model</a>
+</div>
+
+<h1>Coverage Summary for Class: Game (it.polimi.ingsw.am23.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Game</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (43/43)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    71,8%
+  </span>
+  <span class="absValue">
+    (89/124)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94,9%
+  </span>
+  <span class="absValue">
+    (356/375)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
+&nbsp;import it.polimi.ingsw.am23.model.board.*;
+&nbsp;import it.polimi.ingsw.am23.model.cards.BuildingCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am23.model.cards.CharacterCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.EventCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
+&nbsp;import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
+&nbsp;import it.polimi.ingsw.am23.model.deck.BuildingDeck;
+&nbsp;import it.polimi.ingsw.am23.model.deck.TribeDeck;
+&nbsp;import it.polimi.ingsw.am23.model.draw.CardDrawState;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+&nbsp;import it.polimi.ingsw.am23.model.enums.ActionType;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.enums.GamePhase;
+&nbsp;import it.polimi.ingsw.am23.model.enums.RowType;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.*;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;import it.polimi.ingsw.am23.model.resolvers.EventResolver;
+&nbsp;import it.polimi.ingsw.am23.model.resolvers.ScoreCalculator;
+&nbsp;import it.polimi.ingsw.am23.model.resolvers.ScoreResult;
+&nbsp;import it.polimi.ingsw.am23.model.state.CardState;
+&nbsp;import it.polimi.ingsw.am23.model.state.GameState;
+&nbsp;import it.polimi.ingsw.am23.model.state.ScoreEntry;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;
+&nbsp;/**
+&nbsp; * Reference implementation of {@link GameModel}.
+&nbsp; * Aggregates the board, the decks, the players and the current match
+&nbsp; * state, and drives the lifecycle through the placing, drawing, event and
+&nbsp; * end-of-game phases. Mutations are reported to subscribed {@link
+&nbsp; * ModelObserver} instances via typed payloads.
+&nbsp; */
+&nbsp;public class Game implements GameModel {
+&nbsp;
+&nbsp;    // Attributes
+&nbsp;    private final List&lt;Player&gt; players;
+&nbsp;    private final Board board;
+&nbsp;    private final TribeDeck tribeDeck;
+&nbsp;    private final BuildingDeck buildingDeck;
+&nbsp;    private final EventResolver eventResolver;
+&nbsp;    private final CardMarket cardMarket;
+<b class="fc">&nbsp;    private final List&lt;ModelObserver&gt; observers = new ArrayList&lt;&gt;();</b>
+&nbsp;    private final CardDrawState drawState;
+&nbsp;    // Per-turn buffers used by CardsTakenPayload, populated during takeSingleCard
+&nbsp;    // and cleared when the player&#39;s turn ends (setNextPhase)
+<b class="fc">&nbsp;    private final List&lt;String&gt; pendingTakenCardIds = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;    private final List&lt;String&gt; pendingTakenBuildingIds = new ArrayList&lt;&gt;();</b>
+&nbsp;    // Match state
+&nbsp;    private GameState gameState;
+&nbsp;    private Era currentEra;
+&nbsp;    private int currentRound;
+&nbsp;    private GamePhase phase;
+<b class="fc">&nbsp;    private String pendingExtraDrawPlayerId = null;</b>
+<b class="fc">&nbsp;    private boolean skipAllowed = false;  // for the GUI to show the &#39;skip&#39; button</b>
+<b class="fc">&nbsp;    private int pendingFoodSpentOnBuildings = 0;</b>
+<b class="fc">&nbsp;    private int pendingFoodGainedFromOfferTile = 0;</b>
+<b class="fc">&nbsp;    private int pendingTurnOrderSlotIndex = -1;</b>
+<b class="fc">&nbsp;    private int pendingFoodDeltaFromSlot = 0;</b>
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;    private String currentPlayerId = null;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Builds a new game instance.
+&nbsp;     *
+&nbsp;     * @param players       players in the match
+&nbsp;     * @param board         central board
+&nbsp;     * @param tribeDeck     tribe deck used to refill the market
+&nbsp;     * @param buildingDeck  building deck used at era progression
+&nbsp;     * @param eventResolver resolver applied during the event phase
+&nbsp;     * @param cardMarket    card market exposed to players
+&nbsp;     * @param currentEra    starting era
+&nbsp;     * @param currentRound  starting round number
+&nbsp;     */
+<b class="fc">&nbsp;    public Game(List&lt;Player&gt; players, Board board, TribeDeck tribeDeck, BuildingDeck buildingDeck, EventResolver eventResolver, CardMarket cardMarket, Era currentEra, int currentRound) {</b>
+<b class="fc">&nbsp;        this.players = players;</b>
+<b class="fc">&nbsp;        this.board = board;</b>
+<b class="fc">&nbsp;        this.tribeDeck = tribeDeck;</b>
+<b class="fc">&nbsp;        this.buildingDeck = buildingDeck;</b>
+<b class="fc">&nbsp;        this.eventResolver = eventResolver;</b>
+<b class="fc">&nbsp;        this.cardMarket = cardMarket;</b>
+<b class="fc">&nbsp;        this.currentEra = currentEra;</b>
+<b class="fc">&nbsp;        this.currentRound = currentRound;</b>
+<b class="fc">&nbsp;        this.phase = GamePhase.SETUP;</b>
+<b class="fc">&nbsp;        this.gameState = buildGameState();</b>
+<b class="fc">&nbsp;        this.drawState = new CardDrawState();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;Marks the setup as completed, moves to the placing phase and
+&nbsp;     * notifies observers.&lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void startGame() {
+<b class="fc">&nbsp;        phase = GamePhase.PLACING_TOTEMS;</b>
+<b class="fc">&nbsp;        currentPlayerId = getNextPlacingPlayerId();</b>
+<b class="fc">&nbsp;        gameState = buildGameState();</b>
+<b class="fc">&nbsp;        notifyGameStarted();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Looks up a player by id.
+&nbsp;     *
+&nbsp;     * @param playerId id of the player to retrieve
+&nbsp;     * @return the matching player
+&nbsp;     * @throws PlayerNotFoundException if no player matches the id
+&nbsp;     */
+&nbsp;    public Player findPlayer(String playerId) {
+<b class="fc">&nbsp;        return players.stream()</b>
+<b class="fc">&nbsp;                .filter(p -&gt; Objects.equals(p.getId(), playerId))</b>
+<b class="fc">&nbsp;                .findFirst()</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new PlayerNotFoundException(&quot;Player &quot; + playerId + &quot; not found in this match&quot;));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // PLACING PHASE
+&nbsp;    // ------------------------------------------
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ActionResult placeTotem(String playerId, char offerTileChar) {
+<b class="fc">&nbsp;        Player p = findPlayer(playerId);</b>
+&nbsp;
+<b class="fc">&nbsp;        TurnOrderSlot currentSlot = board.turnOrderTile().getFirstOccupiedSlot();</b>
+<b class="pc">&nbsp;        if (currentSlot == null || !Objects.equals(currentSlot.getPlayerId(), p.getId())) {</b>
+<b class="fc">&nbsp;            return ActionResult.failure(</b>
+&nbsp;                    ActionType.PLACE_TOTEM,
+&nbsp;                    ErrorCode.WRONG_PLAYER,
+&nbsp;                    &quot;It&#39;s not your turn.&quot;
+&nbsp;            );
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        OfferTile tile = board.getOfferTile(offerTileChar);</b>
+<b class="fc">&nbsp;        if (!tile.isFree()) {</b>
+<b class="fc">&nbsp;            return ActionResult.failure(</b>
+&nbsp;                    ActionType.PLACE_TOTEM,
+&nbsp;                    ErrorCode.INVALID_TILE,
+&nbsp;                    &quot;The selected offer tile is not empty.&quot;
+&nbsp;            );
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Objects.requireNonNull(board.findTurnOrderSlotOccupiedBy(playerId)).clear();</b>
+<b class="fc">&nbsp;        tile.placeTotem(p.getId());</b>
+&nbsp;
+<b class="fc">&nbsp;        currentPlayerId = getNextPlacingPlayerId();</b>
+&nbsp;
+<b class="fc">&nbsp;        notifyTotemPlaced(playerId, offerTileChar, currentPlayerId);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (board.turnOrderTile().isEmpty()) {</b>
+<b class="fc">&nbsp;            phase = GamePhase.RESOLVING_OFFERS;</b>
+<b class="fc">&nbsp;            currentPlayerId = null;</b>
+<b class="fc">&nbsp;            gameState = buildGameState();</b>
+<b class="fc">&nbsp;            notifyEndOfPlacingPhase();</b>
+<b class="fc">&nbsp;            processAutoResolvingOffer();</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            gameState = buildGameState();</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return ActionResult.success(ActionType.PLACE_TOTEM, &quot;Totem placed successfully&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // DRAWING PHASE
+&nbsp;    // ------------------------------------------
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ActionResult takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) {
+<b class="fc">&nbsp;        Player p = findPlayer(playerId);</b>
+&nbsp;
+&nbsp;        // Reject draws issued outside the resolving-offers phase (e.g. a late
+&nbsp;        // click arriving after the round already moved on to events).
+<b class="pc">&nbsp;        if (phase != GamePhase.RESOLVING_OFFERS) {</b>
+<b class="nc">&nbsp;            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PHASE, &quot;Drawing is not allowed in the current phase.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        OfferTile tile = board.getFirstOccupiedOfferTile();</b>
+<b class="pc">&nbsp;        if (tile == null) {</b>
+<b class="nc">&nbsp;            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PHASE, &quot;There is no offer tile to resolve.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="pc">&nbsp;        if (!Objects.equals(p.getId(), tile.getOccupiedByPlayerId()))</b>
+<b class="nc">&nbsp;            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.WRONG_PLAYER, &quot;It&#39;s not your turn.&quot;);</b>
+&nbsp;
+&nbsp;        // Initialize the turn on the first card
+<b class="pc">&nbsp;        if (!drawState.isDrawingStarted()) {</b>
+<b class="fc">&nbsp;            int foodReward = tile.getAction().getFoodReward();</b>
+<b class="fc">&nbsp;            p.applyFoodDelta(foodReward);</b>
+<b class="fc">&nbsp;            pendingFoodGainedFromOfferTile = foodReward;</b>
+<b class="fc">&nbsp;            drawState.init(tile, cardMarket);</b>
+<b class="fc">&nbsp;            currentPlayerId = playerId;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // Verify the player can still draw from the requested row
+<b class="fc">&nbsp;        if (!drawState.canDraw(selectedSingleCard)) {</b>
+<b class="fc">&nbsp;            return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.INVALID_ROW, &quot;You already picked the maximum number of cards from the &quot; + selectedSingleCard.row() + &quot; row.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        int foodDiscount = p.getTribe().getBuildingDiscount();</b>
+&nbsp;
+&nbsp;        // Draw the card
+<b class="fc">&nbsp;        if (selectedSingleCard.isBuilding()) {</b>
+<b class="fc">&nbsp;            BuildingCard c = cardMarket.getBuilding(selectedSingleCard.row(), selectedSingleCard.boardIndex());</b>
+<b class="fc">&nbsp;            int cost = c.getFoodCost() - foodDiscount;</b>
+<b class="pc">&nbsp;            if (cost &gt; p.getFood())</b>
+<b class="nc">&nbsp;                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.NOT_ENOUGH_FOOD, &quot;Not enough food.&quot;);</b>
+<b class="fc">&nbsp;            cardMarket.removeBuilding(selectedSingleCard.row(), selectedSingleCard.boardIndex());</b>
+<b class="fc">&nbsp;            c.onTaken(this, p);</b>
+<b class="fc">&nbsp;            c.getEffect().onBuildingAdded(this, p);</b>
+<b class="fc">&nbsp;            c.getEffect().onAfterAllActions();</b>
+<b class="fc">&nbsp;            p.applyFoodDelta(-cost);</b>
+<b class="fc">&nbsp;            pendingTakenBuildingIds.add(c.getId());</b>
+<b class="fc">&nbsp;            pendingFoodSpentOnBuildings += cost;</b>
+&nbsp;
+&nbsp;        } else {
+<b class="fc">&nbsp;            Card c = cardMarket.getCard(selectedSingleCard.row(), selectedSingleCard.boardIndex());</b>
+<b class="fc">&nbsp;            if (!c.canBeTaken())</b>
+<b class="fc">&nbsp;                return ActionResult.failure(ActionType.TAKE_CARD, ErrorCode.CARD_NOT_TAKABLE, &quot;This card cannot be drawn.&quot;);</b>
+<b class="fc">&nbsp;            cardMarket.removeCard(selectedSingleCard.row(), selectedSingleCard.boardIndex());</b>
+<b class="fc">&nbsp;            c.onTaken(this, p);</b>
+<b class="pc">&nbsp;            for (BuildingCard building : p.getTribe().getBuildings()) {</b>
+<b class="nc">&nbsp;                building.getEffect().onCardTaken(this, p, c);</b>
+&nbsp;            }
+<b class="fc">&nbsp;            pendingTakenCardIds.add(c.getId());</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        drawState.incrementDrawCount(selectedSingleCard);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (drawState.hasFinishedDrawing()) {</b>
+<b class="fc">&nbsp;            setNextPhase(playerId);</b>
+&nbsp;        } else {
+&nbsp;            // Turn not finished yet: send an intermediate payload to refresh the view
+<b class="fc">&nbsp;            notifyCardsTakenIntermediate(playerId);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return ActionResult.success(ActionType.TAKE_CARD, &quot;Card taken successfully.&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ActionResult skipTurn(String playerId) {
+<b class="fc">&nbsp;        Player p = findPlayer(playerId);</b>
+&nbsp;
+&nbsp;        // Extra draw skipping logic
+<b class="fc">&nbsp;        if (phase == GamePhase.EXTRA_DRAW) {</b>
+<b class="pc">&nbsp;            if (!Objects.equals(p.getId(), pendingExtraDrawPlayerId)) {</b>
+<b class="nc">&nbsp;                return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PLAYER, &quot;You cannot skip, it&#39;s not your turn for the extra draw&quot;);</b>
+&nbsp;            }
+<b class="pc">&nbsp;            if (!calculateSkipAllowed()) {</b>
+<b class="nc">&nbsp;                return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.CANNOT_SKIP, &quot;You must take a character card, you cannot skip.&quot;);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Close the extra draw and move on to events
+<b class="fc">&nbsp;            pendingExtraDrawPlayerId = null;</b>
+<b class="fc">&nbsp;            phase = GamePhase.RESOLVING_EVENTS;</b>
+<b class="fc">&nbsp;            gameState = buildGameState();</b>
+<b class="fc">&nbsp;            notifyCardsTaken(playerId);</b>
+<b class="fc">&nbsp;            return ActionResult.success(ActionType.SKIP_TURN, &quot;Extra draw skipped successfully.&quot;);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // Normal draw skipping logic
+<b class="pc">&nbsp;        if (phase != GamePhase.RESOLVING_OFFERS) {</b>
+<b class="nc">&nbsp;            return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PHASE, &quot;You can only skip during the drawing phase.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        OfferTile tile = board.getFirstOccupiedOfferTile();</b>
+<b class="pc">&nbsp;        if (tile == null || !Objects.equals(p.getId(), tile.getOccupiedByPlayerId())) {</b>
+<b class="nc">&nbsp;            return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.WRONG_PLAYER, &quot;It&#39;s not your turn.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        if (!calculateSkipAllowed()) {</b>
+<b class="fc">&nbsp;            return ActionResult.failure(ActionType.SKIP_TURN, ErrorCode.CANNOT_SKIP, &quot;You must take a character card, you cannot skip.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="pc">&nbsp;        if (!drawState.isDrawingStarted()) {</b>
+&nbsp;            // Only applies to offer tiles that grant a food reward
+<b class="nc">&nbsp;            p.applyFoodDelta(tile.getAction().getFoodReward());</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        setNextPhase(playerId);</b>
+&nbsp;
+<b class="fc">&nbsp;        return ActionResult.success(ActionType.SKIP_TURN, &quot;Turn skipped successfully.&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void setNextPhase(String playerId) {
+<b class="fc">&nbsp;        drawState.reset();</b>
+<b class="fc">&nbsp;        returnToTurnOrder(playerId);</b>
+<b class="fc">&nbsp;        currentPlayerId = null;</b>
+&nbsp;
+<b class="fc">&nbsp;        notifyCardsTaken(playerId);</b>
+<b class="fc">&nbsp;        resetPendingDrawData();</b>
+&nbsp;
+<b class="pc">&nbsp;        if (board.getFirstOccupiedOfferTile() == null) {</b>
+<b class="fc">&nbsp;            if (pendingExtraDrawPlayerId != null) {</b>
+<b class="fc">&nbsp;                phase = GamePhase.EXTRA_DRAW;</b>
+<b class="fc">&nbsp;                gameState = buildGameState();</b>
+<b class="fc">&nbsp;                notifyExtraDrawRequest();</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                phase = GamePhase.RESOLVING_EVENTS;</b>
+<b class="fc">&nbsp;                gameState = buildGameState();</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean calculateSkipAllowed() {
+&nbsp;        // Not in resolving-offer / extra-draw: not allowed
+<b class="fc">&nbsp;        if (!(phase == GamePhase.RESOLVING_OFFERS || phase == GamePhase.EXTRA_DRAW)) {</b>
+<b class="fc">&nbsp;            return false;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        String currPlayerId = computeCurrentPlayerId();</b>
+<b class="fc">&nbsp;        if (currPlayerId == null) {</b>
+<b class="fc">&nbsp;            return false;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        boolean topRowAllowed = false;</b>
+<b class="fc">&nbsp;        boolean bottomRowAllowed = false;</b>
+&nbsp;
+<b class="fc">&nbsp;        if (phase == GamePhase.EXTRA_DRAW) {</b>
+<b class="fc">&nbsp;            topRowAllowed = true;</b>
+<b class="pc">&nbsp;        } else if (phase == GamePhase.RESOLVING_OFFERS) {</b>
+<b class="fc">&nbsp;            OfferTile tile = board.getOfferTileByPlayerId(currPlayerId);</b>
+&nbsp;            // First card already drawn (multi-draw offer): check remaining draws
+<b class="pc">&nbsp;            if (drawState.isDrawingStarted()) {</b>
+<b class="fc">&nbsp;                topRowAllowed = drawState.canDrawFromRow(RowType.TOP);</b>
+<b class="fc">&nbsp;                bottomRowAllowed = drawState.canDrawFromRow(RowType.BOTTOM);</b>
+&nbsp;            } else {
+&nbsp;                // First card not yet drawn
+<b class="nc">&nbsp;                topRowAllowed = tile.getAction().getUpperDrawRowCount() &gt; 0;</b>
+<b class="nc">&nbsp;                bottomRowAllowed = tile.getAction().getBottomDrawCount() &gt; 0;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        boolean topHasCharacters = false;</b>
+<b class="fc">&nbsp;        boolean bottomHasCharacters = false;</b>
+&nbsp;
+<b class="pc">&nbsp;        if (topRowAllowed) {</b>
+<b class="fc">&nbsp;            topHasCharacters = cardMarket.getTopRow().stream()</b>
+<b class="pc">&nbsp;                    .anyMatch(card -&gt; !(card instanceof EventCard) &amp;&amp; card.canBeTaken());</b>
+&nbsp;        }
+&nbsp;
+<b class="pc">&nbsp;        if (bottomRowAllowed) {</b>
+<b class="nc">&nbsp;            bottomHasCharacters = cardMarket.getBottomRow().stream()</b>
+<b class="nc">&nbsp;                    .anyMatch(card -&gt; !(card instanceof EventCard) &amp;&amp; card.canBeTaken());</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // Skip allowed only if no character cards are available to draw
+<b class="pc">&nbsp;        return !topHasCharacters &amp;&amp; !bottomHasCharacters;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // After the player has finished drawing, move back to the turn order tile
+&nbsp;    private void returnToTurnOrder(String playerId) {
+&nbsp;        // Remove the player from the offer tile they were on
+<b class="fc">&nbsp;        OfferTile offerTile = board.getOfferTileByPlayerId(playerId);</b>
+<b class="fc">&nbsp;        offerTile.clear();</b>
+&nbsp;        // Fetch the first free slot and place the player on it
+<b class="fc">&nbsp;        TurnOrderTile turnTile = board.turnOrderTile();</b>
+<b class="fc">&nbsp;        TurnOrderSlot slot = turnTile.getFirstFreeSlot();</b>
+<b class="fc">&nbsp;        slot.placeTotem(playerId);</b>
+<b class="fc">&nbsp;        pendingTurnOrderSlotIndex = turnTile.getSlotIndex(slot);</b>
+&nbsp;
+&nbsp;        // Apply the turn order slot food delta
+<b class="fc">&nbsp;        if (slot.givesFood()) {                                     // positive delta</b>
+<b class="fc">&nbsp;            int delta = slot.getFoodDelta();</b>
+<b class="fc">&nbsp;            findPlayer(playerId).applyFoodDelta(delta);</b>
+<b class="fc">&nbsp;            pendingFoodDeltaFromSlot = delta;</b>
+<b class="pc">&nbsp;            for (BuildingCard building : findPlayer(playerId).getTribe().getBuildings()) {</b>
+<b class="nc">&nbsp;                building.getEffect().modifyTurnOrderFood(this, findPlayer(playerId), delta);</b>
+&nbsp;            }
+<b class="fc">&nbsp;        } else if (slot.getFoodDelta() != 0) {                      // negative delta</b>
+<b class="fc">&nbsp;            int delta = slot.getFoodDelta();</b>
+<b class="pc">&nbsp;            if (findPlayer(playerId).canAfford(delta)) {</b>
+<b class="nc">&nbsp;                findPlayer(playerId).applyFoodDelta(delta);</b>
+<b class="nc">&nbsp;                pendingFoodDeltaFromSlot = delta;</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                findPlayer(playerId).spendPrestigePoints(delta * 2);</b>
+<b class="fc">&nbsp;                pendingFoodDeltaFromSlot = 0; // paid in PP, not in food</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void processAutoResolvingOffer() {
+<b class="pc">&nbsp;        if (phase == GamePhase.RESOLVING_OFFERS) {</b>
+<b class="fc">&nbsp;            OfferTile tile = board.getFirstOccupiedOfferTile();</b>
+<b class="pc">&nbsp;            if (tile != null &amp;&amp; (tile.getAction().getUpperDrawRowCount() == 0 &amp;&amp; tile.getAction().getBottomDrawCount() == 0)) {</b>
+<b class="fc">&nbsp;                String autoPlayerId = tile.getOccupiedByPlayerId();</b>
+<b class="fc">&nbsp;                Player p = findPlayer(autoPlayerId);</b>
+<b class="fc">&nbsp;                int foodReward = tile.getAction().getFoodReward();</b>
+<b class="fc">&nbsp;                p.applyFoodDelta(foodReward);</b>
+<b class="fc">&nbsp;                pendingFoodGainedFromOfferTile = foodReward;</b>
+<b class="fc">&nbsp;                returnToTurnOrder(autoPlayerId);</b>
+<b class="fc">&nbsp;                notifyCardsTaken(autoPlayerId);</b>
+<b class="fc">&nbsp;                resetPendingDrawData();</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // RESOLVING EVENTS PHASE
+&nbsp;    // ------------------------------------------
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ActionResult resolveEvents() {
+<b class="fc">&nbsp;        List&lt;EventCard&gt; events = cardMarket.getBottomRowEvents();</b>
+&nbsp;
+<b class="fc">&nbsp;        if (currentRound == 10) {</b>
+<b class="fc">&nbsp;            events = new ArrayList&lt;&gt;(events);</b>
+<b class="fc">&nbsp;            events.addAll(cardMarket.getTopRowEvents());</b>
+&nbsp;
+<b class="fc">&nbsp;            for (EventCard event : eventResolver.orderEvents(events)) {</b>
+<b class="fc">&nbsp;                resolveAndNotifySingleEvent(event);</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            phase = GamePhase.ENDED;</b>
+<b class="fc">&nbsp;            currentPlayerId = null;</b>
+<b class="fc">&nbsp;            cleanUp();</b>
+<b class="fc">&nbsp;            gameState = buildGameState();</b>
+<b class="fc">&nbsp;            notifyGameOver();</b>
+&nbsp;
+&nbsp;        } else {
+<b class="fc">&nbsp;            for (EventCard event : eventResolver.orderEvents(events)) {</b>
+<b class="fc">&nbsp;                resolveAndNotifySingleEvent(event);</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            currentRound++;</b>
+<b class="fc">&nbsp;            phase = GamePhase.PLACING_TOTEMS;</b>
+<b class="fc">&nbsp;            currentPlayerId = getNextPlacingPlayerId();</b>
+&nbsp;
+<b class="fc">&nbsp;            cleanUp();</b>
+<b class="fc">&nbsp;            gameState = buildGameState();</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return ActionResult.success(ActionType.END_ROUND, &quot;Events resolved successfully&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void resolveAndNotifySingleEvent(EventCard event) {
+&nbsp;        // Snapshot food and PP before resolution to compute the delta
+<b class="fc">&nbsp;        Map&lt;String, int[]&gt; before = snapshotPlayerStats();</b>
+&nbsp;
+<b class="fc">&nbsp;        eventResolver.resolveSingleEvent(event, this);</b>
+&nbsp;
+&nbsp;        // Compute deltas
+<b class="fc">&nbsp;        List&lt;PlayerDelta&gt; deltas = computePlayerDeltas(before);</b>
+&nbsp;
+<b class="fc">&nbsp;        notifyEventResolved(event.getId(), deltas);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Snapshot: playerId -&gt; [food, PP]
+&nbsp;    private Map&lt;String, int[]&gt; snapshotPlayerStats() {
+<b class="fc">&nbsp;        Map&lt;String, int[]&gt; snapshot = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        for (Player p : players) {</b>
+<b class="fc">&nbsp;            snapshot.put(p.getId(), new int[]{p.getFood(), p.getPrestigePoints()});</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return snapshot;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;PlayerDelta&gt; computePlayerDeltas(Map&lt;String, int[]&gt; before) {
+<b class="fc">&nbsp;        List&lt;PlayerDelta&gt; deltas = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        for (Player p : players) {</b>
+<b class="fc">&nbsp;            int[] pre = before.get(p.getId());</b>
+<b class="fc">&nbsp;            int foodDelta = p.getFood() - pre[0];</b>
+<b class="fc">&nbsp;            int prestigeDelta = p.getPrestigePoints() - pre[1];</b>
+<b class="fc">&nbsp;            deltas.add(new PlayerDelta(p.getId(), foodDelta, prestigeDelta, p.getFood(), p.getPrestigePoints()));</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return deltas;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // CLEANUP PHASE (END OF ROUND) + ERA PROGRESSION
+&nbsp;    // Prepares the board for the next round and handles era progression
+&nbsp;    // ------------------------------------------
+&nbsp;    private void cleanUp() {
+<b class="fc">&nbsp;        List&lt;String&gt; discardedCardIds = cardMarket.clearBottomRow();</b>
+<b class="fc">&nbsp;        List&lt;String&gt; movedCardIds = cardMarket.moveTopRowToBottom();</b>
+<b class="fc">&nbsp;        RefillResult refill = cardMarket.refillTopRow(tribeDeck, players.size(), currentEra);</b>
+<b class="fc">&nbsp;        List&lt;String&gt; newUpperRowIds = refill.getAddedCards().stream().map(Card::getId).toList();</b>
+<b class="fc">&nbsp;        List&lt;CardState&gt; newUpperRowCards = refill.getAddedCards().stream().map(Card::toState).toList();</b>
+&nbsp;
+<b class="fc">&nbsp;        notifyMarketRefreshed(discardedCardIds, movedCardIds, newUpperRowIds, newUpperRowCards);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (refill.isEraAdvanced()) {</b>
+<b class="fc">&nbsp;            Era newEra = refill.getNewEra();</b>
+<b class="fc">&nbsp;            EraProgressionResult eraResult = cardMarket.handleEraProgression(buildingDeck, newEra);</b>
+<b class="fc">&nbsp;            currentEra = newEra;</b>
+<b class="fc">&nbsp;            gameState = buildGameState();</b>
+<b class="fc">&nbsp;            notifyEraProgression(newEra, eraResult);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // ENDGAME PHASE: compute scores
+&nbsp;    // ------------------------------------------
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ActionResult calculateScores() {
+<b class="fc">&nbsp;        ScoreCalculator scoreCalculator = new ScoreCalculator(this);</b>
+<b class="fc">&nbsp;        List&lt;ScoreResult&gt; scoreBoard = scoreCalculator.calculateFinalScores();</b>
+<b class="fc">&nbsp;        gameState = buildGameStateWithScores(scoreBoard);</b>
+<b class="fc">&nbsp;        notifyScores(scoreBoard);</b>
+<b class="fc">&nbsp;        return ActionResult.success(ActionType.GENERIC, &quot;Scores calculated successfully&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // EXTRA DRAW: at the end of the DRAWING PHASE,
+&nbsp;    // the player saved in pendingExtraDrawPlayerId can draw an extra card.
+&nbsp;    // Invoked by the controller when the owning player holds the extra-draw building effect.
+&nbsp;    // ------------------------------------------
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) {
+<b class="fc">&nbsp;        Player p = findPlayer(playerId);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (pendingExtraDrawPlayerId == null) {</b>
+<b class="fc">&nbsp;            return ActionResult.failure(</b>
+&nbsp;                    ActionType.TAKE_CARD,
+&nbsp;                    ErrorCode.NO_PENDING_EXTRA_DRAW,
+&nbsp;                    &quot;There are no pending extra draws.&quot;
+&nbsp;            );
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        if (!Objects.equals(p.getId(), pendingExtraDrawPlayerId)) {</b>
+<b class="fc">&nbsp;            return ActionResult.failure(</b>
+&nbsp;                    ActionType.TAKE_CARD,
+&nbsp;                    ErrorCode.INVALID_EXTRA_DRAW,
+&nbsp;                    &quot;It&#39;s not your turn.&quot;
+&nbsp;            );
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        int foodDiscount = p.getTribe().getBuildingDiscount();</b>
+&nbsp;
+&nbsp;        String takenCardId;
+&nbsp;        CardState takenCardState;
+&nbsp;        boolean takenBuilding;
+&nbsp;
+<b class="fc">&nbsp;        if (selectedCardExtraDraw.isTribeCard()) {</b>
+<b class="fc">&nbsp;            int boardIndex = selectedCardExtraDraw.getCardIndex();</b>
+<b class="fc">&nbsp;            Card c = cardMarket.getCard(RowType.TOP, boardIndex);</b>
+&nbsp;
+<b class="pc">&nbsp;            if (!c.canBeTaken()) {</b>
+<b class="nc">&nbsp;                return ActionResult.failure(</b>
+&nbsp;                        ActionType.TAKE_CARD,
+&nbsp;                        ErrorCode.INVALID_EXTRA_DRAW,
+&nbsp;                        &quot;This card cannot be drawn from the card market.&quot;
+&nbsp;                );
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            cardMarket.removeCard(RowType.TOP, boardIndex);</b>
+<b class="fc">&nbsp;            c.onTaken(this, p);</b>
+&nbsp;
+<b class="pc">&nbsp;            for (BuildingCard building : p.getTribe().getBuildings()) {</b>
+<b class="nc">&nbsp;                building.getEffect().onCardTaken(this, p, c);</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            takenCardId = c.getId();</b>
+<b class="fc">&nbsp;            takenCardState = c.toState();</b>
+<b class="fc">&nbsp;            takenBuilding = false;</b>
+&nbsp;
+&nbsp;        } else {
+<b class="fc">&nbsp;            int boardIndex = selectedCardExtraDraw.getBuildingIndex();</b>
+<b class="fc">&nbsp;            BuildingCard c = cardMarket.getBuilding(RowType.TOP, boardIndex);</b>
+&nbsp;
+<b class="fc">&nbsp;            int effectiveCost = c.getFoodCost() - foodDiscount;</b>
+<b class="fc">&nbsp;            if (effectiveCost &gt; p.getFood()) {</b>
+<b class="fc">&nbsp;                return ActionResult.failure(</b>
+&nbsp;                        ActionType.TAKE_CARD,
+&nbsp;                        ErrorCode.NOT_ENOUGH_FOOD,
+&nbsp;                        &quot;The food cost exceeds the player&#39;s reserve.&quot;
+&nbsp;                );
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            cardMarket.removeBuilding(RowType.TOP, boardIndex);</b>
+<b class="fc">&nbsp;            c.onTaken(this, p);</b>
+<b class="fc">&nbsp;            c.getEffect().onBuildingAdded(this, p);</b>
+<b class="fc">&nbsp;            c.getEffect().onAfterAllActions();</b>
+<b class="fc">&nbsp;            p.applyFoodDelta(-effectiveCost);</b>
+&nbsp;
+<b class="fc">&nbsp;            takenCardId = c.getId();</b>
+<b class="fc">&nbsp;            takenCardState = c.toState();</b>
+<b class="fc">&nbsp;            takenBuilding = true;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        pendingExtraDrawPlayerId = null;</b>
+<b class="fc">&nbsp;        phase = GamePhase.RESOLVING_EVENTS;</b>
+<b class="fc">&nbsp;        gameState = buildGameState();</b>
+&nbsp;
+<b class="fc">&nbsp;        notifyExtraCardTaken(</b>
+&nbsp;                playerId,
+&nbsp;                takenCardId,
+&nbsp;                takenCardState,
+&nbsp;                takenBuilding,
+<b class="fc">&nbsp;                p.getFood()</b>
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        return ActionResult.success(ActionType.TAKE_CARD, &quot;Extra card taken successfully&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Schedules an extra draw for the supplied player. Invoked by the
+&nbsp;     * extra draw building effect when the building is bought.
+&nbsp;     *
+&nbsp;     * @param playerId id of the player entitled to the extra draw
+&nbsp;     */
+&nbsp;    public void setPendingExtraDrawPlayerId(String playerId) {
+<b class="fc">&nbsp;        this.pendingExtraDrawPlayerId = playerId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void resetPendingDrawData() {
+<b class="fc">&nbsp;        pendingTakenCardIds.clear();</b>
+<b class="fc">&nbsp;        pendingTakenBuildingIds.clear();</b>
+<b class="fc">&nbsp;        pendingFoodSpentOnBuildings = 0;</b>
+<b class="fc">&nbsp;        pendingFoodGainedFromOfferTile = 0;</b>
+<b class="fc">&nbsp;        pendingTurnOrderSlotIndex = -1;</b>
+<b class="fc">&nbsp;        pendingFoodDeltaFromSlot = 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // GAMESTATE
+&nbsp;    // ------------------------------------------
+&nbsp;    private GameState buildGameState() {
+<b class="fc">&nbsp;        skipAllowed = calculateSkipAllowed();</b>
+<b class="fc">&nbsp;        return new GameState(</b>
+&nbsp;                currentEra,
+&nbsp;                currentRound,
+&nbsp;                phase,
+<b class="fc">&nbsp;                computeCurrentPlayerId(),</b>
+<b class="fc">&nbsp;                players.stream().map(Player::getState).toList(),</b>
+<b class="fc">&nbsp;                board.getState(cardMarket),</b>
+&nbsp;                skipAllowed
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private GameState buildGameStateWithScores(List&lt;ScoreResult&gt; scoreBoard) {
+<b class="fc">&nbsp;        List&lt;ScoreEntry&gt; scores = scoreBoard.stream()</b>
+<b class="fc">&nbsp;                .map(r -&gt; new ScoreEntry(r.player.getId(), r.foodPoints, r.PP))</b>
+<b class="fc">&nbsp;                .toList();</b>
+<b class="fc">&nbsp;        skipAllowed = calculateSkipAllowed();</b>
+<b class="fc">&nbsp;        return new GameState(</b>
+&nbsp;                currentEra,
+&nbsp;                currentRound,
+&nbsp;                phase,
+<b class="fc">&nbsp;                computeCurrentPlayerId(),</b>
+<b class="fc">&nbsp;                players.stream().map(Player::getState).toList(),</b>
+<b class="fc">&nbsp;                board.getState(cardMarket),</b>
+&nbsp;                scores,
+&nbsp;                skipAllowed
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private String computeCurrentPlayerId() {
+<b class="fc">&nbsp;        if (phase == GamePhase.EXTRA_DRAW) {</b>
+<b class="fc">&nbsp;            return pendingExtraDrawPlayerId;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return currentPlayerId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String getNextPlacingPlayerId() {
+<b class="fc">&nbsp;        TurnOrderSlot nextSlot = board.turnOrderTile().getFirstOccupiedSlot();</b>
+<b class="fc">&nbsp;        return nextSlot != null ? nextSlot.getPlayerId() : null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // ------------------------------------------
+&nbsp;    // OBSERVERS AND NOTIFICATIONS
+&nbsp;    // ------------------------------------------
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void addObserver(ModelObserver o) {
+<b class="fc">&nbsp;        observers.add(o);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void removeObserver(ModelObserver o) {
+<b class="fc">&nbsp;        observers.remove(o);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void notifyGameStarted() {
+<b class="fc">&nbsp;        GameStartedPayload payload = new GameStartedPayload(buildGameState());</b>
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onGameStarted(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyTotemPlaced(String playerId, char offerTileChar, String nextPlayerId) {
+<b class="fc">&nbsp;        TotemPlacedPayload payload = new TotemPlacedPayload(</b>
+&nbsp;                playerId,
+&nbsp;                offerTileChar,
+&nbsp;                nextPlayerId
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onTotemPlaced(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyEndOfPlacingPhase() {
+&nbsp;        // Player order on the offer track equals the occupied offer tiles in order
+<b class="fc">&nbsp;        List&lt;String&gt; playerOrder = board.offerTiles().stream()</b>
+<b class="fc">&nbsp;                .filter(t -&gt; !t.isFree())</b>
+<b class="fc">&nbsp;                .map(OfferTile::getOccupiedByPlayerId)</b>
+<b class="fc">&nbsp;                .toList();</b>
+&nbsp;        // The first player to draw is the first one on the offer track
+<b class="pc">&nbsp;        String firstPlayerId = playerOrder.isEmpty() ? null : playerOrder.get(0);</b>
+<b class="fc">&nbsp;        EndOfPlacingPhasePayload payload = new EndOfPlacingPhasePayload(playerOrder, firstPlayerId, calculateSkipAllowed());</b>
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onEndOfPlacingPhase(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyCardsTaken(String playerId) {
+&nbsp;        // Compute the phase and the next player after this turn
+&nbsp;        GamePhase newPhase;
+&nbsp;        String nextPlayerId;
+&nbsp;
+<b class="fc">&nbsp;        if (pendingExtraDrawPlayerId != null) {</b>
+<b class="fc">&nbsp;            newPhase = GamePhase.EXTRA_DRAW;</b>
+<b class="fc">&nbsp;            nextPlayerId = pendingExtraDrawPlayerId;</b>
+<b class="fc">&nbsp;        } else if (board.getFirstOccupiedOfferTile() != null) {</b>
+<b class="fc">&nbsp;            newPhase = GamePhase.RESOLVING_OFFERS;</b>
+<b class="fc">&nbsp;            nextPlayerId = board.getFirstOccupiedOfferTile().getOccupiedByPlayerId();</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            newPhase = GamePhase.RESOLVING_EVENTS;</b>
+<b class="fc">&nbsp;            nextPlayerId = null;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Player p = findPlayer(playerId);</b>
+<b class="fc">&nbsp;        List&lt;CardState&gt; takenCards = p.getTribe().getCharacters().stream()</b>
+<b class="fc">&nbsp;                .filter(c -&gt; pendingTakenCardIds.contains(c.getId()))</b>
+<b class="fc">&nbsp;                .map(CharacterCard::toState)</b>
+<b class="fc">&nbsp;                .toList();</b>
+<b class="fc">&nbsp;        List&lt;CardState&gt; takenBuildings = p.getTribe().getBuildings().stream()</b>
+<b class="fc">&nbsp;                .filter(b -&gt; pendingTakenBuildingIds.contains(b.getId()))</b>
+<b class="fc">&nbsp;                .map(BuildingCard::toState)</b>
+<b class="fc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="fc">&nbsp;        CardsTakenPayload payload = new CardsTakenPayload(</b>
+&nbsp;                playerId,
+<b class="fc">&nbsp;                List.copyOf(pendingTakenCardIds),</b>
+<b class="fc">&nbsp;                List.copyOf(pendingTakenBuildingIds),</b>
+&nbsp;                pendingFoodSpentOnBuildings,
+&nbsp;                pendingFoodGainedFromOfferTile,
+&nbsp;                pendingTurnOrderSlotIndex,
+&nbsp;                pendingFoodDeltaFromSlot,
+&nbsp;                newPhase,
+&nbsp;                nextPlayerId,
+&nbsp;                takenCards,
+&nbsp;                takenBuildings,
+<b class="fc">&nbsp;                p.getFood(),</b>
+<b class="fc">&nbsp;                calculateSkipAllowed()</b>
+&nbsp;        );
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onCardsTaken(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyCardsTakenIntermediate(String playerId) {
+<b class="fc">&nbsp;        Player p = findPlayer(playerId);</b>
+<b class="fc">&nbsp;        List&lt;CardState&gt; takenCards = p.getTribe().getCharacters().stream()</b>
+<b class="fc">&nbsp;                .filter(c -&gt; pendingTakenCardIds.contains(c.getId()))</b>
+<b class="fc">&nbsp;                .map(CharacterCard::toState)</b>
+<b class="fc">&nbsp;                .toList();</b>
+<b class="fc">&nbsp;        List&lt;CardState&gt; takenBuildings = p.getTribe().getBuildings().stream()</b>
+<b class="fc">&nbsp;                .filter(b -&gt; pendingTakenBuildingIds.contains(b.getId()))</b>
+<b class="fc">&nbsp;                .map(BuildingCard::toState)</b>
+<b class="fc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="fc">&nbsp;        CardsTakenPayload payload = new CardsTakenPayload(</b>
+&nbsp;                playerId,
+<b class="fc">&nbsp;                List.copyOf(pendingTakenCardIds),</b>
+<b class="fc">&nbsp;                List.copyOf(pendingTakenBuildingIds),</b>
+&nbsp;                pendingFoodSpentOnBuildings,
+&nbsp;                pendingFoodGainedFromOfferTile,
+&nbsp;                -1, // slot index not known yet
+&nbsp;                0,  // slot food delta not known yet
+&nbsp;                GamePhase.RESOLVING_OFFERS,
+&nbsp;                playerId, // same player: turn not finished
+&nbsp;                takenCards,
+&nbsp;                takenBuildings,
+<b class="fc">&nbsp;                p.getFood(),</b>
+<b class="fc">&nbsp;                calculateSkipAllowed()</b>
+&nbsp;        );
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onCardsTaken(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyExtraDrawRequest() {
+<b class="fc">&nbsp;        ExtraDrawRequestPayload payload = new ExtraDrawRequestPayload(pendingExtraDrawPlayerId);</b>
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onExtraDrawRequest(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyExtraCardTaken(String playerId,
+&nbsp;                                      String cardId,
+&nbsp;                                      CardState takenCard,
+&nbsp;                                      boolean building,
+&nbsp;                                      int absoluteFood) {
+<b class="fc">&nbsp;        ExtraCardTakenPayload payload = new ExtraCardTakenPayload(</b>
+&nbsp;                playerId,
+&nbsp;                cardId,
+&nbsp;                takenCard,
+&nbsp;                building,
+&nbsp;                absoluteFood,
+&nbsp;                phase,
+&nbsp;                skipAllowed
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onExtraCardTaken(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyEventResolved(String eventCardId, List&lt;PlayerDelta&gt; deltas) {
+<b class="fc">&nbsp;        EventResolvedPayload payload = new EventResolvedPayload(eventCardId, currentEra, deltas);</b>
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onEventResolved(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyMarketRefreshed(List&lt;String&gt; discardedIds,
+&nbsp;                                       List&lt;String&gt; movedIds,
+&nbsp;                                       List&lt;String&gt; newUpperRowIds,
+&nbsp;                                       List&lt;CardState&gt; newUpperRowCards) {
+<b class="fc">&nbsp;        MarketRefresherPayload payload = new MarketRefresherPayload(</b>
+&nbsp;                discardedIds,
+&nbsp;                movedIds,
+&nbsp;                newUpperRowIds,
+&nbsp;                newUpperRowCards,
+<b class="fc">&nbsp;                board.buildOfferTileState(),</b>
+<b class="fc">&nbsp;                board.buildTurnOrderSlotsState(),</b>
+&nbsp;                currentRound,
+&nbsp;                phase,
+<b class="fc">&nbsp;                computeCurrentPlayerId(),</b>
+<b class="fc">&nbsp;                calculateSkipAllowed()</b>
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onMarketRefreshed(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyEraProgression(Era newEra, EraProgressionResult result) {
+<b class="fc">&nbsp;        List&lt;String&gt; newBuildingIds = result.newTopBuildings().stream().map(BuildingCard::getId).toList();</b>
+<b class="fc">&nbsp;        List&lt;String&gt; discardedIds = result.discardedBuildings().stream().map(BuildingCard::getId).toList();</b>
+<b class="fc">&nbsp;        List&lt;CardState&gt; newBuildingCards = result.newTopBuildings().stream().map(BuildingCard::toState).toList();</b>
+<b class="fc">&nbsp;        EraProgressionPayload payload = new EraProgressionPayload(newEra, newBuildingIds, discardedIds, newBuildingCards);</b>
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onEraProgression(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyGameOver() {
+<b class="fc">&nbsp;        observers.forEach(ModelObserver::onGameOver);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void notifyScores(List&lt;ScoreResult&gt; scoreBoard) {
+<b class="fc">&nbsp;        List&lt;PlayerScore&gt; scores = scoreBoard.stream()</b>
+<b class="fc">&nbsp;                .map(r -&gt; new PlayerScore(</b>
+<b class="fc">&nbsp;                        r.player.getId(),</b>
+<b class="fc">&nbsp;                        r.player.getState().nickname(),</b>
+&nbsp;                        r.PP,
+&nbsp;                        r.foodPoints,
+<b class="fc">&nbsp;                        Map.of(&quot;food&quot;, r.foodPoints) // minimal breakdown, can be extended</b>
+&nbsp;                ))
+<b class="fc">&nbsp;                .toList();</b>
+<b class="fc">&nbsp;        ScoreBoardPayload payload = new ScoreBoardPayload(scores);</b>
+<b class="fc">&nbsp;        observers.forEach(o -&gt; o.onScoreboardAvailable(payload));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // GETTERS
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the players in the match in their declaration order
+&nbsp;     */
+&nbsp;    public List&lt;Player&gt; getPlayers() {
+<b class="fc">&nbsp;        return players;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the central board
+&nbsp;     */
+&nbsp;    public Board getBoard() {
+<b class="fc">&nbsp;        return board;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public GameState getGameState() {
+<b class="fc">&nbsp;        return gameState;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public GamePhase getGamePhase() {
+<b class="fc">&nbsp;        return phase;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the era currently being played
+&nbsp;     */
+&nbsp;    public Era getCurrentEra() {
+<b class="fc">&nbsp;        return currentEra;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

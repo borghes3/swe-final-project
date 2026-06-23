@@ -1,0 +1,173 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ExtensionRegistrar</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.extension</a>
+</div>
+
+<h1>Coverage Summary for Class: ExtensionRegistrar (org.junit.jupiter.engine.extension)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">ExtensionRegistrar</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.extension;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;
+&nbsp;import java.lang.reflect.Field;
+&nbsp;import java.util.function.Function;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.jupiter.api.extension.Extension;
+&nbsp;import org.junit.jupiter.api.extension.RegisterExtension;
+&nbsp;
+&nbsp;/**
+&nbsp; * An {@code ExtensionRegistrar} is used to register extensions.
+&nbsp; *
+&nbsp; * @since 5.5
+&nbsp; */
+&nbsp;@API(status = INTERNAL, since = &quot;5.5&quot;)
+&nbsp;public interface ExtensionRegistrar {
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Instantiate an extension of the given type using its default constructor
+&nbsp;	 * and register it in the registry.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;A new {@link Extension} should not be registered if an extension of the
+&nbsp;	 * given type already exists in the registry or a parent registry.
+&nbsp;	 *
+&nbsp;	 * @param extensionType the type of extension to register
+&nbsp;	 * @since 5.8
+&nbsp;	 */
+&nbsp;	void registerExtension(Class&lt;? extends Extension&gt; extensionType);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Register the supplied {@link Extension}, without checking if an extension
+&nbsp;	 * of that type has already been registered.
+&nbsp;	 *
+&nbsp;	 * &lt;h4&gt;Semantics for Source&lt;/h4&gt;
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;If an extension is registered &lt;em&gt;declaratively&lt;/em&gt; via
+&nbsp;	 * {@link org.junit.jupiter.api.extension.ExtendWith @ExtendWith}, the
+&nbsp;	 * {@code source} and the {@code extension} should be the same object.
+&nbsp;	 * However, if an extension is registered &lt;em&gt;programmatically&lt;/em&gt; via
+&nbsp;	 * {@link RegisterExtension @RegisterExtension}, the {@code source} object
+&nbsp;	 * should be the {@link java.lang.reflect.Field} that is annotated with
+&nbsp;	 * {@code @RegisterExtension}. Similarly, if an extension is registered
+&nbsp;	 * &lt;em&gt;programmatically&lt;/em&gt; as a lambda expression or method reference, the
+&nbsp;	 * {@code source} object should be the underlying
+&nbsp;	 * {@link java.lang.reflect.Method} that implements the extension API.
+&nbsp;	 *
+&nbsp;	 * @param extension the extension to register; never {@code null}
+&nbsp;	 * @param source the source of the extension; never {@code null}
+&nbsp;	 */
+&nbsp;	void registerExtension(Extension extension, Object source);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Register the supplied {@link Extension} as a &lt;em&gt;synthetic&lt;/em&gt; extension,
+&nbsp;	 * without checking if an extension of that type has already been registered.
+&nbsp;	 *
+&nbsp;	 * @param extension the extension to register; never {@code null}
+&nbsp;	 * @param source the source of the extension; never {@code null}
+&nbsp;	 * @since 5.8
+&nbsp;	 * @see #registerExtension(Extension, Object)
+&nbsp;	 */
+&nbsp;	void registerSyntheticExtension(Extension extension, Object source);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Register an uninitialized extension for the supplied {@code testClass} to
+&nbsp;	 * be initialized using the supplied {@code initializer} when an instance of
+&nbsp;	 * the test class is created.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Uninitialized extensions are typically registered for fields annotated
+&nbsp;	 * with {@link RegisterExtension @RegisterExtension} that cannot be
+&nbsp;	 * initialized until an instance of the test class is created. Until they
+&nbsp;	 * are initialized, such extensions are not available for use.
+&nbsp;	 *
+&nbsp;	 * @param testClass the test class for which the extension is registered;
+&nbsp;	 * never {@code null}
+&nbsp;	 * @param source the source of the extension; never {@code null}
+&nbsp;	 * @param initializer the initializer function to be used to create the
+&nbsp;	 * extension; never {@code null}
+&nbsp;	 */
+&nbsp;	void registerUninitializedExtension(Class&lt;?&gt; testClass, Field source,
+&nbsp;			Function&lt;Object, ? extends Extension&gt; initializer);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Initialize all registered extensions for the supplied {@code testClass}
+&nbsp;	 * using the supplied {@code testInstance}.
+&nbsp;	 *
+&nbsp;	 * @param testClass the test class for which the extensions are initialized;
+&nbsp;	 * never {@code null}
+&nbsp;	 * @param testInstance the test instance to be used to initialize the
+&nbsp;	 * extensions; never {@code null}
+&nbsp;	 */
+&nbsp;	void initializeExtensions(Class&lt;?&gt; testClass, Object testInstance);
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

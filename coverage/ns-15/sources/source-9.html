@@ -1,0 +1,156 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > NotificationType</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.enums</a>
+</div>
+
+<h1>Coverage Summary for Class: NotificationType (it.polimi.ingsw.am23.model.enums)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NotificationType</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.enums;
+&nbsp;
+&nbsp;/**
+&nbsp; * Identifies the type of notification dispatched by the model to its
+&nbsp; * observers. Each value corresponds to a distinct payload class.
+&nbsp; */
+<b class="nc">&nbsp;public enum NotificationType {</b>
+&nbsp;    /**
+&nbsp;     * The game has started and the initial state is available.
+&nbsp;     */
+<b class="nc">&nbsp;    GAME_STARTED,</b>
+&nbsp;    /**
+&nbsp;     * A totem was placed on an offer tile.
+&nbsp;     */
+<b class="nc">&nbsp;    TOTEM_PLACED,</b>
+&nbsp;    /**
+&nbsp;     * All players completed the placing phase.
+&nbsp;     */
+<b class="nc">&nbsp;    END_OF_PLACING_PHASE,</b>
+&nbsp;    /**
+&nbsp;     * A draw action completed and the cards taken are reported.
+&nbsp;     */
+<b class="nc">&nbsp;    CARDS_TAKEN,</b>
+&nbsp;    /**
+&nbsp;     * An extra draw request was issued to a specific player.
+&nbsp;     */
+<b class="nc">&nbsp;    EXTRA_DRAW_REQUEST,</b>
+&nbsp;    /**
+&nbsp;     * An extra draw card has been taken.
+&nbsp;     */
+<b class="nc">&nbsp;    EXTRA_CARD_TAKEN,</b>
+&nbsp;    /**
+&nbsp;     * An event card has been resolved.
+&nbsp;     */
+<b class="nc">&nbsp;    EVENT_RESOLVED,</b>
+&nbsp;    /**
+&nbsp;     * The era has progressed: the deck and buildings have been refreshed.
+&nbsp;     */
+<b class="nc">&nbsp;    ERA_PROGRESSION,</b>
+&nbsp;    /**
+&nbsp;     * The card market rows have been refreshed at end of round.
+&nbsp;     */
+<b class="nc">&nbsp;    MARKET_REFRESHED,</b>
+&nbsp;    /**
+&nbsp;     * The match has ended.
+&nbsp;     */
+<b class="nc">&nbsp;    GAME_OVER,</b>
+&nbsp;    /**
+&nbsp;     * The final scoreboard is available.
+&nbsp;     */
+<b class="nc">&nbsp;    SCOREBOARD_AVAILABLE,</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,248 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > RunnerBuilder</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.runners.model</a>
+</div>
+
+<h1>Coverage Summary for Class: RunnerBuilder (org.junit.runners.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RunnerBuilder</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (2/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    10%
+  </span>
+  <span class="absValue">
+    (1/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    19,2%
+  </span>
+  <span class="absValue">
+    (5/26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.junit.runners.model;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Set;
+&nbsp;
+&nbsp;import org.junit.internal.runners.ErrorReportingRunner;
+&nbsp;import org.junit.runner.Description;
+&nbsp;import org.junit.runner.OrderWith;
+&nbsp;import org.junit.runner.Runner;
+&nbsp;import org.junit.runner.manipulation.InvalidOrderingException;
+&nbsp;import org.junit.runner.manipulation.Ordering;
+&nbsp;
+&nbsp;/**
+&nbsp; * A RunnerBuilder is a strategy for constructing runners for classes.
+&nbsp; *
+&nbsp; * Only writers of custom runners should use &lt;code&gt;RunnerBuilder&lt;/code&gt;s.  A custom runner class with a constructor taking
+&nbsp; * a &lt;code&gt;RunnerBuilder&lt;/code&gt; parameter will be passed the instance of &lt;code&gt;RunnerBuilder&lt;/code&gt; used to build that runner itself.
+&nbsp; * For example,
+&nbsp; * imagine a custom runner that builds suites based on a list of classes in a text file:
+&nbsp; *
+&nbsp; * &lt;pre&gt;
+&nbsp; * \@RunWith(TextFileSuite.class)
+&nbsp; * \@SuiteSpecFile(&quot;mysuite.txt&quot;)
+&nbsp; * class MySuite {}
+&nbsp; * &lt;/pre&gt;
+&nbsp; *
+&nbsp; * The implementation of TextFileSuite might include:
+&nbsp; *
+&nbsp; * &lt;pre&gt;
+&nbsp; * public TextFileSuite(Class testClass, RunnerBuilder builder) {
+&nbsp; *   // ...
+&nbsp; *   for (String className : readClassNames())
+&nbsp; *     addRunner(builder.runnerForClass(Class.forName(className)));
+&nbsp; *   // ...
+&nbsp; * }
+&nbsp; * &lt;/pre&gt;
+&nbsp; *
+&nbsp; * @see org.junit.runners.Suite
+&nbsp; * @since 4.5
+&nbsp; */
+<b class="fc">&nbsp;public abstract class RunnerBuilder {</b>
+<b class="fc">&nbsp;    private final Set&lt;Class&lt;?&gt;&gt; parents = new HashSet&lt;Class&lt;?&gt;&gt;();</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Override to calculate the correct runner for a test class at runtime.
+&nbsp;     *
+&nbsp;     * @param testClass class to be run
+&nbsp;     * @return a Runner
+&nbsp;     * @throws Throwable if a runner cannot be constructed
+&nbsp;     */
+&nbsp;    public abstract Runner runnerForClass(Class&lt;?&gt; testClass) throws Throwable;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Always returns a runner for the given test class.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;In case of an exception a runner will be returned that prints an error instead of running
+&nbsp;     * tests.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;Note that some of the internal JUnit implementations of RunnerBuilder will return
+&nbsp;     * {@code null} from this method, but no RunnerBuilder passed to a Runner constructor will
+&nbsp;     * return {@code null} from this method.
+&nbsp;     *
+&nbsp;     * @param testClass class to be run
+&nbsp;     * @return a Runner
+&nbsp;     */
+&nbsp;    public Runner safeRunnerForClass(Class&lt;?&gt; testClass) {
+&nbsp;        try {
+<b class="fc">&nbsp;            Runner runner = runnerForClass(testClass);</b>
+<b class="pc">&nbsp;            if (runner != null) {</b>
+<b class="nc">&nbsp;                configureRunner(runner);</b>
+&nbsp;            }
+<b class="fc">&nbsp;            return runner;</b>
+&nbsp;        } catch (Throwable e) {
+<b class="nc">&nbsp;            return new ErrorReportingRunner(testClass, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void configureRunner(Runner runner) throws InvalidOrderingException {
+<b class="nc">&nbsp;        Description description = runner.getDescription();</b>
+<b class="nc">&nbsp;        OrderWith orderWith = description.getAnnotation(OrderWith.class);</b>
+<b class="nc">&nbsp;        if (orderWith != null) {</b>
+<b class="nc">&nbsp;            Ordering ordering = Ordering.definedBy(orderWith.value(), description);</b>
+<b class="nc">&nbsp;            ordering.apply(runner);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    Class&lt;?&gt; addParent(Class&lt;?&gt; parent) throws InitializationError {
+<b class="nc">&nbsp;        if (!parents.add(parent)) {</b>
+<b class="nc">&nbsp;            throw new InitializationError(String.format(&quot;class &#39;%s&#39; (possibly indirectly) contains itself as a SuiteClass&quot;, parent.getName()));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return parent;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    void removeParent(Class&lt;?&gt; klass) {
+<b class="nc">&nbsp;        parents.remove(klass);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs and returns a list of Runners, one for each child class in
+&nbsp;     * {@code children}.  Care is taken to avoid infinite recursion:
+&nbsp;     * this builder will throw an exception if it is requested for another
+&nbsp;     * runner for {@code parent} before this call completes.
+&nbsp;     */
+&nbsp;    public List&lt;Runner&gt; runners(Class&lt;?&gt; parent, Class&lt;?&gt;[] children)
+&nbsp;            throws InitializationError {
+<b class="nc">&nbsp;        addParent(parent);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            return runners(children);</b>
+&nbsp;        } finally {
+<b class="nc">&nbsp;            removeParent(parent);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;Runner&gt; runners(Class&lt;?&gt; parent, List&lt;Class&lt;?&gt;&gt; children)
+&nbsp;            throws InitializationError {
+<b class="nc">&nbsp;        return runners(parent, children.toArray(new Class&lt;?&gt;[0]));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;Runner&gt; runners(Class&lt;?&gt;[] children) {
+<b class="nc">&nbsp;        List&lt;Runner&gt; runners = new ArrayList&lt;Runner&gt;();</b>
+<b class="nc">&nbsp;        for (Class&lt;?&gt; each : children) {</b>
+<b class="nc">&nbsp;            Runner childRunner = safeRunnerForClass(each);</b>
+<b class="nc">&nbsp;            if (childRunner != null) {</b>
+<b class="nc">&nbsp;                runners.add(childRunner);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return runners;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EnumConfigurationParameterConverter</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.config</a>
+</div>
+
+<h1>Coverage Summary for Class: EnumConfigurationParameterConverter (org.junit.jupiter.engine.config)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EnumConfigurationParameterConverter</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (4/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    53,8%
+  </span>
+  <span class="absValue">
+    (7/13)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.config;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;
+&nbsp;import java.util.Locale;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionContext;
+&nbsp;import org.junit.platform.commons.JUnitException;
+&nbsp;import org.junit.platform.commons.logging.Logger;
+&nbsp;import org.junit.platform.commons.logging.LoggerFactory;
+&nbsp;import org.junit.platform.engine.ConfigurationParameters;
+&nbsp;
+&nbsp;/**
+&nbsp; * @since 5.4
+&nbsp; */
+&nbsp;@API(status = INTERNAL, since = &quot;5.8&quot;)
+&nbsp;public class EnumConfigurationParameterConverter&lt;E extends Enum&lt;E&gt;&gt; implements ConfigurationParameterConverter&lt;E&gt; {
+&nbsp;
+<b class="fc">&nbsp;	private static final Logger logger = LoggerFactory.getLogger(EnumConfigurationParameterConverter.class);</b>
+&nbsp;
+&nbsp;	private final Class&lt;E&gt; enumType;
+&nbsp;	private final String enumDisplayName;
+&nbsp;
+<b class="fc">&nbsp;	public EnumConfigurationParameterConverter(Class&lt;E&gt; enumType, String enumDisplayName) {</b>
+<b class="fc">&nbsp;		this.enumType = enumType;</b>
+<b class="fc">&nbsp;		this.enumDisplayName = enumDisplayName;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Optional&lt;E&gt; get(ConfigurationParameters configParams, String key) {
+<b class="fc">&nbsp;		return configParams.get(key) //</b>
+<b class="fc">&nbsp;				.map(value -&gt; convert(key, value));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Optional&lt;E&gt; get(ExtensionContext extensionContext, String key) {
+<b class="fc">&nbsp;		return extensionContext.getConfigurationParameter(key, value -&gt; convert(key, value));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private E convert(String key, String value) {
+<b class="nc">&nbsp;		String constantName = null;</b>
+&nbsp;		try {
+<b class="nc">&nbsp;			constantName = value.strip().toUpperCase(Locale.ROOT);</b>
+<b class="nc">&nbsp;			E result = Enum.valueOf(enumType, constantName);</b>
+<b class="nc">&nbsp;			logger.config(() -&gt; &quot;Using %s &#39;%s&#39; set via the &#39;%s&#39; configuration parameter.&quot;.formatted(enumDisplayName,</b>
+&nbsp;				result, key));
+<b class="nc">&nbsp;			return result;</b>
+&nbsp;		}
+&nbsp;		catch (Exception ex) {
+<b class="nc">&nbsp;			throw new JUnitException(&quot;Invalid %s &#39;%s&#39; set via the &#39;%s&#39; configuration parameter.&quot;.formatted(</b>
+&nbsp;				enumDisplayName, constantName, key));
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

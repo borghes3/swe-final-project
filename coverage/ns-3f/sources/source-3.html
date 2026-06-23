@@ -1,0 +1,542 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TempDirDeletionStrategy</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.api.io</a>
+</div>
+
+<h1>Coverage Summary for Class: TempDirDeletionStrategy (org.junit.jupiter.api.io)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">TempDirDeletionStrategy</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.api.io;
+&nbsp;
+&nbsp;import static java.nio.file.FileVisitResult.CONTINUE;
+&nbsp;import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
+&nbsp;import static org.apiguardian.api.API.Status.EXPERIMENTAL;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;
+&nbsp;import java.io.File;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.Serial;
+&nbsp;import java.lang.reflect.AnnotatedElement;
+&nbsp;import java.lang.reflect.Constructor;
+&nbsp;import java.lang.reflect.Executable;
+&nbsp;import java.lang.reflect.Field;
+&nbsp;import java.lang.reflect.Parameter;
+&nbsp;import java.nio.file.DirectoryNotEmptyException;
+&nbsp;import java.nio.file.FileSystems;
+&nbsp;import java.nio.file.FileVisitResult;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.LinkOption;
+&nbsp;import java.nio.file.NoSuchFileException;
+&nbsp;import java.nio.file.Path;
+&nbsp;import java.nio.file.SimpleFileVisitor;
+&nbsp;import java.nio.file.attribute.BasicFileAttributes;
+&nbsp;import java.nio.file.attribute.DosFileAttributeView;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.function.BiConsumer;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.jupiter.api.extension.AnnotatedElementContext;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionContext;
+&nbsp;import org.junit.platform.commons.JUnitException;
+&nbsp;import org.junit.platform.commons.logging.Logger;
+&nbsp;import org.junit.platform.commons.logging.LoggerFactory;
+&nbsp;import org.junit.platform.commons.util.ClassUtils;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;
+&nbsp;/**
+&nbsp; * {@code TempDirDeletionStrategy} defines the SPI for deleting temporary
+&nbsp; * directories programmatically.
+&nbsp; *
+&nbsp; * &lt;p&gt;A deletion strategy controls how a temporary directory is cleaned up
+&nbsp; * when the end of its scope is reached.
+&nbsp; *
+&nbsp; * &lt;p&gt;Implementations must provide a no-args constructor.
+&nbsp; *
+&nbsp; * &lt;p&gt;A {@link TempDirDeletionStrategy} can be configured &lt;em&gt;globally&lt;/em&gt;
+&nbsp; * for the entire test suite via the
+&nbsp; * {@value TempDir#DEFAULT_DELETION_STRATEGY_PROPERTY_NAME} configuration
+&nbsp; * parameter (see the User Guide for details) or &lt;em&gt;locally&lt;/em&gt; for a test
+&nbsp; * class field or method parameter via the {@link TempDir @TempDir} annotation.
+&nbsp; *
+&nbsp; * @since 6.1
+&nbsp; * @see TempDir @TempDir
+&nbsp; */
+&nbsp;@API(status = EXPERIMENTAL, since = &quot;6.1&quot;)
+&nbsp;public interface TempDirDeletionStrategy {
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Delete the supplied temporary directory and all of its contents.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Depending on the used {@link TempDirFactory}, the supplied
+&nbsp;	 * {@link Path} may or may not be associated with the
+&nbsp;	 * {@linkplain java.nio.file.FileSystems#getDefault() default FileSystem}.
+&nbsp;	 *
+&nbsp;	 * @param tempDir the temporary directory to delete; never {@code null}
+&nbsp;	 * @param elementContext the context of the field or parameter where
+&nbsp;	 * {@code @TempDir} is declared; never {@code null}
+&nbsp;	 * @param extensionContext the current extension context; never {@code null}
+&nbsp;	 * @return a {@link DeletionResult}, potentially containing failures for
+&nbsp;	 * {@link Path Paths} that could not be deleted or no failures if deletion
+&nbsp;	 * was successful; never {@code null}
+&nbsp;	 * @throws IOException in case of general failures
+&nbsp;	 */
+&nbsp;	DeletionResult delete(Path tempDir, AnnotatedElementContext elementContext, ExtensionContext extensionContext)
+&nbsp;			throws IOException;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * A {@link TempDirDeletionStrategy} that delegates to {@link Standard} but
+&nbsp;	 * suppresses deletion failures by logging a warning instead of propagating
+&nbsp;	 * them.
+&nbsp;	 */
+&nbsp;	final class IgnoreFailures implements TempDirDeletionStrategy {
+&nbsp;
+&nbsp;		private static final Logger logger = LoggerFactory.getLogger(IgnoreFailures.class);
+&nbsp;		private final TempDirDeletionStrategy delegate;
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Create a new {@code IgnoreFailures} strategy that delegates to
+&nbsp;		 * {@link Standard}.
+&nbsp;		 */
+&nbsp;		public IgnoreFailures() {
+&nbsp;			this(Standard.INSTANCE);
+&nbsp;		}
+&nbsp;
+&nbsp;		IgnoreFailures(TempDirDeletionStrategy delegate) {
+&nbsp;			this.delegate = delegate;
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public DeletionResult delete(Path tempDir, AnnotatedElementContext elementContext,
+&nbsp;				ExtensionContext extensionContext) throws IOException {
+&nbsp;
+&nbsp;			var result = delegate.delete(tempDir, elementContext, extensionContext);
+&nbsp;
+&nbsp;			result.toException().ifPresent(ex -&gt; logWarning(elementContext, ex));
+&nbsp;
+&nbsp;			return DeletionResult.builder(tempDir).build();
+&nbsp;		}
+&nbsp;
+&nbsp;		private void logWarning(AnnotatedElementContext elementContext, DeletionException exception) {
+&nbsp;			logger.warn(exception, () -&gt; &quot;Failed to delete all temporary files for %s&quot;.formatted(
+&nbsp;				descriptionFor(elementContext.getAnnotatedElement())));
+&nbsp;		}
+&nbsp;
+&nbsp;		@API(status = INTERNAL, since = &quot;6.1&quot;)
+&nbsp;		public static String descriptionFor(AnnotatedElement annotatedElement) {
+&nbsp;			if (annotatedElement instanceof Field field) {
+&nbsp;				return &quot;field &quot; + field.getDeclaringClass().getSimpleName() + &quot;.&quot; + field.getName();
+&nbsp;			}
+&nbsp;			if (annotatedElement instanceof Parameter parameter) {
+&nbsp;				Executable executable = parameter.getDeclaringExecutable();
+&nbsp;				return &quot;parameter &#39;&quot; + parameter.getName() + &quot;&#39; in &quot; + descriptionFor(executable);
+&nbsp;			}
+&nbsp;			throw new IllegalStateException(&quot;Unsupported AnnotatedElement type for @TempDir: &quot; + annotatedElement);
+&nbsp;		}
+&nbsp;
+&nbsp;		private static String descriptionFor(Executable executable) {
+&nbsp;			boolean isConstructor = executable instanceof Constructor&lt;?&gt;;
+&nbsp;			String type = isConstructor ? &quot;constructor&quot; : &quot;method&quot;;
+&nbsp;			String name = isConstructor ? executable.getDeclaringClass().getSimpleName() : executable.getName();
+&nbsp;			return &quot;%s %s(%s)&quot;.formatted(type, name,
+&nbsp;				ClassUtils.nullSafeToString(Class::getSimpleName, executable.getParameterTypes()));
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Standard {@link TempDirDeletionStrategy} implementation that recursively
+&nbsp;	 * deletes all files and directories within the temporary directory.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Symbolic and other types of links, such as junctions on Windows, are
+&nbsp;	 * not followed. A warning is logged when deleting a link that targets a
+&nbsp;	 * location outside the temporary directory.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;If a file or directory cannot be deleted, its permissions are reset
+&nbsp;	 * and deletion is attempted again. If deletion still fails, the path is
+&nbsp;	 * scheduled for deletion on JVM exit via
+&nbsp;	 * {@link java.io.File#deleteOnExit()}, if it belongs to the default file
+&nbsp;	 * system.
+&nbsp;	 */
+&nbsp;	final class Standard implements TempDirDeletionStrategy {
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * The singleton instance of {@code Standard}.
+&nbsp;		 */
+&nbsp;		public static final Standard INSTANCE = new Standard();
+&nbsp;
+&nbsp;		private static final Logger logger = LoggerFactory.getLogger(Standard.class);
+&nbsp;
+&nbsp;		private Standard() {
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public DeletionResult delete(Path tempDir, AnnotatedElementContext elementContext,
+&nbsp;				ExtensionContext extensionContext) throws IOException {
+&nbsp;
+&nbsp;			return delete(tempDir, Files::delete);
+&nbsp;		}
+&nbsp;
+&nbsp;		// package-private for testing
+&nbsp;		DeletionResult delete(Path tempDir, FileOperations fileOperations) throws IOException {
+&nbsp;			var result = DeletionResult.builder(tempDir);
+&nbsp;			delete(tempDir, fileOperations, (path, cause) -&gt; {
+&nbsp;				result.addFailure(path, cause);
+&nbsp;				tryToDeleteOnExit(path);
+&nbsp;			});
+&nbsp;			return result.build();
+&nbsp;		}
+&nbsp;
+&nbsp;		private void delete(Path tempDir, FileOperations fileOperations, BiConsumer&lt;Path, Exception&gt; failureHandler)
+&nbsp;				throws IOException {
+&nbsp;			Set&lt;Path&gt; retriedPaths = new HashSet&lt;&gt;();
+&nbsp;			Path rootRealPath = tempDir.toRealPath();
+&nbsp;
+&nbsp;			tryToResetPermissions(tempDir);
+&nbsp;			Files.walkFileTree(tempDir, new SimpleFileVisitor&lt;&gt;() {
+&nbsp;
+&nbsp;				@Override
+&nbsp;				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+&nbsp;					logger.trace(() -&gt; &quot;preVisitDirectory: &quot; + dir);
+&nbsp;					if (isLinkWithTargetOutsideTempDir(dir)) {
+&nbsp;						warnAboutLinkWithTargetOutsideTempDir(&quot;link&quot;, dir);
+&nbsp;						delete(dir, fileOperations);
+&nbsp;						return SKIP_SUBTREE;
+&nbsp;					}
+&nbsp;					if (!dir.equals(tempDir)) {
+&nbsp;						tryToResetPermissions(dir);
+&nbsp;					}
+&nbsp;					return CONTINUE;
+&nbsp;				}
+&nbsp;
+&nbsp;				@Override
+&nbsp;				public FileVisitResult visitFileFailed(Path file, IOException exc) {
+&nbsp;					logger.trace(exc, () -&gt; &quot;visitFileFailed: &quot; + file);
+&nbsp;					if (exc instanceof NoSuchFileException &amp;&amp; !Files.exists(file, LinkOption.NOFOLLOW_LINKS)) {
+&nbsp;						return CONTINUE;
+&nbsp;					}
+&nbsp;					// IOException includes `AccessDeniedException` thrown by non-readable or non-executable flags
+&nbsp;					resetPermissionsAndTryToDeleteAgain(file, exc);
+&nbsp;					return CONTINUE;
+&nbsp;				}
+&nbsp;
+&nbsp;				@Override
+&nbsp;				public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+&nbsp;					logger.trace(() -&gt; &quot;visitFile: &quot; + file);
+&nbsp;					if (Files.isSymbolicLink(file) &amp;&amp; isLinkWithTargetOutsideTempDir(file)) {
+&nbsp;						warnAboutLinkWithTargetOutsideTempDir(&quot;symbolic link&quot;, file);
+&nbsp;					}
+&nbsp;					delete(file, fileOperations);
+&nbsp;					return CONTINUE;
+&nbsp;				}
+&nbsp;
+&nbsp;				@Override
+&nbsp;				public FileVisitResult postVisitDirectory(Path dir, @Nullable IOException exc) {
+&nbsp;					logger.trace(exc, () -&gt; &quot;postVisitDirectory: &quot; + dir);
+&nbsp;					delete(dir, fileOperations);
+&nbsp;					return CONTINUE;
+&nbsp;				}
+&nbsp;
+&nbsp;				private boolean isLinkWithTargetOutsideTempDir(Path path) {
+&nbsp;					// While `Files.walkFileTree` does not follow symbolic links, it may follow other links
+&nbsp;					// such as &quot;junctions&quot; on Windows
+&nbsp;					try {
+&nbsp;						return !path.toRealPath().startsWith(rootRealPath);
+&nbsp;					}
+&nbsp;					catch (IOException e) {
+&nbsp;						logger.trace(e,
+&nbsp;							() -&gt; &quot;Failed to determine real path for &quot; + path + &quot;; assuming it is not a link&quot;);
+&nbsp;						return false;
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+&nbsp;				private void warnAboutLinkWithTargetOutsideTempDir(String linkType, Path file) throws IOException {
+&nbsp;					Path realPath = file.toRealPath();
+&nbsp;					logger.warn(() -&gt; &quot;&quot;&quot;
+&nbsp;							Deleting %s from location inside of temp dir (%s) \
+&nbsp;							to location outside of temp dir (%s) but not the target file/directory&quot;&quot;&quot;.formatted(
+&nbsp;						linkType, file, realPath));
+&nbsp;				}
+&nbsp;
+&nbsp;				private void delete(Path path, FileOperations fileOperations) {
+&nbsp;					try {
+&nbsp;						deleteWithLogging(path, fileOperations);
+&nbsp;					}
+&nbsp;					catch (NoSuchFileException ignore) {
+&nbsp;						// ignore
+&nbsp;					}
+&nbsp;					catch (DirectoryNotEmptyException exception) {
+&nbsp;						failureHandler.accept(path, exception);
+&nbsp;					}
+&nbsp;					catch (IOException exception) {
+&nbsp;						// IOException includes `AccessDeniedException` thrown by non-readable or non-executable flags
+&nbsp;						resetPermissionsAndTryToDeleteAgain(path, exception);
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+&nbsp;				private void resetPermissionsAndTryToDeleteAgain(Path path, IOException exception) {
+&nbsp;					boolean notYetRetried = retriedPaths.add(path);
+&nbsp;					if (notYetRetried) {
+&nbsp;						try {
+&nbsp;							tryToResetPermissions(path);
+&nbsp;							if (Files.isDirectory(path)) {
+&nbsp;								Files.walkFileTree(path, this);
+&nbsp;							}
+&nbsp;							else {
+&nbsp;								deleteWithLogging(path, fileOperations);
+&nbsp;							}
+&nbsp;						}
+&nbsp;						catch (Exception suppressed) {
+&nbsp;							exception.addSuppressed(suppressed);
+&nbsp;							failureHandler.accept(path, exception);
+&nbsp;						}
+&nbsp;					}
+&nbsp;					else {
+&nbsp;						failureHandler.accept(path, exception);
+&nbsp;					}
+&nbsp;				}
+&nbsp;			});
+&nbsp;		}
+&nbsp;
+&nbsp;		private void deleteWithLogging(Path file, FileOperations fileOperations) throws IOException {
+&nbsp;			logger.trace(() -&gt; &quot;Attempting to delete &quot; + file);
+&nbsp;			try {
+&nbsp;				fileOperations.delete(file);
+&nbsp;				logger.trace(() -&gt; &quot;Successfully deleted &quot; + file);
+&nbsp;			}
+&nbsp;			catch (IOException e) {
+&nbsp;				logger.trace(e, () -&gt; &quot;Failed to delete &quot; + file);
+&nbsp;				throw e;
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		@SuppressWarnings(&quot;ResultOfMethodCallIgnored&quot;)
+&nbsp;		private static void tryToResetPermissions(Path path) {
+&nbsp;			File file;
+&nbsp;			try {
+&nbsp;				file = path.toFile();
+&nbsp;			}
+&nbsp;			catch (UnsupportedOperationException ignore) {
+&nbsp;				// Might happen when the `TempDirFactory` uses a custom `FileSystem`
+&nbsp;				return;
+&nbsp;			}
+&nbsp;			file.setReadable(true);
+&nbsp;			file.setWritable(true);
+&nbsp;			if (Files.isDirectory(path)) {
+&nbsp;				file.setExecutable(true);
+&nbsp;			}
+&nbsp;			DosFileAttributeView dos = Files.getFileAttributeView(path, DosFileAttributeView.class);
+&nbsp;			if (dos != null) {
+&nbsp;				try {
+&nbsp;					dos.setReadOnly(false);
+&nbsp;				}
+&nbsp;				catch (IOException ignore) {
+&nbsp;					// nothing we can do
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		@SuppressWarnings(&quot;EmptyCatch&quot;)
+&nbsp;		private static void tryToDeleteOnExit(Path path) {
+&nbsp;			try {
+&nbsp;				if (FileSystems.getDefault().equals(path.getFileSystem())) {
+&nbsp;					path.toFile().deleteOnExit();
+&nbsp;				}
+&nbsp;			}
+&nbsp;			catch (UnsupportedOperationException ignore) {
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// For testing only
+&nbsp;		interface FileOperations {
+&nbsp;
+&nbsp;			void delete(Path path) throws IOException;
+&nbsp;
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Represents the result of a {@link TempDirDeletionStrategy#delete} operation,
+&nbsp;	 * including any paths that could not be deleted.
+&nbsp;	 */
+&nbsp;	sealed interface DeletionResult permits DefaultDeletionResult {
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Create a new {@link Builder} for the supplied root directory.
+&nbsp;		 *
+&nbsp;		 * @param rootDir the root temporary directory; never {@code null}
+&nbsp;		 * @return a new {@code Builder}; never {@code null}
+&nbsp;		 */
+&nbsp;		static Builder builder(Path rootDir) {
+&nbsp;			return new DefaultDeletionResult.Builder(Preconditions.notNull(rootDir, &quot;rootDir must not be null&quot;));
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Return the root temporary directory of this deletion operation.
+&nbsp;		 *
+&nbsp;		 * @return the root directory; never {@code null}
+&nbsp;		 */
+&nbsp;		Path rootDir();
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Return the list of failures that occurred during deletion.
+&nbsp;		 *
+&nbsp;		 * @return the list of failures; never {@code null}
+&nbsp;		 */
+&nbsp;		List&lt;DeletionFailure&gt; failures();
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Return {@code true} if the deletion was successful, i.e., no
+&nbsp;		 * {@linkplain #failures() failures} were recorded.
+&nbsp;		 */
+&nbsp;		default boolean isSuccessful() {
+&nbsp;			return failures().isEmpty();
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Convert this result to a {@link DeletionException} summarizing all
+&nbsp;		 * failures.
+&nbsp;		 *
+&nbsp;		 * &lt;p&gt;Must only be called if {@link #isSuccessful()} returns
+&nbsp;		 * {@code false}.
+&nbsp;		 *
+&nbsp;		 * @return an {@link DeletionException}, if the deletion
+&nbsp;		 * {@linkplain #isSuccessful() was successful; otherwise, empty}; never
+&nbsp;		 * {@code null}
+&nbsp;		 */
+&nbsp;		Optional&lt;DeletionException&gt; toException();
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Builder for {@link DeletionResult}.
+&nbsp;		 */
+&nbsp;		sealed interface Builder permits DefaultDeletionResult.Builder {
+&nbsp;
+&nbsp;			/**
+&nbsp;			 * Record a failure for the supplied path.
+&nbsp;			 *
+&nbsp;			 * @param path the path that could not be deleted; never {@code null}
+&nbsp;			 * @param cause the exception that caused the failure; never {@code null}
+&nbsp;			 * @return this builder; never {@code null}
+&nbsp;			 */
+&nbsp;			Builder addFailure(Path path, Exception cause);
+&nbsp;
+&nbsp;			/**
+&nbsp;			 * Build the {@link DeletionResult}.
+&nbsp;			 *
+&nbsp;			 * @return a new {@link DeletionResult}; never {@code null}
+&nbsp;			 */
+&nbsp;			DeletionResult build();
+&nbsp;
+&nbsp;		}
+&nbsp;
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Represents a single failure that occurred while attempting to delete a
+&nbsp;	 * path during a {@link TempDirDeletionStrategy#delete} operation.
+&nbsp;	 */
+&nbsp;	sealed interface DeletionFailure permits DefaultDeletionResult.DefaultDeletionFailure {
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Return the path that could not be deleted.
+&nbsp;		 *
+&nbsp;		 * @return the path; never {@code null}
+&nbsp;		 */
+&nbsp;		Path path();
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Return the exception that caused the failure.
+&nbsp;		 *
+&nbsp;		 * @return the cause; never {@code null}
+&nbsp;		 */
+&nbsp;		Exception cause();
+&nbsp;
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Exception thrown when one or more paths in a temporary directory could
+&nbsp;	 * not be deleted by a {@link TempDirDeletionStrategy}.
+&nbsp;	 */
+&nbsp;	final class DeletionException extends JUnitException {
+&nbsp;
+&nbsp;		@Serial
+&nbsp;		private static final long serialVersionUID = 1L;
+&nbsp;
+&nbsp;		DeletionException(String message) {
+&nbsp;			super(message, null, true, false);
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,164 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VirtualServerRmi</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.network.rmi.client</a>
+</div>
+
+<h1>Coverage Summary for Class: VirtualServerRmi (it.polimi.ingsw.am23.network.rmi.client)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">VirtualServerRmi</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.network.rmi.client;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualServer;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualView;
+&nbsp;
+&nbsp;import java.rmi.Remote;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * RMI-flavored {@link VirtualServer}.
+&nbsp; * Every method redeclares its parent to throw {@link RemoteException}, as
+&nbsp; * required by the {@link Remote} contract.
+&nbsp; */
+&nbsp;public interface VirtualServerRmi extends VirtualServer, Remote {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void connect(String playerName, VirtualView client) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void createLobby(String playerId, String lobbyName, int maxPlayers) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void joinLobby(String playerId, String lobbyId) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void requestLobbyList(String playerId) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void leaveLobby(String playerId, String lobbyId) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void startGame(String playerId, String lobbyId) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void placeTotem(String playerId, char offerTileChar) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void skipTurn(String playerId) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void disconnect(String playerId) throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void ping() throws RemoteException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void requestLeaderboard(String playerId, int playerCount) throws RemoteException;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

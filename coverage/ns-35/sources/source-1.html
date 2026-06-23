@@ -1,0 +1,1459 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Stage</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.stage</a>
+</div>
+
+<h1>Coverage Summary for Class: Stage (javafx.stage)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Stage</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/65)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/100)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/172)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.stage;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import javafx.application.Platform;
+&nbsp;import javafx.beans.property.BooleanProperty;
+&nbsp;import javafx.beans.property.SimpleBooleanProperty;
+&nbsp;import javafx.beans.property.StringProperty;
+&nbsp;import javafx.beans.property.StringPropertyBase;
+&nbsp;import javafx.collections.ListChangeListener.Change;
+&nbsp;import javafx.collections.ObservableList;
+&nbsp;import javafx.geometry.NodeOrientation;
+&nbsp;import javafx.scene.Scene;
+&nbsp;import javafx.scene.image.Image;
+&nbsp;import javafx.scene.input.KeyCombination;
+&nbsp;
+&nbsp;import com.sun.javafx.collections.VetoableListDecorator;
+&nbsp;import com.sun.javafx.collections.TrackableObservableList;
+&nbsp;import com.sun.javafx.scene.SceneHelper;
+&nbsp;import com.sun.javafx.stage.StageHelper;
+&nbsp;import com.sun.javafx.stage.StagePeerListener;
+&nbsp;import com.sun.javafx.tk.TKStage;
+&nbsp;import com.sun.javafx.tk.Toolkit;
+&nbsp;import static com.sun.javafx.FXPermissions.CREATE_TRANSPARENT_WINDOW_PERMISSION;
+&nbsp;import javafx.beans.NamedArg;
+&nbsp;import javafx.beans.property.DoubleProperty;
+&nbsp;import javafx.beans.property.DoublePropertyBase;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;import javafx.beans.property.ReadOnlyBooleanProperty;
+&nbsp;import javafx.beans.property.ReadOnlyBooleanWrapper;
+&nbsp;import javafx.beans.property.SimpleObjectProperty;
+&nbsp;import javafx.beans.value.ObservableValue;
+&nbsp;
+&nbsp;/**
+&nbsp; * The JavaFX {@code Stage} class is the top level JavaFX container.
+&nbsp; * The primary Stage is constructed by the platform. Additional Stage
+&nbsp; * objects may be constructed by the application.
+&nbsp; *
+&nbsp; * &lt;p&gt;
+&nbsp; * Stage objects must be constructed and modified on the
+&nbsp; * JavaFX Application Thread.
+&nbsp; * &lt;/p&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * The JavaFX Application Thread is created as part of the startup process for
+&nbsp; * the JavaFX runtime. See the {@link javafx.application.Application} class and
+&nbsp; * the {@link Platform#startup(Runnable)} method for more information.
+&nbsp; * &lt;/p&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * Some {@code Stage} properties are read-only, even though they have
+&nbsp; * corresponding set methods, because they can be changed externally by the
+&nbsp; * underlying platform, and therefore must not be bindable.
+&nbsp; * Further, these properties might be ignored on some platforms, depending on
+&nbsp; * whether or not there is a window manager and how it is configured.
+&nbsp; * For example, a platform without a window manager might ignore the
+&nbsp; * {@code iconified} property.
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;&lt;b&gt;Style&lt;/b&gt;&lt;/p&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * A stage has one of the following styles:
+&nbsp; * &lt;ul&gt;
+&nbsp; * &lt;li&gt;{@link StageStyle#DECORATED} - a stage with a solid white background and
+&nbsp; * platform decorations.&lt;/li&gt;
+&nbsp; * &lt;li&gt;{@link StageStyle#UNDECORATED} - a stage with a solid white background
+&nbsp; * and no decorations.&lt;/li&gt;
+&nbsp; * &lt;li&gt;{@link StageStyle#TRANSPARENT} - a stage with a transparent background
+&nbsp; * and no decorations.&lt;/li&gt;
+&nbsp; * &lt;li&gt;{@link StageStyle#UTILITY} - a stage with a solid white background and
+&nbsp; * minimal platform decorations.&lt;/li&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; * &lt;p&gt;The style must be initialized before the stage is made visible.&lt;/p&gt;
+&nbsp; * &lt;p&gt;On some platforms decorations might not be available. For example, on
+&nbsp; * some mobile or embedded devices. In these cases a request for a DECORATED or
+&nbsp; * UTILITY window will be accepted, but no decorations will be shown. &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;&lt;b&gt;Owner&lt;/b&gt;&lt;/p&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * A stage can optionally have an owner Window.
+&nbsp; * When a window is a stage&#39;s owner, it is said to be the parent of that stage.
+&nbsp; * &lt;p&gt;
+&nbsp; * Owned Stages are tied to the parent Window.
+&nbsp; * An owned stage will always be on top of its parent window.
+&nbsp; * When a parent window is closed or iconified, then all owned windows will be affected as well.
+&nbsp; * Owned Stages cannot be independantly iconified.
+&nbsp; * &lt;p&gt;
+&nbsp; * The owner must be initialized before the stage is made visible.
+&nbsp; *
+&nbsp; * &lt;p&gt;&lt;b&gt;Modality&lt;/b&gt;&lt;/p&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * A stage has one of the following modalities:
+&nbsp; * &lt;ul&gt;
+&nbsp; * &lt;li&gt;{@link Modality#NONE} - a stage that does not block any other window.&lt;/li&gt;
+&nbsp; * &lt;li&gt;{@link Modality#WINDOW_MODAL} - a stage that blocks input events from
+&nbsp; * being delivered to all windows from its owner (parent) to its root.
+&nbsp; * Its root is the closest ancestor window without an owner.&lt;/li&gt;
+&nbsp; * &lt;li&gt;{@link Modality#APPLICATION_MODAL} - a stage that blocks input events from
+&nbsp; * being delivered to all windows from the same application, except for those
+&nbsp; * from its child hierarchy.&lt;/li&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;When a window is blocked by a modal stage its Z-order relative to its ancestors
+&nbsp; * is preserved, and it receives no input events and no window activation events,
+&nbsp; * but continues to animate and render normally.
+&nbsp; * Note that showing a modal stage does not necessarily block the caller. The
+&nbsp; * {@link #show} method returns immediately regardless of the modality of the stage.
+&nbsp; * Use the {@link #showAndWait} method if you need to block the caller until
+&nbsp; * the modal stage is hidden (closed).
+&nbsp; * The modality must be initialized before the stage is made visible.&lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;&lt;b&gt;Example:&lt;/b&gt;&lt;/p&gt;
+&nbsp; *
+&nbsp; *
+&nbsp;&lt;pre&gt;&lt;code&gt;
+&nbsp;import javafx.application.Application;
+&nbsp;import javafx.scene.Group;
+&nbsp;import javafx.scene.Scene;
+&nbsp;import javafx.scene.text.Font;
+&nbsp;import javafx.scene.text.Text;
+&nbsp;import javafx.stage.Stage;
+&nbsp;
+&nbsp;public class HelloWorld extends Application {
+&nbsp;
+&nbsp;    {@literal @Override} public void start(Stage stage) {
+&nbsp;        Text text = new Text(10, 40, &quot;Hello World!&quot;);
+&nbsp;        text.setFont(new Font(40));
+&nbsp;        Scene scene = new Scene(new Group(text));
+&nbsp;
+&nbsp;        stage.setTitle(&quot;Welcome to JavaFX!&quot;);
+&nbsp;        stage.setScene(scene);
+&nbsp;        stage.sizeToScene();
+&nbsp;        stage.show();
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void main(String[] args) {
+&nbsp;        Application.launch(args);
+&nbsp;    }
+&nbsp;}
+&nbsp;
+&nbsp; * &lt;/code&gt;&lt;/pre&gt;
+&nbsp; * &lt;p&gt;produces the following on Windows:&lt;/p&gt;
+&nbsp; * &lt;p&gt;&lt;img src=&quot;doc-files/Stage-win.png&quot; alt=&quot;A visual rendering
+&nbsp;     * of a JavaFX Stage on Windows&quot;&gt;&lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;produces the following on Mac OSX:&lt;/p&gt;
+&nbsp; * &lt;p&gt;&lt;img src=&quot;doc-files/Stage-mac.png&quot; alt=&quot;A visual rendering
+&nbsp;     * of a JavaFX Stage on Mac OSX&quot;&gt;&lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;produces the following on Linux:&lt;/p&gt;
+&nbsp; * &lt;p&gt;&lt;img src=&quot;doc-files/Stage-linux.png&quot; alt=&quot;A visual rendering
+&nbsp;     * of a JavaFX Stage on Linux&quot;&gt;&lt;/p&gt;
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+<b class="nc">&nbsp;public class Stage extends Window {</b>
+&nbsp;
+<b class="nc">&nbsp;    private boolean inNestedEventLoop = false;</b>
+&nbsp;
+&nbsp;    static {
+<b class="nc">&nbsp;        StageHelper.setStageAccessor(new StageHelper.StageAccessor() {</b>
+&nbsp;            @Override public void doVisibleChanging(Window window, boolean visible) {
+&nbsp;                ((Stage) window).doVisibleChanging(visible);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override public void doVisibleChanged(Window window, boolean visible) {
+&nbsp;                ((Stage) window).doVisibleChanged(visible);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override public void initSecurityDialog(Stage stage, boolean securityDialog) {
+&nbsp;                stage.initSecurityDialog(securityDialog);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public void setPrimary(Stage stage, boolean primary) {
+&nbsp;                stage.setPrimary(primary);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public void setImportant(Stage stage, boolean important) {
+&nbsp;                stage.setImportant(important);
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private static final StagePeerListener.StageAccessor STAGE_ACCESSOR = new StagePeerListener.StageAccessor() {</b>
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void setIconified(Stage stage, boolean iconified) {
+&nbsp;            stage.iconifiedPropertyImpl().set(iconified);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void setMaximized(Stage stage, boolean maximized) {
+&nbsp;            stage.maximizedPropertyImpl().set(maximized);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void setResizable(Stage stage, boolean resizable) {
+&nbsp;            ((ResizableProperty)stage.resizableProperty()).setNoInvalidate(resizable);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void setFullScreen(Stage stage, boolean fs) {
+&nbsp;            stage.fullScreenPropertyImpl().set(fs);
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void setAlwaysOnTop(Stage stage, boolean aot) {
+&nbsp;            stage.alwaysOnTopPropertyImpl().set(aot);
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of decorated {@code Stage}.
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this constructor is called on a thread
+&nbsp;     * other than the JavaFX Application Thread.
+&nbsp;     */
+&nbsp;    public Stage() {
+<b class="nc">&nbsp;        this(StageStyle.DECORATED);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates a new instance of {@code Stage}.
+&nbsp;     *
+&nbsp;     * @param style The style of the {@code Stage}
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this constructor is called on a thread
+&nbsp;     * other than the JavaFX Application Thread.
+&nbsp;     */
+&nbsp;    public Stage(@NamedArg(value=&quot;style&quot;, defaultValue=&quot;DECORATED&quot;) StageStyle style) {
+<b class="nc">&nbsp;        super();</b>
+&nbsp;
+<b class="nc">&nbsp;        Toolkit.getToolkit().checkFxUserThread();</b>
+&nbsp;
+&nbsp;        // Set the style
+<b class="nc">&nbsp;        initStyle(style);</b>
+<b class="nc">&nbsp;        StageHelper.initHelper(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specify the scene to be used on this stage.
+&nbsp;     */
+&nbsp;    @Override final public void setScene(Scene value) {
+<b class="nc">&nbsp;        Toolkit.getToolkit().checkFxUserThread();</b>
+<b class="nc">&nbsp;        super.setScene(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     */
+&nbsp;    @Override public final void show() {
+<b class="nc">&nbsp;        super.show();</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private boolean primary = false;</b>
+&nbsp;
+&nbsp;    ////////////////////////////////////////////////////////////////////
+&nbsp;
+&nbsp;    // Flag indicating that this stage is being used to show a security dialog
+<b class="nc">&nbsp;    private boolean securityDialog = false;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets a flag indicating that this stage is used for a security dialog and
+&nbsp;     * must always be on top. If set, this will cause the window to be always
+&nbsp;     * on top, regardless of the setting of the alwaysOnTop property, and
+&nbsp;     * whether or not permissions are granted when the dialog is shown.
+&nbsp;     * NOTE: this flag must be set prior to showing the stage the first time.
+&nbsp;     *
+&nbsp;     * @param securityDialog flag indicating that this Stage is being used to
+&nbsp;     * show a security dialog that should be always-on-top
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this property is set after the stage
+&nbsp;     * has ever been made visible.
+&nbsp;     *
+&nbsp;     * @defaultValue false
+&nbsp;     */
+&nbsp;    final void initSecurityDialog(boolean securityDialog) {
+<b class="nc">&nbsp;        if (hasBeenVisible) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot set securityDialog once stage has been set visible&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        this.securityDialog = securityDialog;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the state of the securityDialog flag.
+&nbsp;     *
+&nbsp;     * @return a flag indicating whether or not this is a security dialog
+&nbsp;     */
+&nbsp;    final boolean isSecurityDialog() {
+<b class="nc">&nbsp;        return securityDialog;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Sets this stage to be the primary stage.
+&nbsp;     */
+&nbsp;    void setPrimary(boolean primary) {
+<b class="nc">&nbsp;        this.primary = primary;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Returns whether this stage is the primary stage.
+&nbsp;     *
+&nbsp;     * @return true if this stage is the primary stage for the application.
+&nbsp;     */
+&nbsp;    boolean isPrimary() {
+<b class="nc">&nbsp;        return primary;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private boolean important = true;</b>
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Sets a flag indicating whether this stage is an &quot;important&quot; window for
+&nbsp;     * the purpose of determining whether the application is idle and should
+&nbsp;     * exit. The application is considered finished when the last important
+&nbsp;     * window is closed.
+&nbsp;     */
+&nbsp;    void setImportant(boolean important) {
+<b class="nc">&nbsp;        this.important = important;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean isImportant() {
+<b class="nc">&nbsp;        return important;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Shows this stage and waits for it to be hidden (closed) before returning
+&nbsp;     * to the caller. This method temporarily blocks processing of the current
+&nbsp;     * event, and starts a nested event loop to handle other events.
+&nbsp;     * This method must be called on the FX Application thread.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * A Stage is hidden (closed) by one of the following means:
+&nbsp;     * &lt;ul&gt;
+&nbsp;     * &lt;li&gt;the application calls the {@link #hide} or {@link #close} method on
+&nbsp;     * this stage&lt;/li&gt;
+&nbsp;     * &lt;li&gt;this stage has a non-null owner window, and its owner is closed&lt;/li&gt;
+&nbsp;     * &lt;li&gt;the user closes the window via the window system (for example,
+&nbsp;     * by pressing the close button in the window decoration)&lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * After the Stage is hidden, and the application has returned from the
+&nbsp;     * event handler to the event loop, the nested event loop terminates
+&nbsp;     * and this method returns to the caller.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For example, consider the following sequence of operations for different
+&nbsp;     * event handlers, assumed to execute in the order shown below:
+&nbsp;     * &lt;pre&gt;void evtHander1(...) {
+&nbsp;     *     stage1.showAndWait();
+&nbsp;     *     doSomethingAfterStage1Closed(...)
+&nbsp;     * }
+&nbsp;     *
+&nbsp;     * void evtHander2(...) {
+&nbsp;     *     stage1.hide();
+&nbsp;     *     doSomethingElseHere(...)
+&nbsp;     * }&lt;/pre&gt;
+&nbsp;     * evtHandler1 will block at the call to showAndWait. It will resume execution
+&nbsp;     * after stage1 is hidden and the current event handler, in this case evtHandler2,
+&nbsp;     * returns to the event loop. This means that doSomethingElseHere will
+&nbsp;     * execute before doSomethingAfterStage1Closed.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * More than one stage may be shown with showAndWait. Each call
+&nbsp;     * will start a new nested event loop. The stages may be hidden in any order,
+&nbsp;     * but a particular nested event loop (and thus the showAndWait method
+&nbsp;     * for the associated stage) will only terminate after all inner event loops
+&nbsp;     * have also terminated.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For example, consider the following sequence of operations for different
+&nbsp;     * event handlers, assumed to execute in the order shown below:
+&nbsp;     * &lt;pre&gt;void evtHander1() {
+&nbsp;     *     stage1.showAndWait();
+&nbsp;     *     doSomethingAfterStage1Closed(...)
+&nbsp;     * }
+&nbsp;     *
+&nbsp;     * void evtHander2() {
+&nbsp;     *     stage2.showAndWait();
+&nbsp;     *     doSomethingAfterStage2Closed(...)
+&nbsp;     * }
+&nbsp;     *
+&nbsp;     * void evtHander3() {
+&nbsp;     *     stage1.hide();
+&nbsp;     *     doSomethingElseHere(...)
+&nbsp;     * }
+&nbsp;     *
+&nbsp;     * void evtHander4() {
+&nbsp;     *     stage2.hide();
+&nbsp;     *     doSomethingElseHereToo(...)
+&nbsp;     * }&lt;/pre&gt;
+&nbsp;     * evtHandler1 will block at the call to stage1.showAndWait, starting up
+&nbsp;     * a nested event loop just like in the previous example. evtHandler2 will
+&nbsp;     * then block at the call to stage2.showAndWait, starting up another (inner)
+&nbsp;     * nested event loop. The first call to stage1.showAndWait will resume execution
+&nbsp;     * after stage1 is hidden, but only after the inner nested event loop started
+&nbsp;     * by stage2.showAndWait has terminated. This means that the call to
+&nbsp;     * stage1.showAndWait won&#39;t return until after evtHandler2 has returned.
+&nbsp;     * The order of execution is: stage1.showAndWait, stage2.showAndWait,
+&nbsp;     * stage1.hide, doSomethingElseHere, stage2.hide, doSomethingElseHereToo,
+&nbsp;     * doSomethingAfterStage2Closed, doSomethingAfterStage1Closed.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This method must not be called on the primary stage or on a stage that
+&nbsp;     * is already visible.
+&nbsp;     * Additionally, it must either be called from an input event handler or
+&nbsp;     * from the run method of a Runnable passed to
+&nbsp;     * {@link javafx.application.Platform#runLater Platform.runLater}.
+&nbsp;     * It must not be called during animation or layout processing.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this method is called on a thread
+&nbsp;     *     other than the JavaFX Application Thread.
+&nbsp;     * @throws IllegalStateException if this method is called during
+&nbsp;     *     animation or layout processing.
+&nbsp;     * @throws IllegalStateException if this method is called on the
+&nbsp;     *     primary stage.
+&nbsp;     * @throws IllegalStateException if this stage is already showing.
+&nbsp;     * @since JavaFX 2.2
+&nbsp;     */
+&nbsp;    public void showAndWait() {
+&nbsp;
+<b class="nc">&nbsp;        Toolkit.getToolkit().checkFxUserThread();</b>
+&nbsp;
+<b class="nc">&nbsp;        if (isPrimary()) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot call this method on primary stage&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (isShowing()) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Stage already visible&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (!Toolkit.getToolkit().canStartNestedEventLoop()) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;showAndWait is not allowed during animation or layout processing&quot;);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // TODO: file a new bug; the following assertion can fail if this
+&nbsp;        // method is called from an event handler that is listening to a
+&nbsp;        // WindowEvent.WINDOW_HIDING event.
+<b class="nc">&nbsp;        assert !inNestedEventLoop;</b>
+&nbsp;
+<b class="nc">&nbsp;        show();</b>
+<b class="nc">&nbsp;        inNestedEventLoop = true;</b>
+<b class="nc">&nbsp;        Toolkit.getToolkit().enterNestedEventLoop(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private StageStyle style; // default is set in constructor
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specifies the style for this stage. This must be done prior to making
+&nbsp;     * the stage visible. The style is one of: StageStyle.DECORATED,
+&nbsp;     * StageStyle.UNDECORATED, StageStyle.TRANSPARENT, or StageStyle.UTILITY.
+&nbsp;     *
+&nbsp;     * @param style the style for this stage.
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this property is set after the stage
+&nbsp;     * has ever been made visible.
+&nbsp;     *
+&nbsp;     * @defaultValue StageStyle.DECORATED
+&nbsp;     */
+&nbsp;    public final void initStyle(StageStyle style) {
+<b class="nc">&nbsp;        if (hasBeenVisible) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot set style once stage has been set visible&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        this.style = style;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Retrieves the style attribute for this stage.
+&nbsp;     *
+&nbsp;     * @return the stage style.
+&nbsp;     */
+&nbsp;    public final StageStyle getStyle() {
+<b class="nc">&nbsp;        return style;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private Modality modality = Modality.NONE;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specifies the modality for this stage. This must be done prior to making
+&nbsp;     * the stage visible. The modality is one of: Modality.NONE,
+&nbsp;     * Modality.WINDOW_MODAL, or Modality.APPLICATION_MODAL.
+&nbsp;     *
+&nbsp;     * @param modality the modality for this stage.
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this property is set after the stage
+&nbsp;     * has ever been made visible.
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this stage is the primary stage.
+&nbsp;     *
+&nbsp;     * @defaultValue Modality.NONE
+&nbsp;     */
+&nbsp;    public final void initModality(Modality modality) {
+<b class="nc">&nbsp;        if (hasBeenVisible) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot set modality once stage has been set visible&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (isPrimary()) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot set modality for the primary stage&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        this.modality = modality;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Retrieves the modality attribute for this stage.
+&nbsp;     *
+&nbsp;     * @return the modality.
+&nbsp;     */
+&nbsp;    public final Modality getModality() {
+<b class="nc">&nbsp;        return modality;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private Window owner = null;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specifies the owner Window for this stage, or null for a top-level,
+&nbsp;     * unowned stage. This must be done prior to making the stage visible.
+&nbsp;     *
+&nbsp;     * @param owner the owner for this stage.
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this property is set after the stage
+&nbsp;     * has ever been made visible.
+&nbsp;     *
+&nbsp;     * @throws IllegalStateException if this stage is the primary stage.
+&nbsp;     *
+&nbsp;     * @defaultValue null
+&nbsp;     */
+&nbsp;    public final void initOwner(Window owner) {
+<b class="nc">&nbsp;        if (hasBeenVisible) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot set owner once stage has been set visible&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (isPrimary()) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Cannot set owner for the primary stage&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        this.owner = owner;</b>
+&nbsp;
+<b class="nc">&nbsp;        final Scene sceneValue = getScene();</b>
+<b class="nc">&nbsp;        if (sceneValue != null) {</b>
+<b class="nc">&nbsp;            SceneHelper.parentEffectiveOrientationInvalidated(sceneValue);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Retrieves the owner Window for this stage, or null for an unowned stage.
+&nbsp;     *
+&nbsp;     * @return the owner Window.
+&nbsp;     */
+&nbsp;    public final Window getOwner() {
+<b class="nc">&nbsp;        return owner;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specifies whether this {@code Stage} should be a full-screen,
+&nbsp;     * undecorated window.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The implementation of full-screen mode is platform and profile-dependent.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * When set to {@code true}, the {@code Stage} will attempt to enter
+&nbsp;     * full-screen mode when visible. Set to {@code false} to return {@code Stage}
+&nbsp;     * to windowed mode.
+&nbsp;     * An {@link IllegalStateException} is thrown if this property is set
+&nbsp;     * on a thread other than the JavaFX Application Thread.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The full-screen mode will be exited (and the {@code fullScreen} attribute
+&nbsp;     * will be set to {@code false}) if the full-screen
+&nbsp;     * {@code Stage} loses focus or if another {@code Stage} enters
+&nbsp;     * full-screen mode on the same {@link Screen}. Note that a {@code Stage}
+&nbsp;     * in full-screen mode can become invisible without losing its
+&nbsp;     * full-screen status and will again enter full-screen mode when the
+&nbsp;     * {@code Stage} becomes visible.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * If the platform supports multiple screens an application can control
+&nbsp;     * which {@code Screen} the Stage will enter full-screen mode on by
+&nbsp;     * setting its position to be within the bounds of that {@code Screen}
+&nbsp;     * prior to entering full-screen mode.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * However once in full-screen mode, {@code Stage}&#39;s {@code x}, {@code y},
+&nbsp;     * {@code width}, and {@code height} variables will continue to represent
+&nbsp;     * the non-full-screen position and size of the window; the same for
+&nbsp;     * {@code iconified}, {@code resizable}, {@code style}, and {@code
+&nbsp;     * opacity}. If changes are made to any of these attributes while in
+&nbsp;     * full-screen mode, upon exiting full-screen mode the {@code Stage} will
+&nbsp;     * assume those attributes.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * In case that more {@code Stage} modes are set simultaneously their order
+&nbsp;     * of importance is {@code iconified}, fullScreen, {@code maximized} (from
+&nbsp;     * strongest to weakest).
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This property is read-only because it can be changed externally
+&nbsp;     * by the underlying platform.
+&nbsp;     * Further, setting this property might be ignored on some platforms.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * The user can unconditionally exit full-screen mode
+&nbsp;     * at any time by pressing {@code ESC}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If a security manager is present, the application must have the
+&nbsp;     * {@link javafx.util.FXPermission} &quot;unrestrictedFullScreen&quot; in order
+&nbsp;     * to enter full-screen mode with no restrictions. Applications without
+&nbsp;     * permission will have the following restrictions:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ul&gt;
+&nbsp;     *  &lt;li&gt;Applications can only enter full-screen mode in response
+&nbsp;     *   to user input. More specifically, entering is allowed from mouse
+&nbsp;     *   ({@code Node.mousePressed/mouseReleased/mouseClicked}) or keyboard
+&nbsp;     *   ({@code Node.keyPressed/keyReleased/keyTyped}) event handlers. It is
+&nbsp;     *   not allowed to enter full-screen mode in response to {@code ESC}
+&nbsp;     *   key. Attempting to enter full-screen mode from any other context will
+&nbsp;     *   be ignored.
+&nbsp;     *   &lt;p&gt;
+&nbsp;     *   If {@code Stage} was constructed as full-screen but not visible
+&nbsp;     *   it will enter full-screen mode upon becoming visible, with the same
+&nbsp;     *   limitations to when this is allowed to happen as when setting
+&nbsp;     *   {@code fullScreen} to {@code true}.
+&nbsp;     *   &lt;/p&gt;
+&nbsp;     *  &lt;/li&gt;
+&nbsp;     *  &lt;li&gt; If the application was allowed to enter full-screen mode
+&nbsp;     *   it will have limited keyboard input. It will only receive KEY_PRESSED
+&nbsp;     *   and KEY_RELEASED events from the following keys:
+&nbsp;     *   {@code UP, DOWN, LEFT, RIGHT, SPACE, TAB, PAGE_UP, PAGE_DOWN, HOME, END, ENTER}
+&nbsp;     *  &lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     * @defaultValue false
+&nbsp;     */
+&nbsp;    private ReadOnlyBooleanWrapper fullScreen;
+&nbsp;
+&nbsp;    public final void setFullScreen(boolean value) {
+<b class="nc">&nbsp;        Toolkit.getToolkit().checkFxUserThread();</b>
+<b class="nc">&nbsp;        fullScreenPropertyImpl().set(value);</b>
+<b class="nc">&nbsp;        if (getPeer() != null)</b>
+<b class="nc">&nbsp;            getPeer().setFullScreen(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final boolean isFullScreen() {
+<b class="nc">&nbsp;        return fullScreen == null ? false : fullScreen.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final ReadOnlyBooleanProperty fullScreenProperty() {
+<b class="nc">&nbsp;        return fullScreenPropertyImpl().getReadOnlyProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ReadOnlyBooleanWrapper fullScreenPropertyImpl () {
+<b class="nc">&nbsp;        if (fullScreen == null) {</b>
+<b class="nc">&nbsp;            fullScreen = new ReadOnlyBooleanWrapper(Stage.this, &quot;fullScreen&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return fullScreen;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the icon images to be used in the window decorations and when
+&nbsp;     * minimized. The images should be different sizes of the same image and
+&nbsp;     * the best size will be chosen, eg. 16x16, 32,32.
+&nbsp;     *
+&nbsp;     * @defaultValue empty
+&nbsp;     */
+<b class="nc">&nbsp;    private ObservableList&lt;Image&gt; icons = new VetoableListDecorator&lt;&gt;(new TrackableObservableList&lt;Image&gt;() {</b>
+&nbsp;        @Override protected void onChanged(Change&lt;Image&gt; c) {
+&nbsp;            List&lt;Object&gt; platformImages = new ArrayList&lt;&gt;();
+&nbsp;            for (Image icon : icons) {
+&nbsp;                platformImages.add(Toolkit.getImageAccessor().getPlatformImage(icon));
+&nbsp;            }
+&nbsp;            if (getPeer() != null) {
+&nbsp;                getPeer().setIcons(platformImages);
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }) {
+&nbsp;        @Override protected void onProposedChange(
+&nbsp;                final List&lt;Image&gt; toBeAddedIcons, int... indices) {
+&nbsp;            for (Image icon : toBeAddedIcons) {
+&nbsp;                if (icon == null) {
+&nbsp;                    throw new NullPointerException(&quot;icon can not be null.&quot;);
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the icon images to be used in the window decorations and when
+&nbsp;     * minimized. The images should be different sizes of the same image and
+&nbsp;     * the best size will be chosen, eg. 16x16, 32,32.
+&nbsp;     * @return An observable list of icons of this window
+&nbsp;     */
+&nbsp;    public final ObservableList&lt;Image&gt; getIcons() {
+<b class="nc">&nbsp;        return icons;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the title of the {@code Stage}.
+&nbsp;     *
+&nbsp;     * @defaultValue empty string
+&nbsp;     */
+&nbsp;    private StringProperty title;
+&nbsp;
+&nbsp;    public final void setTitle(String value) {
+<b class="nc">&nbsp;        titleProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final String getTitle() {
+<b class="nc">&nbsp;        return title == null ? null : title.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final StringProperty titleProperty() {
+<b class="nc">&nbsp;        if (title == null) {</b>
+<b class="nc">&nbsp;            title = new StringPropertyBase() {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    if (getPeer() != null) {
+&nbsp;                        getPeer().setTitle(get());
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Stage.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;title&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return title;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines whether the {@code Stage} is iconified or not.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * In case that more {@code Stage} modes are set simultaneously their order
+&nbsp;     * of importance is iconified} {@code fullScreen}, {@code maximized} (from
+&nbsp;     * strongest to weakest).
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * On some mobile and embedded platforms setting this property to true will
+&nbsp;     * hide the {@code Stage} but not show an icon for it.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This property is read-only because it can be changed externally
+&nbsp;     * by the underlying platform.
+&nbsp;     * Further, setting this property might be ignored on some platforms.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @defaultValue false
+&nbsp;     */
+&nbsp;    private ReadOnlyBooleanWrapper iconified;
+&nbsp;
+&nbsp;    public final void setIconified(boolean value) {
+<b class="nc">&nbsp;        iconifiedPropertyImpl().set(value);</b>
+<b class="nc">&nbsp;        if (getPeer() != null)</b>
+<b class="nc">&nbsp;            getPeer().setIconified(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final boolean isIconified() {
+<b class="nc">&nbsp;        return iconified == null ? false : iconified.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final ReadOnlyBooleanProperty iconifiedProperty() {
+<b class="nc">&nbsp;        return iconifiedPropertyImpl().getReadOnlyProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private final ReadOnlyBooleanWrapper iconifiedPropertyImpl() {
+<b class="nc">&nbsp;        if (iconified == null) {</b>
+<b class="nc">&nbsp;            iconified = new ReadOnlyBooleanWrapper(Stage.this, &quot;iconified&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return iconified;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines whether the {@code Stage} is maximized or not.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * In case that more {@code Stage} modes are set simultaneously their order
+&nbsp;     * of importance is {@code iconified}, {@code fullScreen}, maximized (from
+&nbsp;     * strongest to weakest).
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This property is read-only because it can be changed externally
+&nbsp;     * by the underlying platform.
+&nbsp;     * Further, setting this property might be ignored on some platforms.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @defaultValue false
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    private ReadOnlyBooleanWrapper maximized;
+&nbsp;
+&nbsp;    public final void setMaximized(boolean value) {
+<b class="nc">&nbsp;        maximizedPropertyImpl().set(value);</b>
+<b class="nc">&nbsp;        if (getPeer() != null) {</b>
+<b class="nc">&nbsp;            getPeer().setMaximized(value);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public final boolean isMaximized() {
+<b class="nc">&nbsp;        return maximized == null ? false : maximized.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final ReadOnlyBooleanProperty maximizedProperty() {
+<b class="nc">&nbsp;        return maximizedPropertyImpl().getReadOnlyProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private final ReadOnlyBooleanWrapper maximizedPropertyImpl() {
+<b class="nc">&nbsp;        if (maximized == null) {</b>
+<b class="nc">&nbsp;            maximized = new ReadOnlyBooleanWrapper(Stage.this, &quot;maximized&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return maximized;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines whether this {@code Stage} is kept on top of other windows.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If some other window is already always-on-top then the
+&nbsp;     * relative order between these windows is unspecified (depends on
+&nbsp;     * platform).
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If a security manager is present, the application must have the
+&nbsp;     * {@link javafx.util.FXPermission} &quot;setWindowAlwaysOnTop&quot; in order for
+&nbsp;     * this property to have any effect. If the application does not have
+&nbsp;     * permission, attempting to set this property will be ignored
+&nbsp;     * and the property value will be restored to {@code false}.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This property is read-only because it can be changed externally
+&nbsp;     * by the underlying platform.
+&nbsp;     * Further, setting this property might be ignored on some platforms.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @defaultValue false
+&nbsp;     * @since JavaFX 8u20
+&nbsp;     */
+&nbsp;    private ReadOnlyBooleanWrapper alwaysOnTop;
+&nbsp;
+&nbsp;    public final void setAlwaysOnTop(boolean value) {
+<b class="nc">&nbsp;        alwaysOnTopPropertyImpl().set(value);</b>
+<b class="nc">&nbsp;        if (getPeer() != null) {</b>
+<b class="nc">&nbsp;            getPeer().setAlwaysOnTop(value);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public final boolean isAlwaysOnTop() {
+<b class="nc">&nbsp;        return alwaysOnTop == null ? false : alwaysOnTop.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final ReadOnlyBooleanProperty alwaysOnTopProperty() {
+<b class="nc">&nbsp;        return alwaysOnTopPropertyImpl().getReadOnlyProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ReadOnlyBooleanWrapper alwaysOnTopPropertyImpl() {
+<b class="nc">&nbsp;        if (alwaysOnTop == null) {</b>
+<b class="nc">&nbsp;            alwaysOnTop = new ReadOnlyBooleanWrapper(Stage.this, &quot;alwaysOnTop&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return alwaysOnTop;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines whether the {@code Stage} is resizable or not by the user.
+&nbsp;     * Programatically you may still change the size of the Stage. This is
+&nbsp;     * a hint which allows the implementation to optionally make the Stage
+&nbsp;     * resizable by the user.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * &lt;b&gt;Warning:&lt;/b&gt; Since 8.0 the property cannot be bound and will throw
+&nbsp;     * {@code RuntimeException} on an attempt to do so. This is because
+&nbsp;     * the setting of resizable is asynchronous on some systems or generally
+&nbsp;     * might be set by the system / window manager.
+&nbsp;     * &lt;br&gt;
+&nbsp;     * Bidirectional binds are still allowed, as they don&#39;t block setting of the
+&nbsp;     * property by the system.
+&nbsp;     *
+&nbsp;     * @defaultValue true
+&nbsp;     */
+&nbsp;    private BooleanProperty resizable;
+&nbsp;
+&nbsp;    public final void setResizable(boolean value) {
+<b class="nc">&nbsp;        resizableProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final boolean isResizable() {
+<b class="nc">&nbsp;        return resizable == null ? true : resizable.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final BooleanProperty resizableProperty() {
+<b class="nc">&nbsp;        if (resizable == null) {</b>
+<b class="nc">&nbsp;            resizable = new ResizableProperty();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return resizable;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //We cannot return ReadOnlyProperty in resizable, as this would be
+&nbsp;    // backward incompatible. All we can do is to create this custom property
+&nbsp;    // implementation that disallows binds
+&nbsp;    private class ResizableProperty extends SimpleBooleanProperty {
+&nbsp;        private boolean noInvalidate;
+&nbsp;
+&nbsp;        public ResizableProperty() {
+&nbsp;            super(Stage.this, &quot;resizable&quot;, true);
+&nbsp;        }
+&nbsp;
+&nbsp;        void setNoInvalidate(boolean value) {
+&nbsp;            noInvalidate = true;
+&nbsp;            set(value);
+&nbsp;            noInvalidate = false;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        protected void invalidated() {
+&nbsp;            if (noInvalidate) {
+&nbsp;                return;
+&nbsp;            }
+&nbsp;            if (getPeer() != null) {
+&nbsp;                applyBounds();
+&nbsp;                getPeer().setResizable(get());
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public void bind(ObservableValue&lt;? extends Boolean&gt; rawObservable) {
+&nbsp;            throw new RuntimeException(&quot;Resizable property cannot be bound&quot;);
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the minimum width of this {@code Stage}.
+&nbsp;     *
+&nbsp;     * @defaultValue 0
+&nbsp;     * @since JavaFX 2.1
+&nbsp;     */
+&nbsp;    private DoubleProperty minWidth;
+&nbsp;
+&nbsp;    public final void setMinWidth(double value) {
+<b class="nc">&nbsp;        minWidthProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getMinWidth() {
+<b class="nc">&nbsp;        return minWidth == null ? 0 : minWidth.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final DoubleProperty minWidthProperty() {
+<b class="nc">&nbsp;        if (minWidth == null) {</b>
+<b class="nc">&nbsp;            minWidth = new DoublePropertyBase(0) {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    if (getPeer() != null) {
+&nbsp;                        getPeer().setMinimumSize((int) Math.ceil(get()),
+&nbsp;                                (int) Math.ceil(getMinHeight()));
+&nbsp;                    }
+&nbsp;                    if (getWidth() &lt; getMinWidth()) {
+&nbsp;                        setWidth(getMinWidth());
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Stage.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;minWidth&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return minWidth;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the minimum height of this {@code Stage}.
+&nbsp;     *
+&nbsp;     * @defaultValue 0
+&nbsp;     * @since JavaFX 2.1
+&nbsp;     */
+&nbsp;    private DoubleProperty minHeight;
+&nbsp;
+&nbsp;    public final void setMinHeight(double value) {
+<b class="nc">&nbsp;        minHeightProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getMinHeight() {
+<b class="nc">&nbsp;        return minHeight == null ? 0 : minHeight.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final DoubleProperty minHeightProperty() {
+<b class="nc">&nbsp;        if (minHeight == null) {</b>
+<b class="nc">&nbsp;            minHeight = new DoublePropertyBase(0) {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    if (getPeer() != null) {
+&nbsp;                        getPeer().setMinimumSize(
+&nbsp;                                (int) Math.ceil(getMinWidth()),
+&nbsp;                                (int) Math.ceil(get()));
+&nbsp;                    }
+&nbsp;                    if (getHeight() &lt; getMinHeight()) {
+&nbsp;                        setHeight(getMinHeight());
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Stage.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;minHeight&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return minHeight;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the maximum width of this {@code Stage}.
+&nbsp;     *
+&nbsp;     * @defaultValue Double.MAX_VALUE
+&nbsp;     * @since JavaFX 2.1
+&nbsp;     */
+&nbsp;    private DoubleProperty maxWidth;
+&nbsp;
+&nbsp;    public final void setMaxWidth(double value) {
+<b class="nc">&nbsp;        maxWidthProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getMaxWidth() {
+<b class="nc">&nbsp;        return maxWidth == null ? Double.MAX_VALUE : maxWidth.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final DoubleProperty maxWidthProperty() {
+<b class="nc">&nbsp;        if (maxWidth == null) {</b>
+<b class="nc">&nbsp;            maxWidth = new DoublePropertyBase(Double.MAX_VALUE) {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    if (getPeer() != null) {
+&nbsp;                        getPeer().setMaximumSize((int) Math.floor(get()),
+&nbsp;                                (int) Math.floor(getMaxHeight()));
+&nbsp;                    }
+&nbsp;                    if (getWidth() &gt; getMaxWidth()) {
+&nbsp;                        setWidth(getMaxWidth());
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Stage.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;maxWidth&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return maxWidth;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the maximum height of this {@code Stage}.
+&nbsp;     *
+&nbsp;     * @defaultValue Double.MAX_VALUE
+&nbsp;     * @since JavaFX 2.1
+&nbsp;     */
+&nbsp;    private DoubleProperty maxHeight;
+&nbsp;
+&nbsp;    public final void setMaxHeight(double value) {
+<b class="nc">&nbsp;        maxHeightProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getMaxHeight() {
+<b class="nc">&nbsp;        return maxHeight == null ? Double.MAX_VALUE : maxHeight.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final DoubleProperty maxHeightProperty() {
+<b class="nc">&nbsp;        if (maxHeight == null) {</b>
+<b class="nc">&nbsp;            maxHeight = new DoublePropertyBase(Double.MAX_VALUE) {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                protected void invalidated() {
+&nbsp;                    if (getPeer() != null) {
+&nbsp;                        getPeer().setMaximumSize(
+&nbsp;                                (int) Math.floor(getMaxWidth()),
+&nbsp;                                (int) Math.floor(get()));
+&nbsp;                    }
+&nbsp;                    if (getHeight() &gt; getMaxHeight()) {
+&nbsp;                        setHeight(getMaxHeight());
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Stage.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;maxHeight&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return maxHeight;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * This can be replaced by listening for the onShowing/onHiding events
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private void doVisibleChanging(boolean value) {
+<b class="nc">&nbsp;        Toolkit toolkit = Toolkit.getToolkit();</b>
+<b class="nc">&nbsp;        if (value &amp;&amp; (getPeer() == null)) {</b>
+&nbsp;            // Setup the peer
+<b class="nc">&nbsp;            Window window = getOwner();</b>
+<b class="nc">&nbsp;            TKStage tkStage = (window == null ? null : window.getPeer());</b>
+<b class="nc">&nbsp;            Scene scene = getScene();</b>
+<b class="nc">&nbsp;            boolean rtl = scene != null &amp;&amp; scene.getEffectiveNodeOrientation() == NodeOrientation.RIGHT_TO_LEFT;</b>
+&nbsp;
+<b class="nc">&nbsp;            StageStyle stageStyle = getStyle();</b>
+<b class="nc">&nbsp;            if (stageStyle == StageStyle.TRANSPARENT) {</b>
+&nbsp;                @SuppressWarnings(&quot;removal&quot;)
+&nbsp;                final SecurityManager securityManager =
+<b class="nc">&nbsp;                        System.getSecurityManager();</b>
+<b class="nc">&nbsp;                if (securityManager != null) {</b>
+&nbsp;                    try {
+<b class="nc">&nbsp;                        securityManager.checkPermission(CREATE_TRANSPARENT_WINDOW_PERMISSION);</b>
+&nbsp;                    } catch (final SecurityException e) {
+<b class="nc">&nbsp;                        stageStyle = StageStyle.UNDECORATED;</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            setPeer(toolkit.createTKStage(this, isSecurityDialog(),</b>
+<b class="nc">&nbsp;                    stageStyle, isPrimary(), getModality(), tkStage, rtl, acc));</b>
+<b class="nc">&nbsp;            getPeer().setMinimumSize((int) Math.ceil(getMinWidth()),</b>
+<b class="nc">&nbsp;                    (int) Math.ceil(getMinHeight()));</b>
+<b class="nc">&nbsp;            getPeer().setMaximumSize((int) Math.floor(getMaxWidth()),</b>
+<b class="nc">&nbsp;                    (int) Math.floor(getMaxHeight()));</b>
+<b class="nc">&nbsp;            setPeerListener(new StagePeerListener(this, STAGE_ACCESSOR));</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /*
+&nbsp;     * This can be replaced by listening for the onShown/onHidden events
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private void doVisibleChanged(boolean value) {
+<b class="nc">&nbsp;        if (value) {</b>
+&nbsp;            // Finish initialization
+<b class="nc">&nbsp;            TKStage peer = getPeer();</b>
+<b class="nc">&nbsp;            peer.setImportant(isImportant());</b>
+<b class="nc">&nbsp;            peer.setResizable(isResizable());</b>
+<b class="nc">&nbsp;            peer.setFullScreen(isFullScreen());</b>
+<b class="nc">&nbsp;            peer.setAlwaysOnTop(isAlwaysOnTop());</b>
+<b class="nc">&nbsp;            peer.setIconified(isIconified());</b>
+<b class="nc">&nbsp;            peer.setMaximized(isMaximized());</b>
+<b class="nc">&nbsp;            peer.setTitle(getTitle());</b>
+&nbsp;
+<b class="nc">&nbsp;            if (!isIconified()) {</b>
+<b class="nc">&nbsp;                peer.requestFocus();</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            List&lt;Object&gt; platformImages = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;            for (Image icon : icons) {</b>
+<b class="nc">&nbsp;                platformImages.add(Toolkit.getImageAccessor().getPlatformImage(icon));</b>
+&nbsp;            }
+<b class="nc">&nbsp;            if (peer != null) {</b>
+<b class="nc">&nbsp;                peer.setIcons(platformImages);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (!value &amp;&amp; inNestedEventLoop) {</b>
+<b class="nc">&nbsp;            inNestedEventLoop = false;</b>
+<b class="nc">&nbsp;            Toolkit.getToolkit().exitNestedEventLoop(this, null);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Brings this {@code Stage} to the front if the stage is visible.
+&nbsp;     * This action places this {@code Stage} at the top of the stacking
+&nbsp;     * order and shows it in front of any other {@code Stage} created by this
+&nbsp;     * application.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Some platforms do not allow applications to control the stacking order
+&nbsp;     * at all, in which case this method does nothing.
+&nbsp;     * Other platforms have restrictions on stacking order, so might not
+&nbsp;     * place a window above another application&#39;s windows
+&nbsp;     * nor allow a window that owns other windows to appear on top of those
+&nbsp;     * owned windows.
+&nbsp;     * Every attempt will be made to move this {@code Stage} as high as
+&nbsp;     * possible in the stacking order; however, developers should not assume
+&nbsp;     * that this method will move this {@code Stage} above all other windows
+&nbsp;     * in every situation.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void toFront() {
+<b class="nc">&nbsp;        if (getPeer() != null) {</b>
+<b class="nc">&nbsp;            getPeer().toFront();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sends this {@code Stage} to the back if the stage is visible.
+&nbsp;     * This action places this {@code Stage} at the bottom of the stacking
+&nbsp;     * order and shows it behind any other {@code Stage} created by this
+&nbsp;     * application.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Some platforms do not allow applications to control the stacking order
+&nbsp;     * at all, in which case this method does nothing.
+&nbsp;     * Other platforms have restrictions on stacking order, so might not
+&nbsp;     * place a window below another application&#39;s windows
+&nbsp;     * nor allow a window that is owned by another window to appear below their
+&nbsp;     * owner.
+&nbsp;     * Every attempt will be made to move this {@code Stage} as low as
+&nbsp;     * possible in the stacking order; however, developers should not assume
+&nbsp;     * that this method will move this {@code Stage} below all other windows
+&nbsp;     * in every situation.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void toBack() {
+<b class="nc">&nbsp;        if (getPeer() != null) {</b>
+<b class="nc">&nbsp;            getPeer().toBack();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Closes this {@code Stage}.
+&nbsp;     * This call is equivalent to {@code hide()}.
+&nbsp;     */
+&nbsp;    public void close() {
+<b class="nc">&nbsp;        hide();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    Window getWindowOwner() {
+<b class="nc">&nbsp;        return getOwner();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;    private final ObjectProperty&lt;KeyCombination&gt; fullScreenExitCombination =</b>
+&nbsp;            new SimpleObjectProperty&lt;&gt;(this, &quot;fullScreenExitCombination&quot;, null);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specifies the KeyCombination that will allow the user to exit full screen
+&nbsp;     * mode. A value of KeyCombination.NO_MATCH will not match any KeyEvent and
+&nbsp;     * will make it so the user is not able to escape from Full Screen mode.
+&nbsp;     * A value of null indicates that the default platform specific key combination
+&nbsp;     * should be used.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * An internal copy of this value is made when entering full-screen mode and will be
+&nbsp;     * used to trigger the exit from the mode.
+&nbsp;     * If a security manager is present, the application must have the
+&nbsp;     * {@link javafx.util.FXPermission} &quot;unrestrictedFullScreen&quot; to modify the
+&nbsp;     * exit key combination. If the application does not have permission, the
+&nbsp;     * value of this property will be ignored, in which case the
+&nbsp;     * default key combination will be used.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param keyCombination the key combination to exit on
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final void setFullScreenExitKeyCombination(KeyCombination keyCombination) {
+<b class="nc">&nbsp;        fullScreenExitCombination.set(keyCombination);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Get the current sequence used to exit Full Screen mode.
+&nbsp;     * @return the current setting (null for system default)
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final KeyCombination getFullScreenExitKeyCombination() {
+<b class="nc">&nbsp;        return fullScreenExitCombination.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Get the property for the Full Screen exit key combination.
+&nbsp;     * @return the property.
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;KeyCombination&gt; fullScreenExitKeyProperty() {
+<b class="nc">&nbsp;        return fullScreenExitCombination;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Specifies the text to show when a user enters full screen mode, usually
+&nbsp;     * used to indicate the way a user should go about exiting out of full
+&nbsp;     * screen mode. A value of null will result in the default per-locale
+&nbsp;     * message being displayed.
+&nbsp;     * If set to the empty string, then no message will be displayed.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If a security manager is present, the application must have the
+&nbsp;     * {@link javafx.util.FXPermission} &quot;unrestrictedFullScreen&quot; to modify the
+&nbsp;     * exit hint. If the application does not have permission, the
+&nbsp;     * value of this property will be ignored, in which case the
+&nbsp;     * default message will be displayed.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+<b class="nc">&nbsp;    private final ObjectProperty&lt;String&gt; fullScreenExitHint =</b>
+&nbsp;            new SimpleObjectProperty&lt;&gt;(this, &quot;fullScreenExitHint&quot;, null);
+&nbsp;
+&nbsp;    public final void setFullScreenExitHint(String value) {
+<b class="nc">&nbsp;        fullScreenExitHint.set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final String getFullScreenExitHint() {
+<b class="nc">&nbsp;        return fullScreenExitHint.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final ObjectProperty&lt;String&gt; fullScreenExitHintProperty() {
+<b class="nc">&nbsp;        return fullScreenExitHint;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

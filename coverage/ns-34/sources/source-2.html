@@ -1,0 +1,1890 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Shape</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.shape</a>
+</div>
+
+<h1>Coverage Summary for Class: Shape (javafx.scene.shape)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Shape</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/58)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/137)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/257)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.shape;
+&nbsp;
+&nbsp;import javafx.beans.Observable;
+&nbsp;import javafx.beans.property.BooleanProperty;
+&nbsp;import javafx.beans.property.DoubleProperty;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;import javafx.beans.property.Property;
+&nbsp;import javafx.collections.ListChangeListener.Change;
+&nbsp;import javafx.collections.ObservableList;
+&nbsp;import javafx.css.CssMetaData;
+&nbsp;import javafx.css.Styleable;
+&nbsp;import javafx.css.StyleableBooleanProperty;
+&nbsp;import javafx.css.StyleableDoubleProperty;
+&nbsp;import javafx.css.StyleableObjectProperty;
+&nbsp;import javafx.css.StyleableProperty;
+&nbsp;import javafx.scene.Node;
+&nbsp;import javafx.scene.paint.Color;
+&nbsp;import javafx.scene.paint.Paint;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.List;
+&nbsp;import com.sun.javafx.util.Utils;
+&nbsp;import com.sun.javafx.beans.event.AbstractNotifyListener;
+&nbsp;import com.sun.javafx.collections.TrackableObservableList;
+&nbsp;import javafx.css.converter.BooleanConverter;
+&nbsp;import javafx.css.converter.EnumConverter;
+&nbsp;import javafx.css.converter.PaintConverter;
+&nbsp;import javafx.css.converter.SizeConverter;
+&nbsp;import com.sun.javafx.geom.Area;
+&nbsp;import com.sun.javafx.geom.BaseBounds;
+&nbsp;import com.sun.javafx.geom.PathIterator;
+&nbsp;import com.sun.javafx.geom.transform.Affine3D;
+&nbsp;import com.sun.javafx.geom.transform.BaseTransform;
+&nbsp;import com.sun.javafx.scene.DirtyBits;
+&nbsp;import com.sun.javafx.scene.NodeHelper;
+&nbsp;import com.sun.javafx.scene.shape.ShapeHelper;
+&nbsp;import com.sun.javafx.sg.prism.NGShape;
+&nbsp;import com.sun.javafx.tk.Toolkit;
+&nbsp;import java.lang.ref.Reference;
+&nbsp;import java.lang.ref.WeakReference;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * The {@code Shape} class provides definitions of common properties for
+&nbsp; * objects that represent some form of geometric shape.  These properties
+&nbsp; * include:
+&nbsp; * &lt;ul&gt;
+&nbsp; * &lt;li&gt;The {@link Paint} to be applied to the fillable interior of the
+&nbsp; * shape (see {@link #setFill setFill}).
+&nbsp; * &lt;li&gt;The {@link Paint} to be applied to stroke the outline of the
+&nbsp; * shape (see {@link #setStroke setStroke}).
+&nbsp; * &lt;li&gt;The decorative properties of the stroke, including:
+&nbsp; * &lt;ul&gt;
+&nbsp; * &lt;li&gt;The width of the border stroke.
+&nbsp; * &lt;li&gt;Whether the border is drawn as an exterior padding to the edges
+&nbsp; * of the shape, as an interior edging that follows the inside of the border,
+&nbsp; * or as a wide path that follows along the border straddling it equally
+&nbsp; * both inside and outside (see {@link StrokeType}).
+&nbsp; * &lt;li&gt;Decoration styles for the joins between path segments and the
+&nbsp; * unclosed ends of paths.
+&nbsp; * &lt;li&gt;Dashing attributes.
+&nbsp; * &lt;/ul&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;
+&nbsp; * An application should not extend the Shape class directly. Doing so may lead to
+&nbsp; * an UnsupportedOperationException being thrown.
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;h2&gt;Interaction with coordinate systems&lt;/h2&gt;
+&nbsp; * Most nodes tend to have only integer translations applied to them and
+&nbsp; * quite often they are defined using integer coordinates as well.  For
+&nbsp; * this common case, fills of shapes with straight line edges tend to be
+&nbsp; * crisp since they line up with the cracks between pixels that fall on
+&nbsp; * integer device coordinates and thus tend to naturally cover entire pixels.
+&nbsp; * &lt;p&gt;
+&nbsp; * On the other hand, stroking those same shapes can often lead to fuzzy
+&nbsp; * outlines because the default stroking attributes specify both that the
+&nbsp; * default stroke width is 1.0 coordinates which often maps to exactly 1
+&nbsp; * device pixel and also that the stroke should straddle the border of the
+&nbsp; * shape, falling half on either side of the border.
+&nbsp; * Since the borders in many common shapes tend to fall directly on integer
+&nbsp; * coordinates and those integer coordinates often map precisely to integer
+&nbsp; * device locations, the borders tend to result in 50% coverage over the
+&nbsp; * pixel rows and columns on either side of the border of the shape rather
+&nbsp; * than 100% coverage on one or the other.  Thus, fills may typically be
+&nbsp; * crisp, but strokes are often fuzzy.
+&nbsp; * &lt;p&gt;
+&nbsp; * Two common solutions to avoid these fuzzy outlines are to use wider
+&nbsp; * strokes that cover more pixels completely - typically a stroke width of
+&nbsp; * 2.0 will achieve this if there are no scale transforms in effect - or
+&nbsp; * to specify either the {@link StrokeType#INSIDE} or {@link StrokeType#OUTSIDE}
+&nbsp; * stroke styles - which will bias the default single unit stroke onto one
+&nbsp; * of the full pixel rows or columns just inside or outside the border of
+&nbsp; * the shape.
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public abstract class Shape extends Node {
+&nbsp;
+&nbsp;    static {
+&nbsp;        // This is used by classes in different packages to get access to
+&nbsp;        // private and package private methods.
+<b class="nc">&nbsp;        ShapeHelper.setShapeAccessor(new ShapeHelper.ShapeAccessor() {</b>
+&nbsp;            @Override
+&nbsp;            public void doUpdatePeer(Node node) {
+&nbsp;                ((Shape) node).doUpdatePeer();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public void doMarkDirty(Node node, DirtyBits dirtyBit) {
+&nbsp;                ((Shape) node).doMarkDirty(dirtyBit);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public BaseBounds doComputeGeomBounds(Node node,
+&nbsp;                    BaseBounds bounds, BaseTransform tx) {
+&nbsp;                return ((Shape) node).doComputeGeomBounds(bounds, tx);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean doComputeContains(Node node, double localX, double localY) {
+&nbsp;                return ((Shape) node).doComputeContains(localX, localY);
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public Paint doCssGetFillInitialValue(Shape shape) {
+&nbsp;                return shape.doCssGetFillInitialValue();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public Paint doCssGetStrokeInitialValue(Shape shape) {
+&nbsp;                return shape.doCssGetStrokeInitialValue();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public NGShape.Mode getMode(Shape shape) {
+&nbsp;                return shape.getMode();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public void setShapeChangeListener(Shape shape, Runnable listener) {
+&nbsp;                shape.setShapeChangeListener(listener);
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates an empty instance of Shape.
+&nbsp;     */
+<b class="nc">&nbsp;    public Shape() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    StrokeLineJoin convertLineJoin(StrokeLineJoin t) {
+<b class="nc">&nbsp;        return t;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final void setStrokeType(StrokeType value) {
+<b class="nc">&nbsp;        strokeTypeProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final StrokeType getStrokeType() {
+<b class="nc">&nbsp;        return (strokeAttributes == null) ? DEFAULT_STROKE_TYPE</b>
+<b class="nc">&nbsp;                                          : strokeAttributes.getType();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the direction (inside, centered, or outside) that the strokeWidth
+&nbsp;     * is applied to the boundary of the shape.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The image shows a shape without stroke and with a thick stroke applied
+&nbsp;     * inside, centered and outside.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt; &lt;img src=&quot;doc-files/stroketype.png&quot; alt=&quot;A visual illustration of how
+&nbsp;     * StrokeType works&quot;&gt; &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return the direction that the strokeWidth is applied to the boundary of
+&nbsp;     * the shape
+&nbsp;     * @see StrokeType
+&nbsp;     * @defaultValue CENTERED
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;StrokeType&gt; strokeTypeProperty() {
+<b class="nc">&nbsp;        return getStrokeAttributes().typeProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final void setStrokeWidth(double value) {
+<b class="nc">&nbsp;        strokeWidthProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getStrokeWidth() {
+<b class="nc">&nbsp;        return (strokeAttributes == null) ? DEFAULT_STROKE_WIDTH</b>
+<b class="nc">&nbsp;                                          : strokeAttributes.getWidth();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines a square pen line width. A value of 0.0 specifies a hairline
+&nbsp;     * stroke. A value of less than 0.0 will be treated as 0.0.
+&nbsp;     *
+&nbsp;     * @return the square pen line width
+&nbsp;     * @defaultValue 1.0
+&nbsp;     */
+&nbsp;    public final DoubleProperty strokeWidthProperty() {
+<b class="nc">&nbsp;        return getStrokeAttributes().widthProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final void setStrokeLineJoin(StrokeLineJoin value) {
+<b class="nc">&nbsp;        strokeLineJoinProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final StrokeLineJoin getStrokeLineJoin() {
+<b class="nc">&nbsp;        return (strokeAttributes == null)</b>
+<b class="nc">&nbsp;                ? DEFAULT_STROKE_LINE_JOIN</b>
+<b class="nc">&nbsp;                : strokeAttributes.getLineJoin();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the decoration applied where path segments meet.
+&nbsp;     * The value must have one of the following values:
+&nbsp;     * {@code StrokeLineJoin.MITER}, {@code StrokeLineJoin.BEVEL},
+&nbsp;     * and {@code StrokeLineJoin.ROUND}. The image shows a shape
+&nbsp;     * using the values in the mentioned order.
+&nbsp;     * &lt;p&gt; &lt;img src=&quot;doc-files/strokelinejoin.png&quot; alt=&quot;A visual illustration of
+&nbsp;     * StrokeLineJoin using 3 different values&quot;&gt; &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return the decoration applied where path segments meet
+&nbsp;     * @see StrokeLineJoin
+&nbsp;     * @defaultValue MITER
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;StrokeLineJoin&gt; strokeLineJoinProperty() {
+<b class="nc">&nbsp;        return getStrokeAttributes().lineJoinProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final void setStrokeLineCap(StrokeLineCap value) {
+<b class="nc">&nbsp;        strokeLineCapProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final StrokeLineCap getStrokeLineCap() {
+<b class="nc">&nbsp;        return (strokeAttributes == null) ? DEFAULT_STROKE_LINE_CAP</b>
+<b class="nc">&nbsp;                                          : strokeAttributes.getLineCap();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The end cap style of this {@code Shape} as one of the following
+&nbsp;     * values that define possible end cap styles:
+&nbsp;     * {@code StrokeLineCap.BUTT}, {@code StrokeLineCap.ROUND},
+&nbsp;     * and  {@code StrokeLineCap.SQUARE}. The image shows a line
+&nbsp;     * using the values in the mentioned order.
+&nbsp;     * &lt;p&gt; &lt;img src=&quot;doc-files/strokelinecap.png&quot; alt=&quot;A visual illustration of
+&nbsp;     * StrokeLineCap using 3 different values&quot;&gt; &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return the end cap style of this shape
+&nbsp;     * @see StrokeLineCap
+&nbsp;     * @defaultValue SQUARE
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;StrokeLineCap&gt; strokeLineCapProperty() {
+<b class="nc">&nbsp;        return getStrokeAttributes().lineCapProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final void setStrokeMiterLimit(double value) {
+<b class="nc">&nbsp;        strokeMiterLimitProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getStrokeMiterLimit() {
+<b class="nc">&nbsp;        return (strokeAttributes == null) ? DEFAULT_STROKE_MITER_LIMIT</b>
+<b class="nc">&nbsp;                                          : strokeAttributes.getMiterLimit();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the limit for the {@code StrokeLineJoin.MITER} line join style.
+&nbsp;     * A value of less than 1.0 will be treated as 1.0.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The image demonstrates the behavior. Miter length ({@code A}) is computed
+&nbsp;     * as the distance of the most inside point to the most outside point of
+&nbsp;     * the joint, with the stroke width as a unit. If the miter length is bigger
+&nbsp;     * than the given miter limit, the miter is cut at the edge of the shape
+&nbsp;     * ({@code B}). For the situation in the image it means that the miter
+&nbsp;     * will be cut at {@code B} for limit values less than {@code 4.65}.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt; &lt;img src=&quot;doc-files/strokemiterlimit.png&quot; alt=&quot;A visual illustration of
+&nbsp;     * the use of StrokeMiterLimit&quot;&gt; &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return the limit for the {@code StrokeLineJoin.MITER} line join style
+&nbsp;     * @defaultValue 10.0
+&nbsp;     */
+&nbsp;    public final DoubleProperty strokeMiterLimitProperty() {
+<b class="nc">&nbsp;        return getStrokeAttributes().miterLimitProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final void setStrokeDashOffset(double value) {
+<b class="nc">&nbsp;        strokeDashOffsetProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final double getStrokeDashOffset() {
+<b class="nc">&nbsp;        return (strokeAttributes == null) ? DEFAULT_STROKE_DASH_OFFSET</b>
+<b class="nc">&nbsp;                                          : strokeAttributes.getDashOffset();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines a distance specified in user coordinates that represents
+&nbsp;     * an offset into the dashing pattern. In other words, the dash phase
+&nbsp;     * defines the point in the dashing pattern that will correspond
+&nbsp;     * to the beginning of the stroke.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The image shows a stroke with dash array {@code [25, 20, 5, 20]} and
+&nbsp;     * a stroke with the same pattern and offset {@code 45} which shifts
+&nbsp;     * the pattern about the length of the first dash segment and
+&nbsp;     * the following space.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt; &lt;img src=&quot;doc-files/strokedashoffset.png&quot; alt=&quot;A visual illustration of
+&nbsp;     * the use of StrokeDashOffset&quot;&gt; &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return the distance specified in user coordinates that represents an
+&nbsp;     * offset into the dashing pattern
+&nbsp;     * @defaultValue 0
+&nbsp;     */
+&nbsp;    public final DoubleProperty strokeDashOffsetProperty() {
+<b class="nc">&nbsp;        return getStrokeAttributes().dashOffsetProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines the array representing the lengths of the dash segments.
+&nbsp;     * Alternate entries in the array represent the user space lengths
+&nbsp;     * of the opaque and transparent segments of the dashes.
+&nbsp;     * As the pen moves along the outline of the {@code Shape} to be stroked,
+&nbsp;     * the user space distance that the pen travels is accumulated.
+&nbsp;     * The distance value is used to index into the dash array.
+&nbsp;     * The pen is opaque when its current cumulative distance maps
+&nbsp;     * to an even element of the dash array (counting from {@code 0}) and
+&nbsp;     * transparent otherwise.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * An empty strokeDashArray indicates a solid line with no spaces.
+&nbsp;     * An odd length strokeDashArray behaves the same as an even length
+&nbsp;     * array constructed by implicitly repeating the indicated odd length
+&nbsp;     * array twice in succession ({@code [20, 5, 15]} behaves as if it
+&nbsp;     * were {@code [20, 5, 15, 20, 5, 15]}).
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Note that each dash segment will be capped by the decoration specified
+&nbsp;     * by the current stroke line cap.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The image shows a shape with stroke dash array {@code [25, 20, 5, 20]}
+&nbsp;     * and 3 different values for the stroke line cap:
+&nbsp;     * {@code StrokeLineCap.BUTT}, {@code StrokeLineCap.SQUARE} (the default),
+&nbsp;     * and {@code StrokeLineCap.ROUND}
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;p&gt; &lt;img src=&quot;doc-files/strokedasharray.png&quot; alt=&quot;A visual illustration of
+&nbsp;     * the use of StrokeDashArray using 3 different values for the stroke line
+&nbsp;     * cap&quot;&gt; &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return the array representing the lengths of the dash segments
+&nbsp;     * @defaultValue empty
+&nbsp;     */
+&nbsp;    public final ObservableList&lt;Double&gt; getStrokeDashArray() {
+<b class="nc">&nbsp;        return getStrokeAttributes().dashArrayProperty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private NGShape.Mode computeMode() {
+<b class="nc">&nbsp;        if (getFill() != null &amp;&amp; getStroke() != null) {</b>
+<b class="nc">&nbsp;            return NGShape.Mode.STROKE_FILL;</b>
+<b class="nc">&nbsp;        } else if (getFill() != null) {</b>
+<b class="nc">&nbsp;            return NGShape.Mode.FILL;</b>
+<b class="nc">&nbsp;        } else if (getStroke() != null) {</b>
+<b class="nc">&nbsp;            return NGShape.Mode.STROKE;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            return NGShape.Mode.EMPTY;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    NGShape.Mode getMode() {
+<b class="nc">&nbsp;        return mode;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private NGShape.Mode mode = NGShape.Mode.FILL;</b>
+&nbsp;
+&nbsp;    private void checkModeChanged() {
+<b class="nc">&nbsp;        NGShape.Mode newMode = computeMode();</b>
+<b class="nc">&nbsp;        if (mode != newMode) {</b>
+<b class="nc">&nbsp;            mode = newMode;</b>
+&nbsp;
+<b class="nc">&nbsp;            NodeHelper.markDirty(this, DirtyBits.SHAPE_MODE);</b>
+<b class="nc">&nbsp;            NodeHelper.geomChanged(this);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines parameters to fill the interior of an {@code Shape}
+&nbsp;     * using the settings of the {@code Paint} context.
+&nbsp;     * The default value is {@code Color.BLACK} for all shapes except
+&nbsp;     * Line, Polyline, and Path. The default value is {@code null} for
+&nbsp;     * those shapes.
+&nbsp;     */
+&nbsp;    private ObjectProperty&lt;Paint&gt; fill;
+&nbsp;
+&nbsp;
+&nbsp;    public final void setFill(Paint value) {
+<b class="nc">&nbsp;        fillProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final Paint getFill() {
+<b class="nc">&nbsp;        return fill == null ? Color.BLACK : fill.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    Paint old_fill;
+&nbsp;    public final ObjectProperty&lt;Paint&gt; fillProperty() {
+<b class="nc">&nbsp;        if (fill == null) {</b>
+<b class="nc">&nbsp;            fill = new StyleableObjectProperty&lt;Paint&gt;(Color.BLACK) {</b>
+&nbsp;
+&nbsp;                boolean needsListener = false;
+&nbsp;
+&nbsp;                @Override public void invalidated() {
+&nbsp;
+&nbsp;                    Paint _fill = get();
+&nbsp;
+&nbsp;                    if (needsListener) {
+&nbsp;                        Toolkit.getPaintAccessor().
+&nbsp;                                removeListener(old_fill, platformImageChangeListener);
+&nbsp;                    }
+&nbsp;                    needsListener = _fill != null &amp;&amp;
+&nbsp;                            Toolkit.getPaintAccessor().isMutable(_fill);
+&nbsp;                    old_fill = _fill;
+&nbsp;
+&nbsp;                    if (needsListener) {
+&nbsp;                        Toolkit.getPaintAccessor().
+&nbsp;                                addListener(_fill, platformImageChangeListener);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_FILL);
+&nbsp;                    checkModeChanged();
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;Shape,Paint&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.FILL;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Shape.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;fill&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return fill;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines parameters of a stroke that is drawn around the outline of
+&nbsp;     * a {@code Shape} using the settings of the specified {@code Paint}.
+&nbsp;     * The default value is {@code null} for all shapes except
+&nbsp;     * Line, Polyline, and Path. The default value is {@code Color.BLACK} for
+&nbsp;     * those shapes.
+&nbsp;     */
+&nbsp;    private ObjectProperty&lt;Paint&gt; stroke;
+&nbsp;
+&nbsp;
+&nbsp;    public final void setStroke(Paint value) {
+<b class="nc">&nbsp;        strokeProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private final AbstractNotifyListener platformImageChangeListener =</b>
+&nbsp;            new AbstractNotifyListener() {
+&nbsp;        @Override
+&nbsp;        public void invalidated(Observable valueModel) {
+&nbsp;            NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_FILL);
+&nbsp;            NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_STROKE);
+&nbsp;            NodeHelper.geomChanged(Shape.this);
+&nbsp;            checkModeChanged();
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;    public final Paint getStroke() {
+<b class="nc">&nbsp;        return stroke == null ? null : stroke.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    Paint old_stroke;
+&nbsp;    public final ObjectProperty&lt;Paint&gt; strokeProperty() {
+<b class="nc">&nbsp;        if (stroke == null) {</b>
+<b class="nc">&nbsp;            stroke = new StyleableObjectProperty&lt;&gt;() {</b>
+&nbsp;
+&nbsp;                boolean needsListener = false;
+&nbsp;
+&nbsp;                @Override public void invalidated() {
+&nbsp;
+&nbsp;                    Paint _stroke = get();
+&nbsp;
+&nbsp;                    if (needsListener) {
+&nbsp;                        Toolkit.getPaintAccessor().
+&nbsp;                                removeListener(old_stroke, platformImageChangeListener);
+&nbsp;                    }
+&nbsp;                    needsListener = _stroke != null &amp;&amp;
+&nbsp;                            Toolkit.getPaintAccessor().isMutable(_stroke);
+&nbsp;                    old_stroke = _stroke;
+&nbsp;
+&nbsp;                    if (needsListener) {
+&nbsp;                        Toolkit.getPaintAccessor().
+&nbsp;                                addListener(_stroke, platformImageChangeListener);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_STROKE);
+&nbsp;                    checkModeChanged();
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;Shape,Paint&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.STROKE;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Shape.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;stroke&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return stroke;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Defines whether antialiasing hints are used or not for this {@code Shape}.
+&nbsp;     * If the value equals true the rendering hints are applied.
+&nbsp;     *
+&nbsp;     * @defaultValue true
+&nbsp;     */
+&nbsp;    private BooleanProperty smooth;
+&nbsp;
+&nbsp;
+&nbsp;    public final void setSmooth(boolean value) {
+<b class="nc">&nbsp;        smoothProperty().set(value);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final boolean isSmooth() {
+<b class="nc">&nbsp;        return smooth == null ? true : smooth.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public final BooleanProperty smoothProperty() {
+<b class="nc">&nbsp;        if (smooth == null) {</b>
+<b class="nc">&nbsp;            smooth = new StyleableBooleanProperty(true) {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public void invalidated() {
+&nbsp;                    NodeHelper.markDirty(Shape.this, DirtyBits.NODE_SMOOTH);
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;Shape,Boolean&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.SMOOTH;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Shape.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;smooth&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return smooth;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     *                         Stylesheet Handling                             *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Some sub-class of Shape, such as {@link Line}, override the
+&nbsp;     * default value for the {@link Shape#fill} property. This allows
+&nbsp;     * CSS to get the correct initial value.
+&nbsp;     *
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private Paint doCssGetFillInitialValue() {
+<b class="nc">&nbsp;        return Color.BLACK;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Some sub-class of Shape, such as {@link Line}, override the
+&nbsp;     * default value for the {@link Shape#stroke} property. This allows
+&nbsp;     * CSS to get the correct initial value.
+&nbsp;     *
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private Paint doCssGetStrokeInitialValue() {
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Super-lazy instantiation pattern from Bill Pugh.
+&nbsp;     */
+&nbsp;     private static class StyleableProperties {
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-fill: &lt;a href=&quot;../doc-files/cssref.html#typepaint&quot;&gt;&amp;lt;paint&amp;gt;&lt;/a&gt;
+&nbsp;        * @see Shape#fill
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Paint&gt; FILL =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-fill&quot;,
+&nbsp;                PaintConverter.getInstance(), Color.BLACK) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.fill == null || !node.fill.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Paint&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;Paint&gt;)node.fillProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public Paint getInitialValue(Shape node) {
+&nbsp;                // Some shapes have a different initial value for fill.
+&nbsp;                // Give a way to have them return the correct initial value.
+&nbsp;                return ShapeHelper.cssGetFillInitialValue(node);
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-smooth: &lt;a href=&quot;../doc-files/cssref.html#typeboolean&quot;&gt;&amp;lt;boolean&amp;gt;&lt;/a&gt;
+&nbsp;        * @see Shape#smooth
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Boolean&gt; SMOOTH =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-smooth&quot;,
+&nbsp;                BooleanConverter.getInstance(), Boolean.TRUE) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.smooth == null || !node.smooth.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Boolean&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;Boolean&gt;)node.smoothProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke: &lt;a href=&quot;../doc-files/cssref.html#typepaint&quot;&gt;&amp;lt;paint&amp;gt;&lt;/a&gt;
+&nbsp;        * @see Shape#stroke
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Paint&gt; STROKE =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke&quot;,
+&nbsp;                PaintConverter.getInstance()) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.stroke == null || !node.stroke.isBound();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Paint&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;Paint&gt;)node.strokeProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public Paint getInitialValue(Shape node) {
+&nbsp;                // Some shapes have a different initial value for stroke.
+&nbsp;                // Give a way to have them return the correct initial value.
+&nbsp;                return ShapeHelper.cssGetStrokeInitialValue(node);
+&nbsp;            }
+&nbsp;
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-dash-array: &lt;a href=&quot;#typesize&quot; class=&quot;typelink&quot;&gt;&amp;lt;size&amp;gt;&lt;/a&gt;
+&nbsp;        *                    [&lt;a href=&quot;#typesize&quot; class=&quot;typelink&quot;&gt;&amp;lt;size&amp;gt;&lt;/a&gt;]+
+&nbsp;        * &lt;p&gt;
+&nbsp;        * Note:
+&nbsp;        * Because {@link StrokeAttributes#dashArray} is not itself a
+&nbsp;        * {@link Property},
+&nbsp;        * the &lt;code&gt;getProperty()&lt;/code&gt; method of this CssMetaData
+&nbsp;        * returns the {@link StrokeAttributes#dashArray} wrapped in an
+&nbsp;        * {@link ObjectProperty}. This is inconsistent with other
+&nbsp;        * StyleableProperties which return the actual {@link Property}.
+&nbsp;        * &lt;/p&gt;
+&nbsp;        * @see StrokeAttributes#dashArray
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Number[]&gt; STROKE_DASH_ARRAY =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-dash-array&quot;,
+&nbsp;                SizeConverter.SequenceConverter.getInstance(),
+&nbsp;                new Double[0]) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return true;
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Number[]&gt; getStyleableProperty(final Shape node) {
+&nbsp;                return (StyleableProperty&lt;Number[]&gt;)node.getStrokeAttributes().cssDashArrayProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-dash-offset: &lt;a href=&quot;#typesize&quot; class=&quot;typelink&quot;&gt;&amp;lt;size&amp;gt;&lt;/a&gt;
+&nbsp;        * @see #strokeDashOffsetProperty()
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Number&gt; STROKE_DASH_OFFSET =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-dash-offset&quot;,
+&nbsp;                SizeConverter.getInstance(), 0.0) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.strokeAttributes == null ||
+&nbsp;                        node.strokeAttributes.canSetDashOffset();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Number&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;Number&gt;)node.strokeDashOffsetProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-line-cap: [ square | butt | round ]
+&nbsp;        * @see #strokeLineCapProperty()
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,StrokeLineCap&gt; STROKE_LINE_CAP =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-line-cap&quot;,
+&nbsp;                new EnumConverter&lt;&gt;(StrokeLineCap.class),
+&nbsp;                StrokeLineCap.SQUARE) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.strokeAttributes == null ||
+&nbsp;                        node.strokeAttributes.canSetLineCap();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;StrokeLineCap&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;StrokeLineCap&gt;)node.strokeLineCapProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-line-join: [ miter | bevel | round ]
+&nbsp;        * @see #strokeLineJoinProperty()
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,StrokeLineJoin&gt; STROKE_LINE_JOIN =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-line-join&quot;,
+&nbsp;                new EnumConverter&lt;&gt;(StrokeLineJoin.class),
+&nbsp;                StrokeLineJoin.MITER) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.strokeAttributes == null ||
+&nbsp;                        node.strokeAttributes.canSetLineJoin();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;StrokeLineJoin&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;StrokeLineJoin&gt;)node.strokeLineJoinProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-type: [ inside | outside | centered ]
+&nbsp;        * @see #strokeTypeProperty()
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,StrokeType&gt; STROKE_TYPE =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-type&quot;,
+&nbsp;                new EnumConverter&lt;&gt;(StrokeType.class),
+&nbsp;                StrokeType.CENTERED) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.strokeAttributes == null ||
+&nbsp;                        node.strokeAttributes.canSetType();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;StrokeType&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;StrokeType&gt;)node.strokeTypeProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-miter-limit: &lt;a href=&quot;#typesize&quot; class=&quot;typelink&quot;&gt;&amp;lt;size&amp;gt;&lt;/a&gt;
+&nbsp;        * @see #strokeMiterLimitProperty()
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Number&gt; STROKE_MITER_LIMIT =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-miter-limit&quot;,
+&nbsp;                SizeConverter.getInstance(), 10.0) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.strokeAttributes == null ||
+&nbsp;                        node.strokeAttributes.canSetMiterLimit();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Number&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;Number&gt;)node.strokeMiterLimitProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;
+&nbsp;        /**
+&nbsp;        * @css -fx-stroke-width: &lt;a href=&quot;#typesize&quot; class=&quot;typelink&quot;&gt;&amp;lt;size&amp;gt;&lt;/a&gt;
+&nbsp;        * @see #strokeWidthProperty()
+&nbsp;        */
+&nbsp;        private static final CssMetaData&lt;Shape,Number&gt; STROKE_WIDTH =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-stroke-width&quot;,
+&nbsp;                SizeConverter.getInstance(), 1.0) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Shape node) {
+&nbsp;                return node.strokeAttributes == null ||
+&nbsp;                        node.strokeAttributes.canSetWidth();
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;Number&gt; getStyleableProperty(Shape node) {
+&nbsp;                return (StyleableProperty&lt;Number&gt;)node.strokeWidthProperty();
+&nbsp;            }
+&nbsp;
+&nbsp;        };
+&nbsp;         private static final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; STYLEABLES;
+&nbsp;         static {
+&nbsp;
+&nbsp;            final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; styleables =
+&nbsp;                new ArrayList&lt;&gt;(Node.getClassCssMetaData());
+&nbsp;            styleables.add(FILL);
+&nbsp;            styleables.add(SMOOTH);
+&nbsp;            styleables.add(STROKE);
+&nbsp;            styleables.add(STROKE_DASH_ARRAY);
+&nbsp;            styleables.add(STROKE_DASH_OFFSET);
+&nbsp;            styleables.add(STROKE_LINE_CAP);
+&nbsp;            styleables.add(STROKE_LINE_JOIN);
+&nbsp;            styleables.add(STROKE_TYPE);
+&nbsp;            styleables.add(STROKE_MITER_LIMIT);
+&nbsp;            styleables.add(STROKE_WIDTH);
+&nbsp;            STYLEABLES = Collections.unmodifiableList(styleables);
+&nbsp;         }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the {@code CssMetaData} associated with this class, which may include the
+&nbsp;     * {@code CssMetaData} of its superclasses.
+&nbsp;     * @return the {@code CssMetaData}
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getClassCssMetaData() {
+<b class="nc">&nbsp;        return StyleableProperties.STYLEABLES;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     *
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getCssMetaData() {
+<b class="nc">&nbsp;        return getClassCssMetaData();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private BaseBounds doComputeGeomBounds(BaseBounds bounds,
+&nbsp;                                             BaseTransform tx) {
+<b class="nc">&nbsp;        return computeShapeBounds(bounds, tx, ShapeHelper.configShape(this));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private boolean doComputeContains(double localX, double localY) {
+<b class="nc">&nbsp;        return computeShapeContains(localX, localY, ShapeHelper.configShape(this));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static final double MIN_STROKE_WIDTH = 0.0f;
+&nbsp;    private static final double MIN_STROKE_MITER_LIMIT = 1.0f;
+&nbsp;
+&nbsp;    private void updatePGShape() {
+<b class="nc">&nbsp;        final NGShape peer = NodeHelper.getPeer(this);</b>
+<b class="nc">&nbsp;        if (strokeAttributesDirty &amp;&amp; (getStroke() != null)) {</b>
+&nbsp;            // set attributes of stroke only when stroke paint is not null
+&nbsp;            final float[] pgDashArray =
+<b class="nc">&nbsp;                    (hasStrokeDashArray())</b>
+<b class="nc">&nbsp;                            ? toPGDashArray(getStrokeDashArray())</b>
+<b class="nc">&nbsp;                            : DEFAULT_PG_STROKE_DASH_ARRAY;</b>
+&nbsp;
+<b class="nc">&nbsp;            peer.setDrawStroke(</b>
+<b class="nc">&nbsp;                        (float)Utils.clampMin(getStrokeWidth(),</b>
+&nbsp;                                              MIN_STROKE_WIDTH),
+<b class="nc">&nbsp;                        getStrokeType(),</b>
+<b class="nc">&nbsp;                        getStrokeLineCap(),</b>
+<b class="nc">&nbsp;                        convertLineJoin(getStrokeLineJoin()),</b>
+<b class="nc">&nbsp;                        (float)Utils.clampMin(getStrokeMiterLimit(),</b>
+&nbsp;                                              MIN_STROKE_MITER_LIMIT),
+<b class="nc">&nbsp;                        pgDashArray, (float)getStrokeDashOffset());</b>
+&nbsp;
+<b class="nc">&nbsp;           strokeAttributesDirty = false;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (NodeHelper.isDirty(this, DirtyBits.SHAPE_MODE)) {</b>
+<b class="nc">&nbsp;            peer.setMode(mode);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (NodeHelper.isDirty(this, DirtyBits.SHAPE_FILL)) {</b>
+<b class="nc">&nbsp;            Paint localFill = getFill();</b>
+<b class="nc">&nbsp;            peer.setFillPaint(localFill == null ? null :</b>
+<b class="nc">&nbsp;                    Toolkit.getPaintAccessor().getPlatformPaint(localFill));</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (NodeHelper.isDirty(this, DirtyBits.SHAPE_STROKE)) {</b>
+<b class="nc">&nbsp;            Paint localStroke = getStroke();</b>
+<b class="nc">&nbsp;            peer.setDrawPaint(localStroke == null ? null :</b>
+<b class="nc">&nbsp;                    Toolkit.getPaintAccessor().getPlatformPaint(localStroke));</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (NodeHelper.isDirty(this, DirtyBits.NODE_SMOOTH)) {</b>
+<b class="nc">&nbsp;            peer.setSmooth(isSmooth());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private void doMarkDirty(DirtyBits dirtyBits) {
+<b class="nc">&nbsp;        final Runnable listener = shapeChangeListener != null ? shapeChangeListener.get() : null;</b>
+<b class="nc">&nbsp;        if (listener != null &amp;&amp; NodeHelper.isDirtyEmpty(this)) {</b>
+<b class="nc">&nbsp;            listener.run();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private Reference&lt;Runnable&gt; shapeChangeListener;
+&nbsp;
+&nbsp;    void setShapeChangeListener(Runnable listener) {
+<b class="nc">&nbsp;        if (shapeChangeListener != null) shapeChangeListener.clear();</b>
+<b class="nc">&nbsp;        shapeChangeListener = listener != null ? new WeakReference(listener) : null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+&nbsp;    private void doUpdatePeer() {
+<b class="nc">&nbsp;        updatePGShape();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Helper function for rectangular shapes such as Rectangle and Ellipse
+&nbsp;     * for computing their bounds.
+&nbsp;     */
+&nbsp;    BaseBounds computeBounds(BaseBounds bounds, BaseTransform tx,
+&nbsp;                                   double upad, double dpad,
+&nbsp;                                   double x, double y,
+&nbsp;                                   double w, double h)
+&nbsp;    {
+&nbsp;        // if the w or h is &lt; 0 then bounds is empty
+<b class="nc">&nbsp;        if (w &lt; 0.0f || h &lt; 0.0f) return bounds.makeEmpty();</b>
+&nbsp;
+<b class="nc">&nbsp;        double x0 = x;</b>
+<b class="nc">&nbsp;        double y0 = y;</b>
+<b class="nc">&nbsp;        double x1 = w;</b>
+<b class="nc">&nbsp;        double y1 = h;</b>
+<b class="nc">&nbsp;        double _dpad = dpad;</b>
+<b class="nc">&nbsp;        if (tx.isTranslateOrIdentity()) {</b>
+<b class="nc">&nbsp;            x1 += x0;</b>
+<b class="nc">&nbsp;            y1 += y0;</b>
+<b class="nc">&nbsp;            if (tx.getType() == BaseTransform.TYPE_TRANSLATION) {</b>
+<b class="nc">&nbsp;                final double dx = tx.getMxt();</b>
+<b class="nc">&nbsp;                final double dy = tx.getMyt();</b>
+<b class="nc">&nbsp;                x0 += dx;</b>
+<b class="nc">&nbsp;                y0 += dy;</b>
+<b class="nc">&nbsp;                x1 += dx;</b>
+<b class="nc">&nbsp;                y1 += dy;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            _dpad += upad;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            x0 -= upad;</b>
+<b class="nc">&nbsp;            y0 -= upad;</b>
+<b class="nc">&nbsp;            x1 += upad*2;</b>
+<b class="nc">&nbsp;            y1 += upad*2;</b>
+&nbsp;            // Each corner is transformed by an equation similar to:
+&nbsp;            //     x&#39; = x * mxx + y * mxy + mxt
+&nbsp;            //     y&#39; = x * myx + y * myy + myt
+&nbsp;            // Since all of the corners are translated by mxt,myt we
+&nbsp;            // can ignore them when doing the min/max calculations
+&nbsp;            // and add them in once when we are done.  We then have
+&nbsp;            // to do min/max operations on 4 points defined as:
+&nbsp;            //     x&#39; = x * mxx + y * mxy
+&nbsp;            //     y&#39; = x * myx + y * myy
+&nbsp;            // Furthermore, the four corners that we will be transforming
+&nbsp;            // are not four independent coordinates, they are in a
+&nbsp;            // rectangular formation.  To that end, if we translated
+&nbsp;            // the transform to x,y and scaled it by width,height then
+&nbsp;            // we could compute the min/max of the unit rectangle 0,0,1x1.
+&nbsp;            // The transform would then be adjusted as follows:
+&nbsp;            // First, the translation to x,y only affects the mxt,myt
+&nbsp;            // components of the transform which we can hold off on adding
+&nbsp;            // until we are done with the min/max.  The adjusted translation
+&nbsp;            // components would be:
+&nbsp;            //     mxt&#39; = x * mxx + y * mxy + mxt
+&nbsp;            //     myt&#39; = x * myx + y * myy + myt
+&nbsp;            // Second, the scale affects the components as follows:
+&nbsp;            //     mxx&#39; = mxx * width
+&nbsp;            //     mxy&#39; = mxy * height
+&nbsp;            //     myx&#39; = myx * width
+&nbsp;            //     myy&#39; = myy * height
+&nbsp;            // The min/max of that rectangle then degenerates to:
+&nbsp;            //     x00&#39; = 0 * mxx&#39; + 0 * mxy&#39; = 0
+&nbsp;            //     y00&#39; = 0 * myx&#39; + 0 * myy&#39; = 0
+&nbsp;            //     x01&#39; = 0 * mxx&#39; + 1 * mxy&#39; = mxy&#39;
+&nbsp;            //     y01&#39; = 0 * myx&#39; + 1 * myy&#39; = myy&#39;
+&nbsp;            //     x10&#39; = 1 * mxx&#39; + 0 * mxy&#39; = mxx&#39;
+&nbsp;            //     y10&#39; = 1 * myx&#39; + 0 * myy&#39; = myx&#39;
+&nbsp;            //     x11&#39; = 1 * mxx&#39; + 1 * mxy&#39; = mxx&#39; + mxy&#39;
+&nbsp;            //     y11&#39; = 1 * myx&#39; + 1 * myy&#39; = myx&#39; + myy&#39;
+<b class="nc">&nbsp;            double mxx = tx.getMxx();</b>
+<b class="nc">&nbsp;            double mxy = tx.getMxy();</b>
+<b class="nc">&nbsp;            double myx = tx.getMyx();</b>
+<b class="nc">&nbsp;            double myy = tx.getMyy();</b>
+&nbsp;            // Computed translated translation components
+<b class="nc">&nbsp;            final double mxt = (x0 * mxx + y0 * mxy + tx.getMxt());</b>
+<b class="nc">&nbsp;            final double myt = (x0 * myx + y0 * myy + tx.getMyt());</b>
+&nbsp;            // Scale non-translation components by w/h
+<b class="nc">&nbsp;            mxx *= x1;</b>
+<b class="nc">&nbsp;            mxy *= y1;</b>
+<b class="nc">&nbsp;            myx *= x1;</b>
+<b class="nc">&nbsp;            myy *= y1;</b>
+<b class="nc">&nbsp;            x0 = (Math.min(Math.min(0,mxx),Math.min(mxy,mxx+mxy)))+mxt;</b>
+<b class="nc">&nbsp;            y0 = (Math.min(Math.min(0,myx),Math.min(myy,myx+myy)))+myt;</b>
+<b class="nc">&nbsp;            x1 = (Math.max(Math.max(0,mxx),Math.max(mxy,mxx+mxy)))+mxt;</b>
+<b class="nc">&nbsp;            y1 = (Math.max(Math.max(0,myx),Math.max(myy,myx+myy)))+myt;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        x0 -= _dpad;</b>
+<b class="nc">&nbsp;        y0 -= _dpad;</b>
+<b class="nc">&nbsp;        x1 += _dpad;</b>
+<b class="nc">&nbsp;        y1 += _dpad;</b>
+&nbsp;
+<b class="nc">&nbsp;        bounds = bounds.deriveWithNewBounds((float)x0, (float)y0, 0.0f,</b>
+&nbsp;                (float)x1, (float)y1, 0.0f);
+<b class="nc">&nbsp;        return bounds;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    BaseBounds computeShapeBounds(BaseBounds bounds, BaseTransform tx,
+&nbsp;                                com.sun.javafx.geom.Shape s)
+&nbsp;    {
+&nbsp;        // empty mode means no bounds!
+<b class="nc">&nbsp;        if (mode == NGShape.Mode.EMPTY) {</b>
+<b class="nc">&nbsp;            return bounds.makeEmpty();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        float[] bbox = {</b>
+&nbsp;            Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
+&nbsp;            Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY,
+&nbsp;        };
+<b class="nc">&nbsp;        boolean includeShape = (mode != NGShape.Mode.STROKE);</b>
+<b class="nc">&nbsp;        boolean includeStroke = (mode != NGShape.Mode.FILL);</b>
+<b class="nc">&nbsp;        if (includeStroke &amp;&amp; (getStrokeType() == StrokeType.INSIDE)) {</b>
+<b class="nc">&nbsp;            includeShape = true;</b>
+<b class="nc">&nbsp;            includeStroke = false;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (includeStroke) {</b>
+<b class="nc">&nbsp;            final StrokeType type = getStrokeType();</b>
+<b class="nc">&nbsp;            double sw = Utils.clampMin(getStrokeWidth(), MIN_STROKE_WIDTH);</b>
+<b class="nc">&nbsp;            StrokeLineCap cap = getStrokeLineCap();</b>
+<b class="nc">&nbsp;            StrokeLineJoin join = convertLineJoin(getStrokeLineJoin());</b>
+<b class="nc">&nbsp;            float miterlimit =</b>
+<b class="nc">&nbsp;                (float) Utils.clampMin(getStrokeMiterLimit(), MIN_STROKE_MITER_LIMIT);</b>
+&nbsp;            // Note that we ignore dashing for computing bounds and testing
+&nbsp;            // point containment, both to save time in bounds calculations
+&nbsp;            // and so that animated dashing does not keep perturbing the bounds...
+<b class="nc">&nbsp;            Toolkit.getToolkit().accumulateStrokeBounds(</b>
+&nbsp;                    s,
+&nbsp;                    bbox, type, sw,
+&nbsp;                    cap, join, miterlimit, tx);
+&nbsp;            // Account for &quot;minimum pen size&quot; by expanding by 0.5 device
+&nbsp;            // pixels all around...
+<b class="nc">&nbsp;            bbox[0] -= 0.5;</b>
+<b class="nc">&nbsp;            bbox[1] -= 0.5;</b>
+<b class="nc">&nbsp;            bbox[2] += 0.5;</b>
+<b class="nc">&nbsp;            bbox[3] += 0.5;</b>
+<b class="nc">&nbsp;        } else if (includeShape) {</b>
+<b class="nc">&nbsp;            com.sun.javafx.geom.Shape.accumulate(bbox, s, tx);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (bbox[2] &lt; bbox[0] || bbox[3] &lt; bbox[1]) {</b>
+&nbsp;            // They are probably +/-INFINITY which would yield NaN if subtracted
+&nbsp;            // Let&#39;s just return a &quot;safe&quot; empty bbox..
+<b class="nc">&nbsp;            return bounds.makeEmpty();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        bounds = bounds.deriveWithNewBounds(bbox[0], bbox[1], 0.0f,</b>
+&nbsp;                bbox[2], bbox[3], 0.0f);
+<b class="nc">&nbsp;        return bounds;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    boolean computeShapeContains(double localX, double localY,
+&nbsp;                                 com.sun.javafx.geom.Shape s) {
+<b class="nc">&nbsp;        if (mode == NGShape.Mode.EMPTY) {</b>
+<b class="nc">&nbsp;            return false;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        boolean includeShape = (mode != NGShape.Mode.STROKE);</b>
+<b class="nc">&nbsp;        boolean includeStroke = (mode != NGShape.Mode.FILL);</b>
+<b class="nc">&nbsp;        if (includeStroke &amp;&amp; includeShape &amp;&amp;</b>
+<b class="nc">&nbsp;            (getStrokeType() == StrokeType.INSIDE))</b>
+&nbsp;        {
+<b class="nc">&nbsp;            includeStroke = false;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (includeShape) {</b>
+<b class="nc">&nbsp;            if (s.contains((float)localX, (float)localY)) {</b>
+<b class="nc">&nbsp;                return true;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (includeStroke) {</b>
+<b class="nc">&nbsp;            StrokeType type = getStrokeType();</b>
+<b class="nc">&nbsp;            double sw = Utils.clampMin(getStrokeWidth(), MIN_STROKE_WIDTH);</b>
+<b class="nc">&nbsp;            StrokeLineCap cap = getStrokeLineCap();</b>
+<b class="nc">&nbsp;            StrokeLineJoin join = convertLineJoin(getStrokeLineJoin());</b>
+<b class="nc">&nbsp;            float miterlimit =</b>
+<b class="nc">&nbsp;                (float) Utils.clampMin(getStrokeMiterLimit(), MIN_STROKE_MITER_LIMIT);</b>
+&nbsp;            // Note that we ignore dashing for computing bounds and testing
+&nbsp;            // point containment, both to save time in bounds calculations
+&nbsp;            // and so that animated dashing does not keep perturbing the bounds...
+<b class="nc">&nbsp;            return Toolkit.getToolkit().strokeContains(s, localX, localY,</b>
+&nbsp;                                                       type, sw, cap,
+&nbsp;                                                       join, miterlimit);
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private boolean strokeAttributesDirty = true;</b>
+&nbsp;
+&nbsp;    private StrokeAttributes strokeAttributes;
+&nbsp;
+&nbsp;    private StrokeAttributes getStrokeAttributes() {
+<b class="nc">&nbsp;        if (strokeAttributes == null) {</b>
+<b class="nc">&nbsp;            strokeAttributes = new StrokeAttributes();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return strokeAttributes;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean hasStrokeDashArray() {
+<b class="nc">&nbsp;        return (strokeAttributes != null) &amp;&amp; strokeAttributes.hasDashArray();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static float[] toPGDashArray(final List&lt;Double&gt; dashArray) {
+<b class="nc">&nbsp;        final int size = dashArray.size();</b>
+<b class="nc">&nbsp;        final float[] pgDashArray = new float[size];</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; size; i++) {</b>
+<b class="nc">&nbsp;            pgDashArray[i] = dashArray.get(i).floatValue();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return pgDashArray;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;</b>
+&nbsp;    private static final double DEFAULT_STROKE_WIDTH = 1.0;
+<b class="nc">&nbsp;    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN =</b>
+&nbsp;            StrokeLineJoin.MITER;
+<b class="nc">&nbsp;    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP =</b>
+&nbsp;            StrokeLineCap.SQUARE;
+&nbsp;    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
+&nbsp;    private static final double DEFAULT_STROKE_DASH_OFFSET = 0;
+<b class="nc">&nbsp;    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];</b>
+&nbsp;
+&nbsp;    private final class StrokeAttributes {
+&nbsp;        private ObjectProperty&lt;StrokeType&gt; type;
+&nbsp;        private DoubleProperty width;
+&nbsp;        private ObjectProperty&lt;StrokeLineJoin&gt; lineJoin;
+&nbsp;        private ObjectProperty&lt;StrokeLineCap&gt; lineCap;
+&nbsp;        private DoubleProperty miterLimit;
+&nbsp;        private DoubleProperty dashOffset;
+&nbsp;        private ObservableList&lt;Double&gt; dashArray;
+&nbsp;
+&nbsp;        public final StrokeType getType() {
+&nbsp;            return (type == null) ? DEFAULT_STROKE_TYPE : type.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        public final ObjectProperty&lt;StrokeType&gt; typeProperty() {
+&nbsp;            if (type == null) {
+&nbsp;                type = new StyleableObjectProperty&lt;StrokeType&gt;(DEFAULT_STROKE_TYPE) {
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public void invalidated() {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_TYPE);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,StrokeType&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_TYPE;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;strokeType&quot;;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;            return type;
+&nbsp;        }
+&nbsp;
+&nbsp;        public double getWidth() {
+&nbsp;            return (width == null) ? DEFAULT_STROKE_WIDTH : width.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        public final DoubleProperty widthProperty() {
+&nbsp;            if (width == null) {
+&nbsp;                width = new StyleableDoubleProperty(DEFAULT_STROKE_WIDTH) {
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public void invalidated() {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_WIDTH);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,Number&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_WIDTH;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;strokeWidth&quot;;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;            return width;
+&nbsp;        }
+&nbsp;
+&nbsp;        public StrokeLineJoin getLineJoin() {
+&nbsp;            return (lineJoin == null) ? DEFAULT_STROKE_LINE_JOIN
+&nbsp;                                      : lineJoin.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        public final ObjectProperty&lt;StrokeLineJoin&gt; lineJoinProperty() {
+&nbsp;            if (lineJoin == null) {
+&nbsp;                lineJoin = new StyleableObjectProperty&lt;StrokeLineJoin&gt;(
+&nbsp;                                       DEFAULT_STROKE_LINE_JOIN) {
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public void invalidated() {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_LINE_JOIN);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,StrokeLineJoin&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_LINE_JOIN;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;strokeLineJoin&quot;;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;            return lineJoin;
+&nbsp;        }
+&nbsp;
+&nbsp;        public StrokeLineCap getLineCap() {
+&nbsp;            return (lineCap == null) ? DEFAULT_STROKE_LINE_CAP
+&nbsp;                                     : lineCap.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        public final ObjectProperty&lt;StrokeLineCap&gt; lineCapProperty() {
+&nbsp;            if (lineCap == null) {
+&nbsp;                lineCap = new StyleableObjectProperty&lt;StrokeLineCap&gt;(
+&nbsp;                                      DEFAULT_STROKE_LINE_CAP) {
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public void invalidated() {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_LINE_CAP);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,StrokeLineCap&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_LINE_CAP;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;strokeLineCap&quot;;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;
+&nbsp;            return lineCap;
+&nbsp;        }
+&nbsp;
+&nbsp;        public double getMiterLimit() {
+&nbsp;            return (miterLimit == null) ? DEFAULT_STROKE_MITER_LIMIT
+&nbsp;                                        : miterLimit.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        public final DoubleProperty miterLimitProperty() {
+&nbsp;            if (miterLimit == null) {
+&nbsp;                miterLimit = new StyleableDoubleProperty(
+&nbsp;                                         DEFAULT_STROKE_MITER_LIMIT) {
+&nbsp;                    @Override
+&nbsp;                    public void invalidated() {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_MITER_LIMIT);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,Number&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_MITER_LIMIT;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;strokeMiterLimit&quot;;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;
+&nbsp;            return miterLimit;
+&nbsp;        }
+&nbsp;
+&nbsp;        public double getDashOffset() {
+&nbsp;            return (dashOffset == null) ? DEFAULT_STROKE_DASH_OFFSET
+&nbsp;                                        : dashOffset.get();
+&nbsp;        }
+&nbsp;
+&nbsp;        public final DoubleProperty dashOffsetProperty() {
+&nbsp;            if (dashOffset == null) {
+&nbsp;                dashOffset = new StyleableDoubleProperty(
+&nbsp;                                         DEFAULT_STROKE_DASH_OFFSET) {
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public void invalidated() {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_DASH_OFFSET);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,Number&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_DASH_OFFSET;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;strokeDashOffset&quot;;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;
+&nbsp;            return dashOffset;
+&nbsp;        }
+&nbsp;
+&nbsp;        // TODO: Need to handle set from css - should clear array and add all.
+&nbsp;        public ObservableList&lt;Double&gt; dashArrayProperty() {
+&nbsp;            if (dashArray == null) {
+&nbsp;                dashArray = new TrackableObservableList&lt;&gt;() {
+&nbsp;                    @Override
+&nbsp;                    protected void onChanged(Change&lt;Double&gt; c) {
+&nbsp;                        StrokeAttributes.this.invalidated(
+&nbsp;                                StyleableProperties.STROKE_DASH_ARRAY);
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;            return dashArray;
+&nbsp;        }
+&nbsp;
+&nbsp;        private ObjectProperty&lt;Number[]&gt; cssDashArray = null;
+&nbsp;        private ObjectProperty&lt;Number[]&gt; cssDashArrayProperty() {
+&nbsp;            if (cssDashArray == null) {
+&nbsp;                cssDashArray = new StyleableObjectProperty&lt;&gt;()
+&nbsp;                {
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public void set(Number[] v) {
+&nbsp;
+&nbsp;                        ObservableList&lt;Double&gt; list = dashArrayProperty();
+&nbsp;                        list.clear();
+&nbsp;                        if (v != null &amp;&amp; v.length &gt; 0) {
+&nbsp;                            for (int n=0; n&lt;v.length; n++) {
+&nbsp;                                list.add(v[n].doubleValue());
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;
+&nbsp;                        // no need to hold onto the array
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Double[] get() {
+&nbsp;                        List&lt;Double&gt; list = dashArrayProperty();
+&nbsp;                        return list.toArray(new Double[list.size()]);
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public Object getBean() {
+&nbsp;                        return Shape.this;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public String getName() {
+&nbsp;                        return &quot;cssDashArray&quot;;
+&nbsp;                    }
+&nbsp;
+&nbsp;                    @Override
+&nbsp;                    public CssMetaData&lt;Shape,Number[]&gt; getCssMetaData() {
+&nbsp;                        return StyleableProperties.STROKE_DASH_ARRAY;
+&nbsp;                    }
+&nbsp;                };
+&nbsp;            }
+&nbsp;
+&nbsp;            return cssDashArray;
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean canSetType() {
+&nbsp;            return (type == null) || !type.isBound();
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean canSetWidth() {
+&nbsp;            return (width == null) || !width.isBound();
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean canSetLineJoin() {
+&nbsp;            return (lineJoin == null) || !lineJoin.isBound();
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean canSetLineCap() {
+&nbsp;            return (lineCap == null) || !lineCap.isBound();
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean canSetMiterLimit() {
+&nbsp;            return (miterLimit == null) || !miterLimit.isBound();
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean canSetDashOffset() {
+&nbsp;            return (dashOffset == null) || !dashOffset.isBound();
+&nbsp;        }
+&nbsp;
+&nbsp;        public boolean hasDashArray() {
+&nbsp;            return (dashArray != null);
+&nbsp;        }
+&nbsp;
+&nbsp;        private void invalidated(final CssMetaData&lt;Shape, ?&gt; propertyCssKey) {
+&nbsp;            NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_STROKEATTRS);
+&nbsp;            strokeAttributesDirty = true;
+&nbsp;            if (propertyCssKey != StyleableProperties.STROKE_DASH_OFFSET) {
+&nbsp;                // all stroke attributes change geometry except for the
+&nbsp;                // stroke dash offset
+&nbsp;                NodeHelper.geomChanged(Shape.this);
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    // PENDING_DOC_REVIEW
+&nbsp;    /**
+&nbsp;     * Returns a new {@code Shape} which is created as a union of the specified
+&nbsp;     * input shapes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The operation works with geometric areas occupied by the input shapes.
+&nbsp;     * For a single {@code Shape} such area includes the area occupied by the
+&nbsp;     * fill if the shape has a non-null fill and the area occupied by the stroke
+&nbsp;     * if the shape has a non-null stroke. So the area is empty for a shape
+&nbsp;     * with {@code null} stroke and {@code null} fill. The area of an input
+&nbsp;     * shape considered by the operation is independent on the type and
+&nbsp;     * configuration of the paint used for fill or stroke. Before the final
+&nbsp;     * operation the areas of the input shapes are transformed to the parent
+&nbsp;     * coordinate space of their respective topmost parent nodes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The resulting shape will include areas that were contained in any of the
+&nbsp;     * input shapes.
+&nbsp;
+&nbsp;&lt;PRE&gt;
+&nbsp;
+&nbsp;         shape1       +       shape2       =       result
+&nbsp;   +----------------+   +----------------+   +----------------+
+&nbsp;   |################|   |################|   |################|
+&nbsp;   |##############  |   |  ##############|   |################|
+&nbsp;   |############    |   |    ############|   |################|
+&nbsp;   |##########      |   |      ##########|   |################|
+&nbsp;   |########        |   |        ########|   |################|
+&nbsp;   |######          |   |          ######|   |######    ######|
+&nbsp;   |####            |   |            ####|   |####        ####|
+&nbsp;   |##              |   |              ##|   |##            ##|
+&nbsp;   +----------------+   +----------------+   +----------------+
+&nbsp;
+&nbsp;&lt;/PRE&gt;
+&nbsp;
+&nbsp;     * @param shape1 the first shape
+&nbsp;     * @param shape2 the second shape
+&nbsp;     * @return the created {@code Shape}
+&nbsp;     */
+&nbsp;    public static Shape union(final Shape shape1, final Shape shape2) {
+<b class="nc">&nbsp;        final Area result = shape1.getTransformedArea();</b>
+<b class="nc">&nbsp;        result.add(shape2.getTransformedArea());</b>
+<b class="nc">&nbsp;        return createFromGeomShape(result);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // PENDING_DOC_REVIEW
+&nbsp;    /**
+&nbsp;     * Returns a new {@code Shape} which is created by subtracting the specified
+&nbsp;     * second shape from the first shape.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The operation works with geometric areas occupied by the input shapes.
+&nbsp;     * For a single {@code Shape} such area includes the area occupied by the
+&nbsp;     * fill if the shape has a non-null fill and the area occupied by the stroke
+&nbsp;     * if the shape has a non-null stroke. So the area is empty for a shape
+&nbsp;     * with {@code null} stroke and {@code null} fill. The area of an input
+&nbsp;     * shape considered by the operation is independent on the type and
+&nbsp;     * configuration of the paint used for fill or stroke. Before the final
+&nbsp;     * operation the areas of the input shapes are transformed to the parent
+&nbsp;     * coordinate space of their respective topmost parent nodes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The resulting shape will include areas that were contained only in the
+&nbsp;     * first shape and not in the second shape.
+&nbsp;
+&nbsp;&lt;PRE&gt;
+&nbsp;
+&nbsp;         shape1       -       shape2       =       result
+&nbsp;   +----------------+   +----------------+   +----------------+
+&nbsp;   |################|   |################|   |                |
+&nbsp;   |##############  |   |  ##############|   |##              |
+&nbsp;   |############    |   |    ############|   |####            |
+&nbsp;   |##########      |   |      ##########|   |######          |
+&nbsp;   |########        |   |        ########|   |########        |
+&nbsp;   |######          |   |          ######|   |######          |
+&nbsp;   |####            |   |            ####|   |####            |
+&nbsp;   |##              |   |              ##|   |##              |
+&nbsp;   +----------------+   +----------------+   +----------------+
+&nbsp;
+&nbsp;&lt;/PRE&gt;
+&nbsp;
+&nbsp;     * @param shape1 the first shape
+&nbsp;     * @param shape2 the second shape
+&nbsp;     * @return the created {@code Shape}
+&nbsp;     */
+&nbsp;    public static Shape subtract(final Shape shape1, final Shape shape2) {
+<b class="nc">&nbsp;        final Area result = shape1.getTransformedArea();</b>
+<b class="nc">&nbsp;        result.subtract(shape2.getTransformedArea());</b>
+<b class="nc">&nbsp;        return createFromGeomShape(result);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // PENDING_DOC_REVIEW
+&nbsp;    /**
+&nbsp;     * Returns a new {@code Shape} which is created as an intersection of the
+&nbsp;     * specified input shapes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The operation works with geometric areas occupied by the input shapes.
+&nbsp;     * For a single {@code Shape} such area includes the area occupied by the
+&nbsp;     * fill if the shape has a non-null fill and the area occupied by the stroke
+&nbsp;     * if the shape has a non-null stroke. So the area is empty for a shape
+&nbsp;     * with {@code null} stroke and {@code null} fill. The area of an input
+&nbsp;     * shape considered by the operation is independent on the type and
+&nbsp;     * configuration of the paint used for fill or stroke. Before the final
+&nbsp;     * operation the areas of the input shapes are transformed to the parent
+&nbsp;     * coordinate space of their respective topmost parent nodes.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The resulting shape will include only areas that were contained in both
+&nbsp;     * of the input shapes.
+&nbsp;
+&nbsp;&lt;PRE&gt;
+&nbsp;
+&nbsp;         shape1       +       shape2       =       result
+&nbsp;   +----------------+   +----------------+   +----------------+
+&nbsp;   |################|   |################|   |################|
+&nbsp;   |##############  |   |  ##############|   |  ############  |
+&nbsp;   |############    |   |    ############|   |    ########    |
+&nbsp;   |##########      |   |      ##########|   |      ####      |
+&nbsp;   |########        |   |        ########|   |                |
+&nbsp;   |######          |   |          ######|   |                |
+&nbsp;   |####            |   |            ####|   |                |
+&nbsp;   |##              |   |              ##|   |                |
+&nbsp;   +----------------+   +----------------+   +----------------+
+&nbsp;
+&nbsp;&lt;/PRE&gt;
+&nbsp;
+&nbsp;     * @param shape1 the first shape
+&nbsp;     * @param shape2 the second shape
+&nbsp;     * @return the created {@code Shape}
+&nbsp;     */
+&nbsp;    public static Shape intersect(final Shape shape1, final Shape shape2) {
+<b class="nc">&nbsp;        final Area result = shape1.getTransformedArea();</b>
+<b class="nc">&nbsp;        result.intersect(shape2.getTransformedArea());</b>
+<b class="nc">&nbsp;        return createFromGeomShape(result);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Area getTransformedArea() {
+<b class="nc">&nbsp;        return getTransformedArea(calculateNodeToSceneTransform(this));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Area getTransformedArea(final BaseTransform transform) {
+<b class="nc">&nbsp;        if (mode == NGShape.Mode.EMPTY) {</b>
+<b class="nc">&nbsp;            return new Area();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        final com.sun.javafx.geom.Shape fillShape = ShapeHelper.configShape(this);</b>
+<b class="nc">&nbsp;        if ((mode == NGShape.Mode.FILL)</b>
+&nbsp;                || (mode == NGShape.Mode.STROKE_FILL)
+<b class="nc">&nbsp;                       &amp;&amp; (getStrokeType() == StrokeType.INSIDE)) {</b>
+<b class="nc">&nbsp;            return createTransformedArea(fillShape, transform);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        final StrokeType strokeType = getStrokeType();</b>
+<b class="nc">&nbsp;        final double strokeWidth =</b>
+<b class="nc">&nbsp;                Utils.clampMin(getStrokeWidth(), MIN_STROKE_WIDTH);</b>
+<b class="nc">&nbsp;        final StrokeLineCap strokeLineCap = getStrokeLineCap();</b>
+<b class="nc">&nbsp;        final StrokeLineJoin strokeLineJoin = convertLineJoin(getStrokeLineJoin());</b>
+<b class="nc">&nbsp;        final float strokeMiterLimit =</b>
+<b class="nc">&nbsp;                (float) Utils.clampMin(getStrokeMiterLimit(),</b>
+&nbsp;                                       MIN_STROKE_MITER_LIMIT);
+&nbsp;        final float[] dashArray =
+<b class="nc">&nbsp;                (hasStrokeDashArray())</b>
+<b class="nc">&nbsp;                        ? toPGDashArray(getStrokeDashArray())</b>
+<b class="nc">&nbsp;                        : DEFAULT_PG_STROKE_DASH_ARRAY;</b>
+&nbsp;
+&nbsp;        final com.sun.javafx.geom.Shape strokeShape =
+<b class="nc">&nbsp;                Toolkit.getToolkit().createStrokedShape(</b>
+&nbsp;                        fillShape, strokeType, strokeWidth, strokeLineCap,
+&nbsp;                        strokeLineJoin, strokeMiterLimit,
+<b class="nc">&nbsp;                        dashArray, (float) getStrokeDashOffset());</b>
+&nbsp;
+<b class="nc">&nbsp;        if (mode == NGShape.Mode.STROKE) {</b>
+<b class="nc">&nbsp;            return createTransformedArea(strokeShape, transform);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // fill and stroke
+<b class="nc">&nbsp;        final Area combinedArea = new Area(fillShape);</b>
+<b class="nc">&nbsp;        combinedArea.add(new Area(strokeShape));</b>
+&nbsp;
+<b class="nc">&nbsp;        return createTransformedArea(combinedArea, transform);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static BaseTransform calculateNodeToSceneTransform(Node node) {
+<b class="nc">&nbsp;        final Affine3D cumulativeTransformation = new Affine3D();</b>
+&nbsp;
+&nbsp;        do {
+<b class="nc">&nbsp;            cumulativeTransformation.preConcatenate(</b>
+<b class="nc">&nbsp;                    NodeHelper.getLeafTransform(node));</b>
+<b class="nc">&nbsp;            node = node.getParent();</b>
+<b class="nc">&nbsp;        } while (node != null);</b>
+&nbsp;
+<b class="nc">&nbsp;        return cumulativeTransformation;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Area createTransformedArea(
+&nbsp;            final com.sun.javafx.geom.Shape geomShape,
+&nbsp;            final BaseTransform transform) {
+<b class="nc">&nbsp;        return transform.isIdentity()</b>
+<b class="nc">&nbsp;                   ? new Area(geomShape)</b>
+<b class="nc">&nbsp;                   : new Area(geomShape.getPathIterator(transform));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private static Path createFromGeomShape(
+&nbsp;            final com.sun.javafx.geom.Shape geomShape) {
+<b class="nc">&nbsp;        final Path path = new Path();</b>
+<b class="nc">&nbsp;        final ObservableList&lt;PathElement&gt; elements = path.getElements();</b>
+&nbsp;
+<b class="nc">&nbsp;        final PathIterator iterator = geomShape.getPathIterator(null);</b>
+<b class="nc">&nbsp;        final float coords[] = new float[6];</b>
+&nbsp;
+<b class="nc">&nbsp;        while (!iterator.isDone()) {</b>
+<b class="nc">&nbsp;            final int segmentType = iterator.currentSegment(coords);</b>
+<b class="nc">&nbsp;            switch (segmentType) {</b>
+&nbsp;                case PathIterator.SEG_MOVETO:
+<b class="nc">&nbsp;                    elements.add(new MoveTo(coords[0], coords[1]));</b>
+&nbsp;                    break;
+&nbsp;                case PathIterator.SEG_LINETO:
+<b class="nc">&nbsp;                    elements.add(new LineTo(coords[0], coords[1]));</b>
+&nbsp;                    break;
+&nbsp;                case PathIterator.SEG_QUADTO:
+<b class="nc">&nbsp;                    elements.add(new QuadCurveTo(coords[0], coords[1],</b>
+&nbsp;                                                 coords[2], coords[3]));
+&nbsp;                    break;
+&nbsp;                case PathIterator.SEG_CUBICTO:
+<b class="nc">&nbsp;                    elements.add(new CubicCurveTo(coords[0], coords[1],</b>
+&nbsp;                                                  coords[2], coords[3],
+&nbsp;                                                  coords[4], coords[5]));
+&nbsp;                    break;
+&nbsp;                case PathIterator.SEG_CLOSE:
+<b class="nc">&nbsp;                    elements.add(new ClosePath());</b>
+&nbsp;                    break;
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            iterator.next();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        path.setFillRule((iterator.getWindingRule()</b>
+&nbsp;                             == PathIterator.WIND_EVEN_ODD)
+<b class="nc">&nbsp;                                 ? FillRule.EVEN_ODD</b>
+<b class="nc">&nbsp;                                 : FillRule.NON_ZERO);</b>
+&nbsp;
+<b class="nc">&nbsp;        path.setFill(Color.BLACK);</b>
+<b class="nc">&nbsp;        path.setStroke(null);</b>
+&nbsp;
+<b class="nc">&nbsp;        return path;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

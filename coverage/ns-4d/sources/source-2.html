@@ -1,0 +1,260 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ClasspathScanner</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.platform.commons.support.scanning</a>
+</div>
+
+<h1>Coverage Summary for Class: ClasspathScanner (org.junit.platform.commons.support.scanning)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ClasspathScanner</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.platform.commons.support.scanning;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.DEPRECATED;
+&nbsp;import static org.apiguardian.api.API.Status.MAINTAINED;
+&nbsp;
+&nbsp;import java.net.URI;
+&nbsp;import java.util.List;
+&nbsp;import java.util.function.Predicate;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.platform.commons.io.Resource;
+&nbsp;import org.junit.platform.commons.io.ResourceFilter;
+&nbsp;
+&nbsp;/**
+&nbsp; * {@code ClasspathScanner} allows to scan the classpath for classes and
+&nbsp; * resources.
+&nbsp; *
+&nbsp; * &lt;p&gt;An implementation of this interface can be registered via the
+&nbsp; * {@link java.util.ServiceLoader ServiceLoader} mechanism.
+&nbsp; *
+&nbsp; * @since 1.12
+&nbsp; */
+&nbsp;@API(status = MAINTAINED, since = &quot;1.13.3&quot;)
+&nbsp;public interface ClasspathScanner {
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all {@linkplain Class classes} in the supplied classpath {@code root}
+&nbsp;	 * that match the specified {@code classFilter} filter.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The classpath scanning algorithm searches recursively in subpackages
+&nbsp;	 * beginning with the root of the classpath.
+&nbsp;	 *
+&nbsp;	 * @param basePackageName the name of the base package in which to start
+&nbsp;	 * scanning; must not be {@code null} and must be valid in terms of Java
+&nbsp;	 * syntax
+&nbsp;	 * @param classFilter the class type filter; never {@code null}
+&nbsp;	 * @return a list of all such classes found; never {@code null}
+&nbsp;	 * but potentially empty
+&nbsp;	 */
+&nbsp;	List&lt;Class&lt;?&gt;&gt; scanForClassesInPackage(String basePackageName, ClassFilter classFilter);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all {@linkplain Class classes} in the supplied classpath {@code root}
+&nbsp;	 * that match the specified {@code classFilter} filter.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The classpath scanning algorithm searches recursively in subpackages
+&nbsp;	 * beginning with the root of the classpath.
+&nbsp;	 *
+&nbsp;	 * @param root the URI for the classpath root in which to scan; never
+&nbsp;	 * {@code null}
+&nbsp;	 * @param classFilter the class type filter; never {@code null}
+&nbsp;	 * @return a list of all such classes found; never {@code null}
+&nbsp;	 * but potentially empty
+&nbsp;	 */
+&nbsp;	List&lt;Class&lt;?&gt;&gt; scanForClassesInClasspathRoot(URI root, ClassFilter classFilter);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all {@linkplain org.junit.platform.commons.support.Resource resources} in the supplied classpath {@code root}
+&nbsp;	 * that match the specified {@code resourceFilter} predicate.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The classpath scanning algorithm searches recursively in subpackages
+&nbsp;	 * beginning with the root of the classpath.
+&nbsp;	 *
+&nbsp;	 * @param basePackageName the name of the base package in which to start
+&nbsp;	 * scanning; must not be {@code null} and must be valid in terms of Java
+&nbsp;	 * syntax
+&nbsp;	 * @param resourceFilter the resource type filter; never {@code null}
+&nbsp;	 * @return a list of all such resources found; never {@code null}
+&nbsp;	 * but potentially empty
+&nbsp;	 * @deprecated Please implement
+&nbsp;	 * {@link #scanForResourcesInPackage(String, ResourceFilter)} instead
+&nbsp;	 */
+&nbsp;	@API(status = DEPRECATED, since = &quot;1.14&quot;)
+&nbsp;	@Deprecated(since = &quot;1.14&quot;, forRemoval = true)
+&nbsp;	@SuppressWarnings({ &quot;removal&quot;, &quot;unused&quot; })
+&nbsp;	default List&lt;org.junit.platform.commons.support.Resource&gt; scanForResourcesInPackage(String basePackageName,
+&nbsp;			Predicate&lt;org.junit.platform.commons.support.Resource&gt; resourceFilter) {
+<b class="nc">&nbsp;		throw new UnsupportedOperationException(&quot;Implement scanForResourcesInPackage(String, ResourceFilter) instead&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all {@linkplain org.junit.platform.commons.support.Resource resources} in the supplied classpath {@code root}
+&nbsp;	 * that match the specified {@code resourceFilter} predicate.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The classpath scanning algorithm searches recursively in subpackages
+&nbsp;	 * beginning with the root of the classpath.
+&nbsp;	 *
+&nbsp;	 * @param root the URI for the classpath root in which to scan; never
+&nbsp;	 * {@code null}
+&nbsp;	 * @param resourceFilter the resource type filter; never {@code null}
+&nbsp;	 * @return a list of all such resources found; never {@code null}
+&nbsp;	 * but potentially empty
+&nbsp;	 * @deprecated Please implement
+&nbsp;	 * {@link #scanForResourcesInClasspathRoot(URI, ResourceFilter)} instead
+&nbsp;	 */
+&nbsp;	@API(status = DEPRECATED, since = &quot;1.14&quot;)
+&nbsp;	@Deprecated(since = &quot;1.14&quot;, forRemoval = true)
+&nbsp;	@SuppressWarnings(&quot;removal&quot;)
+&nbsp;	default List&lt;org.junit.platform.commons.support.Resource&gt; scanForResourcesInClasspathRoot(URI root,
+&nbsp;			Predicate&lt;org.junit.platform.commons.support.Resource&gt; resourceFilter) {
+<b class="nc">&nbsp;		throw new UnsupportedOperationException(</b>
+&nbsp;			&quot;Implement scanForResourcesInClasspathRoot(URI, ResourceFilter) instead&quot;);
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all {@linkplain Resource resources} in the supplied classpath {@code root}
+&nbsp;	 * that match the specified {@code resourceFilter} predicate.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The classpath scanning algorithm searches recursively in subpackages
+&nbsp;	 * beginning with the root of the classpath.
+&nbsp;	 *
+&nbsp;	 * @param basePackageName the name of the base package in which to start
+&nbsp;	 * scanning; must not be {@code null} and must be valid in terms of Java
+&nbsp;	 * syntax
+&nbsp;	 * @param resourceFilter the resource type filter; never {@code null}
+&nbsp;	 * @return a list of all such resources found; never {@code null}
+&nbsp;	 * but potentially empty
+&nbsp;	 * @since 1.14
+&nbsp;	 */
+&nbsp;	@API(status = MAINTAINED, since = &quot;1.14&quot;)
+&nbsp;	@SuppressWarnings(&quot;removal&quot;)
+&nbsp;	default List&lt;? extends Resource&gt; scanForResourcesInPackage(String basePackageName, ResourceFilter resourceFilter) {
+<b class="nc">&nbsp;		return scanForResourcesInPackage(basePackageName, resourceFilter::match);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Find all {@linkplain Resource resources} in the supplied classpath {@code root}
+&nbsp;	 * that match the specified {@code resourceFilter} predicate.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The classpath scanning algorithm searches recursively in subpackages
+&nbsp;	 * beginning with the root of the classpath.
+&nbsp;	 *
+&nbsp;	 * @param root the URI for the classpath root in which to scan; never
+&nbsp;	 * {@code null}
+&nbsp;	 * @param resourceFilter the resource type filter; never {@code null}
+&nbsp;	 * @return a list of all such resources found; never {@code null}
+&nbsp;	 * but potentially empty
+&nbsp;	 * @since 1.14
+&nbsp;	 */
+&nbsp;	@API(status = MAINTAINED, since = &quot;1.14&quot;)
+&nbsp;	@SuppressWarnings(&quot;removal&quot;)
+&nbsp;	default List&lt;? extends Resource&gt; scanForResourcesInClasspathRoot(URI root, ResourceFilter resourceFilter) {
+<b class="nc">&nbsp;		return scanForResourcesInClasspathRoot(root, resourceFilter::match);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

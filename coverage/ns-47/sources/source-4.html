@@ -1,0 +1,507 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MutableExtensionRegistry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.extension</a>
+</div>
+
+<h1>Coverage Summary for Class: MutableExtensionRegistry (org.junit.jupiter.engine.extension)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MutableExtensionRegistry</td>
+<td class="coverageStat">
+  <span class="percent">
+    48%
+  </span>
+  <span class="absValue">
+    (12/25)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    20%
+  </span>
+  <span class="absValue">
+    (4/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    44,6%
+  </span>
+  <span class="absValue">
+    (37/83)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MutableExtensionRegistry$Entry</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">MutableExtensionRegistry$LateInitEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    41,9%
+  </span>
+  <span class="absValue">
+    (13/31)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    20%
+  </span>
+  <span class="absValue">
+    (4/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40,6%
+  </span>
+  <span class="absValue">
+    (39/96)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.extension;
+&nbsp;
+&nbsp;import static java.util.Collections.emptyList;
+&nbsp;import static java.util.Collections.emptySet;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;
+&nbsp;import java.lang.reflect.Field;
+&nbsp;import java.lang.reflect.Member;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.LinkedHashMap;
+&nbsp;import java.util.LinkedHashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.ServiceLoader;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.function.Function;
+&nbsp;import java.util.function.Predicate;
+&nbsp;import java.util.stream.Stream;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.jupiter.api.Constants;
+&nbsp;import org.junit.jupiter.api.extension.Extension;
+&nbsp;import org.junit.jupiter.engine.config.JupiterConfiguration;
+&nbsp;import org.junit.platform.commons.logging.Logger;
+&nbsp;import org.junit.platform.commons.logging.LoggerFactory;
+&nbsp;import org.junit.platform.commons.support.ReflectionSupport;
+&nbsp;import org.junit.platform.commons.util.ClassLoaderUtils;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.commons.util.ServiceLoaderUtils;
+&nbsp;
+&nbsp;/**
+&nbsp; * Default, mutable implementation of {@link ExtensionRegistry}.
+&nbsp; *
+&nbsp; * @since 5.5
+&nbsp; */
+&nbsp;@API(status = INTERNAL, since = &quot;5.5&quot;)
+&nbsp;public class MutableExtensionRegistry implements ExtensionRegistry, ExtensionRegistrar {
+&nbsp;
+<b class="fc">&nbsp;	private static final Logger logger = LoggerFactory.getLogger(MutableExtensionRegistry.class);</b>
+&nbsp;
+<b class="fc">&nbsp;	private static final List&lt;Extension&gt; DEFAULT_STATELESS_EXTENSIONS = List.of( //</b>
+&nbsp;		new DisabledCondition(), //
+&nbsp;		new AutoCloseExtension(), //
+&nbsp;		new TimeoutExtension(), //
+&nbsp;		new RepeatedTestExtension(), //
+&nbsp;		new TestInfoParameterResolver(), //
+&nbsp;		new TestReporterParameterResolver() //
+&nbsp;	);
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Factory for creating and populating a new root registry with the default
+&nbsp;	 * extensions.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;If the {@link Constants#EXTENSIONS_AUTODETECTION_ENABLED_PROPERTY_NAME}
+&nbsp;	 * configuration parameter has been set to {@code true}, extensions will be
+&nbsp;	 * auto-detected using Java&#39;s {@link ServiceLoader} mechanism and automatically
+&nbsp;	 * registered after the default extensions.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;If the
+&nbsp;	 * {@value Constants#EXTENSIONS_TIMEOUT_THREAD_DUMP_ENABLED_PROPERTY_NAME}
+&nbsp;	 * configuration parameter has been set to {@code true}, the
+&nbsp;	 * {@link PreInterruptThreadDumpPrinter} will be registered.
+&nbsp;	 *
+&nbsp;	 * @param configuration configuration parameters used to retrieve the extension
+&nbsp;	 * auto-detection flag; never {@code null}
+&nbsp;	 * @return a new {@code ExtensionRegistry}; never {@code null}
+&nbsp;	 */
+&nbsp;	public static MutableExtensionRegistry createRegistryWithDefaultExtensions(JupiterConfiguration configuration) {
+<b class="fc">&nbsp;		MutableExtensionRegistry extensionRegistry = new MutableExtensionRegistry();</b>
+&nbsp;
+<b class="fc">&nbsp;		DEFAULT_STATELESS_EXTENSIONS.forEach(extensionRegistry::registerDefaultExtension);</b>
+&nbsp;
+<b class="fc">&nbsp;		extensionRegistry.registerDefaultExtension(new TempDirectory(configuration));</b>
+&nbsp;
+<b class="pc">&nbsp;		if (configuration.isExtensionAutoDetectionEnabled()) {</b>
+<b class="nc">&nbsp;			registerAutoDetectedExtensions(extensionRegistry, configuration);</b>
+&nbsp;		}
+&nbsp;
+<b class="pc">&nbsp;		if (configuration.isThreadDumpOnTimeoutEnabled()) {</b>
+<b class="nc">&nbsp;			extensionRegistry.registerDefaultExtension(new PreInterruptThreadDumpPrinter());</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return extensionRegistry;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void registerAutoDetectedExtensions(MutableExtensionRegistry extensionRegistry,
+&nbsp;			JupiterConfiguration configuration) {
+&nbsp;
+<b class="nc">&nbsp;		Predicate&lt;Class&lt;? extends Extension&gt;&gt; filter = configuration.getFilterForAutoDetectedExtensions();</b>
+<b class="nc">&nbsp;		List&lt;Class&lt;? extends Extension&gt;&gt; excludedExtensions = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;		ServiceLoader&lt;Extension&gt; serviceLoader = ServiceLoader.load(Extension.class,</b>
+<b class="nc">&nbsp;			ClassLoaderUtils.getDefaultClassLoader());</b>
+<b class="nc">&nbsp;		ServiceLoaderUtils.filter(serviceLoader, clazz -&gt; {</b>
+<b class="nc">&nbsp;			boolean included = filter.test(clazz);</b>
+<b class="nc">&nbsp;			if (!included) {</b>
+<b class="nc">&nbsp;				excludedExtensions.add(clazz);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return included;</b>
+&nbsp;		}) //
+<b class="nc">&nbsp;				.forEach(extensionRegistry::registerAutoDetectedExtension);</b>
+&nbsp;
+<b class="nc">&nbsp;		logExcludedExtensions(excludedExtensions);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void logExcludedExtensions(List&lt;Class&lt;? extends Extension&gt;&gt; excludedExtensions) {
+<b class="nc">&nbsp;		if (!excludedExtensions.isEmpty()) {</b>
+&nbsp;			// @formatter:off
+<b class="nc">&nbsp;			List&lt;String&gt; excludeExtensionNames = excludedExtensions</b>
+<b class="nc">&nbsp;					.stream()</b>
+<b class="nc">&nbsp;					.map(Class::getName)</b>
+<b class="nc">&nbsp;					.toList();</b>
+&nbsp;			// @formatter:on
+<b class="nc">&nbsp;			logger.config(() -&gt; &quot;Excluded auto-detected extensions due to configured includes/excludes: %s&quot;.formatted(</b>
+&nbsp;				excludeExtensionNames));
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Factory for creating and populating a new registry from a list of
+&nbsp;	 * extension types and a parent registry.
+&nbsp;	 *
+&nbsp;	 * @param parentRegistry the parent registry
+&nbsp;	 * @param extensionTypes the types of extensions to be registered in
+&nbsp;	 * the new registry
+&nbsp;	 * @return a new {@code ExtensionRegistry}; never {@code null}
+&nbsp;	 */
+&nbsp;	public static MutableExtensionRegistry createRegistryFrom(MutableExtensionRegistry parentRegistry,
+&nbsp;			Stream&lt;Class&lt;? extends Extension&gt;&gt; extensionTypes) {
+&nbsp;
+<b class="fc">&nbsp;		Preconditions.notNull(parentRegistry, &quot;parentRegistry must not be null&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		MutableExtensionRegistry registry = new MutableExtensionRegistry(parentRegistry);</b>
+<b class="fc">&nbsp;		extensionTypes.forEach(registry::registerExtension);</b>
+<b class="fc">&nbsp;		return registry;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private final Set&lt;Class&lt;? extends Extension&gt;&gt; registeredExtensionTypes;
+&nbsp;	private final List&lt;Entry&gt; registeredExtensions;
+&nbsp;	private final Map&lt;Class&lt;?&gt;, LateInitExtensions&gt; lateInitExtensions;
+&nbsp;
+&nbsp;	private MutableExtensionRegistry() {
+<b class="fc">&nbsp;		this(emptySet(), emptyList());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private MutableExtensionRegistry(MutableExtensionRegistry parent) {
+<b class="fc">&nbsp;		this(parent.registeredExtensionTypes, parent.registeredExtensions);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private MutableExtensionRegistry(Set&lt;Class&lt;? extends Extension&gt;&gt; registeredExtensionTypes,
+<b class="fc">&nbsp;			List&lt;Entry&gt; registeredExtensions) {</b>
+<b class="fc">&nbsp;		this.registeredExtensionTypes = new LinkedHashSet&lt;&gt;(registeredExtensionTypes);</b>
+<b class="fc">&nbsp;		this.registeredExtensions = new ArrayList&lt;&gt;(registeredExtensions.size());</b>
+<b class="fc">&nbsp;		this.lateInitExtensions = new LinkedHashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;		registeredExtensions.forEach(entry -&gt; {</b>
+<b class="fc">&nbsp;			Entry newEntry = entry;</b>
+<b class="pc">&nbsp;			if (entry instanceof LateInitEntry lateInitEntry) {</b>
+<b class="nc">&nbsp;				newEntry = lateInitEntry.getExtension() //</b>
+<b class="nc">&nbsp;						.map(Entry::of) //</b>
+<b class="nc">&nbsp;						.orElseGet(() -&gt; getLateInitExtensions(lateInitEntry.getTestClass()).add(lateInitEntry.copy()));</b>
+&nbsp;			}
+<b class="fc">&nbsp;			this.registeredExtensions.add(newEntry);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public &lt;E extends Extension&gt; Stream&lt;E&gt; stream(Class&lt;E&gt; extensionType) {
+<b class="fc">&nbsp;		return this.registeredExtensions.stream() //</b>
+<b class="fc">&nbsp;				.map(p -&gt; p.getExtension().orElse(null)) //</b>
+<b class="fc">&nbsp;				.filter(extensionType::isInstance) //</b>
+<b class="fc">&nbsp;				.map(extensionType::cast);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void registerExtension(Class&lt;? extends Extension&gt; extensionType) {
+<b class="nc">&nbsp;		if (!isAlreadyRegistered(extensionType)) {</b>
+<b class="nc">&nbsp;			registerLocalExtension(ReflectionSupport.newInstance(extensionType));</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determine if the supplied type is already registered in this registry or in a
+&nbsp;	 * parent registry.
+&nbsp;	 */
+&nbsp;	private boolean isAlreadyRegistered(Class&lt;? extends Extension&gt; extensionType) {
+<b class="nc">&nbsp;		return this.registeredExtensionTypes.contains(extensionType);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void registerExtension(Extension extension, Object source) {
+<b class="nc">&nbsp;		Preconditions.notNull(source, &quot;source must not be null&quot;);</b>
+<b class="nc">&nbsp;		registerExtension(&quot;local&quot;, extension, source);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void registerSyntheticExtension(Extension extension, Object source) {
+<b class="nc">&nbsp;		registerExtension(&quot;synthetic&quot;, extension, source);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void registerUninitializedExtension(Class&lt;?&gt; testClass, Field source,
+&nbsp;			Function&lt;Object, ? extends Extension&gt; initializer) {
+<b class="nc">&nbsp;		Preconditions.notNull(testClass, &quot;testClass must not be null&quot;);</b>
+<b class="nc">&nbsp;		Preconditions.notNull(source, &quot;source must not be null&quot;);</b>
+<b class="nc">&nbsp;		Preconditions.notNull(initializer, &quot;initializer must not be null&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		logger.trace(() -&gt; &quot;Registering local extension (late-init) for [%s]%s&quot;.formatted(source.getType().getName(),</b>
+<b class="nc">&nbsp;			buildSourceInfo(source)));</b>
+&nbsp;
+<b class="nc">&nbsp;		LateInitEntry entry = getLateInitExtensions(testClass) //</b>
+<b class="nc">&nbsp;				.add(new LateInitEntry(testClass, initializer));</b>
+<b class="nc">&nbsp;		this.registeredExtensions.add(entry);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void initializeExtensions(Class&lt;?&gt; testClass, Object testInstance) {
+<b class="fc">&nbsp;		Preconditions.notNull(testClass, &quot;testClass must not be null&quot;);</b>
+<b class="fc">&nbsp;		Preconditions.notNull(testInstance, &quot;testInstance must not be null&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		LateInitExtensions extensions = lateInitExtensions.remove(testClass);</b>
+<b class="pc">&nbsp;		if (extensions != null) {</b>
+<b class="nc">&nbsp;			extensions.initialize(testInstance);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private LateInitExtensions getLateInitExtensions(Class&lt;?&gt; testClass) {
+<b class="nc">&nbsp;		return this.lateInitExtensions.computeIfAbsent(testClass, __ -&gt; new LateInitExtensions());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void registerDefaultExtension(Extension extension) {
+<b class="fc">&nbsp;		registerExtension(&quot;default&quot;, extension);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void registerAutoDetectedExtension(Extension extension) {
+<b class="nc">&nbsp;		registerExtension(&quot;auto-detected&quot;, extension);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void registerLocalExtension(Extension extension) {
+<b class="nc">&nbsp;		registerExtension(&quot;local&quot;, extension);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void registerExtension(String category, Extension extension) {
+<b class="fc">&nbsp;		registerExtension(category, extension, null);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void registerExtension(String category, Extension extension, @Nullable Object source) {
+<b class="fc">&nbsp;		Preconditions.notBlank(category, &quot;category must not be null or blank&quot;);</b>
+<b class="fc">&nbsp;		Preconditions.notNull(extension, &quot;extension must not be null&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		logger.trace(() -&gt; &quot;Registering %s extension [%s]%s&quot;.formatted(category, extension, buildSourceInfo(source)));</b>
+&nbsp;
+<b class="fc">&nbsp;		this.registeredExtensions.add(Entry.of(extension));</b>
+<b class="fc">&nbsp;		this.registeredExtensionTypes.add(extension.getClass());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private String buildSourceInfo(@Nullable Object source) {
+<b class="nc">&nbsp;		if (source == null) {</b>
+<b class="nc">&nbsp;			return &quot;&quot;;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		if (source instanceof Member member) {</b>
+<b class="nc">&nbsp;			Object type = (member instanceof Method ? &quot;method&quot; : &quot;field&quot;);</b>
+<b class="nc">&nbsp;			source = &quot;%s %s.%s&quot;.formatted(type, member.getDeclaringClass().getName(), member.getName());</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return &quot; from source [&quot; + source + &quot;]&quot;;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private interface Entry {
+&nbsp;
+&nbsp;		static Entry of(Extension extension) {
+<b class="fc">&nbsp;			Optional&lt;Extension&gt; value = Optional.of(extension);</b>
+<b class="fc">&nbsp;			return () -&gt; value;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		Optional&lt;Extension&gt; getExtension();
+&nbsp;	}
+&nbsp;
+&nbsp;	private static class LateInitEntry implements Entry {
+&nbsp;
+&nbsp;		private final Class&lt;?&gt; testClass;
+&nbsp;		private final Function&lt;Object, ? extends Extension&gt; initializer;
+&nbsp;
+<b class="nc">&nbsp;		@SuppressWarnings(&quot;OptionalUsedAsFieldOrParameterType&quot;)</b>
+<b class="nc">&nbsp;		private Optional&lt;Extension&gt; extension = Optional.empty();</b>
+&nbsp;
+<b class="nc">&nbsp;		LateInitEntry(Class&lt;?&gt; testClass, Function&lt;Object, ? extends Extension&gt; initializer) {</b>
+<b class="nc">&nbsp;			this.testClass = testClass;</b>
+<b class="nc">&nbsp;			this.initializer = initializer;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public Optional&lt;Extension&gt; getExtension() {
+<b class="nc">&nbsp;			return extension;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		private Class&lt;?&gt; getTestClass() {
+<b class="nc">&nbsp;			return testClass;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		void initialize(Object testInstance) {
+<b class="nc">&nbsp;			Preconditions.condition(extension.isEmpty(), &quot;Extension already initialized&quot;);</b>
+<b class="nc">&nbsp;			extension = Optional.of(initializer.apply(testInstance));</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		LateInitEntry copy() {
+<b class="nc">&nbsp;			Preconditions.condition(extension.isEmpty(), &quot;Extension already initialized&quot;);</b>
+<b class="nc">&nbsp;			return new LateInitEntry(testClass, initializer);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private static class LateInitExtensions {
+&nbsp;
+&nbsp;		private final List&lt;LateInitEntry&gt; entries = new ArrayList&lt;&gt;();
+&nbsp;
+&nbsp;		LateInitEntry add(LateInitEntry entry) {
+&nbsp;			entries.add(entry);
+&nbsp;			return entry;
+&nbsp;		}
+&nbsp;
+&nbsp;		void initialize(Object testInstance) {
+&nbsp;			entries.forEach(entry -&gt; entry.initialize(testInstance));
+&nbsp;		}
+&nbsp;
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,315 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LifecycleMethodUtils</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.descriptor</a>
+</div>
+
+<h1>Coverage Summary for Class: LifecycleMethodUtils (org.junit.jupiter.engine.descriptor)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LifecycleMethodUtils</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    52%
+  </span>
+  <span class="absValue">
+    (13/25)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    16,7%
+  </span>
+  <span class="absValue">
+    (1/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    44,3%
+  </span>
+  <span class="absValue">
+    (27/61)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.descriptor;
+&nbsp;
+&nbsp;import static org.junit.jupiter.engine.support.MethodReflectionUtils.getReturnType;
+&nbsp;import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedMethods;
+&nbsp;import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+&nbsp;import static org.junit.platform.engine.support.discovery.DiscoveryIssueReporter.Condition.alwaysSatisfied;
+&nbsp;
+&nbsp;import java.lang.annotation.Annotation;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.function.Function;
+&nbsp;import java.util.function.Supplier;
+&nbsp;import java.util.stream.Stream;
+&nbsp;
+&nbsp;import org.junit.jupiter.api.AfterAll;
+&nbsp;import org.junit.jupiter.api.AfterEach;
+&nbsp;import org.junit.jupiter.api.BeforeAll;
+&nbsp;import org.junit.jupiter.api.BeforeEach;
+&nbsp;import org.junit.jupiter.api.extension.ClassTemplateInvocationLifecycleMethod;
+&nbsp;import org.junit.platform.commons.support.HierarchyTraversalMode;
+&nbsp;import org.junit.platform.commons.support.ModifierSupport;
+&nbsp;import org.junit.platform.engine.DiscoveryIssue;
+&nbsp;import org.junit.platform.engine.DiscoveryIssue.Severity;
+&nbsp;import org.junit.platform.engine.support.descriptor.MethodSource;
+&nbsp;import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
+&nbsp;import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter.Condition;
+&nbsp;
+&nbsp;/**
+&nbsp; * Collection of utilities for working with test lifecycle methods.
+&nbsp; *
+&nbsp; * @since 5.0
+&nbsp; */
+&nbsp;final class LifecycleMethodUtils {
+&nbsp;
+&nbsp;	private LifecycleMethodUtils() {
+&nbsp;		/* no-op */
+&nbsp;	}
+&nbsp;
+&nbsp;	static List&lt;Method&gt; findBeforeAllMethods(Class&lt;?&gt; testClass, boolean requireStatic,
+&nbsp;			DiscoveryIssueReporter issueReporter) {
+<b class="fc">&nbsp;		return findMethodsAndCheckStatic(testClass, requireStatic, BeforeAll.class, HierarchyTraversalMode.TOP_DOWN,</b>
+&nbsp;			issueReporter);
+&nbsp;	}
+&nbsp;
+&nbsp;	static List&lt;Method&gt; findAfterAllMethods(Class&lt;?&gt; testClass, boolean requireStatic,
+&nbsp;			DiscoveryIssueReporter issueReporter) {
+<b class="fc">&nbsp;		return findMethodsAndCheckStatic(testClass, requireStatic, AfterAll.class, HierarchyTraversalMode.BOTTOM_UP,</b>
+&nbsp;			issueReporter);
+&nbsp;	}
+&nbsp;
+&nbsp;	static List&lt;Method&gt; findBeforeEachMethods(Class&lt;?&gt; testClass, DiscoveryIssueReporter issueReporter) {
+<b class="fc">&nbsp;		return findMethodsAndCheckNonStatic(testClass, BeforeEach.class, HierarchyTraversalMode.TOP_DOWN,</b>
+&nbsp;			issueReporter);
+&nbsp;	}
+&nbsp;
+&nbsp;	static List&lt;Method&gt; findAfterEachMethods(Class&lt;?&gt; testClass, DiscoveryIssueReporter issueReporter) {
+<b class="fc">&nbsp;		return findMethodsAndCheckNonStatic(testClass, AfterEach.class, HierarchyTraversalMode.BOTTOM_UP,</b>
+&nbsp;			issueReporter);
+&nbsp;	}
+&nbsp;
+&nbsp;	static void validateNoClassTemplateInvocationLifecycleMethodsAreDeclared(Class&lt;?&gt; testClass,
+&nbsp;			DiscoveryIssueReporter issueReporter) {
+&nbsp;
+<b class="fc">&nbsp;		findAllClassTemplateInvocationLifecycleMethods(testClass) //</b>
+<b class="fc">&nbsp;				.forEach(method -&gt; findClassTemplateInvocationLifecycleMethodAnnotation(method) //</b>
+<b class="nc">&nbsp;						.ifPresent(annotation -&gt; {</b>
+<b class="nc">&nbsp;							String message = &quot;@%s method &#39;%s&#39; must not be declared in test class &#39;%s&#39; because it is not annotated with @%s.&quot;.formatted(</b>
+<b class="nc">&nbsp;								annotation.lifecycleMethodAnnotation().getSimpleName(), method.toGenericString(),</b>
+<b class="nc">&nbsp;								testClass.getName(), annotation.classTemplateAnnotation().getSimpleName());</b>
+<b class="nc">&nbsp;							issueReporter.reportIssue(createIssue(Severity.ERROR, message, method));</b>
+&nbsp;						}));
+&nbsp;	}
+&nbsp;
+&nbsp;	static void validateClassTemplateInvocationLifecycleMethodsAreDeclaredCorrectly(Class&lt;?&gt; testClass,
+&nbsp;			boolean requireStatic, DiscoveryIssueReporter issueReporter) {
+&nbsp;
+<b class="nc">&nbsp;		findAllClassTemplateInvocationLifecycleMethods(testClass) //</b>
+<b class="nc">&nbsp;				.forEach(isNotPrivateError(issueReporter) //</b>
+<b class="nc">&nbsp;						.and(returnsPrimitiveVoid(issueReporter,</b>
+&nbsp;							LifecycleMethodUtils::classTemplateInvocationLifecycleMethodAnnotationName)) //
+<b class="nc">&nbsp;						.and(requireStatic</b>
+<b class="nc">&nbsp;								? isStatic(issueReporter,</b>
+&nbsp;									LifecycleMethodUtils::classTemplateInvocationLifecycleMethodAnnotationName)
+<b class="nc">&nbsp;								: alwaysSatisfied()) //</b>
+<b class="nc">&nbsp;						.toConsumer());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Stream&lt;Method&gt; findAllClassTemplateInvocationLifecycleMethods(Class&lt;?&gt; testClass) {
+<b class="fc">&nbsp;		Stream&lt;Method&gt; allMethods = Stream.concat( //</b>
+<b class="fc">&nbsp;			findAnnotatedMethods(testClass, ClassTemplateInvocationLifecycleMethod.class,</b>
+<b class="fc">&nbsp;				HierarchyTraversalMode.TOP_DOWN).stream(), //</b>
+<b class="fc">&nbsp;			findAnnotatedMethods(testClass, ClassTemplateInvocationLifecycleMethod.class,</b>
+<b class="fc">&nbsp;				HierarchyTraversalMode.BOTTOM_UP).stream() //</b>
+&nbsp;		);
+<b class="fc">&nbsp;		return allMethods.distinct();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static List&lt;Method&gt; findMethodsAndCheckStatic(Class&lt;?&gt; testClass, boolean requireStatic,
+&nbsp;			Class&lt;? extends Annotation&gt; annotationType, HierarchyTraversalMode traversalMode,
+&nbsp;			DiscoveryIssueReporter issueReporter) {
+&nbsp;
+<b class="pc">&nbsp;		Condition&lt;Method&gt; additionalCondition = requireStatic</b>
+<b class="fc">&nbsp;				? isStatic(issueReporter, __ -&gt; annotationType.getSimpleName())</b>
+<b class="fc">&nbsp;				: alwaysSatisfied();</b>
+<b class="fc">&nbsp;		return findMethodsAndCheckVoidReturnType(testClass, annotationType, traversalMode, issueReporter,</b>
+&nbsp;			additionalCondition);
+&nbsp;	}
+&nbsp;
+&nbsp;	private static List&lt;Method&gt; findMethodsAndCheckNonStatic(Class&lt;?&gt; testClass,
+&nbsp;			Class&lt;? extends Annotation&gt; annotationType, HierarchyTraversalMode traversalMode,
+&nbsp;			DiscoveryIssueReporter issueReporter) {
+&nbsp;
+<b class="fc">&nbsp;		return findMethodsAndCheckVoidReturnType(testClass, annotationType, traversalMode, issueReporter,</b>
+<b class="fc">&nbsp;			isNotStatic(issueReporter, __ -&gt; annotationType.getSimpleName()));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static List&lt;Method&gt; findMethodsAndCheckVoidReturnType(Class&lt;?&gt; testClass,
+&nbsp;			Class&lt;? extends Annotation&gt; annotationType, HierarchyTraversalMode traversalMode,
+&nbsp;			DiscoveryIssueReporter issueReporter, Condition&lt;? super Method&gt; additionalCondition) {
+&nbsp;
+<b class="fc">&nbsp;		return findAnnotatedMethods(testClass, annotationType, traversalMode).stream() //</b>
+<b class="fc">&nbsp;				.peek(isNotPrivateWarning(issueReporter, annotationType::getSimpleName).toConsumer()) //</b>
+<b class="fc">&nbsp;				.filter(returnsPrimitiveVoid(issueReporter, __ -&gt; annotationType.getSimpleName()).and(</b>
+<b class="fc">&nbsp;					additionalCondition).toPredicate()) //</b>
+<b class="fc">&nbsp;				.toList();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Condition&lt;Method&gt; isStatic(DiscoveryIssueReporter issueReporter,
+&nbsp;			Function&lt;Method, String&gt; annotationNameProvider) {
+<b class="fc">&nbsp;		return issueReporter.createReportingCondition(ModifierSupport::isStatic, method -&gt; {</b>
+<b class="nc">&nbsp;			String message = &quot;@%s method &#39;%s&#39; must be static unless the test class is annotated with @TestInstance(Lifecycle.PER_CLASS).&quot;.formatted(</b>
+<b class="nc">&nbsp;				annotationNameProvider.apply(method), method.toGenericString());</b>
+<b class="nc">&nbsp;			return createIssue(Severity.ERROR, message, method);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Condition&lt;Method&gt; isNotStatic(DiscoveryIssueReporter issueReporter,
+&nbsp;			Function&lt;Method, String&gt; annotationNameProvider) {
+<b class="fc">&nbsp;		return issueReporter.createReportingCondition(ModifierSupport::isNotStatic, method -&gt; {</b>
+<b class="nc">&nbsp;			String message = &quot;@%s method &#39;%s&#39; must not be static.&quot;.formatted(annotationNameProvider.apply(method),</b>
+<b class="nc">&nbsp;				method.toGenericString());</b>
+<b class="nc">&nbsp;			return createIssue(Severity.ERROR, message, method);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Condition&lt;Method&gt; isNotPrivateError(DiscoveryIssueReporter issueReporter) {
+<b class="nc">&nbsp;		return issueReporter.createReportingCondition(ModifierSupport::isNotPrivate, method -&gt; {</b>
+<b class="nc">&nbsp;			String message = &quot;@%s method &#39;%s&#39; must not be private.&quot;.formatted(</b>
+<b class="nc">&nbsp;				classTemplateInvocationLifecycleMethodAnnotationName(method), method.toGenericString());</b>
+<b class="nc">&nbsp;			return createIssue(Severity.ERROR, message, method);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Condition&lt;Method&gt; isNotPrivateWarning(DiscoveryIssueReporter issueReporter,
+&nbsp;			Supplier&lt;String&gt; annotationNameProvider) {
+<b class="fc">&nbsp;		return issueReporter.createReportingCondition(ModifierSupport::isNotPrivate, method -&gt; {</b>
+<b class="nc">&nbsp;			String message = &quot;@%s method &#39;%s&#39; should not be private. This will be disallowed in a future release.&quot;.formatted(</b>
+<b class="nc">&nbsp;				annotationNameProvider.get(), method.toGenericString());</b>
+<b class="nc">&nbsp;			return createIssue(Severity.WARNING, message, method);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Condition&lt;Method&gt; returnsPrimitiveVoid(DiscoveryIssueReporter issueReporter,
+&nbsp;			Function&lt;Method, String&gt; annotationNameProvider) {
+<b class="pc">&nbsp;		return issueReporter.createReportingCondition(method -&gt; getReturnType(method) == void.class, method -&gt; {</b>
+<b class="nc">&nbsp;			String message = &quot;@%s method &#39;%s&#39; must not return a value.&quot;.formatted(annotationNameProvider.apply(method),</b>
+<b class="nc">&nbsp;				method.toGenericString());</b>
+<b class="nc">&nbsp;			return createIssue(Severity.ERROR, message, method);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	private static String classTemplateInvocationLifecycleMethodAnnotationName(Method method) {
+<b class="nc">&nbsp;		return findClassTemplateInvocationLifecycleMethodAnnotation(method) //</b>
+<b class="nc">&nbsp;				.map(ClassTemplateInvocationLifecycleMethod::lifecycleMethodAnnotation) //</b>
+<b class="nc">&nbsp;				.map(Class::getSimpleName) //</b>
+<b class="nc">&nbsp;				.orElseGet(ClassTemplateInvocationLifecycleMethod.class::getSimpleName);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Optional&lt;ClassTemplateInvocationLifecycleMethod&gt; findClassTemplateInvocationLifecycleMethodAnnotation(
+&nbsp;			Method method) {
+<b class="nc">&nbsp;		return findAnnotation(method, ClassTemplateInvocationLifecycleMethod.class);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static DiscoveryIssue createIssue(Severity severity, String message, Method method) {
+<b class="nc">&nbsp;		return DiscoveryIssue.builder(severity, message).source(MethodSource.from(method)).build();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

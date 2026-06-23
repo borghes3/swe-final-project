@@ -1,0 +1,204 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TempDirFactory</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.api.io</a>
+</div>
+
+<h1>Coverage Summary for Class: TempDirFactory (org.junit.jupiter.api.io)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TempDirFactory</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.api.io;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.MAINTAINED;
+&nbsp;
+&nbsp;import java.io.Closeable;
+&nbsp;import java.io.IOException;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.Path;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.jupiter.api.extension.AnnotatedElementContext;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionContext;
+&nbsp;
+&nbsp;/**
+&nbsp; * {@code TempDirFactory} defines the SPI for creating temporary directories
+&nbsp; * programmatically.
+&nbsp; *
+&nbsp; * &lt;p&gt;A temporary directory factory is typically used to gain control over the
+&nbsp; * temporary directory creation, like defining the parent directory or the file
+&nbsp; * system that should be used.
+&nbsp; *
+&nbsp; * &lt;p&gt;Implementations must provide a no-args constructor and should not make any
+&nbsp; * assumptions regarding when and how many times they are instantiated, but they
+&nbsp; * can assume that {@link #createTempDirectory(AnnotatedElementContext, ExtensionContext)}
+&nbsp; * and {@link #close()} will both be called once per instance, in this order,
+&nbsp; * and from the same thread.
+&nbsp; *
+&nbsp; * &lt;p&gt;A {@link TempDirFactory} can be configured &lt;em&gt;globally&lt;/em&gt; for the
+&nbsp; * entire test suite via the {@value TempDir#DEFAULT_FACTORY_PROPERTY_NAME}
+&nbsp; * configuration parameter (see the User Guide for details) or &lt;em&gt;locally&lt;/em&gt;
+&nbsp; * for a test class field or method parameter via the {@link TempDir @TempDir}
+&nbsp; * annotation.
+&nbsp; *
+&nbsp; * @since 5.10
+&nbsp; * @see TempDir @TempDir
+&nbsp; */
+&nbsp;@FunctionalInterface
+&nbsp;@API(status = MAINTAINED, since = &quot;5.13.3&quot;)
+&nbsp;public interface TempDirFactory extends Closeable {
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Create a new temporary directory.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Depending on the implementation, the resulting {@link Path} may or may
+&nbsp;	 * not be associated with the {@link java.nio.file.FileSystems#getDefault()
+&nbsp;	 * default FileSystem}.
+&nbsp;	 *
+&nbsp;	 * @param elementContext the context of the field or parameter where
+&nbsp;	 * {@code @TempDir} is declared; never {@code null}
+&nbsp;	 * @param extensionContext the current extension context; never {@code null}
+&nbsp;	 * @return the path to the newly created temporary directory; never {@code null}
+&nbsp;	 * @throws Exception in case of failures
+&nbsp;	 */
+&nbsp;	Path createTempDirectory(AnnotatedElementContext elementContext, ExtensionContext extensionContext)
+&nbsp;			throws Exception;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * {@inheritDoc}
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	default void close() throws IOException {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Standard {@link TempDirFactory} implementation which delegates to
+&nbsp;	 * {@link Files#createTempDirectory} using {@code &quot;junit-&quot;} as prefix.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The created temporary directory is always created in the default
+&nbsp;	 * file system with the system&#39;s default temporary directory as its parent.
+&nbsp;	 *
+&nbsp;	 * @see Files#createTempDirectory(java.lang.String, java.nio.file.attribute.FileAttribute[])
+&nbsp;	 */
+&nbsp;	class Standard implements TempDirFactory {
+&nbsp;
+&nbsp;		public static final TempDirFactory INSTANCE = new Standard();
+&nbsp;
+&nbsp;		private static final String TEMP_DIR_PREFIX = &quot;junit-&quot;;
+&nbsp;
+&nbsp;		public Standard() {
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public Path createTempDirectory(AnnotatedElementContext elementContext, ExtensionContext extensionContext)
+&nbsp;				throws IOException {
+&nbsp;			return Files.createTempDirectory(TEMP_DIR_PREFIX);
+&nbsp;		}
+&nbsp;
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

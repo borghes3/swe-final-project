@@ -1,0 +1,176 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > InputEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.input</a>
+</div>
+
+<h1>Coverage Summary for Class: InputEvent (javafx.scene.input)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">InputEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.input;
+&nbsp;
+&nbsp;import javafx.beans.NamedArg;
+&nbsp;import javafx.event.Event;
+&nbsp;import javafx.event.EventTarget;
+&nbsp;import javafx.event.EventType;
+&nbsp;
+&nbsp;/**
+&nbsp; * An event indicating a user input.
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+&nbsp;public class InputEvent extends Event {
+&nbsp;
+&nbsp;    private static final long serialVersionUID = 20121107L;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Common supertype for all input event types.
+&nbsp;     */
+<b class="nc">&nbsp;    public static final EventType&lt;InputEvent&gt; ANY =</b>
+&nbsp;            new EventType&lt;&gt; (Event.ANY, &quot;INPUT&quot;);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates new instance of InputEvent.
+&nbsp;     * @param eventType Type of the event
+&nbsp;     */
+&nbsp;    public InputEvent(final @NamedArg(&quot;eventType&quot;) EventType&lt;? extends InputEvent&gt; eventType) {
+<b class="nc">&nbsp;        super(eventType);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates new instance of InputEvent.
+&nbsp;     * @param source Event source
+&nbsp;     * @param target Event target
+&nbsp;     * @param eventType Type of the event
+&nbsp;     */
+&nbsp;    public InputEvent(final @NamedArg(&quot;source&quot;) Object source,
+&nbsp;                      final @NamedArg(&quot;target&quot;) EventTarget target,
+&nbsp;                      final @NamedArg(&quot;eventType&quot;) EventType&lt;? extends InputEvent&gt; eventType) {
+<b class="nc">&nbsp;        super(source, target, eventType);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public EventType&lt;? extends InputEvent&gt; getEventType() {
+<b class="nc">&nbsp;        return (EventType&lt;? extends InputEvent&gt;) super.getEventType();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

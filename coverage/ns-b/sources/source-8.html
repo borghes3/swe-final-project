@@ -1,0 +1,164 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GameModel</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model</a>
+</div>
+
+<h1>Coverage Summary for Class: GameModel (it.polimi.ingsw.am23.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">GameModel</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+&nbsp;import it.polimi.ingsw.am23.model.enums.GamePhase;
+&nbsp;import it.polimi.ingsw.am23.model.state.GameState;
+&nbsp;
+&nbsp;/**
+&nbsp; * Interface exposed by the model to the controller layer.
+&nbsp; * Defines the set of actions the controller can issue (placing totems,
+&nbsp; * drawing cards, resolving events, ...) and the observer registration
+&nbsp; * helpers used to subscribe to model notifications.
+&nbsp; */
+&nbsp;public interface GameModel {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Transitions from setup to the first placing phase.
+&nbsp;     */
+&nbsp;    void startGame();
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Places the totem of the supplied player on the offer tile identified
+&nbsp;     * by {@code offerTileChar}.
+&nbsp;     *
+&nbsp;     * @param playerId      id of the player placing the totem
+&nbsp;     * @param offerTileChar letter of the offer tile
+&nbsp;     * @return the outcome of the action
+&nbsp;     */
+&nbsp;    ActionResult placeTotem(String playerId, char offerTileChar);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Takes a single card from the card market on behalf of the player.
+&nbsp;     *
+&nbsp;     * @param playerId           id of the acting player
+&nbsp;     * @param selectedSingleCard the card selection
+&nbsp;     * @return the outcome of the action
+&nbsp;     */
+&nbsp;    ActionResult takeSingleCard(String playerId, SelectedSingleCard selectedSingleCard);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Performs an extra draw on behalf of the player owning the extra draw
+&nbsp;     * entitlement.
+&nbsp;     *
+&nbsp;     * @param playerId              id of the acting player
+&nbsp;     * @param selectedCardExtraDraw the extra draw selection
+&nbsp;     * @return the outcome of the action
+&nbsp;     */
+&nbsp;    ActionResult takeExtraCard(String playerId, SelectedCardExtraDraw selectedCardExtraDraw);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Skips the draw turn of the supplied player.
+&nbsp;     *
+&nbsp;     * @param playerId id of the player skipping the turn
+&nbsp;     * @return the outcome of the action
+&nbsp;     */
+&nbsp;    ActionResult skipTurn(String playerId);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Triggers the resolution of the event cards present on the bottom row
+&nbsp;     * (and on the top row during the final round).
+&nbsp;     *
+&nbsp;     * @return the outcome of the action
+&nbsp;     */
+&nbsp;    ActionResult resolveEvents();
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Computes the final scoreboard at the end of the match.
+&nbsp;     *
+&nbsp;     * @return the outcome of the action
+&nbsp;     */
+&nbsp;    ActionResult calculateScores();
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the latest snapshot of the game state
+&nbsp;     */
+&nbsp;    GameState getGameState();
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the current game phase
+&nbsp;     */
+&nbsp;    GamePhase getGamePhase();
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Registers an observer interested in the model notifications.
+&nbsp;     *
+&nbsp;     * @param observer observer to subscribe
+&nbsp;     */
+&nbsp;    void addObserver(ModelObserver observer);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Unregisters a previously subscribed observer.
+&nbsp;     *
+&nbsp;     * @param observer observer to unsubscribe
+&nbsp;     */
+&nbsp;    void removeObserver(ModelObserver observer);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

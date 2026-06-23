@@ -1,0 +1,202 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TurnOrderSlot</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.cards.turnorder</a>
+</div>
+
+<h1>Coverage Summary for Class: TurnOrderSlot (it.polimi.ingsw.am23.model.cards.turnorder)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TurnOrderSlot</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88,9%
+  </span>
+  <span class="absValue">
+    (8/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91,7%
+  </span>
+  <span class="absValue">
+    (11/12)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.cards.turnorder;
+&nbsp;
+&nbsp;/**
+&nbsp; * One of the slots of the turn order tile. Each slot has an index, a food
+&nbsp; * delta (positive = reward, negative = cost) and may host one player at a
+&nbsp; * time.
+&nbsp; */
+&nbsp;public class TurnOrderSlot {
+&nbsp;
+&nbsp;    private final int index;
+&nbsp;    private final int foodDelta; // negative -&gt; cost, positive -&gt; reward
+&nbsp;    private String playerIdInSlot;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Builds a new turn order slot.
+&nbsp;     *
+&nbsp;     * @param index          0-based position on the turn order tile
+&nbsp;     * @param foodDelta      food delta produced when a player lands on the slot
+&nbsp;     * @param playerIdInSlot id of the player initially placed on the slot, or {@code null}
+&nbsp;     */
+<b class="fc">&nbsp;    public TurnOrderSlot(int index, int foodDelta, String playerIdInSlot) {</b>
+<b class="fc">&nbsp;        this.index = index;</b>
+<b class="fc">&nbsp;        this.foodDelta = foodDelta;</b>
+<b class="fc">&nbsp;        this.playerIdInSlot = playerIdInSlot;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the 0-based position of this slot on the turn order tile
+&nbsp;     */
+&nbsp;    public int getIndex() {
+<b class="nc">&nbsp;        return index;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the food delta produced when a player lands on this slot
+&nbsp;     */
+&nbsp;    public int getFoodDelta() {
+<b class="fc">&nbsp;        return foodDelta;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return id of the player on the slot, or {@code null} if free
+&nbsp;     */
+&nbsp;    public String getPlayerId() {
+<b class="fc">&nbsp;        return playerIdInSlot;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return {@code true} if no player is currently on this slot
+&nbsp;     */
+&nbsp;    public boolean isFree() {
+<b class="fc">&nbsp;        return playerIdInSlot == null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Places a player&#39;s totem on this slot, overwriting any previous owner.
+&nbsp;     *
+&nbsp;     * @param PlayerId id of the player to place on the slot
+&nbsp;     */
+&nbsp;    public void placeTotem(String PlayerId) {
+<b class="fc">&nbsp;        this.playerIdInSlot = PlayerId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes the totem currently on the slot, if any.
+&nbsp;     */
+&nbsp;    public void clear() {
+<b class="fc">&nbsp;        this.playerIdInSlot = null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return {@code true} if landing on this slot costs food
+&nbsp;     */
+&nbsp;    public boolean requiresPayment() {
+<b class="fc">&nbsp;        return foodDelta &lt; 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return {@code true} if landing on this slot grants food
+&nbsp;     */
+&nbsp;    public boolean givesFood() {
+<b class="fc">&nbsp;        return foodDelta &gt; 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,252 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > NodeTreeWalker</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.platform.engine.support.hierarchical</a>
+</div>
+
+<h1>Coverage Summary for Class: NodeTreeWalker (org.junit.platform.engine.support.hierarchical)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NodeTreeWalker</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (7/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33,3%
+  </span>
+  <span class="absValue">
+    (8/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    41,7%
+  </span>
+  <span class="absValue">
+    (20/48)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.platform.engine.support.hierarchical;
+&nbsp;
+&nbsp;import static org.junit.platform.engine.support.hierarchical.ExclusiveResource.GLOBAL_READ;
+&nbsp;import static org.junit.platform.engine.support.hierarchical.ExclusiveResource.GLOBAL_READ_WRITE;
+&nbsp;import static org.junit.platform.engine.support.hierarchical.Node.ExecutionMode.SAME_THREAD;
+&nbsp;import static org.junit.platform.engine.support.hierarchical.NodeUtils.asNode;
+&nbsp;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.function.Consumer;
+&nbsp;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.engine.TestDescriptor;
+&nbsp;
+&nbsp;/**
+&nbsp; * @since 1.3
+&nbsp; */
+&nbsp;class NodeTreeWalker {
+&nbsp;
+&nbsp;	private final LockManager lockManager;
+&nbsp;	private final ResourceLock globalReadLock;
+&nbsp;	private final ResourceLock globalReadWriteLock;
+&nbsp;
+&nbsp;	NodeTreeWalker() {
+<b class="fc">&nbsp;		this(new LockManager());</b>
+&nbsp;	}
+&nbsp;
+<b class="fc">&nbsp;	NodeTreeWalker(LockManager lockManager) {</b>
+<b class="fc">&nbsp;		this.lockManager = lockManager;</b>
+<b class="fc">&nbsp;		this.globalReadLock = lockManager.getLockForResource(GLOBAL_READ);</b>
+<b class="fc">&nbsp;		this.globalReadWriteLock = lockManager.getLockForResource(GLOBAL_READ_WRITE);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	NodeExecutionAdvisor walk(TestDescriptor rootDescriptor) {
+<b class="fc">&nbsp;		Preconditions.condition(getExclusiveResources(rootDescriptor).isEmpty(),</b>
+&nbsp;			&quot;Engine descriptor must not declare exclusive resources&quot;);
+<b class="fc">&nbsp;		NodeExecutionAdvisor advisor = new NodeExecutionAdvisor();</b>
+<b class="fc">&nbsp;		rootDescriptor.getChildren().forEach(child -&gt; walk(nullUnlessRequiresGlobalReadLock(child), child, advisor));</b>
+<b class="fc">&nbsp;		return advisor;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void walk(@Nullable TestDescriptor globalLockDescriptor, TestDescriptor testDescriptor,
+&nbsp;			NodeExecutionAdvisor advisor) {
+&nbsp;
+<b class="pc">&nbsp;		if (globalLockDescriptor != null &amp;&amp; advisor.getResourceLock(globalLockDescriptor) == globalReadWriteLock) {</b>
+&nbsp;			// Global read-write lock is already being enforced, so no additional locks are needed
+&nbsp;			return;
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		Set&lt;ExclusiveResource&gt; exclusiveResources = getExclusiveResources(testDescriptor);</b>
+<b class="pc">&nbsp;		if (exclusiveResources.isEmpty()) {</b>
+<b class="pc">&nbsp;			if (globalLockDescriptor != null &amp;&amp; globalLockDescriptor.equals(testDescriptor)) {</b>
+<b class="fc">&nbsp;				advisor.useResourceLock(globalLockDescriptor, globalReadLock);</b>
+&nbsp;			}
+<b class="fc">&nbsp;			testDescriptor.getChildren().forEach(child -&gt; {</b>
+<b class="pc">&nbsp;				var newGlobalLockDescriptor = globalLockDescriptor == null //</b>
+<b class="nc">&nbsp;						? nullUnlessRequiresGlobalReadLock(child) //</b>
+<b class="fc">&nbsp;						: globalLockDescriptor;</b>
+<b class="fc">&nbsp;				walk(newGlobalLockDescriptor, child, advisor);</b>
+&nbsp;			});
+&nbsp;		}
+&nbsp;		else {
+<b class="nc">&nbsp;			Preconditions.notNull(globalLockDescriptor,</b>
+<b class="nc">&nbsp;				() -&gt; &quot;Node requiring exclusive resources must also require global read lock: &quot; + testDescriptor);</b>
+&nbsp;
+<b class="nc">&nbsp;			Set&lt;ExclusiveResource&gt; allResources = new HashSet&lt;&gt;(exclusiveResources);</b>
+<b class="nc">&nbsp;			if (isReadOnly(allResources)) {</b>
+<b class="nc">&nbsp;				doForChildrenRecursively(testDescriptor, child -&gt; allResources.addAll(getExclusiveResources(child)));</b>
+<b class="nc">&nbsp;				if (!isReadOnly(allResources)) {</b>
+<b class="nc">&nbsp;					forceDescendantExecutionModeRecursively(advisor, testDescriptor);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;			else {
+<b class="nc">&nbsp;				advisor.forceDescendantExecutionMode(testDescriptor, SAME_THREAD);</b>
+<b class="nc">&nbsp;				doForChildrenRecursively(testDescriptor, child -&gt; {</b>
+<b class="nc">&nbsp;					allResources.addAll(getExclusiveResources(child));</b>
+<b class="nc">&nbsp;					advisor.forceDescendantExecutionMode(child, SAME_THREAD);</b>
+&nbsp;				});
+&nbsp;			}
+<b class="nc">&nbsp;			if (allResources.contains(GLOBAL_READ_WRITE)) {</b>
+<b class="nc">&nbsp;				advisor.forceDescendantExecutionMode(globalLockDescriptor, SAME_THREAD);</b>
+<b class="nc">&nbsp;				doForChildrenRecursively(globalLockDescriptor, child -&gt; {</b>
+<b class="nc">&nbsp;					advisor.forceDescendantExecutionMode(child, SAME_THREAD);</b>
+&nbsp;					// Remove any locks that may have been set for siblings or their descendants
+<b class="nc">&nbsp;					advisor.removeResourceLock(child);</b>
+&nbsp;				});
+<b class="nc">&nbsp;				advisor.useResourceLock(globalLockDescriptor, globalReadWriteLock);</b>
+&nbsp;			}
+&nbsp;			else {
+<b class="nc">&nbsp;				if (globalLockDescriptor.equals(testDescriptor)) {</b>
+<b class="nc">&nbsp;					allResources.add(GLOBAL_READ);</b>
+&nbsp;				}
+&nbsp;				else {
+<b class="nc">&nbsp;					allResources.remove(GLOBAL_READ);</b>
+&nbsp;				}
+<b class="nc">&nbsp;				advisor.useResourceLock(testDescriptor, lockManager.getLockForResources(allResources));</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private void forceDescendantExecutionModeRecursively(NodeExecutionAdvisor advisor, TestDescriptor testDescriptor) {
+<b class="nc">&nbsp;		advisor.forceDescendantExecutionMode(testDescriptor, SAME_THREAD);</b>
+<b class="nc">&nbsp;		doForChildrenRecursively(testDescriptor, child -&gt; advisor.forceDescendantExecutionMode(child, SAME_THREAD));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private boolean isReadOnly(Set&lt;ExclusiveResource&gt; exclusiveResources) {
+<b class="nc">&nbsp;		return exclusiveResources.stream().allMatch(it -&gt; it.getLockMode() == ExclusiveResource.LockMode.READ);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private Set&lt;ExclusiveResource&gt; getExclusiveResources(TestDescriptor testDescriptor) {
+<b class="fc">&nbsp;		return asNode(testDescriptor).getExclusiveResources();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static @Nullable TestDescriptor nullUnlessRequiresGlobalReadLock(TestDescriptor testDescriptor) {
+<b class="pc">&nbsp;		return asNode(testDescriptor).isGlobalReadLockRequired() ? testDescriptor : null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void doForChildrenRecursively(TestDescriptor parent, Consumer&lt;TestDescriptor&gt; consumer) {
+<b class="nc">&nbsp;		parent.getChildren().forEach(child -&gt; {</b>
+<b class="nc">&nbsp;			consumer.accept(child);</b>
+<b class="nc">&nbsp;			doForChildrenRecursively(child, consumer);</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

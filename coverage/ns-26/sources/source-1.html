@@ -1,0 +1,975 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > JavaFXView</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.view.gui</a>
+</div>
+
+<h1>Coverage Summary for Class: JavaFXView (it.polimi.ingsw.am23.view.gui)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JavaFXView</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/84)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/116)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/425)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.view.gui;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedCardExtraDraw;
+&nbsp;import it.polimi.ingsw.am23.model.draw.SelectedSingleCard;
+&nbsp;import it.polimi.ingsw.am23.model.enums.ActionType;
+&nbsp;import it.polimi.ingsw.am23.model.enums.GamePhase;
+&nbsp;import it.polimi.ingsw.am23.model.payloads.*;
+&nbsp;import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
+&nbsp;import it.polimi.ingsw.am23.model.state.*;
+&nbsp;import it.polimi.ingsw.am23.network.LobbyState;
+&nbsp;import it.polimi.ingsw.am23.network.NetworkSetter;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualServer;
+&nbsp;import it.polimi.ingsw.am23.network.VirtualView;
+&nbsp;import it.polimi.ingsw.am23.view.gui.controllers.*;
+&nbsp;import javafx.application.Application;
+&nbsp;import javafx.application.Platform;
+&nbsp;import javafx.fxml.FXMLLoader;
+&nbsp;import javafx.scene.Parent;
+&nbsp;import javafx.scene.Scene;
+&nbsp;import javafx.scene.control.Alert;
+&nbsp;import javafx.stage.Stage;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+<b class="nc">&nbsp;public class JavaFXView extends Application implements VirtualView {</b>
+<b class="nc">&nbsp;    private final List&lt;EventResolvedPayload&gt; pendingEventPayloads = new ArrayList&lt;&gt;();</b>
+&nbsp;    private volatile VirtualServer server;
+&nbsp;    private volatile String playerId;
+&nbsp;    private volatile String playerName;
+&nbsp;    private volatile String currentLobbyId;
+&nbsp;    private volatile boolean owner;
+<b class="nc">&nbsp;    private volatile boolean leftVoluntarily = false;</b>
+&nbsp;    private volatile GameState currentGameState;
+<b class="nc">&nbsp;    private volatile boolean returningToLobby = false;</b>
+&nbsp;    private Stage primaryStage;
+&nbsp;    private ConnectionController connectionController;
+&nbsp;    private LobbyController lobbyController;
+&nbsp;    private WaitingRoomController waitingRoomController;
+&nbsp;    private GameScreenController gameScreenController;
+&nbsp;    private ScoreboardController scoreboardController;
+<b class="nc">&nbsp;    private volatile int lastMatchPlayerCount = -1;</b>
+&nbsp;
+&nbsp;    public static void main(String[] args) {
+<b class="nc">&nbsp;        launch(args);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void start(Stage stage) throws Exception {
+<b class="nc">&nbsp;        this.primaryStage = stage;</b>
+<b class="nc">&nbsp;        primaryStage.setTitle(&quot;MESOS&quot;);</b>
+<b class="nc">&nbsp;        showConnectionScreen();</b>
+<b class="nc">&nbsp;        primaryStage.show();</b>
+&nbsp;
+&nbsp;        // disconnessine alla chiusura della finestra
+<b class="nc">&nbsp;        primaryStage.setOnCloseRequest(e -&gt; {</b>
+<b class="nc">&nbsp;            NetworkSetter.stopHeartbeat();</b>
+<b class="nc">&nbsp;            if (server != null &amp;&amp; playerId != null) {</b>
+&nbsp;                try {
+<b class="nc">&nbsp;                    server.disconnect(playerId);</b>
+&nbsp;                } catch (Exception ignored) {
+&nbsp;                }
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    // CONNECTION
+&nbsp;
+&nbsp;    private void showConnectionScreen() throws Exception {
+<b class="nc">&nbsp;        FXMLLoader loader = new FXMLLoader(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/fxml/connection.fxml&quot;)</b>
+&nbsp;        );
+<b class="nc">&nbsp;        Parent root = loader.load();</b>
+<b class="nc">&nbsp;        connectionController = loader.getController();</b>
+<b class="nc">&nbsp;        connectionController.setView(this);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(new Scene(root, 400, 500));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void connect(String host, String nickname, String connectionType) throws Exception {
+<b class="nc">&nbsp;        this.playerName = nickname;</b>
+<b class="nc">&nbsp;        this.server = NetworkSetter.connect(host, nickname, this, connectionType);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // LOBBY
+&nbsp;
+&nbsp;    private void showLobbyScreen(List&lt;LobbyState&gt; lobbies) throws Exception {
+<b class="nc">&nbsp;        FXMLLoader loader = new FXMLLoader(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/fxml/lobby.fxml&quot;)</b>
+&nbsp;        );
+<b class="nc">&nbsp;        Parent root = loader.load();</b>
+<b class="nc">&nbsp;        lobbyController = loader.getController();</b>
+<b class="nc">&nbsp;        lobbyController.setView(this);</b>
+<b class="nc">&nbsp;        lobbyController.updateLobbies(lobbies);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(new Scene(root, 400, 500));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void joinLobby(String lobbyId) {
+&nbsp;        try {
+<b class="nc">&nbsp;            server.joinLobby(playerId, lobbyId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void createLobby(String name, int maxPlayers) {
+&nbsp;        try {
+<b class="nc">&nbsp;            server.createLobby(playerId, name, maxPlayers);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    // WAITING ROOM
+&nbsp;
+&nbsp;    private void showWaitingRoomScreen(LobbyState lobby) throws Exception {
+<b class="nc">&nbsp;        FXMLLoader loader = new FXMLLoader(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/fxml/waitingRoom.fxml&quot;)</b>
+&nbsp;        );
+<b class="nc">&nbsp;        Parent root = loader.load();</b>
+<b class="nc">&nbsp;        waitingRoomController = loader.getController();</b>
+<b class="nc">&nbsp;        waitingRoomController.setView(this);</b>
+<b class="nc">&nbsp;        waitingRoomController.setOwner(owner);</b>
+<b class="nc">&nbsp;        waitingRoomController.setLobbyInfo(lobby.getLobbyId(), lobby.getLobbyName(), lobby.getMaxPlayers());</b>
+<b class="nc">&nbsp;        waitingRoomController.updatePlayerList(lobby.getPlayers().stream().map(PlayerConnectionInfo::nickname).collect(java.util.stream.Collectors.toList()));</b>
+<b class="nc">&nbsp;        primaryStage.setScene(new Scene(root, 400, 500));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void leaveLobby() {
+&nbsp;        try {
+<b class="nc">&nbsp;            leftVoluntarily = true;</b>
+<b class="nc">&nbsp;            server.leaveLobby(playerId, currentLobbyId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void goToLobby() {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                scoreboardController = null;</b>
+<b class="nc">&nbsp;                gameScreenController = null;</b>
+<b class="nc">&nbsp;                currentGameState = null;</b>
+<b class="nc">&nbsp;                returningToLobby = true;</b>
+<b class="nc">&nbsp;                server.requestLobbyList(playerId);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    // GAME
+&nbsp;
+&nbsp;    private void showGameScreen(GameState gameState) throws Exception {
+<b class="nc">&nbsp;        FXMLLoader loader = new FXMLLoader(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/fxml/gameScreen.fxml&quot;)</b>
+&nbsp;        );
+<b class="nc">&nbsp;        Parent root = loader.load();</b>
+<b class="nc">&nbsp;        gameScreenController = loader.getController();</b>
+<b class="nc">&nbsp;        gameScreenController.setView(this);</b>
+<b class="nc">&nbsp;        gameScreenController.setMyPlayerId(playerId);</b>
+<b class="nc">&nbsp;        gameScreenController.setPrimaryStage();</b>
+<b class="nc">&nbsp;        gameScreenController.updateGameState(gameState);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(new Scene(root, 1100, 800));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void startGame() {
+&nbsp;        try {
+<b class="nc">&nbsp;            server.startGame(playerId, currentLobbyId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void placeTotem(char tileId) {
+&nbsp;        try {
+<b class="nc">&nbsp;            server.placeTotem(playerId, tileId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();</b>
+<b class="nc">&nbsp;            Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(</b>
+&nbsp;                        javafx.scene.control.Alert.AlertType.WARNING
+&nbsp;                );
+<b class="nc">&nbsp;                alert.setTitle(&quot;Invalid action.&quot;);</b>
+<b class="nc">&nbsp;                alert.setHeaderText(null);</b>
+<b class="nc">&nbsp;                alert.setContentText(msg);</b>
+<b class="nc">&nbsp;                alert.showAndWait();</b>
+&nbsp;            });
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void takeSingleCard(SelectedSingleCard card) {
+&nbsp;        try {
+<b class="nc">&nbsp;            server.takeSingleCard(playerId, card);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();</b>
+<b class="nc">&nbsp;            Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(</b>
+&nbsp;                        javafx.scene.control.Alert.AlertType.WARNING
+&nbsp;                );
+<b class="nc">&nbsp;                alert.setTitle(&quot;Invalid action.&quot;);</b>
+<b class="nc">&nbsp;                alert.setHeaderText(null);</b>
+<b class="nc">&nbsp;                alert.setContentText(msg);</b>
+<b class="nc">&nbsp;                alert.showAndWait();</b>
+&nbsp;            });
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void takeExtraCard(int index, boolean isTribeCard) {
+&nbsp;        try {
+<b class="nc">&nbsp;            SelectedCardExtraDraw selected = isTribeCard</b>
+<b class="nc">&nbsp;                    ? new SelectedCardExtraDraw(index, null)</b>
+<b class="nc">&nbsp;                    : new SelectedCardExtraDraw(null, index);</b>
+<b class="nc">&nbsp;            server.takeExtraCard(playerId, selected);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();</b>
+<b class="nc">&nbsp;            Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(</b>
+&nbsp;                        javafx.scene.control.Alert.AlertType.WARNING
+&nbsp;                );
+<b class="nc">&nbsp;                alert.setTitle(&quot;Invalid action.&quot;);</b>
+<b class="nc">&nbsp;                alert.setHeaderText(null);</b>
+<b class="nc">&nbsp;                alert.setContentText(msg);</b>
+<b class="nc">&nbsp;                alert.showAndWait();</b>
+&nbsp;            });
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void skipTurn() {
+&nbsp;        try {
+<b class="nc">&nbsp;            server.skipTurn(playerId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            String msg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();</b>
+<b class="nc">&nbsp;            Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(</b>
+&nbsp;                        javafx.scene.control.Alert.AlertType.WARNING
+&nbsp;                );
+<b class="nc">&nbsp;                alert.setTitle(&quot;Invalid action.&quot;);</b>
+<b class="nc">&nbsp;                alert.setHeaderText(null);</b>
+<b class="nc">&nbsp;                alert.setContentText(msg);</b>
+<b class="nc">&nbsp;                alert.showAndWait();</b>
+&nbsp;            });
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    // -----------------
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onConnected(String playerId, List&lt;LobbyState&gt; lobbies) {
+<b class="nc">&nbsp;        this.playerId = playerId;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            server.requestLobbyList(playerId);</b>
+&nbsp;        } catch (Exception ignored) {
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                showLobbyScreen(lobbies);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onConnectError(String reason) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (connectionController != null) {</b>
+<b class="nc">&nbsp;                connectionController.showError(reason);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onLobbyListUpdated(List&lt;LobbyState&gt; lobbies) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (returningToLobby) {</b>
+<b class="nc">&nbsp;                returningToLobby = false;</b>
+&nbsp;                try {
+<b class="nc">&nbsp;                    showLobbyScreen(lobbies);</b>
+&nbsp;                } catch (Exception e) {
+<b class="nc">&nbsp;                    e.printStackTrace();</b>
+&nbsp;                }
+<b class="nc">&nbsp;            } else if (lobbyController != null) {</b>
+<b class="nc">&nbsp;                lobbyController.updateLobbies(lobbies);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onLobbyCreated(LobbyState lobby) {
+<b class="nc">&nbsp;        this.currentLobbyId = lobby.getLobbyId();</b>
+<b class="nc">&nbsp;        this.owner = true;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                showWaitingRoomScreen(lobby);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onLobbyUpdate(LobbyState lobby) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+&nbsp;                // se già in waiting room aggiorna lista players
+<b class="nc">&nbsp;                if (waitingRoomController != null) {</b>
+<b class="nc">&nbsp;                    waitingRoomController.updatePlayerList(</b>
+<b class="nc">&nbsp;                            lobby.getPlayers().stream()</b>
+<b class="nc">&nbsp;                                    .map(PlayerConnectionInfo::nickname)</b>
+<b class="nc">&nbsp;                                    .collect(java.util.stream.Collectors.toList())</b>
+&nbsp;                    );
+&nbsp;                } else { // chi fa join entra nella waiting room
+<b class="nc">&nbsp;                    this.currentLobbyId = lobby.getLobbyId();</b>
+<b class="nc">&nbsp;                    this.owner = false;</b>
+<b class="nc">&nbsp;                    showWaitingRoomScreen(lobby);</b>
+&nbsp;                }
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onJoinError(String reason) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (lobbyController != null) {</b>
+<b class="nc">&nbsp;                lobbyController.showError(reason);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onLobbyClosed() {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                waitingRoomController = null;</b>
+<b class="nc">&nbsp;                showLobbyScreen(java.util.List.of());</b>
+<b class="nc">&nbsp;                if (!leftVoluntarily) {</b>
+<b class="nc">&nbsp;                    lobbyController.showError(&quot;The lobby has been closed. Choose a new one.&quot;);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                leftVoluntarily = false;</b>
+<b class="nc">&nbsp;                server.requestLobbyList(playerId);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onGameStarted(GameStartedPayload payload) throws Exception {
+<b class="nc">&nbsp;        this.currentGameState = payload.fullSnapshot();</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                waitingRoomController = null;</b>
+<b class="nc">&nbsp;                showGameScreen(currentGameState);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onTotemPlaced(TotemPlacedPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        BoardState board = currentGameState.board();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;OfferTileState&gt; updatedTiles = board.offerTiles().stream()</b>
+<b class="nc">&nbsp;                .map(t -&gt; t.tileId() == payload.offerTileChar()</b>
+<b class="nc">&nbsp;                        ? new OfferTileState(</b>
+<b class="nc">&nbsp;                        t.positionIndex(),</b>
+<b class="nc">&nbsp;                        t.tileId(),</b>
+<b class="nc">&nbsp;                        payload.playerId(),</b>
+<b class="nc">&nbsp;                        t.minPlayers(),</b>
+<b class="nc">&nbsp;                        t.topDrawCount(),</b>
+<b class="nc">&nbsp;                        t.bottomDrawCount(),</b>
+<b class="nc">&nbsp;                        t.foodReward()</b>
+&nbsp;                )
+<b class="nc">&nbsp;                        : t)</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;TurnOrderSlotState&gt; updatedSlots = board.turnOrderSlots().stream()</b>
+<b class="nc">&nbsp;                .map(s -&gt; Objects.equals(s.occupiedByPlayerId(), payload.playerId())</b>
+<b class="nc">&nbsp;                        ? new TurnOrderSlotState(s.positionIndex(), s.foodDelta(), null)</b>
+<b class="nc">&nbsp;                        : s)</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="nc">&nbsp;        BoardState newBoard = rebuildBoard(</b>
+<b class="nc">&nbsp;                board.topRow(),</b>
+<b class="nc">&nbsp;                board.bottomRow(),</b>
+<b class="nc">&nbsp;                board.topBuildings(),</b>
+<b class="nc">&nbsp;                board.bottomBuildings(),</b>
+&nbsp;                updatedTiles,
+&nbsp;                updatedSlots
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        currentGameState = new GameState(</b>
+<b class="nc">&nbsp;                currentGameState.currentEra(),</b>
+<b class="nc">&nbsp;                currentGameState.currentRound(),</b>
+<b class="nc">&nbsp;                currentGameState.phase(),</b>
+<b class="nc">&nbsp;                payload.nextPlayerId(),</b>
+<b class="nc">&nbsp;                currentGameState.players(),</b>
+&nbsp;                newBoard,
+<b class="nc">&nbsp;                currentGameState.skipAllowed()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+&nbsp;
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) {</b>
+<b class="nc">&nbsp;                gameScreenController.updateGameState(snap);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onEndOfPlacingPhase(EndOfPlacingPhasePayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) return;</b>
+<b class="nc">&nbsp;        BoardState board = currentGameState.board();</b>
+<b class="nc">&nbsp;        List&lt;TurnOrderSlotState&gt; emptySlots = board.turnOrderSlots().stream()</b>
+<b class="nc">&nbsp;                .map(s -&gt; new TurnOrderSlotState(s.positionIndex(), s.foodDelta(), null))</b>
+<b class="nc">&nbsp;                .toList();</b>
+<b class="nc">&nbsp;        currentGameState = new GameState(</b>
+<b class="nc">&nbsp;                currentGameState.currentEra(), currentGameState.currentRound(),</b>
+&nbsp;                GamePhase.RESOLVING_OFFERS,
+<b class="nc">&nbsp;                payload.firstPlayerId(),</b>
+<b class="nc">&nbsp;                currentGameState.players(),</b>
+<b class="nc">&nbsp;                rebuildBoard(board.topRow(), board.bottomRow(),</b>
+<b class="nc">&nbsp;                        board.topBuildings(), board.bottomBuildings(),</b>
+<b class="nc">&nbsp;                        board.offerTiles(), emptySlots),</b>
+<b class="nc">&nbsp;                payload.skipAllowed()</b>
+&nbsp;        );
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) gameScreenController.updateGameState(snap);</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onCardsTaken(CardsTakenPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) return;</b>
+<b class="nc">&nbsp;        BoardState board = currentGameState.board();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;CardState&gt; newTopRow = removeCardsById(board.topRow(), payload.takenCardIds(), payload.takenBuildingIds());</b>
+<b class="nc">&nbsp;        List&lt;CardState&gt; newBottomRow = removeCardsById(board.bottomRow(), payload.takenCardIds(), payload.takenBuildingIds());</b>
+<b class="nc">&nbsp;        List&lt;CardState&gt; newTopBuildings = removeCardsById(board.topBuildings(), payload.takenCardIds(), payload.takenBuildingIds());</b>
+<b class="nc">&nbsp;        List&lt;CardState&gt; newBottomBuildings = removeCardsById(board.bottomBuildings(), payload.takenCardIds(), payload.takenBuildingIds());</b>
+&nbsp;
+<b class="nc">&nbsp;        boolean turnFinished = !(payload.newPhase() == GamePhase.RESOLVING_OFFERS</b>
+<b class="nc">&nbsp;                &amp;&amp; payload.playerId().equals(payload.nextPlayerId()));</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;OfferTileState&gt; clearedTiles = board.offerTiles().stream()</b>
+<b class="nc">&nbsp;                .map(t -&gt; turnFinished &amp;&amp; Objects.equals(t.occupiedByPlayerId(), payload.playerId())</b>
+<b class="nc">&nbsp;                        ? new OfferTileState(t.positionIndex(), t.tileId(), null,</b>
+<b class="nc">&nbsp;                        t.minPlayers(), t.topDrawCount(), t.bottomDrawCount(), t.foodReward())</b>
+<b class="nc">&nbsp;                        : t)</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;TurnOrderSlotState&gt; updatedSlots = turnFinished</b>
+<b class="nc">&nbsp;                ? updateTurnOrderSlot(board.turnOrderSlots(), payload.turnOrderSlotIndex(), payload.playerId())</b>
+<b class="nc">&nbsp;                : board.turnOrderSlots();</b>
+&nbsp;
+<b class="nc">&nbsp;        BoardState newBoard = rebuildBoard(newTopRow, newBottomRow,</b>
+&nbsp;                newTopBuildings, newBottomBuildings, clearedTiles, updatedSlots);
+&nbsp;
+<b class="nc">&nbsp;        List&lt;PlayerState&gt; updatedPlayers = currentGameState.players().stream()</b>
+<b class="nc">&nbsp;                .map(p -&gt; p.playerId().equals(payload.playerId()) ? applyCardDeltaToPlayer(p, payload) : p)</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+&nbsp;        // aggiorna fase e currentPlayer dai nuovi campi del payload
+<b class="nc">&nbsp;        currentGameState = new GameState(</b>
+<b class="nc">&nbsp;                currentGameState.currentEra(), currentGameState.currentRound(),</b>
+<b class="nc">&nbsp;                payload.newPhase(),</b>
+<b class="nc">&nbsp;                payload.nextPlayerId(),</b>
+&nbsp;                updatedPlayers,
+&nbsp;                newBoard,
+<b class="nc">&nbsp;                payload.skipAllowed()</b>
+&nbsp;        );
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) gameScreenController.updateGameState(snap);</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onExtraDrawRequest(ExtraDrawRequestPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) return;</b>
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) {</b>
+<b class="nc">&nbsp;                gameScreenController.updateGameState(snap);</b>
+<b class="nc">&nbsp;                if (playerId != null &amp;&amp; playerId.equals(payload.pendingPlayerId())) {</b>
+<b class="nc">&nbsp;                    gameScreenController.showExtraDrawDialog(snap);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onExtraCardTaken(ExtraCardTakenPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        BoardState board = currentGameState.board();</b>
+<b class="nc">&nbsp;        List&lt;String&gt; id = List.of(payload.cardId());</b>
+&nbsp;
+<b class="nc">&nbsp;        BoardState newBoard = rebuildBoard(</b>
+<b class="nc">&nbsp;                removeCardsById(board.topRow(), id, List.of()),</b>
+<b class="nc">&nbsp;                removeCardsById(board.bottomRow(), id, List.of()),</b>
+<b class="nc">&nbsp;                removeCardsById(board.topBuildings(), List.of(), id),</b>
+<b class="nc">&nbsp;                removeCardsById(board.bottomBuildings(), List.of(), id),</b>
+<b class="nc">&nbsp;                board.offerTiles(),</b>
+<b class="nc">&nbsp;                board.turnOrderSlots()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        List&lt;PlayerState&gt; updatedPlayers = currentGameState.players().stream()</b>
+<b class="nc">&nbsp;                .map(p -&gt; p.playerId().equals(payload.playerId())</b>
+<b class="nc">&nbsp;                        ? applyExtraCardDeltaToPlayer(p, payload)</b>
+<b class="nc">&nbsp;                        : p)</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+<b class="nc">&nbsp;        currentGameState = new GameState(</b>
+<b class="nc">&nbsp;                currentGameState.currentEra(),</b>
+<b class="nc">&nbsp;                currentGameState.currentRound(),</b>
+<b class="nc">&nbsp;                payload.newPhase(),</b>
+&nbsp;                null,
+&nbsp;                updatedPlayers,
+&nbsp;                newBoard,
+<b class="nc">&nbsp;                payload.skipAllowed()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) {</b>
+<b class="nc">&nbsp;                gameScreenController.updateGameState(snap);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onEventResolved(EventResolvedPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) return;</b>
+<b class="nc">&nbsp;        List&lt;PlayerState&gt; updatedPlayers = applyPlayerDeltas(currentGameState.players(), payload.playerDeltas());</b>
+<b class="nc">&nbsp;        currentGameState = rebuildWithPlayers(currentGameState, updatedPlayers);</b>
+<b class="nc">&nbsp;        pendingEventPayloads.add(payload);</b>
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) gameScreenController.updateGameState(snap);</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onMarketRefreshed(MarketRefresherPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) return;</b>
+<b class="nc">&nbsp;        BoardState board = currentGameState.board();</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;CardState&gt; newBottom = new ArrayList&lt;&gt;(</b>
+<b class="nc">&nbsp;                board.bottomRow().stream()</b>
+<b class="nc">&nbsp;                        .filter(c -&gt; !payload.discardedCardIds().contains(c.getCardId()))</b>
+<b class="nc">&nbsp;                        .toList());</b>
+<b class="nc">&nbsp;        board.topRow().stream()</b>
+<b class="nc">&nbsp;                .filter(c -&gt; payload.movedBottomCardIds().contains(c.getCardId()))</b>
+<b class="nc">&nbsp;                .forEach(newBottom::add);</b>
+<b class="nc">&nbsp;        List&lt;CardState&gt; newTop = new ArrayList&lt;&gt;(board.topRow().stream()</b>
+<b class="nc">&nbsp;                .filter(c -&gt; !payload.movedBottomCardIds().contains(c.getCardId()))</b>
+<b class="nc">&nbsp;                .toList());</b>
+<b class="nc">&nbsp;        newTop.addAll(payload.newUpperRowCards());</b>
+&nbsp;
+&nbsp;        // aggiorna anche fase e round
+<b class="nc">&nbsp;        currentGameState = new GameState(</b>
+<b class="nc">&nbsp;                currentGameState.currentEra(),</b>
+<b class="nc">&nbsp;                payload.newRound(),</b>
+<b class="nc">&nbsp;                payload.newPhase(),</b>
+<b class="nc">&nbsp;                payload.nextPlayerId(),</b>
+<b class="nc">&nbsp;                currentGameState.players(),</b>
+<b class="nc">&nbsp;                rebuildBoard(</b>
+&nbsp;                        newTop,
+&nbsp;                        newBottom,
+<b class="nc">&nbsp;                        board.topBuildings(),</b>
+<b class="nc">&nbsp;                        board.bottomBuildings(),</b>
+<b class="nc">&nbsp;                        payload.offerTiles(),</b>
+<b class="nc">&nbsp;                        payload.turnOrderSlots()</b>
+&nbsp;                ),
+<b class="nc">&nbsp;                payload.skipAllowed()</b>
+&nbsp;        );
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        final List&lt;EventResolvedPayload&gt; events = List.copyOf(pendingEventPayloads);</b>
+<b class="nc">&nbsp;        final List&lt;PlayerState&gt; players = List.copyOf(snap.players());</b>
+<b class="nc">&nbsp;        pendingEventPayloads.clear();</b>
+&nbsp;
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) {</b>
+<b class="nc">&nbsp;                if (!events.isEmpty()) {</b>
+<b class="nc">&nbsp;                    gameScreenController.showEventsResolvedDialog(events, players);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                gameScreenController.updateGameState(snap);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onEraProgression(EraProgressionPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (currentGameState == null) return;</b>
+<b class="nc">&nbsp;        BoardState board = currentGameState.board();</b>
+&nbsp;
+&nbsp;        // i vecchi topBuildings scendono in bottom (eccetto quelli scartati)
+<b class="nc">&nbsp;        List&lt;CardState&gt; newBottomBuildings = board.topBuildings().stream()</b>
+<b class="nc">&nbsp;                .filter(c -&gt; !payload.discardedBuildingIds().contains(c.getCardId()))</b>
+<b class="nc">&nbsp;                .toList();</b>
+&nbsp;
+&nbsp;        // i nuovi edifici dell&#39;era sostituiscono completamente la top
+<b class="nc">&nbsp;        List&lt;CardState&gt; newTopBuildings = new ArrayList&lt;&gt;(payload.newBuildingCards());</b>
+&nbsp;
+<b class="nc">&nbsp;        BoardState newBoard = rebuildBoard(board.topRow(), board.bottomRow(),</b>
+&nbsp;                newTopBuildings, newBottomBuildings,
+<b class="nc">&nbsp;                board.offerTiles(), board.turnOrderSlots());</b>
+<b class="nc">&nbsp;        currentGameState = new GameState(</b>
+<b class="nc">&nbsp;                payload.newEra(),</b>
+<b class="nc">&nbsp;                currentGameState.currentRound(),</b>
+<b class="nc">&nbsp;                currentGameState.phase(),</b>
+<b class="nc">&nbsp;                currentGameState.currentPlayerId(),</b>
+<b class="nc">&nbsp;                currentGameState.players(),</b>
+&nbsp;                newBoard,
+<b class="nc">&nbsp;                currentGameState.skipAllowed()</b>
+&nbsp;        );
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) gameScreenController.updateGameState(snap);</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onGameOver() throws Exception {
+<b class="nc">&nbsp;        final GameState snap = currentGameState;</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (gameScreenController != null) gameScreenController.updateGameState(snap);</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onScoreboardAvailable(ScoreBoardPayload payload) throws Exception {
+<b class="nc">&nbsp;        if (payload != null &amp;&amp; payload.scores() != null) {</b>
+<b class="nc">&nbsp;            lastMatchPlayerCount = payload.scores().size();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                gameScreenController = null;</b>
+<b class="nc">&nbsp;                showScoreboardFromPayload(payload);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onMatchRankingsAvailable(MatchRankingsPayload payload) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (scoreboardController != null) {</b>
+<b class="nc">&nbsp;                scoreboardController.showMatchRankings(playerId, payload);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onLeaderboardAvailable(LeaderboardPayload payload) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                showLeaderboardFromPayload(payload);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    public void requestLeaderboard(int playerCount) {
+&nbsp;        try {
+<b class="nc">&nbsp;            if (server != null &amp;&amp; playerId != null) {</b>
+<b class="nc">&nbsp;                server.requestLeaderboard(playerId, playerCount);</b>
+&nbsp;            }
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void showScoreboardFromPayload(ScoreBoardPayload payload) throws Exception {
+<b class="nc">&nbsp;        FXMLLoader loader = new FXMLLoader(getClass().getResource(&quot;/fxml/scoreboard.fxml&quot;));</b>
+<b class="nc">&nbsp;        Parent root = loader.load();</b>
+<b class="nc">&nbsp;        scoreboardController = loader.getController();</b>
+<b class="nc">&nbsp;        scoreboardController.setView(this);</b>
+<b class="nc">&nbsp;        scoreboardController.showScoreboard(payload);</b>
+<b class="nc">&nbsp;        primaryStage.getScene().setRoot(root);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void showLeaderboardFromPayload(LeaderboardPayload payload) throws Exception {
+<b class="nc">&nbsp;        FXMLLoader loader = new FXMLLoader(getClass().getResource(&quot;/fxml/leaderboard.fxml&quot;));</b>
+<b class="nc">&nbsp;        Parent root = loader.load();</b>
+<b class="nc">&nbsp;        LeaderboardController leaderboardController = loader.getController();</b>
+<b class="nc">&nbsp;        leaderboardController.setView(this);</b>
+<b class="nc">&nbsp;        leaderboardController.showLeaderboard(payload, playerName);</b>
+<b class="nc">&nbsp;        primaryStage.getScene().setRoot(root);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void backToScoreboard() {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            if (scoreboardController != null &amp;&amp; scoreboardController.getRoot() != null) {</b>
+<b class="nc">&nbsp;                primaryStage.getScene().setRoot(scoreboardController.getRoot());</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onActionError(ActionType actionType, String message) {
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(</b>
+&nbsp;                    javafx.scene.control.Alert.AlertType.WARNING
+&nbsp;            );
+<b class="nc">&nbsp;            alert.setTitle(&quot;Invalid action.&quot;);</b>
+<b class="nc">&nbsp;            alert.setHeaderText(null);</b>
+<b class="nc">&nbsp;            alert.setContentText(message);</b>
+<b class="nc">&nbsp;            alert.showAndWait();</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onServerCrashed() {
+<b class="nc">&nbsp;        NetworkSetter.stopHeartbeat();</b>
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            server = null;</b>
+<b class="nc">&nbsp;            playerId = null;</b>
+<b class="nc">&nbsp;            currentLobbyId = null;</b>
+<b class="nc">&nbsp;            owner = false;</b>
+<b class="nc">&nbsp;            leftVoluntarily = false;</b>
+<b class="nc">&nbsp;            waitingRoomController = null;</b>
+<b class="nc">&nbsp;            gameScreenController = null;</b>
+<b class="nc">&nbsp;            scoreboardController = null;</b>
+&nbsp;
+<b class="nc">&nbsp;            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(</b>
+&nbsp;                    Alert.AlertType.ERROR
+&nbsp;            );
+<b class="nc">&nbsp;            alert.setTitle(&quot;Connection lost.&quot;);</b>
+<b class="nc">&nbsp;            alert.setHeaderText(&quot;Server unreachable.&quot;);</b>
+<b class="nc">&nbsp;            alert.setContentText(&quot;You will be returned to the connection screen.&quot;);</b>
+<b class="nc">&nbsp;            alert.showAndWait();</b>
+&nbsp;
+&nbsp;            try {
+<b class="nc">&nbsp;                showConnectionScreen();</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                e.printStackTrace();</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    // -----------
+&nbsp;    private PlayerState applyCardDeltaToPlayer(PlayerState p, CardsTakenPayload payload) {
+<b class="nc">&nbsp;        List&lt;CardState&gt; newCharacters = new ArrayList&lt;&gt;(p.characters());</b>
+<b class="nc">&nbsp;        Set&lt;String&gt; existingCharacterIds = newCharacters.stream()</b>
+<b class="nc">&nbsp;                .map(CardState::getCardId)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toSet());</b>
+&nbsp;
+<b class="nc">&nbsp;        for (CardState card : payload.takenCards()) {</b>
+<b class="nc">&nbsp;            if (existingCharacterIds.add(card.getCardId())) {</b>
+<b class="nc">&nbsp;                newCharacters.add(card);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        List&lt;CardState&gt; newBuildings = new ArrayList&lt;&gt;(p.buildings());</b>
+<b class="nc">&nbsp;        Set&lt;String&gt; existingBuildingIds = newBuildings.stream()</b>
+<b class="nc">&nbsp;                .map(CardState::getCardId)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toSet());</b>
+&nbsp;
+<b class="nc">&nbsp;        for (CardState building : payload.takenBuildings()) {</b>
+<b class="nc">&nbsp;            if (existingBuildingIds.add(building.getCardId())) {</b>
+<b class="nc">&nbsp;                newBuildings.add(building);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return new PlayerState(</b>
+<b class="nc">&nbsp;                p.playerId(),</b>
+<b class="nc">&nbsp;                p.nickname(),</b>
+<b class="nc">&nbsp;                payload.absoluteFood(),</b>
+<b class="nc">&nbsp;                p.prestigePoints(),</b>
+<b class="nc">&nbsp;                p.totemColor(),</b>
+&nbsp;                newCharacters,
+&nbsp;                newBuildings
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private PlayerState applyExtraCardDeltaToPlayer(PlayerState p, ExtraCardTakenPayload payload) {
+<b class="nc">&nbsp;        List&lt;CardState&gt; newCharacters = new ArrayList&lt;&gt;(p.characters());</b>
+<b class="nc">&nbsp;        List&lt;CardState&gt; newBuildings = new ArrayList&lt;&gt;(p.buildings());</b>
+&nbsp;
+<b class="nc">&nbsp;        if (payload.building()) {</b>
+<b class="nc">&nbsp;            boolean alreadyPresent = newBuildings.stream()</b>
+<b class="nc">&nbsp;                    .anyMatch(card -&gt; card.getCardId().equals(payload.takenCard().getCardId()));</b>
+&nbsp;
+<b class="nc">&nbsp;            if (!alreadyPresent) {</b>
+<b class="nc">&nbsp;                newBuildings.add(payload.takenCard());</b>
+&nbsp;            }
+&nbsp;        } else {
+<b class="nc">&nbsp;            boolean alreadyPresent = newCharacters.stream()</b>
+<b class="nc">&nbsp;                    .anyMatch(card -&gt; card.getCardId().equals(payload.takenCard().getCardId()));</b>
+&nbsp;
+<b class="nc">&nbsp;            if (!alreadyPresent) {</b>
+<b class="nc">&nbsp;                newCharacters.add(payload.takenCard());</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return new PlayerState(</b>
+<b class="nc">&nbsp;                p.playerId(),</b>
+<b class="nc">&nbsp;                p.nickname(),</b>
+<b class="nc">&nbsp;                payload.absoluteFood(),</b>
+<b class="nc">&nbsp;                p.prestigePoints(),</b>
+<b class="nc">&nbsp;                p.totemColor(),</b>
+&nbsp;                newCharacters,
+&nbsp;                newBuildings
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;PlayerState&gt; applyPlayerDeltas(List&lt;PlayerState&gt; players, List&lt;PlayerDelta&gt; deltas) {
+<b class="nc">&nbsp;        Map&lt;String, PlayerDelta&gt; deltaMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (PlayerDelta d : deltas) deltaMap.put(d.playerId(), d);</b>
+<b class="nc">&nbsp;        return players.stream().map(p -&gt; {</b>
+<b class="nc">&nbsp;            PlayerDelta d = deltaMap.get(p.playerId());</b>
+<b class="nc">&nbsp;            if (d == null) return p;</b>
+<b class="nc">&nbsp;            return new PlayerState(p.playerId(), p.nickname(),</b>
+<b class="nc">&nbsp;                    d.absoluteFood(),</b>
+<b class="nc">&nbsp;                    d.absolutePrestige(),</b>
+<b class="nc">&nbsp;                    p.totemColor(), p.characters(), p.buildings());</b>
+<b class="nc">&nbsp;        }).toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;CardState&gt; removeCardsById(List&lt;CardState&gt; cards, List&lt;String&gt; cardIds, List&lt;String&gt; buildingIds) {
+<b class="nc">&nbsp;        Set&lt;String&gt; toRemove = new HashSet&lt;&gt;(cardIds);</b>
+<b class="nc">&nbsp;        toRemove.addAll(buildingIds);</b>
+<b class="nc">&nbsp;        return cards.stream().filter(c -&gt; !toRemove.contains(c.getCardId())).toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;TurnOrderSlotState&gt; updateTurnOrderSlot(List&lt;TurnOrderSlotState&gt; slots, int slotIndex, String playerId) {
+<b class="nc">&nbsp;        return slots.stream().map(s -&gt; s.positionIndex() == slotIndex</b>
+<b class="nc">&nbsp;                ? new TurnOrderSlotState(slotIndex, s.foodDelta(), playerId) : s).toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private BoardState rebuildBoard(List&lt;CardState&gt; topRow, List&lt;CardState&gt; bottomRow,
+&nbsp;                                    List&lt;CardState&gt; topBuildings, List&lt;CardState&gt; bottomBuildings,
+&nbsp;                                    List&lt;OfferTileState&gt; offerTiles, List&lt;TurnOrderSlotState&gt; turnOrderSlots) {
+<b class="nc">&nbsp;        return new BoardState(topRow, bottomRow, topBuildings, bottomBuildings, offerTiles, turnOrderSlots);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private GameState rebuildWithPlayers(GameState gs, List&lt;PlayerState&gt; newPlayers) {
+<b class="nc">&nbsp;        return new GameState(gs.currentEra(), gs.currentRound(), gs.phase(),</b>
+<b class="nc">&nbsp;                gs.currentPlayerId(), newPlayers, gs.board(), gs.skipAllowed());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

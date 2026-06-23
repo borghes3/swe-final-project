@@ -1,0 +1,469 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Setup</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.setup</a>
+</div>
+
+<h1>Coverage Summary for Class: Setup (it.polimi.ingsw.am23.model.setup)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Setup</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    73,7%
+  </span>
+  <span class="absValue">
+    (28/38)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (88/88)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Setup$BuildingDrawResult</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Setup$DrawResult</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (12/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    73,7%
+  </span>
+  <span class="absValue">
+    (28/38)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (90/90)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.setup;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.exceptions.PlayerNotFoundException;
+&nbsp;import it.polimi.ingsw.am23.exceptions.UnmatchedGameCriteriaException;
+&nbsp;import it.polimi.ingsw.am23.model.Game;
+&nbsp;import it.polimi.ingsw.am23.model.board.Board;
+&nbsp;import it.polimi.ingsw.am23.model.board.CardMarket;
+&nbsp;import it.polimi.ingsw.am23.model.board.OfferTile;
+&nbsp;import it.polimi.ingsw.am23.model.cards.BuildingCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am23.model.cards.CharacterCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.EventCard;
+&nbsp;import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderSlot;
+&nbsp;import it.polimi.ingsw.am23.model.cards.turnorder.TurnOrderTile;
+&nbsp;import it.polimi.ingsw.am23.model.deck.BuildingDeck;
+&nbsp;import it.polimi.ingsw.am23.model.deck.TribeDeck;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;import it.polimi.ingsw.am23.model.enums.TotemColors;
+&nbsp;import it.polimi.ingsw.am23.model.player.Player;
+&nbsp;import it.polimi.ingsw.am23.model.player.Totem;
+&nbsp;import it.polimi.ingsw.am23.model.resolvers.EventResolver;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;import java.util.stream.Stream;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * Builder that turns the raw, JSON-loaded game material into a fully
+&nbsp; * configured {@link Game} ready to start a match.
+&nbsp; * Encapsulates the entire setup sequence: player count filtering, deck
+&nbsp; * shuffling, initial draw, totem placement and starting food distribution.
+&nbsp; */
+&nbsp;public class Setup {
+&nbsp;    // Constructor inputs (not yet processed)
+&nbsp;    private final int numberOfPlayers;
+&nbsp;    private final List&lt;PlayerConnectionInfo&gt; playersInfo;
+&nbsp;    private final List&lt;EventCard&gt; eventCards;
+&nbsp;    private final List&lt;CharacterCard&gt; characterCards;
+&nbsp;    private final List&lt;OfferTile&gt; offerTiles;
+&nbsp;    private final List&lt;TurnOrderTile&gt; turnOrderTiles;
+&nbsp;    private final List&lt;BuildingCard&gt; buildingCards;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Builds a new setup descriptor from the JSON-loaded game material.
+&nbsp;     *
+&nbsp;     * @param connectedPlayersInfo connected players (the size determines the player count)
+&nbsp;     * @param buildingCards        all available building cards
+&nbsp;     * @param eventCards           all available event cards
+&nbsp;     * @param characterCards       all available character cards
+&nbsp;     * @param offerTiles           all available offer tiles
+&nbsp;     * @param turnOrderTiles       all available turn order tile variants
+&nbsp;     */
+<b class="fc">&nbsp;    public Setup(List&lt;PlayerConnectionInfo&gt; connectedPlayersInfo, List&lt;BuildingCard&gt; buildingCards, List&lt;EventCard&gt; eventCards, List&lt;CharacterCard&gt; characterCards, List&lt;OfferTile&gt; offerTiles, List&lt;TurnOrderTile&gt; turnOrderTiles) {</b>
+<b class="fc">&nbsp;        this.numberOfPlayers = connectedPlayersInfo.size();</b>
+<b class="fc">&nbsp;        this.playersInfo = connectedPlayersInfo;</b>
+<b class="fc">&nbsp;        this.eventCards = eventCards;</b>
+<b class="fc">&nbsp;        this.characterCards = characterCards;</b>
+<b class="fc">&nbsp;        this.offerTiles = offerTiles;</b>
+<b class="fc">&nbsp;        this.buildingCards = buildingCards;</b>
+<b class="fc">&nbsp;        this.turnOrderTiles = turnOrderTiles;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Runs the full setup sequence and returns the resulting game.
+&nbsp;     *
+&nbsp;     * @return the freshly built {@link Game}
+&nbsp;     * @throws UnmatchedGameCriteriaException if no offer tiles or turn order tile matches the player count
+&nbsp;     * @throws PlayerNotFoundException        if the initial food distribution fails to locate a player
+&nbsp;     */
+&nbsp;    public Game make() {
+&nbsp;
+&nbsp;        // Build every dependency needed to instantiate the game components
+<b class="fc">&nbsp;        List&lt;OfferTile&gt; filteredOfferTiles = createOfferTrack(offerTiles);</b>
+<b class="fc">&nbsp;        TurnOrderTile selectedTurnOrderTile = selectTurnOrderTile(turnOrderTiles);</b>
+<b class="fc">&nbsp;        TribeDeck sortedTribeDeck = buildTribeDeck(eventCards, characterCards);</b>
+<b class="fc">&nbsp;        DrawResult drawResult = drawCards(sortedTribeDeck);                                                     // fields: upperRow, lowerRow, tribeDeck (reduced to the remaining cards)</b>
+<b class="fc">&nbsp;        BuildingDrawResult buildingsResult = drawBuildings(buildingCards);                                      // fields: era1Buildings, buildingDeck (era 2 + era 3)</b>
+<b class="fc">&nbsp;        List&lt;Player&gt; players = createPlayersAndTotems(playersInfo);</b>
+<b class="fc">&nbsp;        randomlyPlaceTotems(selectedTurnOrderTile, players);</b>
+<b class="fc">&nbsp;        dealFood(selectedTurnOrderTile, players);</b>
+&nbsp;
+<b class="fc">&nbsp;        CardMarket cardMarket = new CardMarket(drawResult.upperRow(), drawResult.lowerRow(), buildingsResult.era1Buildings());</b>
+<b class="fc">&nbsp;        Board board = new Board(filteredOfferTiles, selectedTurnOrderTile);</b>
+&nbsp;
+<b class="fc">&nbsp;        return new Game(players, board, drawResult.tribeDeck(), buildingsResult.buildingDeck(), new EventResolver(), cardMarket, Era.ERA_1, 1);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Selects the offer tiles available for the current player count and
+&nbsp;     * orders them by their letter id.
+&nbsp;     *
+&nbsp;     * @param offerTiles all available offer tiles
+&nbsp;     * @return the ordered list of offer tiles in play
+&nbsp;     * @throws UnmatchedGameCriteriaException if no offer tile matches the player count
+&nbsp;     */
+&nbsp;    private List&lt;OfferTile&gt; createOfferTrack(List&lt;OfferTile&gt; offerTiles) {
+&nbsp;        // Filter by player count
+<b class="fc">&nbsp;        List&lt;OfferTile&gt; filteredTiles = new ArrayList&lt;&gt;(offerTiles.stream().filter(t -&gt; t.getMinPlayers() &lt;= numberOfPlayers).toList());</b>
+&nbsp;        // Sort by letter id
+<b class="fc">&nbsp;        filteredTiles.sort(Comparator.comparing(OfferTile::getId));</b>
+<b class="fc">&nbsp;        if (filteredTiles.isEmpty()) {</b>
+<b class="fc">&nbsp;            throw new UnmatchedGameCriteriaException(&quot;No Offer Tiles matched the game criteria.&quot;);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return filteredTiles;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Selects the turn order tile variant whose slot count matches the
+&nbsp;     * player count.
+&nbsp;     *
+&nbsp;     * @param turnOrderTiles available variants
+&nbsp;     * @return the matching variant
+&nbsp;     * @throws UnmatchedGameCriteriaException if no variant matches
+&nbsp;     */
+&nbsp;    private TurnOrderTile selectTurnOrderTile(List&lt;TurnOrderTile&gt; turnOrderTiles) {
+<b class="fc">&nbsp;        return turnOrderTiles.stream()</b>
+<b class="fc">&nbsp;                .filter(t -&gt; t.getSlotsCount() == numberOfPlayers)</b>
+<b class="fc">&nbsp;                .findFirst()</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new UnmatchedGameCriteriaException(&quot;No Turn Order Tile matched the game criteria&quot;));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Builds the tribe deck applying the canonical era ordering. Filters
+&nbsp;     * the character cards by player count, splits everything into three
+&nbsp;     * era piles plus a final events pile, shuffles each pile and stacks
+&nbsp;     * them as Era I &amp;gt; Era II &amp;gt; Era III &amp;gt; final events.
+&nbsp;     *
+&nbsp;     * @param events     all available event cards
+&nbsp;     * @param characters all available character cards
+&nbsp;     * @return the resulting tribe deck
+&nbsp;     */
+&nbsp;    private TribeDeck buildTribeDeck(List&lt;EventCard&gt; events, List&lt;CharacterCard&gt; characters) {
+&nbsp;        // Character cards are filtered by player count; events have no min-players field
+<b class="pc">&nbsp;        List&lt;CharacterCard&gt; filteredCharacters = characters.stream().filter(c -&gt; c.getMinPlayers() &lt;= numberOfPlayers).toList();</b>
+&nbsp;        // Split by era
+<b class="fc">&nbsp;        List&lt;Card&gt; era1 = new ArrayList&lt;&gt;();</b>
+<b class="pc">&nbsp;        era1.addAll(filteredCharacters.stream().filter(c -&gt; c.getEra() == Era.ERA_1).toList());</b>
+<b class="pc">&nbsp;        era1.addAll(events.stream().filter(e -&gt; e.getEra() == Era.ERA_1).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(era1);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;Card&gt; era2 = new ArrayList&lt;&gt;();</b>
+<b class="pc">&nbsp;        era2.addAll(filteredCharacters.stream().filter(c -&gt; c.getEra() == Era.ERA_2).toList());</b>
+<b class="pc">&nbsp;        era2.addAll(events.stream().filter(e -&gt; e.getEra() == Era.ERA_2).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(era2);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;Card&gt; era3 = new ArrayList&lt;&gt;();</b>
+<b class="pc">&nbsp;        era3.addAll(filteredCharacters.stream().filter(c -&gt; c.getEra() == Era.ERA_3).toList());</b>
+<b class="pc">&nbsp;        era3.addAll(events.stream().filter(e -&gt; e.getEra() == Era.ERA_3 &amp;&amp; !e.isFinal()).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(era3);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;EventCard&gt; finalEvents = new ArrayList&lt;&gt;(events.stream().filter(EventCard::isFinal).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(finalEvents);</b>
+&nbsp;
+&nbsp;        // Build the final stack
+<b class="fc">&nbsp;        List&lt;Card&gt; cardsByEra = Stream.of(era1, era2, era3, finalEvents).flatMap(List::stream).collect(Collectors.toList());</b>
+<b class="fc">&nbsp;        return new TribeDeck(cardsByEra);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Performs the initial card draw populating both market rows. Events
+&nbsp;     * drawn while filling the bottom row are diverted to the top row, as
+&nbsp;     * per the game rules.
+&nbsp;     *
+&nbsp;     * @param tribeDeck the deck to draw from
+&nbsp;     * @return the resulting {@link DrawResult}
+&nbsp;     */
+&nbsp;    private DrawResult drawCards(TribeDeck tribeDeck) {
+<b class="fc">&nbsp;        List&lt;Card&gt; upperRow = new ArrayList&lt;&gt;(), lowerRow = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;        // Fill the lower row; events get diverted to the upper row
+<b class="fc">&nbsp;        while (lowerRow.size() &lt; numberOfPlayers + 1) {</b>
+<b class="fc">&nbsp;            Card drawn = tribeDeck.draw();</b>
+<b class="fc">&nbsp;            if (drawn instanceof EventCard) {</b>
+<b class="fc">&nbsp;                upperRow.add(0, drawn);</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                lowerRow.add(0, drawn);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        // Top up the upper row to numberOfPlayers + 4
+<b class="fc">&nbsp;        while (upperRow.size() &lt; numberOfPlayers + 4) {</b>
+<b class="fc">&nbsp;            Card drawn = tribeDeck.draw();</b>
+<b class="fc">&nbsp;            upperRow.add(0, drawn);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return new DrawResult(upperRow, lowerRow, tribeDeck);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Selects the buildings for the current player count, splitting them
+&nbsp;     * into the Era 1 starting row and a {@link BuildingDeck} holding the
+&nbsp;     * remaining Era 2 and Era 3 buildings.
+&nbsp;     *
+&nbsp;     * @param buildings all available building cards
+&nbsp;     * @return the resulting {@link BuildingDrawResult}
+&nbsp;     */
+&nbsp;    private BuildingDrawResult drawBuildings(List&lt;BuildingCard&gt; buildings) {
+<b class="fc">&nbsp;        int[][] buildingsByNumberOfPlayers = {</b>
+&nbsp;                {1, 2, 3},      // 2 players
+&nbsp;                {2, 2, 4},      // 3 players
+&nbsp;                {2, 3, 4},      // 4 players
+&nbsp;                {2, 3, 5},      // 5 players
+&nbsp;        };
+&nbsp;        // Create three pools: Era 1, Era 2 and Era 3 buildings
+<b class="fc">&nbsp;        List&lt;BuildingCard&gt; era1Buildings = new ArrayList&lt;&gt;(buildings.stream().filter(b -&gt; b.getEra() == Era.ERA_1).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(era1Buildings);</b>
+<b class="fc">&nbsp;        era1Buildings = era1Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][0]);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;BuildingCard&gt; era2Buildings = new ArrayList&lt;&gt;(buildings.stream().filter(b -&gt; b.getEra() == Era.ERA_2).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(era2Buildings);</b>
+<b class="fc">&nbsp;        era2Buildings = era2Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][1]);</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;BuildingCard&gt; era3Buildings = new ArrayList&lt;&gt;(buildings.stream().filter(b -&gt; b.getEra() == Era.ERA_3).toList());</b>
+<b class="fc">&nbsp;        Collections.shuffle(era3Buildings);</b>
+<b class="fc">&nbsp;        era3Buildings = era3Buildings.subList(0, buildingsByNumberOfPlayers[numberOfPlayers - 2][2]);</b>
+&nbsp;
+&nbsp;        // BuildingDeck holds only Era 2 and Era 3 buildings: the Era 1 ones are returned separately to seed the game
+<b class="fc">&nbsp;        BuildingDeck buildingDeck = new BuildingDeck(Map.of(</b>
+&nbsp;                Era.ERA_2, era2Buildings,
+&nbsp;                Era.ERA_3, era3Buildings
+&nbsp;        ));
+<b class="fc">&nbsp;        return new BuildingDrawResult(era1Buildings, buildingDeck);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Creates the {@link Player} instances and pairs them with a totem,
+&nbsp;     * assigning colors in the declaration order of {@link TotemColors}.
+&nbsp;     *
+&nbsp;     * @param playersInfo connected players
+&nbsp;     * @return the resulting list of players
+&nbsp;     */
+&nbsp;    private List&lt;Player&gt; createPlayersAndTotems(List&lt;PlayerConnectionInfo&gt; playersInfo) {
+<b class="fc">&nbsp;        List&lt;Player&gt; players = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        TotemColors[] colors = TotemColors.values();</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; numberOfPlayers; i++) {</b>
+<b class="fc">&nbsp;            String pId = playersInfo.get(i).id();</b>
+<b class="fc">&nbsp;            String pNickname = playersInfo.get(i).nickname();</b>
+&nbsp;
+<b class="fc">&nbsp;            Totem t = new Totem(pId, colors[i].getColor());</b>
+<b class="fc">&nbsp;            players.add(new Player(pId, pNickname, 0, 0, t));</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return players;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Shuffles the players and places their totems on the turn order
+&nbsp;     * slots in the resulting order.
+&nbsp;     *
+&nbsp;     * @param tile    the turn order tile to populate
+&nbsp;     * @param players the players to place
+&nbsp;     */
+&nbsp;    private void randomlyPlaceTotems(TurnOrderTile tile, List&lt;Player&gt; players) {
+<b class="fc">&nbsp;        List&lt;Player&gt; shuffledPlayers = new ArrayList&lt;&gt;(players);</b>
+<b class="fc">&nbsp;        Collections.shuffle(shuffledPlayers);</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; numberOfPlayers; i++) {</b>
+<b class="fc">&nbsp;            Player p = shuffledPlayers.get(i);</b>
+<b class="fc">&nbsp;            tile.getSlot(i).placeTotem(p.getId());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Distributes the starting food to the players based on their
+&nbsp;     * position on the turn order tile.
+&nbsp;     *
+&nbsp;     * @param tile    the turn order tile with placed totems
+&nbsp;     * @param players the players in the match
+&nbsp;     */
+&nbsp;    private void dealFood(TurnOrderTile tile, List&lt;Player&gt; players) {
+<b class="fc">&nbsp;        int[] foodByIndex = {2, 3, 3, 4, 4};</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; numberOfPlayers; i++) {</b>
+<b class="fc">&nbsp;            TurnOrderSlot slot = tile.getSlot(i);</b>
+<b class="fc">&nbsp;            Player player = players.stream()</b>
+<b class="fc">&nbsp;                    .filter(p -&gt; Objects.equals(p.getId(), slot.getPlayerId()))</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .orElseThrow(() -&gt; new PlayerNotFoundException(&quot;Player not found in Turn Order Slot, food can not be dealt!&quot;));</b>
+<b class="fc">&nbsp;            player.applyFoodDelta(foodByIndex[i]);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Result of the initial card draw used to populate the card market.
+&nbsp;     *
+&nbsp;     * @param upperRow  cards placed on the top row
+&nbsp;     * @param lowerRow  cards placed on the bottom row
+&nbsp;     * @param tribeDeck the tribe deck after the draws
+&nbsp;     */
+<b class="fc">&nbsp;    private record DrawResult(List&lt;Card&gt; upperRow, List&lt;Card&gt; lowerRow, TribeDeck tribeDeck) {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Result of the initial building draw.
+&nbsp;     *
+&nbsp;     * @param era1Buildings buildings revealed at setup for Era 1
+&nbsp;     * @param buildingDeck  the deck holding Era 2 and Era 3 buildings
+&nbsp;     */
+<b class="fc">&nbsp;    private record BuildingDrawResult(List&lt;BuildingCard&gt; era1Buildings, BuildingDeck buildingDeck) {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

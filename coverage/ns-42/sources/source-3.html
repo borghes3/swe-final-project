@@ -1,0 +1,377 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > DefaultJupiterConfiguration</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.config</a>
+</div>
+
+<h1>Coverage Summary for Class: DefaultJupiterConfiguration (org.junit.jupiter.engine.config)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DefaultJupiterConfiguration</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    61,5%
+  </span>
+  <span class="absValue">
+    (16/26)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (1/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    57,9%
+  </span>
+  <span class="absValue">
+    (33/57)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.config;
+&nbsp;
+&nbsp;import static java.util.function.Predicate.isEqual;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;import static org.junit.jupiter.api.Constants.CLOSING_STORED_AUTO_CLOSEABLE_ENABLED_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEACTIVATE_CONDITIONS_PATTERN_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_CLASSES_EXECUTION_MODE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_DISPLAY_NAME_GENERATOR_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_EXECUTION_MODE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEMP_DIR_CLEANUP_MODE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEMP_DIR_DELETION_STRATEGY_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEMP_DIR_FACTORY_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEST_CLASS_INSTANCE_CONSTRUCTION_EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEST_CLASS_ORDER_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEST_INSTANCE_LIFECYCLE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.DEFAULT_TEST_METHOD_ORDER_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.EXTENSIONS_AUTODETECTION_ENABLED_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.EXTENSIONS_AUTODETECTION_EXCLUDE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.EXTENSIONS_AUTODETECTION_INCLUDE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.EXTENSIONS_TIMEOUT_THREAD_DUMP_ENABLED_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.PARALLEL_CONFIG_EXECUTOR_SERVICE_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME;
+&nbsp;import static org.junit.jupiter.api.io.CleanupMode.ALWAYS;
+&nbsp;import static org.junit.jupiter.engine.config.FilteringConfigurationParameterConverter.exclude;
+&nbsp;import static org.junit.platform.engine.support.hierarchical.ParallelHierarchicalTestExecutorServiceFactory.ParallelExecutorServiceType.FORK_JOIN_POOL;
+&nbsp;import static org.junit.platform.engine.support.hierarchical.ParallelHierarchicalTestExecutorServiceFactory.ParallelExecutorServiceType.WORKER_THREAD_POOL;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.function.Function;
+&nbsp;import java.util.function.Predicate;
+&nbsp;import java.util.function.Supplier;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.jupiter.api.ClassOrderer;
+&nbsp;import org.junit.jupiter.api.DisplayNameGenerator;
+&nbsp;import org.junit.jupiter.api.MethodOrderer;
+&nbsp;import org.junit.jupiter.api.TestInstance.Lifecycle;
+&nbsp;import org.junit.jupiter.api.extension.ExecutionCondition;
+&nbsp;import org.junit.jupiter.api.extension.Extension;
+&nbsp;import org.junit.jupiter.api.extension.TestInstantiationAwareExtension.ExtensionContextScope;
+&nbsp;import org.junit.jupiter.api.io.CleanupMode;
+&nbsp;import org.junit.jupiter.api.io.TempDirDeletionStrategy;
+&nbsp;import org.junit.jupiter.api.io.TempDirFactory;
+&nbsp;import org.junit.jupiter.api.parallel.ExecutionMode;
+&nbsp;import org.junit.platform.commons.util.ClassNamePatternFilterUtils;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.engine.ConfigurationParameters;
+&nbsp;import org.junit.platform.engine.DiscoveryIssue;
+&nbsp;import org.junit.platform.engine.DiscoveryIssue.Severity;
+&nbsp;import org.junit.platform.engine.OutputDirectoryCreator;
+&nbsp;import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
+&nbsp;
+&nbsp;/**
+&nbsp; * Default implementation of the {@link JupiterConfiguration} API.
+&nbsp; *
+&nbsp; * @since 5.4
+&nbsp; */
+&nbsp;@API(status = INTERNAL, since = &quot;5.4&quot;)
+&nbsp;public class DefaultJupiterConfiguration implements JupiterConfiguration {
+&nbsp;
+<b class="fc">&nbsp;	private static final List&lt;String&gt; UNSUPPORTED_CONFIGURATION_PARAMETERS = List.of( //</b>
+&nbsp;		&quot;junit.jupiter.tempdir.scope&quot;, //
+&nbsp;		&quot;junit.jupiter.params.arguments.conversion.locale.format&quot; //
+&nbsp;	);
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;ExecutionMode&gt; executionModeConverter = //</b>
+&nbsp;		new EnumConfigurationParameterConverter&lt;&gt;(ExecutionMode.class, &quot;parallel execution mode&quot;);
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;Lifecycle&gt; lifecycleConverter = //</b>
+&nbsp;		new EnumConfigurationParameterConverter&lt;&gt;(Lifecycle.class, &quot;test instance lifecycle mode&quot;);
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;DisplayNameGenerator&gt; displayNameGeneratorConverter = //</b>
+&nbsp;		new InstantiatingConfigurationParameterConverter&lt;&gt;(DisplayNameGenerator.class, &quot;display name generator&quot;);
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;MethodOrderer&gt; methodOrdererConverter = //</b>
+<b class="fc">&nbsp;		exclude(isEqual(MethodOrderer.Default.class.getName()),</b>
+&nbsp;			new InstantiatingConfigurationParameterConverter&lt;&gt;(MethodOrderer.class, &quot;method orderer&quot;));
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;ClassOrderer&gt; classOrdererConverter = //</b>
+<b class="fc">&nbsp;		exclude(isEqual(ClassOrderer.Default.class.getName()),</b>
+&nbsp;			new InstantiatingConfigurationParameterConverter&lt;&gt;(ClassOrderer.class, &quot;class orderer&quot;));
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;CleanupMode&gt; cleanupModeConverter = //</b>
+&nbsp;		new EnumConfigurationParameterConverter&lt;&gt;(CleanupMode.class, &quot;cleanup mode&quot;);
+&nbsp;
+<b class="fc">&nbsp;	private static final InstantiatingConfigurationParameterConverter&lt;TempDirFactory&gt; tempDirFactoryConverter = //</b>
+&nbsp;		new InstantiatingConfigurationParameterConverter&lt;&gt;(TempDirFactory.class, &quot;temp dir factory&quot;);
+&nbsp;
+<b class="fc">&nbsp;	private static final InstantiatingConfigurationParameterConverter&lt;TempDirDeletionStrategy&gt; tempDirDeletionStrategyConverter = //</b>
+&nbsp;		new InstantiatingConfigurationParameterConverter&lt;&gt;(TempDirDeletionStrategy.class, &quot;temp dir deletion strategy&quot;);
+&nbsp;
+<b class="fc">&nbsp;	private static final ConfigurationParameterConverter&lt;ExtensionContextScope&gt; extensionContextScopeConverter = //</b>
+&nbsp;		new EnumConfigurationParameterConverter&lt;&gt;(ExtensionContextScope.class, &quot;extension context scope&quot;);
+&nbsp;
+&nbsp;	private final ConfigurationParameters configurationParameters;
+&nbsp;	private final OutputDirectoryCreator outputDirectoryCreator;
+&nbsp;
+&nbsp;	public DefaultJupiterConfiguration(ConfigurationParameters configurationParameters,
+<b class="fc">&nbsp;			OutputDirectoryCreator outputDirectoryCreator, DiscoveryIssueReporter issueReporter) {</b>
+<b class="fc">&nbsp;		this.configurationParameters = Preconditions.notNull(configurationParameters,</b>
+&nbsp;			&quot;ConfigurationParameters must not be null&quot;);
+<b class="fc">&nbsp;		this.outputDirectoryCreator = outputDirectoryCreator;</b>
+<b class="fc">&nbsp;		validateConfigurationParameters(issueReporter);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void validateConfigurationParameters(DiscoveryIssueReporter issueReporter) {
+<b class="fc">&nbsp;		UNSUPPORTED_CONFIGURATION_PARAMETERS.forEach(key -&gt; configurationParameters.get(key) //</b>
+<b class="fc">&nbsp;				.ifPresent(value -&gt; {</b>
+<b class="nc">&nbsp;					var warning = DiscoveryIssue.create(Severity.WARNING, &quot;&quot;&quot;</b>
+&nbsp;							The &#39;%s&#39; configuration parameter is no longer supported. \
+<b class="nc">&nbsp;							Please remove it from your configuration.&quot;&quot;&quot;.formatted(key));</b>
+<b class="nc">&nbsp;					issueReporter.reportIssue(warning);</b>
+&nbsp;				}));
+<b class="pc">&nbsp;		if (isParallelExecutionEnabled()</b>
+<b class="nc">&nbsp;				&amp;&amp; configurationParameters.get(PARALLEL_CONFIG_EXECUTOR_SERVICE_PROPERTY_NAME).isEmpty()) {</b>
+<b class="nc">&nbsp;			var info = DiscoveryIssue.create(Severity.INFO,</b>
+&nbsp;				&quot;Parallel test execution is enabled but the default ForkJoinPool-based executor service will be used. &quot;
+&nbsp;						+ &quot;Please give the new implementation based on a regular thread pool a try by setting the &#39;&quot;
+&nbsp;						+ PARALLEL_CONFIG_EXECUTOR_SERVICE_PROPERTY_NAME + &quot;&#39; configuration parameter to &#39;&quot;
+&nbsp;						+ WORKER_THREAD_POOL + &quot;&#39; and report any issues to the JUnit team. &quot;
+&nbsp;						+ &quot;Alternatively, set the configuration parameter to &#39;&quot; + FORK_JOIN_POOL
+&nbsp;						+ &quot;&#39; to hide this message and keep using the original implementation.&quot;);
+<b class="nc">&nbsp;			issueReporter.reportIssue(info);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Predicate&lt;Class&lt;? extends Extension&gt;&gt; getFilterForAutoDetectedExtensions() {
+<b class="nc">&nbsp;		String includePattern = getExtensionAutoDetectionIncludePattern();</b>
+<b class="nc">&nbsp;		String excludePattern = getExtensionAutoDetectionExcludePattern();</b>
+<b class="nc">&nbsp;		Predicate&lt;String&gt; predicate = ClassNamePatternFilterUtils.includeMatchingClassNames(includePattern) //</b>
+<b class="nc">&nbsp;				.and(ClassNamePatternFilterUtils.excludeMatchingClassNames(excludePattern));</b>
+<b class="nc">&nbsp;		return clazz -&gt; predicate.test(clazz.getName());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private String getExtensionAutoDetectionIncludePattern() {
+<b class="nc">&nbsp;		return configurationParameters.get(EXTENSIONS_AUTODETECTION_INCLUDE_PROPERTY_NAME) //</b>
+<b class="nc">&nbsp;				.orElse(ClassNamePatternFilterUtils.ALL_PATTERN);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private String getExtensionAutoDetectionExcludePattern() {
+<b class="nc">&nbsp;		return configurationParameters.get(EXTENSIONS_AUTODETECTION_EXCLUDE_PROPERTY_NAME) //</b>
+<b class="nc">&nbsp;				.orElse(ClassNamePatternFilterUtils.BLANK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Optional&lt;String&gt; getRawConfigurationParameter(String key) {
+<b class="fc">&nbsp;		return configurationParameters.get(key);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public &lt;T&gt; Optional&lt;T&gt; getRawConfigurationParameter(String key,
+&nbsp;			Function&lt;? super String, ? extends @Nullable T&gt; transformer) {
+<b class="fc">&nbsp;		return configurationParameters.get(key, transformer);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isParallelExecutionEnabled() {
+<b class="fc">&nbsp;		return configurationParameters.getBoolean(PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME).orElse(false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isClosingStoredAutoCloseablesEnabled() {
+<b class="fc">&nbsp;		return configurationParameters.getBoolean(CLOSING_STORED_AUTO_CLOSEABLE_ENABLED_PROPERTY_NAME).orElse(true);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isExtensionAutoDetectionEnabled() {
+<b class="fc">&nbsp;		return configurationParameters.getBoolean(EXTENSIONS_AUTODETECTION_ENABLED_PROPERTY_NAME).orElse(false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isThreadDumpOnTimeoutEnabled() {
+<b class="fc">&nbsp;		return configurationParameters.getBoolean(EXTENSIONS_TIMEOUT_THREAD_DUMP_ENABLED_PROPERTY_NAME).orElse(false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ExecutionMode getDefaultExecutionMode() {
+<b class="nc">&nbsp;		return executionModeConverter.getOrDefault(configurationParameters, DEFAULT_EXECUTION_MODE_PROPERTY_NAME,</b>
+&nbsp;			ExecutionMode.SAME_THREAD);
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ExecutionMode getDefaultClassesExecutionMode() {
+<b class="nc">&nbsp;		return executionModeConverter.getOrDefault(configurationParameters,</b>
+<b class="nc">&nbsp;			DEFAULT_CLASSES_EXECUTION_MODE_PROPERTY_NAME, getDefaultExecutionMode());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Lifecycle getDefaultTestInstanceLifecycle() {
+<b class="fc">&nbsp;		return lifecycleConverter.getOrDefault(configurationParameters, DEFAULT_TEST_INSTANCE_LIFECYCLE_PROPERTY_NAME,</b>
+&nbsp;			Lifecycle.PER_METHOD);
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Predicate&lt;ExecutionCondition&gt; getExecutionConditionFilter() {
+<b class="fc">&nbsp;		return ClassNamePatternFilterUtils.excludeMatchingClasses(</b>
+<b class="fc">&nbsp;			configurationParameters.get(DEACTIVATE_CONDITIONS_PATTERN_PROPERTY_NAME).orElse(null));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public DisplayNameGenerator getDefaultDisplayNameGenerator() {
+<b class="fc">&nbsp;		return displayNameGeneratorConverter.get(configurationParameters, DEFAULT_DISPLAY_NAME_GENERATOR_PROPERTY_NAME) //</b>
+<b class="fc">&nbsp;				.orElseGet(() -&gt; DisplayNameGenerator.getDisplayNameGenerator(DisplayNameGenerator.Standard.class));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Optional&lt;MethodOrderer&gt; getDefaultTestMethodOrderer() {
+<b class="fc">&nbsp;		return methodOrdererConverter.get(configurationParameters, DEFAULT_TEST_METHOD_ORDER_PROPERTY_NAME);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Optional&lt;ClassOrderer&gt; getDefaultTestClassOrderer() {
+<b class="fc">&nbsp;		return classOrdererConverter.get(configurationParameters, DEFAULT_TEST_CLASS_ORDER_PROPERTY_NAME);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public CleanupMode getDefaultTempDirCleanupMode() {
+<b class="nc">&nbsp;		return cleanupModeConverter.getOrDefault(configurationParameters, DEFAULT_TEMP_DIR_CLEANUP_MODE_PROPERTY_NAME,</b>
+&nbsp;			ALWAYS);
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Supplier&lt;TempDirFactory&gt; getDefaultTempDirFactorySupplier() {
+<b class="nc">&nbsp;		Supplier&lt;Optional&lt;TempDirFactory&gt;&gt; supplier = tempDirFactoryConverter.supply(configurationParameters,</b>
+&nbsp;			DEFAULT_TEMP_DIR_FACTORY_PROPERTY_NAME);
+<b class="nc">&nbsp;		return () -&gt; supplier.get().orElse(TempDirFactory.Standard.INSTANCE);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Supplier&lt;TempDirDeletionStrategy&gt; getDefaultTempDirDeletionStrategySupplier() {
+<b class="nc">&nbsp;		Supplier&lt;Optional&lt;TempDirDeletionStrategy&gt;&gt; supplier = tempDirDeletionStrategyConverter.supply(</b>
+&nbsp;			configurationParameters, DEFAULT_TEMP_DIR_DELETION_STRATEGY_PROPERTY_NAME);
+<b class="nc">&nbsp;		return () -&gt; supplier.get().orElse(TempDirDeletionStrategy.Standard.INSTANCE);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@SuppressWarnings(&quot;deprecation&quot;)
+&nbsp;	@Override
+&nbsp;	public ExtensionContextScope getDefaultTestInstantiationExtensionContextScope() {
+<b class="fc">&nbsp;		return extensionContextScopeConverter.getOrDefault(configurationParameters,</b>
+&nbsp;			DEFAULT_TEST_CLASS_INSTANCE_CONSTRUCTION_EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME,
+&nbsp;			ExtensionContextScope.DEFAULT);
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public OutputDirectoryCreator getOutputDirectoryCreator() {
+<b class="nc">&nbsp;		return outputDirectoryCreator;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

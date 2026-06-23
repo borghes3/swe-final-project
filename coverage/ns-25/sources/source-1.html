@@ -1,0 +1,519 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CLIBoardRenderer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.view.cli</a>
+</div>
+
+<h1>Coverage Summary for Class: CLIBoardRenderer (it.polimi.ingsw.am23.view.cli)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CLIBoardRenderer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/23)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/136)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/187)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">CLIBoardRenderer$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/136)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/188)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.view.cli;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.state.*;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am23.view.cli.CLIColors.*;
+&nbsp;
+<b class="nc">&nbsp;final class CLIBoardRenderer {</b>
+&nbsp;
+&nbsp;    // Card
+&nbsp;    private static final int CARD_INNER = 12;
+&nbsp;    private static final int CARD_W = CARD_INNER + 2;
+&nbsp;    private static final int GAP = 1;
+&nbsp;
+&nbsp;    // Tile
+&nbsp;    private static final int TO_INNER = 9;
+&nbsp;    private static final int TO_W = TO_INNER + 2;
+&nbsp;
+&nbsp;    private static final int TILE_LINES = 8;
+&nbsp;    private static final int TILE_INNER = 7;
+&nbsp;
+&nbsp;    // Terminal Width
+&nbsp;    private static final int TERMINAL_W = 120;
+&nbsp;    private static final int MAX_CARDS_PER_ROW = 7;
+&nbsp;
+&nbsp;
+&nbsp;    private String cardColor(String type) {
+<b class="nc">&nbsp;        if (type == null) return BR_WHITE;</b>
+<b class="nc">&nbsp;        return switch (type.toUpperCase()) {</b>
+<b class="nc">&nbsp;            case &quot;BUILDING&quot; -&gt; BR_WHITE;</b>
+<b class="nc">&nbsp;            case &quot;EVENT&quot; -&gt; BR_RED;</b>
+<b class="nc">&nbsp;            default -&gt; BR_CYAN;</b>
+&nbsp;        };
+&nbsp;    }
+&nbsp;
+&nbsp;    // ENTRY POINT
+&nbsp;    void render(GameState gameState, String statusMessage) {
+<b class="nc">&nbsp;        if (gameState == null) {</b>
+<b class="nc">&nbsp;            System.out.println(paint(BR_RED, &quot;Game state unavailable.&quot;));</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Map&lt;String, PlayerState&gt; byId = gameState.players().stream()</b>
+<b class="nc">&nbsp;                .filter(p -&gt; p.playerId() != null)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toMap(</b>
+<b class="nc">&nbsp;                        PlayerState::playerId, p -&gt; p,</b>
+<b class="nc">&nbsp;                        (a, b) -&gt; a, LinkedHashMap::new));</b>
+&nbsp;
+<b class="nc">&nbsp;        BoardState board = gameState.board();</b>
+&nbsp;
+<b class="nc">&nbsp;        printHeader(gameState);</b>
+<b class="nc">&nbsp;        printMainArea(board, byId, gameState.players().size());</b>
+<b class="nc">&nbsp;        printStatus(statusMessage);</b>
+<b class="nc">&nbsp;        printCommands();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // HEADER
+&nbsp;    // Phase | Era | Round
+&nbsp;    private void printHeader(GameState gs) {
+<b class="nc">&nbsp;        String phase = paintBold(BR_WHITE, gs.phase().name().replace(&#39;_&#39;, &#39; &#39;));</b>
+<b class="nc">&nbsp;        String era = paintBold(BR_WHITE, &quot;Era &quot; + eraLabel(gs.currentEra()));</b>
+<b class="nc">&nbsp;        String round = paintBold(BR_WHITE, &quot;Round &quot; + gs.currentRound());</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println(phase + &quot;  &quot; + paint(DIM, &quot;|&quot;) + &quot;  &quot; + era</b>
+<b class="nc">&nbsp;                + &quot;  &quot; + paint(DIM, &quot;|&quot;) + &quot;  &quot; + round);</b>
+<b class="nc">&nbsp;        System.out.println(paint(DIM, rule(TERMINAL_W)));</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // MAIN AREA
+&nbsp;    private void printMainArea(BoardState board, Map&lt;String, PlayerState&gt; byId, int numPlayers) {
+<b class="nc">&nbsp;        if (board == null) {</b>
+<b class="nc">&nbsp;            System.out.println(paint(DIM, &quot;  [board unavailable]&quot;));</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        // sx e dx
+<b class="nc">&nbsp;        String[] toLines = buildTurnOrderLines(board.turnOrderSlots(), byId, numPlayers);</b>
+<b class="nc">&nbsp;        String[] otLines = buildOfferTrackLines(board.offerTiles(), byId);</b>
+&nbsp;
+<b class="nc">&nbsp;        int cardsWidth = TERMINAL_W - TO_W - GAP - 1;</b>
+<b class="nc">&nbsp;        int indent = TO_W + GAP + 1;</b>
+&nbsp;
+&nbsp;        // Top Row (characters, buildings)
+<b class="nc">&nbsp;        printCardBand(&quot;top&quot;, board.topRow(), board.topBuildings(), indent, cardsWidth);</b>
+&nbsp;
+&nbsp;        // Offer Track (turn-order, track)
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        int midH = Math.max(toLines.length, otLines.length);</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; midH; i++) {</b>
+<b class="nc">&nbsp;            String toCol = i &lt; toLines.length ? toLines[i] : blankWidth(TO_W);</b>
+<b class="nc">&nbsp;            String otCol = i &lt; otLines.length ? otLines[i] : &quot;&quot;;</b>
+<b class="nc">&nbsp;            System.out.println(toCol + &quot; &quot; + otCol);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        System.out.println();</b>
+&nbsp;
+&nbsp;        // Bottom Row (characters, buildings)
+<b class="nc">&nbsp;        printCardBand(&quot;bottom&quot;, board.bottomRow(), board.bottomBuildings(), indent, cardsWidth);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // CARD BAND
+&nbsp;    // characters, buildings
+&nbsp;    private void printCardBand(String label, List&lt;CardState&gt; chars, List&lt;CardState&gt; buildings, int leftIndent, int areaWidth) {
+<b class="nc">&nbsp;        String pad = &quot; &quot;.repeat(leftIndent);</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;CardState&gt; all = new ArrayList&lt;&gt;(chars); // all = characters + buildings</b>
+<b class="nc">&nbsp;        List&lt;Boolean&gt; isBuilding = new ArrayList&lt;&gt;(Collections.nCopies(chars.size(), false));</b>
+<b class="nc">&nbsp;        all.addAll(buildings);</b>
+<b class="nc">&nbsp;        isBuilding.addAll(Collections.nCopies(buildings.size(), true));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (all.isEmpty()) {</b>
+<b class="nc">&nbsp;            System.out.println(pad + paint(DIM, &quot;[&quot; + label + &quot;: empty]&quot;));</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        System.out.println(pad + paint(DIM, &quot;-- &quot; + label + &quot; --&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        int cardsPerRow = Math.min(</b>
+&nbsp;                MAX_CARDS_PER_ROW,
+<b class="nc">&nbsp;                Math.max(1, (areaWidth + GAP) / (CARD_W + GAP)));</b>
+&nbsp;
+&nbsp;        // Partition into sub-rows
+<b class="nc">&nbsp;        List&lt;List&lt;String[]&gt;&gt; rowGroups = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;String[]&gt; cur = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; all.size(); i++) {</b>
+<b class="nc">&nbsp;            cur.add(buildCardLines(all.get(i), isBuilding.get(i)));</b>
+<b class="nc">&nbsp;            if (cur.size() == cardsPerRow || i == all.size() - 1) {</b>
+<b class="nc">&nbsp;                rowGroups.add(new ArrayList&lt;&gt;(cur));</b>
+<b class="nc">&nbsp;                cur.clear();</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        for (List&lt;String[]&gt; group : rowGroups) {</b>
+<b class="nc">&nbsp;            for (int line = 0; line &lt; group.get(0).length; line++) {</b>
+<b class="nc">&nbsp;                System.out.print(pad);</b>
+<b class="nc">&nbsp;                for (int c = 0; c &lt; group.size(); c++) {</b>
+<b class="nc">&nbsp;                    System.out.print(group.get(c)[line]); // line : 5 righe per ogni card</b>
+<b class="nc">&nbsp;                    if (c &lt; group.size() - 1) System.out.print(&quot; &quot;.repeat(GAP));</b>
+&nbsp;                }
+<b class="nc">&nbsp;                System.out.println();</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    // Card box
+&nbsp;    private String[] buildCardLines(CardState card, boolean isBuilding) {
+<b class="nc">&nbsp;        String type = isBuilding ? &quot;BUILDING&quot; : resolveCharType(card);</b>
+<b class="nc">&nbsp;        String color = cardColor(type);</b>
+<b class="nc">&nbsp;        String info = essentialInfo(card, isBuilding);</b>
+<b class="nc">&nbsp;        String name = resolveDisplayName(card);</b>
+&nbsp;
+<b class="nc">&nbsp;        String[] out = new String[5];</b>
+&nbsp;        //  +------------+
+&nbsp;        //  |id          |
+&nbsp;        //  |type        |
+&nbsp;        //  |info        |
+&nbsp;        //  +------------+
+&nbsp;
+<b class="nc">&nbsp;        out[0] = paint(color, &quot;+&quot; + &quot;-&quot;.repeat(CARD_INNER) + &quot;+&quot;);</b>
+<b class="nc">&nbsp;        out[1] = paint(color, &quot;|&quot;) + padVis(paint(color, truncate(name, CARD_INNER)), CARD_INNER) + paint(color, &quot;|&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        String typeLine = paint(color, type.toUpperCase());</b>
+<b class="nc">&nbsp;        String infoStr = info.isEmpty() ? &quot;&quot; : paint(DIM, info);</b>
+<b class="nc">&nbsp;        out[2] = paint(color, &quot;|&quot;) + padVis(typeLine, CARD_INNER) + paint(color, &quot;|&quot;);</b>
+<b class="nc">&nbsp;        out[3] = paint(color, &quot;|&quot;) + padVis(infoStr, CARD_INNER) + paint(color, &quot;|&quot;);</b>
+<b class="nc">&nbsp;        out[4] = paint(color, &quot;+&quot; + &quot;-&quot;.repeat(CARD_INNER) + &quot;+&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        return out;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ESSENTIAL INFO
+&nbsp;    private String essentialInfo(CardState card, boolean isBuilding) {
+<b class="nc">&nbsp;        if (isBuilding &amp;&amp; card instanceof BuildingCardState b)</b>
+<b class="nc">&nbsp;            return b.getFoodCost() + &quot;f&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (!(card instanceof CharacterCardState cc)) return &quot;&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;        return switch (cc.getCharacterType()) {</b>
+<b class="nc">&nbsp;            case INVENTOR -&gt; cc.getInventionIcon() != null ? cc.getInventionIcon().toString() : &quot;&quot;;</b>
+<b class="nc">&nbsp;            case SHAMAN -&gt; cc.getStars() != null ? cc.getStars() + &quot;*&quot; : &quot;&quot;;</b>
+<b class="nc">&nbsp;            case BUILDER -&gt; cc.getDiscount() != null ? &quot;-&quot; + cc.getDiscount() + &quot;f&quot; : &quot;&quot;;</b>
+<b class="nc">&nbsp;            case HUNTER -&gt; Boolean.TRUE.equals(cc.getHasFoodSymbol()) ? &quot;[o-]&quot; : &quot;&quot;;</b>
+<b class="nc">&nbsp;            default -&gt; &quot;&quot;;</b>
+&nbsp;        };
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // TURN ORDER TILE
+&nbsp;    private String[] buildTurnOrderLines(List&lt;TurnOrderSlotState&gt; slots, Map&lt;String, PlayerState&gt; byId, int numPlayers) {
+<b class="nc">&nbsp;        List&lt;TurnOrderSlotState&gt; ordered = new ArrayList&lt;&gt;(slots);</b>
+<b class="nc">&nbsp;        ordered.sort(Comparator.comparingInt(TurnOrderSlotState::positionIndex));</b>
+&nbsp;
+&nbsp;        // as many slots as the players
+<b class="nc">&nbsp;        while (ordered.size() &gt; numPlayers)</b>
+<b class="nc">&nbsp;            ordered.remove(ordered.size() - 1);</b>
+<b class="nc">&nbsp;        while (ordered.size() &lt; numPlayers)</b>
+<b class="nc">&nbsp;            ordered.add(new TurnOrderSlotState(ordered.size(), 0, null));</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        int height = 2 + numPlayers + 1;  // bordi + players + scritta ORDER</b>
+<b class="nc">&nbsp;        String[] out = new String[height];</b>
+&nbsp;
+<b class="nc">&nbsp;        out[0] = paint(DIM, &quot;+&quot; + &quot;-&quot;.repeat(TO_INNER) + &quot;+&quot;);</b>
+<b class="nc">&nbsp;        out[1] = paint(DIM, &quot;|&quot;) + centerVis(paint(DIM, &quot;ORDER&quot;)) + paint(DIM, &quot;|&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt; numPlayers; i++) {</b>
+<b class="nc">&nbsp;            TurnOrderSlotState s = ordered.get(i);</b>
+<b class="nc">&nbsp;            String pid = s.occupiedByPlayerId();</b>
+&nbsp;            String cell;
+<b class="nc">&nbsp;            if (pid == null) {</b>
+<b class="nc">&nbsp;                cell = paint(DIM, (i + 1) + &quot; ---&quot;);</b>
+&nbsp;            } else {
+&nbsp;
+<b class="nc">&nbsp;                String nick = truncate(nickOf(pid, byId), TO_INNER - 2);</b>
+<b class="nc">&nbsp;                String tc = totemColor(byId.containsKey(pid) ? byId.get(pid).totemColor() : null);</b>
+<b class="nc">&nbsp;                cell = paint(DIM, (i + 1) + &quot; &quot;) + paint(tc, nick);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            out[2 + i] = paint(DIM, &quot;|&quot;) + padVis(cell, TO_INNER) + paint(DIM, &quot;|&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        out[height - 1] = paint(DIM, &quot;+&quot; + &quot;-&quot;.repeat(TO_INNER) + &quot;+&quot;);</b>
+<b class="nc">&nbsp;        return out;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // OFFER TRACK
+&nbsp;    private String[] buildOfferTrackLines(List&lt;OfferTileState&gt; tiles, Map&lt;String, PlayerState&gt; byId) {
+<b class="nc">&nbsp;        List&lt;OfferTileState&gt; sorted = new ArrayList&lt;&gt;(tiles);</b>
+<b class="nc">&nbsp;        sorted.sort(Comparator.comparing(OfferTileState::tileId));</b>
+<b class="nc">&nbsp;        if (sorted.isEmpty()) return new String[]{paint(DIM, &quot;[offer track empty]&quot;)};</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;String[]&gt; tileBoxes = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (OfferTileState t : sorted) {</b>
+<b class="nc">&nbsp;            tileBoxes.add(buildTileBox(t, byId));   // 8 righe</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        String[] out = new String[TILE_LINES];</b>
+<b class="nc">&nbsp;        for (int line = 0; line &lt; TILE_LINES; line++) {</b>
+<b class="nc">&nbsp;            StringBuilder sb = new StringBuilder();</b>
+<b class="nc">&nbsp;            for (String[] box : tileBoxes) {</b>
+<b class="nc">&nbsp;                sb.append(box[line]);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            out[line] = sb.toString();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return out;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String[] buildTileBox(OfferTileState t, Map&lt;String, PlayerState&gt; byId) {
+<b class="nc">&nbsp;        String[] out = new String[TILE_LINES];</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;String&gt; content = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        content.add(padVis(paintBold(BR_WHITE, &quot;   &quot; + t.tileId()), TILE_INNER));</b>
+&nbsp;
+<b class="nc">&nbsp;        content.add(&quot; &quot;.repeat(TILE_INNER));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (t.foodReward() &gt; 0)</b>
+<b class="nc">&nbsp;            content.add(padVis(paint(BR_WHITE, &quot;+&quot; + t.foodReward() + &quot;f&quot;), TILE_INNER));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (t.topDrawCount() &gt; 0 &amp;&amp; t.bottomDrawCount() &gt; 0) {</b>
+<b class="nc">&nbsp;            content.add(padVis(paint(BR_WHITE, &quot;^&quot; + t.topDrawCount() + &quot; v&quot; + t.bottomDrawCount()), TILE_INNER));</b>
+<b class="nc">&nbsp;        } else if (t.topDrawCount() &gt; 0) {</b>
+<b class="nc">&nbsp;            content.add(padVis(paint(BR_WHITE, &quot;^&quot; + t.topDrawCount()), TILE_INNER));</b>
+<b class="nc">&nbsp;        } else if (t.bottomDrawCount() &gt; 0) {</b>
+<b class="nc">&nbsp;            content.add(padVis(paint(BR_WHITE, &quot;v&quot; + t.bottomDrawCount()), TILE_INNER));</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        content.add(&quot; &quot;.repeat(TILE_INNER));</b>
+&nbsp;
+&nbsp;        // occupant player
+<b class="nc">&nbsp;        String pid = t.occupiedByPlayerId();</b>
+&nbsp;        String occ;
+<b class="nc">&nbsp;        if (pid == null) {</b>
+<b class="nc">&nbsp;            occ = paint(DIM, &quot;---&quot;);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            String nick = truncate(nickOf(pid, byId), TILE_INNER - 1);</b>
+<b class="nc">&nbsp;            String tc = totemColor(byId.containsKey(pid) ? byId.get(pid).totemColor() : null);</b>
+<b class="nc">&nbsp;            occ = paint(tc, nick);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        content.add(padVis(occ, TILE_INNER));</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        int contentSlots = TILE_LINES - 2;   // 6</b>
+<b class="nc">&nbsp;        out[0] = paint(DIM, &quot;+&quot; + &quot;-&quot;.repeat(TILE_INNER) + &quot;+&quot;);</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; contentSlots; i++) {</b>
+<b class="nc">&nbsp;            String cell = i &lt; content.size() ? content.get(i) : &quot; &quot;.repeat(TILE_INNER);</b>
+<b class="nc">&nbsp;            out[1 + i] = paint(DIM, &quot;|&quot;) + cell + paint(DIM, &quot;|&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        out[TILE_LINES - 1] = paint(DIM, &quot;+&quot; + &quot;-&quot;.repeat(TILE_INNER) + &quot;+&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        return out;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // STATUS
+&nbsp;    private void printStatus(String statusMessage) {
+<b class="nc">&nbsp;        if (statusMessage == null || statusMessage.isBlank()) return;</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println(paintBold(BR_GREEN, statusMessage));</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // COMMANDS
+&nbsp;    private void printCommands() {
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println(paint(DIM, rule(TERMINAL_W)));</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println(paint(DIM, &quot;place &lt;A-G&gt;  |  take &lt;top|bottom&gt; &lt;idx&gt; &lt;card|building&gt;  |  extra &lt;idx&gt; [building]  |  skip  |  peek  |  state  |  exit &quot;));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // HELPERS
+&nbsp;    private String resolveDisplayName(CardState card) {
+<b class="nc">&nbsp;        if (card instanceof EventCardState) {</b>
+<b class="nc">&nbsp;            String id = card.getCardId();</b>
+<b class="nc">&nbsp;            if (id.startsWith(&quot;ECP&quot;)) return &quot;CAVE PAINT&quot;;</b>
+<b class="nc">&nbsp;            if (id.startsWith(&quot;EHU&quot;)) return &quot;HUNT&quot;;</b>
+<b class="nc">&nbsp;            if (id.startsWith(&quot;ESH&quot;)) return &quot;SHAMANIC&quot;;</b>
+<b class="nc">&nbsp;            if (id.startsWith(&quot;ESU&quot;)) return &quot;SUSTENANCE&quot;;</b>
+<b class="nc">&nbsp;            return &quot;EVENT&quot;;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return card.getCardId();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String resolveCharType(CardState card) {
+<b class="nc">&nbsp;        if (card instanceof CharacterCardState cc) return cc.getCharacterType().toString().toUpperCase();</b>
+<b class="nc">&nbsp;        if (card instanceof EventCardState) return &quot;EVENT&quot;;</b>
+<b class="nc">&nbsp;        if (card instanceof BuildingCardState) return &quot;BUILDING&quot;;</b>
+<b class="nc">&nbsp;        return &quot;UNKNOWN&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // UTILITIES
+&nbsp;    private String padVis(String text, int width) {
+<b class="nc">&nbsp;        int pad = Math.max(0, width - visLen(text));</b>
+<b class="nc">&nbsp;        return text + &quot; &quot;.repeat(pad);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String centerVis(String text) {
+<b class="nc">&nbsp;        int pad = Math.max(0, CLIBoardRenderer.TO_INNER - visLen(text));</b>
+<b class="nc">&nbsp;        int left = pad / 2;</b>
+<b class="nc">&nbsp;        return &quot; &quot;.repeat(left) + text + &quot; &quot;.repeat(pad - left);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private int visLen(String s) {
+<b class="nc">&nbsp;        if (s == null) return 0;</b>
+<b class="nc">&nbsp;        return s.replaceAll(&quot;\u001B\\[[\\d;]*m&quot;, &quot;&quot;).length();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String truncate(String s, int max) {
+<b class="nc">&nbsp;        if (s == null || s.length() &lt;= max) return s == null ? &quot;&quot; : s;</b>
+<b class="nc">&nbsp;        return s.substring(0, max - 2) + &quot;..&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String nickOf(String pid, Map&lt;String, PlayerState&gt; byId) {
+<b class="nc">&nbsp;        if (pid == null) return &quot;free&quot;;</b>
+<b class="nc">&nbsp;        PlayerState p = byId.get(pid);</b>
+<b class="nc">&nbsp;        return p != null ? p.nickname() : pid;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String eraLabel(Object era) {
+<b class="nc">&nbsp;        if (era == null) return &quot;?&quot;;</b>
+<b class="nc">&nbsp;        String s = era.toString().toUpperCase();</b>
+<b class="nc">&nbsp;        if (s.contains(&quot;3&quot;) || s.contains(&quot;III&quot;)) return &quot;III&quot;;</b>
+<b class="nc">&nbsp;        if (s.contains(&quot;2&quot;) || s.contains(&quot;II&quot;)) return &quot;II&quot;;</b>
+<b class="nc">&nbsp;        if (s.contains(&quot;1&quot;) || s.contains(&quot;I&quot;)) return &quot;I&quot;;</b>
+<b class="nc">&nbsp;        return s;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

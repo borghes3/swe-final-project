@@ -1,0 +1,162 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AutoClose</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.api</a>
+</div>
+
+<h1>Coverage Summary for Class: AutoClose (org.junit.jupiter.api)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">AutoClose</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.api;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.MAINTAINED;
+&nbsp;
+&nbsp;import java.lang.annotation.Documented;
+&nbsp;import java.lang.annotation.ElementType;
+&nbsp;import java.lang.annotation.Retention;
+&nbsp;import java.lang.annotation.RetentionPolicy;
+&nbsp;import java.lang.annotation.Target;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;
+&nbsp;/**
+&nbsp; * {@code @AutoClose} is used to indicate that an annotated field will be
+&nbsp; * automatically closed after test execution.
+&nbsp; *
+&nbsp; * &lt;p&gt;{@code @AutoClose} fields may be either {@code static} or non-static. If
+&nbsp; * the value of an {@code @AutoClose} field is {@code null} when it is evaluated
+&nbsp; * the field will be ignored, but a warning message will be logged to inform you.
+&nbsp; *
+&nbsp; * &lt;p&gt;By default, {@code @AutoClose} expects the value of the annotated field to
+&nbsp; * implement a {@code close()} method that will be invoked to close the resource.
+&nbsp; * However, developers can customize the name of the {@code close} method via the
+&nbsp; * {@link #value} attribute. For example, {@code @AutoClose(&quot;shutdown&quot;)} instructs
+&nbsp; * JUnit to look for a {@code shutdown()} method to close the resource.
+&nbsp; *
+&nbsp; * &lt;p&gt;{@code @AutoClose} may be used as a meta-annotation in order to create a
+&nbsp; * custom &lt;em&gt;composed annotation&lt;/em&gt; that inherits the semantics of
+&nbsp; * {@code @AutoClose}.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Inheritance&lt;/h2&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;{@code @AutoClose} fields are inherited from superclasses. Furthermore,
+&nbsp; * {@code @AutoClose} fields from subclasses will be closed before
+&nbsp; * {@code @AutoClose} fields in superclasses.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Evaluation Order&lt;/h2&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;When multiple {@code @AutoClose} fields exist within a given test class,
+&nbsp; * the order in which the resources are closed depends on an algorithm that is
+&nbsp; * deterministic but intentionally nonobvious. This ensures that subsequent runs
+&nbsp; * of a test suite close resources in the same order, thereby allowing for
+&nbsp; * repeatable builds.
+&nbsp; *
+&nbsp; * &lt;h2&gt;Scope and Lifecycle&lt;/h2&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;The extension that closes {@code @AutoClose} fields implements the
+&nbsp; * {@link org.junit.jupiter.api.extension.AfterAllCallback AfterAllCallback} and
+&nbsp; * {@link org.junit.jupiter.api.extension.TestInstancePreDestroyCallback
+&nbsp; * TestInstancePreDestroyCallback} extension APIs. Consequently, a {@code static}
+&nbsp; * {@code @AutoClose} field will be closed after all tests in the current test
+&nbsp; * class have completed, effectively after {@code @AfterAll} methods have executed
+&nbsp; * for the test class. A non-static {@code @AutoClose} field will be closed before
+&nbsp; * the current test class instance is destroyed. Specifically, if the test class
+&nbsp; * is configured with
+&nbsp; * {@link TestInstance.Lifecycle#PER_METHOD @TestInstance(Lifecycle.PER_METHOD)}
+&nbsp; * semantics, a non-static {@code @AutoClose} field will be closed after the
+&nbsp; * execution of each test method, test factory method, or test template method.
+&nbsp; * However, if the test class is configured with
+&nbsp; * {@link TestInstance.Lifecycle#PER_CLASS @TestInstance(Lifecycle.PER_CLASS)}
+&nbsp; * semantics, a non-static {@code @AutoClose} field will not be closed until the
+&nbsp; * current test class instance is no longer needed, which means after
+&nbsp; * {@code @AfterAll} methods and after all {@code static} {@code @AutoClose} fields
+&nbsp; * have been closed.
+&nbsp; *
+&nbsp; * @since 5.11
+&nbsp; */
+&nbsp;@Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD })
+&nbsp;@Retention(RetentionPolicy.RUNTIME)
+&nbsp;@Documented
+&nbsp;@API(status = MAINTAINED, since = &quot;5.13.3&quot;)
+&nbsp;public @interface AutoClose {
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Specify the name of the method to invoke to close the resource.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;The default value is {@code &quot;close&quot;} which works with any type that
+&nbsp;	 * implements {@link AutoCloseable} or has a {@code close()} method.
+&nbsp;	 *
+&nbsp;	 * @return the name of the method to invoke to close the resource
+&nbsp;	 */
+&nbsp;	String value() default &quot;close&quot;;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

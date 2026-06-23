@@ -1,0 +1,327 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ResourceLocksProvider</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.api.parallel</a>
+</div>
+
+<h1>Coverage Summary for Class: ResourceLocksProvider (org.junit.jupiter.api.parallel)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ResourceLocksProvider</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.api.parallel;
+&nbsp;
+&nbsp;import static java.util.Collections.emptySet;
+&nbsp;import static org.apiguardian.api.API.Status.MAINTAINED;
+&nbsp;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.Set;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.commons.util.ToStringBuilder;
+&nbsp;
+&nbsp;/**
+&nbsp; * A {@code ResourceLocksProvider} is used to programmatically add shared resources
+&nbsp; * to a test class or its test methods dynamically at runtime.
+&nbsp; *
+&nbsp; * &lt;p&gt;Each shared resource is represented by an instance of {@link Lock}.
+&nbsp; *
+&nbsp; * &lt;p&gt;Adding shared resources via this API has the same semantics as declaring
+&nbsp; * them declaratively via {@link ResourceLock @ResourceLock(value, mode)}, but for
+&nbsp; * some use cases the programmatic approach may be more flexible and less verbose.
+&nbsp; *
+&nbsp; * &lt;p&gt;Implementations must provide a no-args constructor.
+&nbsp; *
+&nbsp; * @since 5.12
+&nbsp; * @see ResourceLock#providers()
+&nbsp; * @see Resources
+&nbsp; * @see ResourceAccessMode
+&nbsp; * @see Lock
+&nbsp; */
+&nbsp;@API(status = MAINTAINED, since = &quot;5.13.3&quot;)
+&nbsp;public interface ResourceLocksProvider {
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Add shared resources for a test class.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Invoked in case a test class or its parent class is annotated with
+&nbsp;	 * {@code @ResourceLock(providers)}.
+&nbsp;	 *
+&nbsp;	 * @apiNote Adding {@linkplain Lock a shared resource} via this method has
+&nbsp;	 * the same semantics as annotating a test class with an analogous
+&nbsp;	 * {@code @ResourceLock(value, mode)} declaration.
+&nbsp;	 *
+&nbsp;	 * @param testClass a test class for which to add shared resources
+&nbsp;	 * @return a set of {@link Lock}; may be empty
+&nbsp;	 */
+&nbsp;	default Set&lt;Lock&gt; provideForClass(Class&lt;?&gt; testClass) {
+<b class="nc">&nbsp;		return emptySet();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Add shared resources for a
+&nbsp;	 * {@link org.junit.jupiter.api.Nested @Nested} test class.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Invoked in case:
+&nbsp;	 * &lt;ul&gt;
+&nbsp;	 *   &lt;li&gt;an enclosing test class of any level or its parent class is
+&nbsp;	 *   annotated with {@code @ResourceLock(providers = ...)}.&lt;/li&gt;
+&nbsp;	 *   &lt;li&gt;a nested test class or its parent class is annotated with
+&nbsp;	 *   {@code @ResourceLock(providers = ...)}.&lt;/li&gt;
+&nbsp;	 * &lt;/ul&gt;
+&nbsp;	 *
+&nbsp;	 * @apiNote Adding {@linkplain Lock a shared resource} via this method has
+&nbsp;	 * the same semantics as annotating a nested test class with an analogous
+&nbsp;	 * {@code @ResourceLock(value, mode)} declaration.
+&nbsp;	 *
+&nbsp;	 * @implNote The classes supplied as {@code enclosingInstanceTypes} may
+&nbsp;	 * differ from the classes returned from invocations of
+&nbsp;	 * {@link Class#getEnclosingClass()} &amp;mdash; for example, when a nested test
+&nbsp;	 * class is inherited from a superclass.
+&nbsp;	 *
+&nbsp;	 * @param enclosingInstanceTypes the runtime types of the enclosing
+&nbsp;	 * instances for the test class, ordered from outermost to innermost,
+&nbsp;	 * excluding {@code testClass}; never {@code null}
+&nbsp;	 * @param testClass a nested test class for which to add shared resources
+&nbsp;	 * @return a set of {@link Lock}; may be empty
+&nbsp;	 * @see org.junit.jupiter.api.Nested @Nested
+&nbsp;	 */
+&nbsp;	default Set&lt;Lock&gt; provideForNestedClass(List&lt;Class&lt;?&gt;&gt; enclosingInstanceTypes, Class&lt;?&gt; testClass) {
+<b class="nc">&nbsp;		return emptySet();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Add shared resources for a test method.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Invoked in case:
+&nbsp;	 * &lt;ul&gt;
+&nbsp;	 *   &lt;li&gt;an enclosing test class of any level or its parent class is
+&nbsp;	 *   annotated with {@code @ResourceLock(providers)}.&lt;/li&gt;
+&nbsp;	 *   &lt;li&gt;a test method is annotated with {@code @ResourceLock(providers)}.&lt;/li&gt;
+&nbsp;	 * &lt;/ul&gt;
+&nbsp;	 *
+&nbsp;	 * @apiNote Adding {@linkplain Lock a shared resource} with this method
+&nbsp;	 * has the same semantics as annotating a test method
+&nbsp;	 * with analogous {@code @ResourceLock(value, mode)}.
+&nbsp;	 *
+&nbsp;	 * @implNote The classes supplied as {@code enclosingInstanceTypes} may
+&nbsp;	 * differ from the classes returned from invocations of
+&nbsp;	 * {@link Class#getEnclosingClass()} &amp;mdash; for example, when a nested test
+&nbsp;	 * class is inherited from a superclass. Similarly, the class instance
+&nbsp;	 * supplied as {@code testClass} may differ from the class returned by
+&nbsp;	 * {@code testMethod.getDeclaringClass()} &amp;mdash; for example, when a test
+&nbsp;	 * method is inherited from a superclass.
+&nbsp;	 *
+&nbsp;	 * @param enclosingInstanceTypes the runtime types of the enclosing
+&nbsp;	 * instances for the test class, ordered from outermost to innermost,
+&nbsp;	 * excluding {@code testClass}; never {@code null}
+&nbsp;	 * @param testClass the test class or {@link org.junit.jupiter.api.Nested @Nested}
+&nbsp;	 * test class that contains the {@code testMethod}
+&nbsp;	 * @param testMethod a test method for which to add shared resources
+&nbsp;	 * @return a set of {@link Lock}; may be empty
+&nbsp;	 * @see org.junit.jupiter.api.Nested @Nested
+&nbsp;	 */
+&nbsp;	default Set&lt;Lock&gt; provideForMethod(List&lt;Class&lt;?&gt;&gt; enclosingInstanceTypes, Class&lt;?&gt; testClass, Method testMethod) {
+<b class="nc">&nbsp;		return emptySet();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * {@code Lock} represents a shared resource.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;Each resource is identified by a {@linkplain #getKey() key}. In addition,
+&nbsp;	 * the {@linkplain #getAccessMode() access mode} allows one to specify whether
+&nbsp;	 * a test class or test method requires {@link ResourceAccessMode#READ_WRITE
+&nbsp;	 * READ_WRITE} or {@link ResourceAccessMode#READ READ} access to the resource.
+&nbsp;	 *
+&nbsp;	 * @apiNote {@link #getKey()} and {@link #getAccessMode()} have the same
+&nbsp;	 * semantics as {@link ResourceLock#value()} and {@link ResourceLock#mode()}
+&nbsp;	 * respectively.
+&nbsp;	 *
+&nbsp;	 * @since 5.12
+&nbsp;	 * @see Isolated
+&nbsp;	 * @see Resources
+&nbsp;	 * @see ResourceAccessMode
+&nbsp;	 * @see ResourceLock
+&nbsp;	 * @see ResourceLocksProvider
+&nbsp;	 */
+&nbsp;	final class Lock {
+&nbsp;
+&nbsp;		private final String key;
+&nbsp;
+&nbsp;		private final ResourceAccessMode accessMode;
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Create a new {@code Lock} with {@link ResourceAccessMode#READ_WRITE}.
+&nbsp;		 *
+&nbsp;		 * @param key the identifier of the resource; never {@code null} or blank
+&nbsp;		 * @see ResourceLock#value()
+&nbsp;		 */
+&nbsp;		public Lock(String key) {
+&nbsp;			this(key, ResourceAccessMode.READ_WRITE);
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Create a new {@code Lock}.
+&nbsp;		 *
+&nbsp;		 * @param key the identifier of the resource; never {@code null} or blank
+&nbsp;		 * @param accessMode the lock mode to use to synchronize access to the
+&nbsp;		 * resource; never {@code null}
+&nbsp;		 * @see ResourceLock#value()
+&nbsp;		 * @see ResourceLock#mode()
+&nbsp;		 */
+&nbsp;		public Lock(String key, ResourceAccessMode accessMode) {
+&nbsp;			this.key = Preconditions.notBlank(key, &quot;key must not be null or blank&quot;);
+&nbsp;			this.accessMode = Preconditions.notNull(accessMode, &quot;accessMode must not be null&quot;);
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Get the key for this lock.
+&nbsp;		 *
+&nbsp;		 * @see ResourceLock#value()
+&nbsp;		 */
+&nbsp;		public String getKey() {
+&nbsp;			return this.key;
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Get the access mode for this lock.
+&nbsp;		 *
+&nbsp;		 * @see ResourceLock#mode()
+&nbsp;		 */
+&nbsp;		public ResourceAccessMode getAccessMode() {
+&nbsp;			return this.accessMode;
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean equals(Object o) {
+&nbsp;			if (this == o) {
+&nbsp;				return true;
+&nbsp;			}
+&nbsp;			if (o == null || getClass() != o.getClass()) {
+&nbsp;				return false;
+&nbsp;			}
+&nbsp;			Lock that = (Lock) o;
+&nbsp;			return this.key.equals(that.key) &amp;&amp; this.accessMode == that.accessMode;
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public int hashCode() {
+&nbsp;			return Objects.hash(this.key, this.accessMode);
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public String toString() {
+&nbsp;			return new ToStringBuilder(this) //
+&nbsp;					.append(&quot;key&quot;, this.key) //
+&nbsp;					.append(&quot;accessMode&quot;, this.accessMode) //
+&nbsp;					.toString();
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

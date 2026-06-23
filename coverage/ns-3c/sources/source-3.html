@@ -1,0 +1,157 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SuiteMethod</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.internal.runners</a>
+</div>
+
+<h1>Coverage Summary for Class: SuiteMethod (org.junit.internal.runners)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SuiteMethod</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.junit.internal.runners;
+&nbsp;
+&nbsp;import java.lang.reflect.InvocationTargetException;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.lang.reflect.Modifier;
+&nbsp;
+&nbsp;import junit.framework.Test;
+&nbsp;
+&nbsp;/**
+&nbsp; * Runner for use with JUnit 3.8.x-style AllTests classes
+&nbsp; * (those that only implement a static &lt;code&gt;suite()&lt;/code&gt;
+&nbsp; * method). For example:
+&nbsp; * &lt;pre&gt;
+&nbsp; * &amp;#064;RunWith(AllTests.class)
+&nbsp; * public class ProductTests {
+&nbsp; *    public static junit.framework.Test suite() {
+&nbsp; *       ...
+&nbsp; *    }
+&nbsp; * }
+&nbsp; * &lt;/pre&gt;
+&nbsp; */
+&nbsp;public class SuiteMethod extends JUnit38ClassRunner {
+&nbsp;    public SuiteMethod(Class&lt;?&gt; klass) throws Throwable {
+<b class="nc">&nbsp;        super(testFromSuiteMethod(klass));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static Test testFromSuiteMethod(Class&lt;?&gt; klass) throws Throwable {
+<b class="nc">&nbsp;        Method suiteMethod = null;</b>
+<b class="nc">&nbsp;        Test suite = null;</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            suiteMethod = klass.getMethod(&quot;suite&quot;);</b>
+<b class="nc">&nbsp;            if (!Modifier.isStatic(suiteMethod.getModifiers())) {</b>
+<b class="nc">&nbsp;                throw new Exception(klass.getName() + &quot;.suite() must be static&quot;);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            suite = (Test) suiteMethod.invoke(null); // static method</b>
+&nbsp;        } catch (InvocationTargetException e) {
+<b class="nc">&nbsp;            throw e.getCause();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return suite;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

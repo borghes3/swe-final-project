@@ -1,0 +1,180 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > RefillResult</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.model.board</a>
+</div>
+
+<h1>Coverage Summary for Class: RefillResult (it.polimi.ingsw.am23.model.board)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RefillResult</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.model.board;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am23.model.enums.Era;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;/**
+&nbsp; * Outcome of a top row refill performed by {@link
+&nbsp; * CardMarket#refillTopRow}. Reports the freshly added cards and whether the
+&nbsp; * draw triggered an era advance (i.e. a card from a later era surfaced).
+&nbsp; */
+<b class="fc">&nbsp;public class RefillResult {</b>
+&nbsp;
+<b class="fc">&nbsp;    private final List&lt;Card&gt; addedCards = new ArrayList&lt;&gt;();</b>
+&nbsp;    private boolean eraAdvanced;
+&nbsp;    private Era newEra;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return {@code true} if the refill triggered an era advance
+&nbsp;     */
+&nbsp;    public boolean isEraAdvanced() {
+<b class="fc">&nbsp;        return eraAdvanced;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the era to transition into, or {@code null} when no advance was triggered
+&nbsp;     */
+&nbsp;    public Era getNewEra() {
+<b class="fc">&nbsp;        return newEra;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Registers that a card belonging to a later era surfaced during the
+&nbsp;     * refill, requesting an era advance toward {@code era}. The highest
+&nbsp;     * encountered era wins.
+&nbsp;     *
+&nbsp;     * @param era era discovered on a freshly drawn card
+&nbsp;     */
+&nbsp;    public void registerEraAdvance(Era era) {
+<b class="fc">&nbsp;        if (!eraAdvanced || era.ordinal() &gt; newEra.ordinal()) {</b>
+<b class="fc">&nbsp;            eraAdvanced = true;</b>
+<b class="fc">&nbsp;            newEra = era;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Registers a card freshly added to the top row.
+&nbsp;     *
+&nbsp;     * @param card the card added
+&nbsp;     */
+&nbsp;    public void registerAddedCard(Card card) {
+<b class="fc">&nbsp;        addedCards.add(card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return the cards added during the refill, in draw order
+&nbsp;     */
+&nbsp;    public List&lt;Card&gt; getAddedCards() {
+<b class="fc">&nbsp;        return List.copyOf(addedCards);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,312 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > KotlinReflectionUtils</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.platform.commons.util</a>
+</div>
+
+<h1>Coverage Summary for Class: KotlinReflectionUtils (org.junit.platform.commons.util)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">KotlinReflectionUtils</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    39,1%
+  </span>
+  <span class="absValue">
+    (9/23)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    10,5%
+  </span>
+  <span class="absValue">
+    (4/38)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    35,5%
+  </span>
+  <span class="absValue">
+    (22/62)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.platform.commons.util;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;import static org.junit.platform.commons.util.ReflectionUtils.EMPTY_CLASS_ARRAY;
+&nbsp;import static org.junit.platform.commons.util.ReflectionUtils.findMethod;
+&nbsp;import static org.junit.platform.commons.util.ReflectionUtils.isStatic;
+&nbsp;import static org.junit.platform.commons.util.ReflectionUtils.tryToLoadClass;
+&nbsp;
+&nbsp;import java.lang.annotation.Annotation;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;import java.lang.reflect.Parameter;
+&nbsp;import java.lang.reflect.Type;
+&nbsp;import java.util.Arrays;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.jspecify.annotations.Nullable;
+&nbsp;import org.junit.platform.commons.function.Try;
+&nbsp;
+&nbsp;/**
+&nbsp; * Internal Kotlin-specific reflection utilities
+&nbsp; *
+&nbsp; * @since 1.13.3
+&nbsp; */
+&nbsp;@API(status = INTERNAL, since = &quot;1.13.3&quot;)
+&nbsp;public class KotlinReflectionUtils {
+&nbsp;
+&nbsp;	private static final String DEFAULT_IMPLS_CLASS_NAME = &quot;DefaultImpls&quot;;
+&nbsp;
+&nbsp;	private static final @Nullable Class&lt;? extends Annotation&gt; kotlinMetadata;
+&nbsp;	private static final @Nullable Class&lt;? extends Annotation&gt; jvmInline;
+&nbsp;	private static final @Nullable Class&lt;?&gt; kotlinCoroutineContinuation;
+&nbsp;	private static final boolean kotlinReflectPresent;
+&nbsp;	private static final boolean kotlinxCoroutinesPresent;
+&nbsp;
+&nbsp;	static {
+<b class="fc">&nbsp;		var metadata = tryToLoadKotlinMetadataClass();</b>
+<b class="fc">&nbsp;		kotlinMetadata = metadata.toOptional().orElse(null);</b>
+<b class="fc">&nbsp;		jvmInline = tryToLoadJvmInlineClass().toOptional().orElse(null);</b>
+<b class="fc">&nbsp;		kotlinCoroutineContinuation = metadata //</b>
+<b class="fc">&nbsp;				.andThen(__ -&gt; tryToLoadClass(&quot;kotlin.coroutines.Continuation&quot;)) //</b>
+<b class="fc">&nbsp;				.toOptional() //</b>
+<b class="fc">&nbsp;				.orElse(null);</b>
+<b class="fc">&nbsp;		kotlinReflectPresent = metadata.andThen(__ -&gt; tryToLoadClass(&quot;kotlin.reflect.jvm.ReflectJvmMapping&quot;)) //</b>
+<b class="fc">&nbsp;				.toOptional() //</b>
+<b class="fc">&nbsp;				.isPresent();</b>
+<b class="fc">&nbsp;		kotlinxCoroutinesPresent = metadata.andThen(__ -&gt; tryToLoadClass(&quot;kotlinx.coroutines.BuildersKt&quot;)) //</b>
+<b class="fc">&nbsp;				.toOptional() //</b>
+<b class="fc">&nbsp;				.isPresent();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@SuppressWarnings(&quot;unchecked&quot;)
+&nbsp;	private static Try&lt;Class&lt;? extends Annotation&gt;&gt; tryToLoadKotlinMetadataClass() {
+<b class="fc">&nbsp;		return tryToLoadClass(&quot;kotlin.Metadata&quot;) //</b>
+<b class="fc">&nbsp;				.andThenTry(it -&gt; (Class&lt;? extends Annotation&gt;) it);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@SuppressWarnings(&quot;unchecked&quot;)
+&nbsp;	private static Try&lt;Class&lt;? extends Annotation&gt;&gt; tryToLoadJvmInlineClass() {
+<b class="fc">&nbsp;		return tryToLoadClass(&quot;kotlin.jvm.JvmInline&quot;) //</b>
+<b class="fc">&nbsp;				.andThenTry(it -&gt; (Class&lt;? extends Annotation&gt;) it);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @since 6.0
+&nbsp;	 */
+&nbsp;	@API(status = INTERNAL, since = &quot;6.0&quot;)
+&nbsp;	public static boolean isKotlinSuspendingFunction(Method method) {
+<b class="pc">&nbsp;		if (!method.isSynthetic() &amp;&amp; kotlinCoroutineContinuation != null &amp;&amp; isKotlinType(method.getDeclaringClass())) {</b>
+<b class="nc">&nbsp;			int parameterCount = method.getParameterCount();</b>
+<b class="nc">&nbsp;			return parameterCount &gt; 0 //</b>
+<b class="nc">&nbsp;					&amp;&amp; method.getParameterTypes()[parameterCount - 1] == kotlinCoroutineContinuation;</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determines whether the supplied class is a {@code DefaultImpls} class
+&nbsp;	 * generated by the Kotlin compiler.
+&nbsp;	 *
+&nbsp;	 * &lt;p&gt;See
+&nbsp;	 * &lt;a href=&quot;https://kotlinlang.org/docs/interfaces.html#jvm-default-method-generation-for-interface-functions&quot;&gt;Kotlin documentation&lt;/a&gt;
+&nbsp;	 * for details.
+&nbsp;	 */
+&nbsp;	public static boolean isKotlinInterfaceDefaultImplsClass(Class&lt;?&gt; clazz) {
+<b class="pc">&nbsp;		if (!isKotlinType(clazz) || !DEFAULT_IMPLS_CLASS_NAME.equals(clazz.getSimpleName()) || !isStatic(clazz)) {</b>
+<b class="fc">&nbsp;			return false;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Class&lt;?&gt; enclosingClass = clazz.getEnclosingClass();</b>
+<b class="nc">&nbsp;		if (enclosingClass != null &amp;&amp; enclosingClass.isInterface()) {</b>
+<b class="nc">&nbsp;			return Arrays.stream(clazz.getDeclaredMethods()) //</b>
+<b class="nc">&nbsp;					.anyMatch(method -&gt; isCompilerGeneratedDefaultMethod(method, enclosingClass));</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static boolean isCompilerGeneratedDefaultMethod(Method method, Class&lt;?&gt; enclosingClass) {
+<b class="nc">&nbsp;		if (isStatic(method) &amp;&amp; method.getParameterCount() &gt; 0) {</b>
+<b class="nc">&nbsp;			var parameterTypes = method.getParameterTypes();</b>
+<b class="nc">&nbsp;			if (parameterTypes[0] == enclosingClass) {</b>
+<b class="nc">&nbsp;				var originalParameterTypes = copyWithoutFirst(parameterTypes);</b>
+<b class="nc">&nbsp;				return findMethod(enclosingClass, method.getName(), originalParameterTypes).isPresent();</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static Class&lt;?&gt;[] copyWithoutFirst(Class&lt;?&gt;[] values) {
+<b class="nc">&nbsp;		if (values.length == 1) {</b>
+<b class="nc">&nbsp;			return EMPTY_CLASS_ARRAY;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		var result = new Class&lt;?&gt;[values.length - 1];</b>
+<b class="nc">&nbsp;		System.arraycopy(values, 1, result, 0, result.length);</b>
+<b class="nc">&nbsp;		return result;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@API(status = INTERNAL, since = &quot;6.1&quot;)
+&nbsp;	public static boolean isKotlinType(Class&lt;?&gt; clazz) {
+<b class="pc">&nbsp;		return kotlinMetadata != null //</b>
+<b class="nc">&nbsp;				&amp;&amp; clazz.getDeclaredAnnotation(kotlinMetadata) != null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@API(status = INTERNAL, since = &quot;6.1&quot;)
+&nbsp;	public static boolean isKotlinReflectPresent() {
+<b class="nc">&nbsp;		return kotlinReflectPresent;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static Class&lt;?&gt; getKotlinSuspendingFunctionReturnType(Method method) {
+<b class="nc">&nbsp;		requireKotlinReflect(method);</b>
+<b class="nc">&nbsp;		return KotlinFunctionUtils.getReturnType(method);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static Type getKotlinSuspendingFunctionGenericReturnType(Method method) {
+<b class="nc">&nbsp;		requireKotlinReflect(method);</b>
+<b class="nc">&nbsp;		return KotlinFunctionUtils.getGenericReturnType(method);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static Parameter[] getKotlinSuspendingFunctionParameters(Method method) {
+<b class="nc">&nbsp;		requireKotlinReflect(method);</b>
+<b class="nc">&nbsp;		return KotlinFunctionUtils.getParameters(method);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static Class&lt;?&gt;[] getKotlinSuspendingFunctionParameterTypes(Method method) {
+<b class="nc">&nbsp;		requireKotlinReflect(method);</b>
+<b class="nc">&nbsp;		return KotlinFunctionUtils.getParameterTypes(method);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static @Nullable Object invokeKotlinSuspendingFunction(Method method, @Nullable Object target,
+&nbsp;			@Nullable Object[] args) {
+<b class="nc">&nbsp;		requireKotlinReflect(method);</b>
+<b class="nc">&nbsp;		requireKotlinxCoroutines(method);</b>
+<b class="nc">&nbsp;		return KotlinFunctionUtils.invokeKotlinSuspendingFunction(method, target, args);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@API(status = INTERNAL, since = &quot;6.1&quot;)
+&nbsp;	public static boolean isInstanceOfInlineType(@Nullable Object value) {
+<b class="nc">&nbsp;		return jvmInline != null &amp;&amp; value != null &amp;&amp; value.getClass().getDeclaredAnnotation(jvmInline) != null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@API(status = INTERNAL, since = &quot;6.1&quot;)
+&nbsp;	public static @Nullable Object invokeKotlinFunction(Method method, @Nullable Object target,
+&nbsp;			@Nullable Object... args) {
+<b class="nc">&nbsp;		requireKotlinReflect(method);</b>
+<b class="nc">&nbsp;		return KotlinFunctionUtils.invokeKotlinFunction(method, target, args);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void requireKotlinReflect(Method method) {
+<b class="nc">&nbsp;		requireDependency(method, kotlinReflectPresent, &quot;org.jetbrains.kotlin:kotlin-reflect&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void requireKotlinxCoroutines(Method method) {
+<b class="nc">&nbsp;		requireDependency(method, kotlinxCoroutinesPresent, &quot;org.jetbrains.kotlinx:kotlinx-coroutines-core&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void requireDependency(Method method, boolean condition, String dependencyNotation) {
+<b class="nc">&nbsp;		Preconditions.condition(condition,</b>
+<b class="nc">&nbsp;			() -&gt; (&quot;Kotlin suspending function [%s] requires %s to be on the classpath or module path. &quot;</b>
+<b class="nc">&nbsp;					+ &quot;Please add a corresponding dependency.&quot;).formatted(method.toGenericString(),</b>
+&nbsp;						dependencyNotation));
+&nbsp;	}
+&nbsp;
+&nbsp;	private KotlinReflectionUtils() {
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

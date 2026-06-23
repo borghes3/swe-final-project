@@ -1,0 +1,173 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LauncherStoreFacade</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.junit.jupiter.engine.execution</a>
+</div>
+
+<h1>Coverage Summary for Class: LauncherStoreFacade (org.junit.jupiter.engine.execution)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LauncherStoreFacade</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    71,4%
+  </span>
+  <span class="absValue">
+    (5/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (9/12)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright 2015-2026 the original author or authors.
+&nbsp; *
+&nbsp; * All rights reserved. This program and the accompanying materials are
+&nbsp; * made available under the terms of the Eclipse Public License v2.0 which
+&nbsp; * accompanies this distribution and is available at
+&nbsp; *
+&nbsp; * https://www.eclipse.org/legal/epl-v20.html
+&nbsp; */
+&nbsp;
+&nbsp;package org.junit.jupiter.engine.execution;
+&nbsp;
+&nbsp;import static org.apiguardian.api.API.Status.INTERNAL;
+&nbsp;
+&nbsp;import org.apiguardian.api.API;
+&nbsp;import org.junit.jupiter.api.extension.ExtensionContext;
+&nbsp;import org.junit.platform.commons.JUnitException;
+&nbsp;import org.junit.platform.commons.util.Preconditions;
+&nbsp;import org.junit.platform.engine.support.store.Namespace;
+&nbsp;import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
+&nbsp;
+&nbsp;@API(status = INTERNAL, since = &quot;5.14&quot;)
+&nbsp;public class LauncherStoreFacade {
+&nbsp;
+&nbsp;	private final NamespacedHierarchicalStore&lt;Namespace&gt; requestLevelStore;
+&nbsp;	private final NamespacedHierarchicalStore&lt;Namespace&gt; sessionLevelStore;
+&nbsp;
+<b class="fc">&nbsp;	public LauncherStoreFacade(NamespacedHierarchicalStore&lt;Namespace&gt; requestLevelStore) {</b>
+<b class="fc">&nbsp;		this.requestLevelStore = requestLevelStore;</b>
+<b class="fc">&nbsp;		this.sessionLevelStore = requestLevelStore.getParent().orElseThrow(</b>
+<b class="nc">&nbsp;			() -&gt; new JUnitException(&quot;Request-level store must have a parent&quot;));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public NamespacedHierarchicalStore&lt;Namespace&gt; getRequestLevelStore() {
+<b class="fc">&nbsp;		return this.requestLevelStore;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public ExtensionContext.Store getRequestLevelStore(ExtensionContext.Namespace namespace) {
+<b class="nc">&nbsp;		return getStoreAdapter(this.requestLevelStore, namespace);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public ExtensionContext.Store getSessionLevelStore(ExtensionContext.Namespace namespace) {
+<b class="fc">&nbsp;		return getStoreAdapter(this.sessionLevelStore, namespace);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public NamespaceAwareStore getStoreAdapter(NamespacedHierarchicalStore&lt;Namespace&gt; valuesStore,
+&nbsp;			ExtensionContext.Namespace namespace) {
+<b class="fc">&nbsp;		Preconditions.notNull(namespace, &quot;Namespace must not be null&quot;);</b>
+<b class="fc">&nbsp;		return new NamespaceAwareStore(valuesStore, convert(namespace));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private Namespace convert(ExtensionContext.Namespace namespace) {
+<b class="pc">&nbsp;		return namespace.equals(ExtensionContext.Namespace.GLOBAL) //</b>
+<b class="nc">&nbsp;				? Namespace.GLOBAL //</b>
+<b class="fc">&nbsp;				: Namespace.create(namespace.getParts());</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

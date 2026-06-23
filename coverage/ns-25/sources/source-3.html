@@ -1,0 +1,198 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CLIPreLobbyRenderer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am23.view.cli</a>
+</div>
+
+<h1>Coverage Summary for Class: CLIPreLobbyRenderer (it.polimi.ingsw.am23.view.cli)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CLIPreLobbyRenderer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/22)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/39)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am23.view.cli;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am23.model.setup.PlayerConnectionInfo;
+&nbsp;import it.polimi.ingsw.am23.network.LobbyState;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am23.view.cli.CLIColors.*;
+&nbsp;
+<b class="nc">&nbsp;final class CLIPreLobbyRenderer {</b>
+&nbsp;
+&nbsp;    private static final String TITLE_MARKER = &quot;◆&quot;;
+&nbsp;
+&nbsp;    void render(String playerName, String playerId, List&lt;LobbyState&gt; lobbies, String statusMessage, String currentLobbyId) {
+<b class="nc">&nbsp;        printBanner(playerName, playerId, statusMessage);</b>
+<b class="nc">&nbsp;        printLobbyList(lobbies, currentLobbyId);</b>
+<b class="nc">&nbsp;        printCommands();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printBanner(String playerName, String playerId, String statusMessage) {
+<b class="nc">&nbsp;        System.out.println(TITLE_MARKER + &quot; MESOS &quot; + TITLE_MARKER);</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println(&quot;player: &quot; + safe(playerName));</b>
+<b class="nc">&nbsp;        System.out.println(&quot;id: &quot; + safe(playerId));</b>
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        if (statusMessage != null &amp;&amp; !statusMessage.isBlank()) {</b>
+<b class="nc">&nbsp;            System.out.println(paint(BR_GREEN, statusMessage));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        System.out.println();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printLobbyList(List&lt;LobbyState&gt; lobbies, String currentLobbyId) {
+<b class="nc">&nbsp;        System.out.println(rule(80));</b>
+<b class="nc">&nbsp;        System.out.println(&quot;LOBBIES&quot;);</b>
+<b class="nc">&nbsp;        System.out.println(rule(80));</b>
+<b class="nc">&nbsp;        if (lobbies == null || lobbies.isEmpty()) {</b>
+<b class="nc">&nbsp;            System.out.println(&quot;No lobbies available.&quot;);</b>
+<b class="nc">&nbsp;            System.out.println();</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        for (LobbyState lobby : lobbies) {</b>
+<b class="nc">&nbsp;            printLobby(lobby, Objects.equals(lobby.getLobbyId(), currentLobbyId));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        System.out.println();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printLobby(LobbyState lobby, boolean current) {
+<b class="nc">&nbsp;        String nameColor = current ? BR_CYAN : BR_WHITE;  // cyan se current, altrimenti white</b>
+&nbsp;
+<b class="nc">&nbsp;        String occupancy = lobby.isFull() ? paint(BR_RED, &quot;FULL&quot;) : lobby.getCurrentPlayers() + &quot;/&quot; + lobby.getMaxPlayers();</b>
+<b class="nc">&nbsp;        String owner = lobby.getPlayers().stream()</b>
+<b class="nc">&nbsp;                .filter(p -&gt; Objects.equals(p.id(), lobby.getOwnerPlayerId()))</b>
+<b class="nc">&nbsp;                .map(PlayerConnectionInfo::nickname)</b>
+<b class="nc">&nbsp;                .findFirst()</b>
+<b class="nc">&nbsp;                .orElse(safe(lobby.getOwnerPlayerId()));</b>
+<b class="nc">&nbsp;        String title = paint(nameColor, lobby.getLobbyName()) + &quot;  &quot; + paint(nameColor, &quot;[&quot; + lobby.getLobbyId() + &quot;]&quot;);</b>
+<b class="nc">&nbsp;        String players = lobby.getPlayers().isEmpty()</b>
+<b class="nc">&nbsp;                ? &quot;empty&quot;</b>
+<b class="nc">&nbsp;                : lobby.getPlayers().stream().map(PlayerConnectionInfo::nickname).collect(Collectors.joining(&quot;, &quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        System.out.println(&quot;  &quot; + title + &quot;   &quot; + occupancy + &quot;   owner: &quot; + (current ? paint(nameColor, owner) : owner));</b>
+<b class="nc">&nbsp;        System.out.println(&quot;    &quot; + paint(DIM, &quot;players: &quot; + players));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printCommands() {
+<b class="nc">&nbsp;        System.out.println();</b>
+<b class="nc">&nbsp;        System.out.println(paint(DIM, rule(80)));</b>
+<b class="nc">&nbsp;        System.out.println(paint(DIM, &quot;  refresh  |&quot;</b>
+&nbsp;                + &quot;  create &lt;name&gt;  |&quot;
+&nbsp;                + &quot;  join  &lt;code&gt;  |&quot;
+&nbsp;                + &quot;  start  |&quot;
+&nbsp;                + &quot;  quit&quot;));
+<b class="nc">&nbsp;        System.out.println(paint(DIM, rule(80)));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String safe(String value) {
+<b class="nc">&nbsp;        return value == null || value.isBlank() ? &quot;n/a&quot; : value;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>

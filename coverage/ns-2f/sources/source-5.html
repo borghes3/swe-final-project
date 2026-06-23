@@ -1,0 +1,1092 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Control</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">javafx.scene.control</a>
+</div>
+
+<h1>Coverage Summary for Class: Control (javafx.scene.control)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Control</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/35)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/119)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/175)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+&nbsp; * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+&nbsp; *
+&nbsp; * This code is free software; you can redistribute it and/or modify it
+&nbsp; * under the terms of the GNU General Public License version 2 only, as
+&nbsp; * published by the Free Software Foundation.  Oracle designates this
+&nbsp; * particular file as subject to the &quot;Classpath&quot; exception as provided
+&nbsp; * by Oracle in the LICENSE file that accompanied this code.
+&nbsp; *
+&nbsp; * This code is distributed in the hope that it will be useful, but WITHOUT
+&nbsp; * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+&nbsp; * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+&nbsp; * version 2 for more details (a copy is included in the LICENSE file that
+&nbsp; * accompanied this code).
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU General Public License version
+&nbsp; * 2 along with this work; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+&nbsp; *
+&nbsp; * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+&nbsp; * or visit www.oracle.com if you need additional information or have any
+&nbsp; * questions.
+&nbsp; */
+&nbsp;
+&nbsp;package javafx.scene.control;
+&nbsp;
+&nbsp;import java.lang.ref.WeakReference;
+&nbsp;import java.lang.reflect.Constructor;
+&nbsp;import java.lang.reflect.InvocationTargetException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.sun.javafx.scene.control.ControlAcceleratorSupport;
+&nbsp;import javafx.application.Application;
+&nbsp;import javafx.beans.property.ObjectProperty;
+&nbsp;import javafx.beans.property.ObjectPropertyBase;
+&nbsp;import javafx.beans.property.SimpleObjectProperty;
+&nbsp;import javafx.beans.property.StringProperty;
+&nbsp;import javafx.collections.ObservableList;
+&nbsp;import javafx.css.CssParser;
+&nbsp;import javafx.event.EventHandler;
+&nbsp;import javafx.scene.AccessibleAction;
+&nbsp;import javafx.scene.AccessibleAttribute;
+&nbsp;import javafx.scene.Node;
+&nbsp;import javafx.scene.input.ContextMenuEvent;
+&nbsp;import javafx.scene.layout.Region;
+&nbsp;import com.sun.javafx.application.PlatformImpl;
+&nbsp;import javafx.css.CssMetaData;
+&nbsp;import com.sun.javafx.css.StyleManager;
+&nbsp;import com.sun.javafx.scene.NodeHelper;
+&nbsp;import com.sun.javafx.scene.control.ControlHelper;
+&nbsp;import javafx.css.StyleableObjectProperty;
+&nbsp;import javafx.css.StyleableStringProperty;
+&nbsp;import javafx.css.converter.StringConverter;
+&nbsp;import com.sun.javafx.scene.control.Logging;
+&nbsp;import javafx.css.Styleable;
+&nbsp;import javafx.css.StyleableProperty;
+&nbsp;import com.sun.javafx.logging.PlatformLogger;
+&nbsp;import com.sun.javafx.logging.PlatformLogger.Level;
+&nbsp;
+&nbsp;
+&nbsp;/**
+&nbsp; * Base class for all user interface controls. A &quot;Control&quot; is a node in the
+&nbsp; * scene graph which can be manipulated by the user. Controls provide
+&nbsp; * additional variables and behaviors beyond those of Node to support
+&nbsp; * common user interactions in a manner which is consistent and predictable
+&nbsp; * for the user.
+&nbsp; * &lt;p&gt;
+&nbsp; * Additionally, controls support explicit skinning to make it easy to
+&nbsp; * leverage the functionality of a control while customizing its appearance.
+&nbsp; * &lt;p&gt;
+&nbsp; * See specific Control subclasses for information on how to use individual
+&nbsp; * types of controls.
+&nbsp; * &lt;p&gt; Most controls have their focusTraversable property set to true by default, however
+&nbsp; * read-only controls such as {@link Label} and {@link ProgressIndicator}, and some
+&nbsp; * controls that are containers {@link ScrollPane} and {@link ToolBar} do not.
+&nbsp; * Consult individual control documentation for details.
+&nbsp; * @since JavaFX 2.0
+&nbsp; */
+<b class="nc">&nbsp;public abstract class Control extends Region implements Skinnable {</b>
+&nbsp;
+&nbsp;    static {
+<b class="nc">&nbsp;        ControlHelper.setControlAccessor(new ControlHelper.ControlAccessor() {</b>
+&nbsp;            @Override
+&nbsp;            public void doProcessCSS(Node node) {
+&nbsp;                ((Control) node).doProcessCSS();
+&nbsp;            }
+&nbsp;            @Override
+&nbsp;            public StringProperty skinClassNameProperty(Control control) {
+&nbsp;                return control.skinClassNameProperty();
+&nbsp;            }
+&nbsp;        });
+&nbsp;
+&nbsp;        // Ensures that the default application user agent stylesheet is loaded
+<b class="nc">&nbsp;        if (Application.getUserAgentStylesheet() == null) {</b>
+<b class="nc">&nbsp;            PlatformImpl.setDefaultPlatformUserAgentStylesheet();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Utility for loading a class in a manner that will work with multiple
+&nbsp;     * class loaders, as is typically found in OSGI modular applications.
+&nbsp;     * In particular, this method will attempt to just load the class
+&nbsp;     * identified by className. If that fails, it attempts to load the
+&nbsp;     * class using the current thread&#39;s context class loader. If that fails,
+&nbsp;     * it attempts to use the class loader of the supplied &quot;instance&quot;, and
+&nbsp;     * if it still fails it walks up the class hierarchy of the instance
+&nbsp;     * and attempts to use the class loader of each class in the super-type
+&nbsp;     * hierarchy.
+&nbsp;     *
+&nbsp;     * @param className The name of the class we want to load
+&nbsp;     * @param instance An optional instance used to help find the class to load
+&nbsp;     * @return The class. Cannot return null
+&nbsp;     * @throws ClassNotFoundException If the class cannot be found using any technique.
+&nbsp;     */
+&nbsp;    private static Class&lt;?&gt; loadClass(final String className, final Object instance)
+&nbsp;            throws ClassNotFoundException
+&nbsp;    {
+&nbsp;        try {
+&nbsp;            // Try just loading the class
+<b class="nc">&nbsp;            return Class.forName(className, false, Control.class.getClassLoader());</b>
+&nbsp;        } catch (ClassNotFoundException ex) {
+&nbsp;            // RT-17525 : Use context class loader only if Class.forName fails.
+<b class="nc">&nbsp;            if (Thread.currentThread().getContextClassLoader() != null) {</b>
+&nbsp;                try {
+<b class="nc">&nbsp;                    final ClassLoader ccl = Thread.currentThread().getContextClassLoader();</b>
+<b class="nc">&nbsp;                    return Class.forName(className, false, ccl);</b>
+&nbsp;                } catch (ClassNotFoundException ex2) {
+&nbsp;                    // Do nothing, just fall through
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+&nbsp;            // RT-14177: Try looking up the class using the class loader of the
+&nbsp;            //           current class, walking up the list of superclasses
+&nbsp;            //           and checking each of them, before bailing and using
+&nbsp;            //           the context class loader.
+<b class="nc">&nbsp;            if (instance != null) {</b>
+<b class="nc">&nbsp;                Class&lt;?&gt; currentType = instance.getClass();</b>
+<b class="nc">&nbsp;                while (currentType != null) {</b>
+&nbsp;                    try {
+<b class="nc">&nbsp;                        final ClassLoader loader = currentType.getClassLoader();</b>
+<b class="nc">&nbsp;                        return Class.forName(className, false, loader);</b>
+&nbsp;                    } catch (ClassNotFoundException ex2) {
+<b class="nc">&nbsp;                        currentType = currentType.getSuperclass();</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+&nbsp;            // We failed to find the class using any of the above means, so we&#39;re going
+&nbsp;            // to just throw the ClassNotFoundException that we caught earlier
+&nbsp;            throw ex;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Private fields                                                          *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    private List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; styleableProperties;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A private reference directly to the SkinBase instance that is used as the
+&nbsp;     * Skin for this Control. A Control&#39;s Skin doesn&#39;t have to be of type
+&nbsp;     * SkinBase, although 98% of the time or greater it probably will be.
+&nbsp;     * Because instanceof checks and reading a value from a property are
+&nbsp;     * not cheap (on interpreters on slower hardware or mobile devices)
+&nbsp;     * it pays to have a direct reference here to the skinBase. We simply
+&nbsp;     * need to check this variable -- if it is not null then we know the
+&nbsp;     * Skin is a SkinBase and this is a direct reference to it. If it is null
+&nbsp;     * then we know the skin is not a SkinBase and we need to call getSkin().
+&nbsp;     */
+&nbsp;    private SkinBase&lt;?&gt; skinBase;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;    *                                                                         *
+&nbsp;    * Event Handlers / Listeners                                              *
+&nbsp;    *                                                                         *
+&nbsp;    **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Handles context menu requests by popping up the menu.
+&nbsp;     * Note that we use this pattern to remove some of the anonymous inner
+&nbsp;     * classes which we&#39;d otherwise have to create. When lambda expressions
+&nbsp;     * are supported, we could do it that way instead (or use MethodHandles).
+&nbsp;     */
+<b class="nc">&nbsp;    private final static EventHandler&lt;ContextMenuEvent&gt; contextMenuHandler = event -&gt; {</b>
+<b class="nc">&nbsp;        if (event.isConsumed()) return;</b>
+&nbsp;
+&nbsp;        // If a context menu was shown, consume the event to prevent multiple context menus
+<b class="nc">&nbsp;        Object source = event.getSource();</b>
+<b class="nc">&nbsp;        if (source instanceof Control) {</b>
+<b class="nc">&nbsp;            Control c = (Control) source;</b>
+<b class="nc">&nbsp;            if (c.getContextMenu() != null) {</b>
+<b class="nc">&nbsp;                c.getContextMenu().show(c, event.getScreenX(), event.getScreenY());</b>
+<b class="nc">&nbsp;                event.consume();</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Properties                                                              *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    // --- skin
+&nbsp;    /**
+&nbsp;     * Skin is responsible for rendering this {@code Control}. From the
+&nbsp;     * perspective of the {@code Control}, the {@code Skin} is a black box.
+&nbsp;     * It listens and responds to changes in state in a {@code Control}.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * There is a one-to-one relationship between a {@code Control} and its
+&nbsp;     * {@code Skin}. Every {@code Skin} maintains a back reference to the
+&nbsp;     * {@code Control} via the {@link Skin#getSkinnable()} method.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * To ensure a one-to-one relationship between a {@code Control} and its {@code Skin},
+&nbsp;     * skins which were not created for this control are rejected with an
+&nbsp;     * {@code IllegalArgumentException}.
+&nbsp;     * Then, {@link Skin#dispose()} is called on the old skin, disconnecting
+&nbsp;     * it from the corresponding {@code Control}.  And finally, {@link Skin#install()} is invoked
+&nbsp;     * to complete the process.  Only inside of {@link Skin#install()} should {@code Skin} implementations
+&nbsp;     * set/overwrite properties of their {@code Control} (though some operations like adding/removing a listener
+&nbsp;     * can still be done in the {@code Skin} constructor).
+&nbsp;     * &lt;p&gt;
+&nbsp;     * A skin may be null.
+&nbsp;     *
+&nbsp;     * @return the skin property for this control
+&nbsp;     * @throws IllegalArgumentException if {@code (skin != null &amp;&amp; skin.getSkinnable() != this)}
+&nbsp;     */
+<b class="nc">&nbsp;    @Override public final ObjectProperty&lt;Skin&lt;?&gt;&gt; skinProperty() { return skin; }</b>
+&nbsp;    @Override public final void setSkin(Skin&lt;?&gt; value) {
+<b class="nc">&nbsp;        skinProperty().set(value);</b>
+&nbsp;    }
+<b class="nc">&nbsp;    @Override public final Skin&lt;?&gt; getSkin() { return skinProperty().getValue(); }</b>
+<b class="nc">&nbsp;    private ObjectProperty&lt;Skin&lt;?&gt;&gt; skin = new StyleableObjectProperty&lt;&gt;() {</b>
+&nbsp;        // We store a reference to the oldValue so that we can handle
+&nbsp;        // changes in the skin properly in the case of binding. This is
+&nbsp;        // only needed because invalidated() does not currently take
+&nbsp;        // a reference to the old value.
+&nbsp;        private Skin&lt;?&gt; oldValue;
+&nbsp;
+&nbsp;        @Override protected void invalidated() {
+&nbsp;            Skin&lt;?&gt; skin = get();
+&nbsp;            // check whether the skin is for right control
+&nbsp;            if (skin != null) {
+&nbsp;                if (skin.getSkinnable() != Control.this) {
+&nbsp;                    unbind();
+&nbsp;                    set(oldValue);
+&nbsp;                    throw new IllegalArgumentException(&quot;Skin does not correspond to this Control&quot;);
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+&nbsp;            // Collect the name of the currently installed skin class. We do this
+&nbsp;            // so that subsequent updates from CSS to the same skin class will not
+&nbsp;            // result in reinstalling the skin
+&nbsp;            currentSkinClassName = skin == null ? null : skin.getClass().getName();
+&nbsp;
+&nbsp;            // if someone calls setSkin, we need to make it look like they
+&nbsp;            // called set on skinClassName in order to keep CSS from overwriting
+&nbsp;            // the skin.
+&nbsp;            skinClassNameProperty().set(currentSkinClassName);
+&nbsp;
+&nbsp;
+&nbsp;            // Dispose of the old skin
+&nbsp;            if (oldValue != null) oldValue.dispose();
+&nbsp;
+&nbsp;            // Get the new value, and save it off as the new oldValue
+&nbsp;            oldValue = skin;
+&nbsp;
+&nbsp;            // Reset skinBase to null - it will be set to the new Skin if it
+&nbsp;            // is a SkinBase, otherwise it will remain null, as expected
+&nbsp;            skinBase = null;
+&nbsp;
+&nbsp;            // We have two paths, one for &quot;legacy&quot; Skins, and one for
+&nbsp;            // any Skin which extends from SkinBase. Legacy Skins will
+&nbsp;            // produce a single node which will be the only child of
+&nbsp;            // the Control via the getNode() method on the Skin. A
+&nbsp;            // SkinBase will manipulate the children of the Control
+&nbsp;            // directly. Further, we maintain a direct reference to
+&nbsp;            // the skinBase for more optimal updates later.
+&nbsp;            if (skin instanceof SkinBase) {
+&nbsp;                // record a reference of the skin, if it is a SkinBase, for
+&nbsp;                // performance reasons
+&nbsp;                skinBase = (SkinBase&lt;?&gt;) skin;
+&nbsp;                // Note I do not remove any children here, because the
+&nbsp;                // skin will have already configured all the children
+&nbsp;                // by the time setSkin has been called. This is because
+&nbsp;                // our Skin interface was lacking an initialize method (doh!)
+&nbsp;                // and so the Skin constructor is where it adds listeners
+&nbsp;                // and so forth. For SkinBase implementations, the
+&nbsp;                // constructor is also where it will take ownership of
+&nbsp;                // the children.
+&nbsp;            } else {
+&nbsp;                final Node n = getSkinNode();
+&nbsp;                if (n != null) {
+&nbsp;                    getChildren().setAll(n);
+&nbsp;                } else {
+&nbsp;                    getChildren().clear();
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+&nbsp;            // let the new skin modify this control
+&nbsp;            if (skin != null) {
+&nbsp;                skin.install();
+&nbsp;            }
+&nbsp;
+&nbsp;            // clear out the styleable properties so that the list is rebuilt
+&nbsp;            // next time they are requested.
+&nbsp;            styleableProperties = null;
+&nbsp;
+&nbsp;            // calling NodeHelper.reapplyCSS() as the styleable properties may now
+&nbsp;            // be different, as we will now be able to return styleable properties
+&nbsp;            // belonging to the skin. If NodeHelper.reapplyCSS() is not called, the
+&nbsp;            // getCssMetaData() method is never called, so the
+&nbsp;            // skin properties are never exposed.
+&nbsp;            NodeHelper.reapplyCSS(Control.this);
+&nbsp;
+&nbsp;            // DEBUG: Log that we&#39;ve changed the skin
+&nbsp;            final PlatformLogger logger = Logging.getControlsLogger();
+&nbsp;            if (logger.isLoggable(Level.FINEST)) {
+&nbsp;                logger.finest(&quot;Stored skin[&quot; + getValue() + &quot;] on &quot; + this);
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        // This method should be CssMetaData&lt;Control,Skin&gt; getCssMetaData(),
+&nbsp;        // but SKIN is CssMetaData&lt;Control,String&gt;. This does not matter to
+&nbsp;        // the CSS code which doesn&#39;t care about the actual type. Hence,
+&nbsp;        // we&#39;ll suppress the warnings
+&nbsp;        @Override @SuppressWarnings({&quot;unchecked&quot;, &quot;rawtypes&quot;})
+&nbsp;        public CssMetaData getCssMetaData() {
+&nbsp;            return StyleableProperties.SKIN;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public Object getBean() {
+&nbsp;            return Control.this;
+&nbsp;        }
+&nbsp;
+&nbsp;        @Override
+&nbsp;        public String getName() {
+&nbsp;            return &quot;skin&quot;;
+&nbsp;        }
+&nbsp;    };
+&nbsp;
+&nbsp;
+&nbsp;    // --- tooltip
+&nbsp;    /**
+&nbsp;     * The ToolTip for this control.
+&nbsp;     * @return the tool tip for this control
+&nbsp;     */
+&nbsp;    public final ObjectProperty&lt;Tooltip&gt; tooltipProperty() {
+<b class="nc">&nbsp;        if (tooltip == null) {</b>
+<b class="nc">&nbsp;            tooltip = new ObjectPropertyBase&lt;&gt;() {</b>
+&nbsp;                private Tooltip old = null;
+&nbsp;                @Override protected void invalidated() {
+&nbsp;                    Tooltip t = get();
+&nbsp;                    // install / uninstall
+&nbsp;                    if (t != old) {
+&nbsp;                        if (old != null) {
+&nbsp;                            Tooltip.uninstall(Control.this, old);
+&nbsp;                        }
+&nbsp;                        if (t != null) {
+&nbsp;                            Tooltip.install(Control.this, t);
+&nbsp;                        }
+&nbsp;                        old = t;
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Control.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;tooltip&quot;;
+&nbsp;                }
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return tooltip;</b>
+&nbsp;    }
+&nbsp;    private ObjectProperty&lt;Tooltip&gt; tooltip;
+<b class="nc">&nbsp;    public final void setTooltip(Tooltip value) { tooltipProperty().setValue(value); }</b>
+<b class="nc">&nbsp;    public final Tooltip getTooltip() { return tooltip == null ? null : tooltip.getValue(); }</b>
+&nbsp;
+&nbsp;
+&nbsp;    // --- context menu
+&nbsp;    /**
+&nbsp;     * The ContextMenu to show for this control.
+&nbsp;     */
+<b class="nc">&nbsp;    private ObjectProperty&lt;ContextMenu&gt; contextMenu = new SimpleObjectProperty&lt;&gt;(this, &quot;contextMenu&quot;) {</b>
+&nbsp;        private WeakReference&lt;ContextMenu&gt; contextMenuRef;
+&nbsp;
+&nbsp;        @Override protected void invalidated() {
+&nbsp;            ContextMenu oldMenu = contextMenuRef == null ? null : contextMenuRef.get();
+&nbsp;            if (oldMenu != null) {
+&nbsp;                ControlAcceleratorSupport.removeAcceleratorsFromScene(oldMenu.getItems(), Control.this);
+&nbsp;            }
+&nbsp;
+&nbsp;            ContextMenu ctx = get();
+&nbsp;            contextMenuRef = new WeakReference&lt;&gt;(ctx);
+&nbsp;
+&nbsp;            if (ctx != null) {
+&nbsp;                // set this flag so contextmenu show will be relative to parent window not anchor
+&nbsp;                ctx.setShowRelativeToWindow(true); //RT-15160
+&nbsp;
+&nbsp;                // if a context menu is set, we need to install any accelerators
+&nbsp;                // belonging to its menu items ASAP into the scene that this
+&nbsp;                // Control is in (if the control is not in a Scene, we will need
+&nbsp;                // to wait until it is and then do it).
+&nbsp;                ControlAcceleratorSupport.addAcceleratorsIntoScene(ctx.getItems(), Control.this);
+&nbsp;            }
+&nbsp;        }
+&nbsp;    };
+<b class="nc">&nbsp;    public final ObjectProperty&lt;ContextMenu&gt; contextMenuProperty() { return contextMenu; }</b>
+<b class="nc">&nbsp;    public final void setContextMenu(ContextMenu value) { contextMenu.setValue(value); }</b>
+<b class="nc">&nbsp;    public final ContextMenu getContextMenu() { return contextMenu == null ? null : contextMenu.getValue(); }</b>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Constructors                                                            *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    {
+&nbsp;        // To initialize the class helper at the begining each constructor of this class
+<b class="nc">&nbsp;        ControlHelper.initHelper(this);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     *  Create a new Control.
+&nbsp;     */
+<b class="nc">&nbsp;    protected Control() {</b>
+&nbsp;        // focusTraversable is styleable through css. Calling setFocusTraversable
+&nbsp;        // makes it look to css like the user set the value and css will not
+&nbsp;        // override. Initializing focusTraversable by calling applyStyle
+&nbsp;        // with null for StyleOrigin ensures that css will be able to override
+&nbsp;        // the value.
+<b class="nc">&nbsp;        final StyleableProperty&lt;Boolean&gt; prop = (StyleableProperty&lt;Boolean&gt;)focusTraversableProperty();</b>
+<b class="nc">&nbsp;        prop.applyStyle(null, Boolean.TRUE);</b>
+&nbsp;
+&nbsp;        // we add a listener for menu request events to show the context menu
+&nbsp;        // that may be set on the Control
+<b class="nc">&nbsp;        this.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler);</b>
+&nbsp;
+&nbsp;        // TODO re-enable when InputMap moves back to Node / Control
+&nbsp;//        // Most controls need an input map, so we set this to be non-null in
+&nbsp;//        // Control to save people from running into NPEs.
+&nbsp;//        setInputMap(new InputMap(this));
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Public API                                                              *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    // Proposed dispose() API.
+&nbsp;    // Note that there is impl code for a dispose method in TableRowSkinBase
+&nbsp;    // and TableCell (just search for dispose())
+&nbsp;//    public void dispose() {
+&nbsp;//        Skin skin = getSkin();
+&nbsp;//        if (skin != null) {
+&nbsp;//            skin.dispose();
+&nbsp;//        }
+&nbsp;//    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns &lt;code&gt;true&lt;/code&gt; since all Controls are resizable.
+&nbsp;     * @return whether this node can be resized by its parent during layout
+&nbsp;     */
+&nbsp;    @Override public boolean isResizable() {
+<b class="nc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Implementation of the Resizable interface.
+&nbsp;    // Because only the skin can know the min, pref, and max sizes, these
+&nbsp;    // functions are implemented to delegate to skin. If there is no skin then
+&nbsp;    // we simply return 0 for all the values since a Control without a Skin
+&nbsp;    // doesn&#39;t render
+&nbsp;    /**
+&nbsp;     * Computes the minimum allowable width of the Control, based on the provided
+&nbsp;     * height. The minimum width is not calculated within the Control, instead
+&nbsp;     * the calculation is delegated to the {@link Node#minWidth(double)} method
+&nbsp;     * of the {@link Skin}. If the Skin is null, the returned value is 0.
+&nbsp;     *
+&nbsp;     * @param height The height of the Control, in case this value might dictate
+&nbsp;     *      the minimum width.
+&nbsp;     * @return A double representing the minimum width of this control.
+&nbsp;     */
+&nbsp;    @Override protected double computeMinWidth(final double height) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computeMinWidth(height, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.minWidth(height);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Computes the minimum allowable height of the Control, based on the provided
+&nbsp;     * width. The minimum height is not calculated within the Control, instead
+&nbsp;     * the calculation is delegated to the {@link Node#minHeight(double)} method
+&nbsp;     * of the {@link Skin}. If the Skin is null, the returned value is 0.
+&nbsp;     *
+&nbsp;     * @param width The width of the Control, in case this value might dictate
+&nbsp;     *      the minimum height.
+&nbsp;     * @return A double representing the minimum height of this control.
+&nbsp;     */
+&nbsp;    @Override protected double computeMinHeight(final double width) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computeMinHeight(width, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.minHeight(width);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Computes the maximum allowable width of the Control, based on the provided
+&nbsp;     * height. The maximum width is not calculated within the Control, instead
+&nbsp;     * the calculation is delegated to the {@link Node#maxWidth(double)} method
+&nbsp;     * of the {@link Skin}. If the Skin is null, the returned value is 0.
+&nbsp;     *
+&nbsp;     * @param height The height of the Control, in case this value might dictate
+&nbsp;     *      the maximum width.
+&nbsp;     * @return A double representing the maximum width of this control.
+&nbsp;     */
+&nbsp;    @Override protected double computeMaxWidth(double height) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computeMaxWidth(height, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.maxWidth(height);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Computes the maximum allowable height of the Control, based on the provided
+&nbsp;     * width. The maximum height is not calculated within the Control, instead
+&nbsp;     * the calculation is delegated to the {@link Node#maxHeight(double)} method
+&nbsp;     * of the {@link Skin}. If the Skin is null, the returned value is 0.
+&nbsp;     *
+&nbsp;     * @param width The width of the Control, in case this value might dictate
+&nbsp;     *      the maximum height.
+&nbsp;     * @return A double representing the maximum height of this control.
+&nbsp;     */
+&nbsp;    @Override protected double computeMaxHeight(double width) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computeMaxHeight(width, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.maxHeight(width);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override protected double computePrefWidth(double height) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computePrefWidth(height, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.prefWidth(height);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override protected double computePrefHeight(double width) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computePrefHeight(width, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.prefHeight(width);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override public double getBaselineOffset() {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            return skinBase.computeBaselineOffset(snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            final Node skinNode = getSkinNode();</b>
+<b class="nc">&nbsp;            return skinNode == null ? 0 : skinNode.getBaselineOffset();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     * Implementation of layout bounds for the Control. We want to preserve    *
+&nbsp;     * the lazy semantics of layout bounds. So whenever the width/height       *
+&nbsp;     * changes on the node, we end up invalidating layout bounds. We then      *
+&nbsp;     * recompute it on demand.                                                 *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override protected void layoutChildren() {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            final double x = snappedLeftInset();</b>
+<b class="nc">&nbsp;            final double y = snappedTopInset();</b>
+<b class="nc">&nbsp;            final double w = snapSizeX(getWidth()) - x - snappedRightInset();</b>
+<b class="nc">&nbsp;            final double h = snapSizeY(getHeight()) - y - snappedBottomInset();</b>
+<b class="nc">&nbsp;            skinBase.layoutChildren(x, y, w, h);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            Node n = getSkinNode();</b>
+<b class="nc">&nbsp;            if (n != null) {</b>
+<b class="nc">&nbsp;                n.resizeRelocate(0, 0, getWidth(), getHeight());</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     * Forward the following to the skin                                       *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Create a new instance of the default skin for this control. This is called to create a skin for the control if
+&nbsp;     * no skin is provided via CSS {@code -fx-skin} or set explicitly in a sub-class with {@code  setSkin(...)}.
+&nbsp;     *
+&nbsp;     * @return  new instance of default skin for this control. If null then the control will have no skin unless one
+&nbsp;     *          is provided by css.
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    protected Skin&lt;?&gt; createDefaultSkin() {
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Package API for SkinBase                                                *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    // package private for SkinBase
+&nbsp;    ObservableList&lt;Node&gt; getControlChildren() {
+<b class="nc">&nbsp;        return getChildren();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Private implementation                                                  *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the Skin&#39;s node, or returns null if there is no Skin.
+&nbsp;     * Convenience method for getting the node of the skin. This is null-safe,
+&nbsp;     * meaning if skin is null then it will return null instead of throwing
+&nbsp;     * a NullPointerException.
+&nbsp;     *
+&nbsp;     * @return The Skin&#39;s node, or null.
+&nbsp;     */
+&nbsp;    private Node getSkinNode() {
+<b class="nc">&nbsp;        assert skinBase == null;</b>
+<b class="nc">&nbsp;        Skin&lt;?&gt; skin = getSkin();</b>
+<b class="nc">&nbsp;        return skin == null ? null : skin.getNode();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Keeps a reference to the name of the class currently acting as the skin.
+&nbsp;     */
+<b class="nc">&nbsp;    private String currentSkinClassName = null;</b>
+&nbsp;    private StringProperty skinClassName;
+&nbsp;
+&nbsp;    StringProperty skinClassNameProperty() {
+<b class="nc">&nbsp;        if (skinClassName == null) {</b>
+<b class="nc">&nbsp;            skinClassName = new StyleableStringProperty() {</b>
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public void set(String v) {
+&nbsp;                    // do not allow the skin to be set to null through CSS
+&nbsp;                    if (v == null || v.isEmpty() || v.equals(get())) return;
+&nbsp;                    super.set(v);
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public void invalidated() {
+&nbsp;
+&nbsp;                    if (get() != null) {
+&nbsp;                        if (!get().equals(currentSkinClassName)) {
+&nbsp;                            loadSkinClass(Control.this, skinClassName.get());
+&nbsp;                        }
+&nbsp;                        // Note: CSS should not set skin to null
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public Object getBean() {
+&nbsp;                    return Control.this;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public String getName() {
+&nbsp;                    return &quot;skinClassName&quot;;
+&nbsp;                }
+&nbsp;
+&nbsp;                @Override
+&nbsp;                public CssMetaData&lt;Control,String&gt; getCssMetaData() {
+&nbsp;                    return StyleableProperties.SKIN;
+&nbsp;                }
+&nbsp;
+&nbsp;            };
+&nbsp;        }
+<b class="nc">&nbsp;        return skinClassName;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    static void loadSkinClass(final Skinnable control, final String skinClassName) {
+<b class="nc">&nbsp;        if (skinClassName == null || skinClassName.isEmpty()) {</b>
+<b class="nc">&nbsp;            final String msg =</b>
+&nbsp;                &quot;Empty -fx-skin property specified for control &quot; + control;
+<b class="nc">&nbsp;            final List&lt;CssParser.ParseError&gt; errors = StyleManager.getErrors();</b>
+<b class="nc">&nbsp;            if (errors != null) {</b>
+<b class="nc">&nbsp;                CssParser.ParseError error = new CssParser.ParseError(msg);</b>
+<b class="nc">&nbsp;                errors.add(error); // RT-19884</b>
+&nbsp;            }
+<b class="nc">&nbsp;            Logging.getControlsLogger().severe(msg);</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            final Class&lt;?&gt; skinClass = Control.loadClass(skinClassName, control);</b>
+<b class="nc">&nbsp;            if (!Skin.class.isAssignableFrom(skinClass)) {</b>
+<b class="nc">&nbsp;                final String msg =</b>
+&nbsp;                    &quot;&#39;&quot; + skinClassName + &quot;&#39; is not a valid Skin class for control &quot; + control;
+<b class="nc">&nbsp;                final List&lt;CssParser.ParseError&gt; errors = StyleManager.getErrors();</b>
+<b class="nc">&nbsp;                if (errors != null) {</b>
+<b class="nc">&nbsp;                    CssParser.ParseError error = new CssParser.ParseError(msg);</b>
+<b class="nc">&nbsp;                    errors.add(error); // RT-19884</b>
+&nbsp;                }
+<b class="nc">&nbsp;                Logging.getControlsLogger().severe(msg);</b>
+&nbsp;                return;
+&nbsp;            }
+<b class="nc">&nbsp;            Constructor&lt;?&gt;[] constructors = skinClass.getConstructors();</b>
+<b class="nc">&nbsp;            Constructor&lt;?&gt; skinConstructor = null;</b>
+<b class="nc">&nbsp;            for (Constructor&lt;?&gt; c : constructors) {</b>
+<b class="nc">&nbsp;                Class&lt;?&gt;[] parameterTypes = c.getParameterTypes();</b>
+<b class="nc">&nbsp;                if (parameterTypes.length == 1 &amp;&amp; Skinnable.class.isAssignableFrom(parameterTypes[0])) {</b>
+<b class="nc">&nbsp;                    skinConstructor = c;</b>
+&nbsp;                    break;
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            if (skinConstructor == null) {</b>
+<b class="nc">&nbsp;                final String msg =</b>
+&nbsp;                    &quot;No valid constructor defined in &#39;&quot; + skinClassName + &quot;&#39; for control &quot; + control +
+&nbsp;                        &quot;.\r\nYou must provide a constructor that accepts a single &quot;
+&nbsp;                        + &quot;Skinnable (e.g. Control or PopupControl) parameter in &quot; + skinClassName + &quot;.&quot;;
+<b class="nc">&nbsp;                final List&lt;CssParser.ParseError&gt; errors = StyleManager.getErrors();</b>
+<b class="nc">&nbsp;                if (errors != null) {</b>
+<b class="nc">&nbsp;                    CssParser.ParseError error = new CssParser.ParseError(msg);</b>
+<b class="nc">&nbsp;                    errors.add(error); // RT-19884</b>
+&nbsp;                }
+<b class="nc">&nbsp;                Logging.getControlsLogger().severe(msg);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                Skin&lt;?&gt; skinInstance = (Skin&lt;?&gt;) skinConstructor.newInstance(control);</b>
+&nbsp;                // Do not call setSkin here since it has the side effect of
+&nbsp;                // also setting the skinClassName!
+<b class="nc">&nbsp;                control.skinProperty().set(skinInstance);</b>
+&nbsp;            }
+&nbsp;        } catch (InvocationTargetException e) {
+<b class="nc">&nbsp;            final String msg =</b>
+&nbsp;                &quot;Failed to load skin &#39;&quot; + skinClassName + &quot;&#39; for control &quot; + control;
+<b class="nc">&nbsp;            final List&lt;CssParser.ParseError&gt; errors = StyleManager.getErrors();</b>
+<b class="nc">&nbsp;            if (errors != null) {</b>
+<b class="nc">&nbsp;                CssParser.ParseError error = new CssParser.ParseError(msg + &quot; :&quot; + e.getLocalizedMessage());</b>
+<b class="nc">&nbsp;                errors.add(error); // RT-19884</b>
+&nbsp;            }
+<b class="nc">&nbsp;            Logging.getControlsLogger().severe(msg, e.getCause());</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            final String msg =</b>
+&nbsp;                &quot;Failed to load skin &#39;&quot; + skinClassName + &quot;&#39; for control &quot; + control;
+<b class="nc">&nbsp;            final List&lt;CssParser.ParseError&gt; errors = StyleManager.getErrors();</b>
+<b class="nc">&nbsp;            if (errors != null) {</b>
+<b class="nc">&nbsp;                CssParser.ParseError error = new CssParser.ParseError(msg + &quot; :&quot; + e.getLocalizedMessage());</b>
+<b class="nc">&nbsp;                errors.add(error); // RT-19884</b>
+&nbsp;            }
+<b class="nc">&nbsp;            Logging.getControlsLogger().severe(msg, e);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * StyleSheet Handling                                                     *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    private static class StyleableProperties {
+&nbsp;        private static final CssMetaData&lt;Control,String&gt; SKIN =
+&nbsp;            new CssMetaData&lt;&gt;(&quot;-fx-skin&quot;,
+&nbsp;                StringConverter.getInstance()) {
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public boolean isSettable(Control n) {
+&nbsp;                return (n.skin == null || !n.skin.isBound());
+&nbsp;            }
+&nbsp;
+&nbsp;            @Override
+&nbsp;            public StyleableProperty&lt;String&gt; getStyleableProperty(Control n) {
+&nbsp;                return (StyleableProperty&lt;String&gt;)n.skinClassNameProperty();
+&nbsp;            }
+&nbsp;        };
+&nbsp;
+&nbsp;        private static final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; STYLEABLES;
+&nbsp;        static {
+&nbsp;            final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; styleables =
+&nbsp;                new ArrayList&lt;&gt;(Region.getClassCssMetaData());
+&nbsp;            styleables.add(SKIN);
+&nbsp;            STYLEABLES = Collections.unmodifiableList(styleables);
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the {@code CssMetaData} associated with this class, which may include the
+&nbsp;     * {@code CssMetaData} of its superclasses.
+&nbsp;     * @return the {@code CssMetaData}
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    public static List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getClassCssMetaData() {
+<b class="nc">&nbsp;        return StyleableProperties.STYLEABLES;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method returns a {@link List} containing all {@link CssMetaData} for
+&nbsp;     * both this Control (returned from {@link #getControlCssMetaData()} and its
+&nbsp;     * {@link Skin}, assuming the {@link #skinProperty() skin property} is a
+&nbsp;     * {@link SkinBase}.
+&nbsp;     *
+&nbsp;     * &lt;p&gt;Developers who wish to provide custom CssMetaData are therefore
+&nbsp;     * encouraged to override {@link Control#getControlCssMetaData()} or
+&nbsp;     * {@link SkinBase#getCssMetaData()}, depending on where the CssMetaData
+&nbsp;     * resides.
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public final List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getCssMetaData() {
+<b class="nc">&nbsp;        if (styleableProperties == null) {</b>
+&nbsp;
+&nbsp;            // RT-29162: make sure properties only show up once in the list
+<b class="nc">&nbsp;            java.util.Map&lt;String, CssMetaData&lt;? extends Styleable, ?&gt;&gt; map =</b>
+&nbsp;                new java.util.HashMap&lt;&gt;();
+&nbsp;
+<b class="nc">&nbsp;            List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; list =  getControlCssMetaData();</b>
+&nbsp;
+<b class="nc">&nbsp;            for (int n=0, nMax = list != null ? list.size() : 0; n&lt;nMax; n++) {</b>
+&nbsp;
+<b class="nc">&nbsp;                CssMetaData&lt;? extends Styleable, ?&gt; metaData = list.get(n);</b>
+<b class="nc">&nbsp;                if (metaData == null) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;                map.put(metaData.getProperty(), metaData);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            //
+&nbsp;            // if both control and skin base have the same property, use the
+&nbsp;            // one from skin base since it may be a specialization of the
+&nbsp;            // property in the control. For instance, Label has -fx-font and
+&nbsp;            // so does LabeledText which is Label&#39;s skin.
+&nbsp;            //
+<b class="nc">&nbsp;            list =  skinBase != null ? skinBase.getCssMetaData() : null;</b>
+&nbsp;
+<b class="nc">&nbsp;            for (int n=0, nMax = list != null ? list.size() : 0; n&lt;nMax; n++) {</b>
+&nbsp;
+<b class="nc">&nbsp;                CssMetaData&lt;? extends Styleable, ?&gt; metaData = list.get(n);</b>
+<b class="nc">&nbsp;                if (metaData == null) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;                map.put(metaData.getProperty(), metaData);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            styleableProperties = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;            styleableProperties.addAll(map.values());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return styleableProperties;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Gets the unmodifiable list of the control&#39;s CSS-styleable properties.
+&nbsp;     * @return the unmodifiable list of the control&#39;s CSS-styleable properties
+&nbsp;     * @since JavaFX 8.0
+&nbsp;     */
+&nbsp;    protected List&lt;CssMetaData&lt;? extends Styleable, ?&gt;&gt; getControlCssMetaData() {
+<b class="nc">&nbsp;        return getClassCssMetaData();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /*
+&nbsp;     * Note: This method MUST only be called via its accessor method.
+&nbsp;     */
+<b class="nc">&nbsp;    private boolean skinCreationLocked = false;</b>
+&nbsp;    private void doProcessCSS() {
+&nbsp;
+<b class="nc">&nbsp;        ControlHelper.superProcessCSS(this);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (getSkin() == null) {</b>
+<b class="nc">&nbsp;            if (skinCreationLocked) {</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;
+&nbsp;            try {
+<b class="nc">&nbsp;                skinCreationLocked = true;</b>
+&nbsp;
+&nbsp;                // try to create default skin
+<b class="nc">&nbsp;                final Skin&lt;?&gt; defaultSkin = createDefaultSkin();</b>
+<b class="nc">&nbsp;                if (defaultSkin != null) {</b>
+<b class="nc">&nbsp;                    skinProperty().set(defaultSkin);</b>
+<b class="nc">&nbsp;                    ControlHelper.superProcessCSS(this);</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    final String msg = &quot;The -fx-skin property has not been defined in CSS for &quot; + this +</b>
+&nbsp;                            &quot; and createDefaultSkin() returned null.&quot;;
+<b class="nc">&nbsp;                    final List&lt;CssParser.ParseError&gt; errors = StyleManager.getErrors();</b>
+<b class="nc">&nbsp;                    if (errors != null) {</b>
+<b class="nc">&nbsp;                        CssParser.ParseError error = new CssParser.ParseError(msg);</b>
+<b class="nc">&nbsp;                        errors.add(error); // RT-19884</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    Logging.getControlsLogger().severe(msg);</b>
+&nbsp;                }
+&nbsp;            } finally {
+<b class="nc">&nbsp;                skinCreationLocked = false;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns the initial focus traversable state of this control, for use
+&nbsp;     * by the JavaFX CSS engine to correctly set its initial value. By default all
+&nbsp;     * UI controls are focus traversable, so this method is overridden in Control
+&nbsp;     * to set the initial traversable state to true.
+&nbsp;     *
+&nbsp;     * @return the initial focus traversable state of this control
+&nbsp;     * @since 9
+&nbsp;     */
+&nbsp;    @Override protected Boolean getInitialFocusTraversable() {
+<b class="nc">&nbsp;        return Boolean.TRUE;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /* *************************************************************************
+&nbsp;     *                                                                         *
+&nbsp;     * Accessibility handling                                                  *
+&nbsp;     *                                                                         *
+&nbsp;     **************************************************************************/
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override
+&nbsp;    public Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters) {
+<b class="nc">&nbsp;        switch (attribute) {</b>
+&nbsp;            case HELP:
+<b class="nc">&nbsp;                String help = getAccessibleHelp();</b>
+<b class="nc">&nbsp;                if (help != null &amp;&amp; !help.isEmpty()) return help;</b>
+<b class="nc">&nbsp;                Tooltip tooltip = getTooltip();</b>
+<b class="nc">&nbsp;                return tooltip == null ? &quot;&quot; : tooltip.getText();</b>
+&nbsp;            default:
+&nbsp;        }
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            Object result = skinBase.queryAccessibleAttribute(attribute, parameters);</b>
+<b class="nc">&nbsp;            if (result != null) return result;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return super.queryAccessibleAttribute(attribute, parameters);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /** {@inheritDoc} */
+&nbsp;    @Override
+&nbsp;    public void executeAccessibleAction(AccessibleAction action, Object... parameters) {
+<b class="nc">&nbsp;        if (skinBase != null) {</b>
+<b class="nc">&nbsp;            skinBase.executeAccessibleAction(action, parameters);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        super.executeAccessibleAction(action, parameters);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-23 09:15</div>
+</div>
+</body>
+</html>
